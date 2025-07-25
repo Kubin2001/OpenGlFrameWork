@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <vector>
 #include "GlobalVariables.h"
+#include "Renderer.h"
 
 struct Point
 {
@@ -88,7 +89,7 @@ struct MapPos {
 
 double CalculateEuclidean(int x1, int x2, int y1, int y2);
 
-Point GetRectangleCenter(const SDL_Rect rect);
+Point GetRectangleCenter(const MT::Rect rect);
 
 unsigned int RectanglePointDistance(const SDL_Rect rect, const Point point);
 

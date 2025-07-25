@@ -13,7 +13,7 @@ struct Pixel {
 	unsigned char A;
 };
 
-Font::Font(const std::string& name, SDL_Texture* texture, const std::string& jsonPath) {
+Font::Font(const std::string& name, MT::Texture* texture, const std::string& jsonPath) {
 	this->name = name;
 	this->texture = texture;
 	LoadTextInfo(jsonPath);
@@ -22,19 +22,6 @@ Font::Font(const std::string& name, SDL_Texture* texture, const std::string& jso
 
 std::string Font::GetName() {
 	return name;
-}
-
-SDL_Texture* Font::GetTexture() {
-	return texture;
-}
-
-
-void Font::SetTexture(SDL_Texture* temptex) {
-	texture = temptex;
-}
-
-SDL_Rect* Font::GetRectangle() {
-	return &rectangle;
 }
 
 // Loads json file (can be created with most of font generator websides you can change max vector size to accept ASCI over 200)
@@ -77,7 +64,7 @@ bool Font::LoadTextInfo(const std::string& jsonPath) {
 
 
 // Basic text rendering with possition in left up corner of the button
-void Font::RenderText(SDL_Renderer* renderer, const std::string &text, SDL_Rect &btnRect, float scale, int interline, int textStartX, int textStartY) {
+void Font::RenderText(MT::Renderer* renderer, const std::string &text, MT::Rect &btnRect, float scale, int interline, int textStartX, int textStartY) {
 	rectangle.x = btnRect.x + textStartX;
 	rectangle.y = btnRect.y + textStartY;
 	rectangle.w = 0;
@@ -89,7 +76,7 @@ void Font::RenderText(SDL_Renderer* renderer, const std::string &text, SDL_Rect 
 			if (text[i] != '\n') {
 				rectangle.w = sourceRectangles[text[i]].w * scale;
 				rectangle.h = sourceRectangles[text[i]].h * scale;
-				SDL_RenderCopy(renderer, texture, &sourceRectangles[text[i]], &rectangle);
+				renderer->RenderCopyPart(rectangle, sourceRectangles[text[i]],*texture);
 				rectangle.x += (sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else
@@ -101,7 +88,7 @@ void Font::RenderText(SDL_Renderer* renderer, const std::string &text, SDL_Rect 
 	}
 }
 
-void Font::RenderTextCenter(SDL_Renderer* renderer, const std::string& text, SDL_Rect &btnRect, float scale, int interline, int textStartX, int textStartY) {
+void Font::RenderTextCenter(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect, float scale, int interline, int textStartX, int textStartY) {
 	Point textSizes = CalculatePredefinedSize(text,interline);
 
 	textSizes.x *= 0.5;
@@ -120,7 +107,7 @@ void Font::RenderTextCenter(SDL_Renderer* renderer, const std::string& text, SDL
 			if (text[i] != '\n') {
 				rectangle.w = sourceRectangles[text[i]].w * scale;
 				rectangle.h = sourceRectangles[text[i]].h * scale;
-				SDL_RenderCopy(renderer, texture, &sourceRectangles[text[i]], &rectangle);
+				renderer->RenderCopyPart(rectangle, sourceRectangles[text[i]], *texture);
 				rectangle.x += (sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else
@@ -133,7 +120,7 @@ void Font::RenderTextCenter(SDL_Renderer* renderer, const std::string& text, SDL
 }
 
 
-void Font::RenderTextFromRight(SDL_Renderer* renderer, const std::string& text, SDL_Rect& btnRect, float scale, int interline, int textStartX, int textStartY) {
+void Font::RenderTextFromRight(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, float scale, int interline, int textStartX, int textStartY) {
 	if (text.empty()) {
 		return;
 	}
@@ -151,7 +138,7 @@ void Font::RenderTextFromRight(SDL_Renderer* renderer, const std::string& text, 
 				rectangle.h = sourceRectangles[text[i]].h * scale;
 
 				rectangle.x -= rectangle.w + 1; 
-				SDL_RenderCopy(renderer, texture, &sourceRectangles[text[i]], &rectangle);
+				renderer->RenderCopyPart(rectangle, sourceRectangles[text[i]], *texture);
 			}
 			else {
 				rectangle.y += interline * scale;
@@ -163,7 +150,7 @@ void Font::RenderTextFromRight(SDL_Renderer* renderer, const std::string& text, 
 
 
 //Only use if button text is static and will not change between frames
-void Font::RenderTextCenterPred(SDL_Renderer* renderer, const std::string& text, SDL_Rect& btnRect, Point& textSizes, float scale, int interline, int textStartX, int textStartY) {
+void Font::RenderTextCenterPred(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, Point& textSizes, float scale, int interline, int textStartX, int textStartY) {
 	textSizes.x *= 0.5;
 	textSizes.y *= 0.5;
 	Point center = GetRectangleCenter(btnRect);
@@ -180,7 +167,7 @@ void Font::RenderTextCenterPred(SDL_Renderer* renderer, const std::string& text,
 			if (text[i] != '\n') {
 				rectangle.w = sourceRectangles[text[i]].w * scale;
 				rectangle.h = sourceRectangles[text[i]].h * scale;
-				SDL_RenderCopy(renderer, texture, &sourceRectangles[text[i]], &rectangle);
+				renderer->RenderCopyPart(rectangle, sourceRectangles[text[i]], *texture);
 				rectangle.x += (sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else
@@ -230,7 +217,7 @@ void Font::SetStandardInterline(int temp) {
 FontManager::FontManager() {
 }
 
-bool FontManager::CreateFont(const std::string& name, SDL_Texture* texture, const std::string& jsonPath) {
+bool FontManager::CreateFont(const std::string& name, MT::Texture* texture, const std::string& jsonPath) {
 	if (fonts.size() > 0) {
 		for (auto& it : fonts) {
 			if (it->GetName() == name) {

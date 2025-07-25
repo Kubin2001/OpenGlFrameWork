@@ -36,12 +36,18 @@ void Game::Start() {
 	SoundMan::Innit();
 	SoundMan::LoadSounds("Sounds");
 
-	//ui = std::make_unique<UI>(renderer);
+	ui = std::make_unique<UI>(renderer);
 
-	//ui->CreateFont("arial40px", TexMan::GetTex("arial40px"), "Textures/Interface/Fonts/arial40px.json");
-	//ui->CreateFont("arial20px", TexMan::GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
-	//ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
+	ui->CreateFont("arial40px", TexMan::GetTex("arial40px"), "Textures/Interface/Fonts/arial40px.json");
+	ui->CreateFont("arial20px", TexMan::GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
+	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
 
+
+	ui->CreateButton("test", 200, 200, 100, 100, TexMan::GetTex("FeFolderIcon"), ui->GetFont("arial20px"),
+		"testowy Tekst", 1.0f);
+
+	Button* btn = ui->CreateButton("test2", 400, 400, 100, 100, nullptr, ui->GetFont("arial20px"),"text");
+	btn->SetColor(30, 30, 30);
 
 	int x = 10;
 	int y = 10;
@@ -84,11 +90,13 @@ void Game::Input() {
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
 
-	//ui->Render();
+
 
 	for (auto& it : vec) {
 		renderer->RenderCopy(it, *TexMan::GetTex("FeFolderIcon"));
 	}
+
+	ui->Render();
 
 	renderer->RenderPresent();
 	SDL_GL_SwapWindow(window);

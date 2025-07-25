@@ -6,6 +6,8 @@
 #include <iostream>
 #include <SDL.h>
 #include <SDL_image.h>
+#include "GlobalVariables.h"
+
 SDL_Surface* FlipSurfaceVertical(SDL_Surface* surface) {
     SDL_Surface* flipped = SDL_CreateRGBSurfaceWithFormat(0, surface->w, surface->h,
         surface->format->BitsPerPixel,
@@ -119,6 +121,7 @@ glm::vec2 RotateAndTranslate2D(float localX, float localY, const glm::vec2& cent
 bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
 
     SDL_GL_GetDrawableSize(window, &W, &H);
+
     this->context = context;
     // Deklaracja zmiennych dla Vertex Array Object (VAO) i Vertex Buffer Object (VBO)
     // Generowanie VAO (Vertex Array Object) - obiekt przechowujący konfigurację atrybutów wierzchołków

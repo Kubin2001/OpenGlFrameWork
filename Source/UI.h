@@ -8,11 +8,11 @@
 #include "TextureManager.h"
 #include "unordered_map"
 #include "SoundManager.h"
+#include "Renderer.h"
+#include "Basics.h"
 
-class TemplateUIElement {
+class TemplateUIElement : public GameObject{
 protected:
-	SDL_Texture* texture = nullptr;
-	SDL_Rect rectangle = {0,0,0,0};
 	std::string name = "";
 	std::string text = "";
 	float textScale = 1.0f;
@@ -54,12 +54,6 @@ protected:
 
 public:
 
-	SDL_Texture* GetTexture();
-
-	void SetTexture(SDL_Texture* temp);
-
-	SDL_Rect* GetRectangle();
-
 	std::string& GetName();
 
 	void SetName(const std::string value);
@@ -96,13 +90,13 @@ public:
 
 	void SetFontColor(const unsigned char R, const unsigned char G, const unsigned char B);
 
-	void Render(SDL_Renderer *renderer);
+	void Render(MT::Renderer* renderer);
 
-	void RenderItslelf(SDL_Renderer* renderer);
+	void RenderItslelf(MT::Renderer* renderer);
 
-	void RenderBorder(SDL_Renderer* renderer);
+	void RenderBorder(MT::Renderer* renderer);
 
-	void RenderText(SDL_Renderer* renderer);
+	void RenderText(MT::Renderer* renderer);
 
 	void SetRenderTextType(const unsigned short textRenderType);
 
@@ -210,7 +204,7 @@ class ClickBoxList {
 // To propelly start the UI you need to pleace manage input function in event loop and render in rendering loop
 class UI{
 private:
-	SDL_Renderer* renderer;
+	MT::Renderer* renderer;
 	LocalTexMan* localTexMan = nullptr;
 
 	std::vector<Button*> Buttons;
@@ -229,15 +223,15 @@ private:
 
 public:
 
-	UI(SDL_Renderer* renderer);
+	UI(MT::Renderer* renderer);
 
-	Button* CreateButton(std::string name, int x, int y, int w, int h, SDL_Texture* texture, Font* font = nullptr,
+	Button* CreateButton(std::string name, int x, int y, int w, int h, MT::Texture* texture, Font* font = nullptr,
 		std::string text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
 
-	TextBox* CreateTextBox(std::string name, int x, int y, int w, int h, SDL_Texture* texture, Font* font = nullptr,
+	TextBox* CreateTextBox(std::string name, int x, int y, int w, int h, MT::Texture* texture, Font* font = nullptr,
 		std::string text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
 
-	ClickBox* CreateClickBox(std::string name, int x, int y, int w, int h, SDL_Texture* texture, Font* font = nullptr,
+	ClickBox* CreateClickBox(std::string name, int x, int y, int w, int h, MT::Texture* texture, Font* font = nullptr,
 		std::string text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
 
 	void AddListRef(ClickBoxList *ref);
@@ -280,7 +274,7 @@ public:
 	std::vector<ClickBox*>& GetClickBoxes();
 
 	// You need to provide not name (made up by you) texture (needs to be already loaded by texture manager) path to pregenerated json file
-	void CreateFont(const std::string& name, SDL_Texture* texture, const std::string& jsonPath);
+	void CreateFont(const std::string& name, MT::Texture* texture, const std::string& jsonPath);
 
 	Font* GetFont(const std::string& name);
 

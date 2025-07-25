@@ -3,39 +3,32 @@
 #include <SDL.h>
 #include <vector>
 #include "Addons.h"
+#include "Basics.h"
 
 
-class Font {
+class Font : public GameObject{
 private:
 	std::string name;
-	SDL_Texture* texture = nullptr;
-	SDL_Rect rectangle{ 0,0,0,0 };
-	std::vector<SDL_Rect> sourceRectangles;
+	std::vector<MT::Rect> sourceRectangles;
 	int standardInterLine = 0;
 public:
-	Font(const std::string& name, SDL_Texture* texture, const std::string& jsonPath);
+	Font(const std::string& name, MT::Texture* texture, const std::string& jsonPath);
 
 	std::string GetName();
-
-	SDL_Rect* GetRectangle();
-
-	SDL_Texture* GetTexture();
 
 	int GetStandardInterline();
 
 	void SetStandardInterline(int temp);
 
-	void SetTexture(SDL_Texture* temptex);
-
 	bool LoadTextInfo(const std::string& jsonPath);
 
-	void RenderText(SDL_Renderer* renderer, const std::string& text, SDL_Rect &btnRect, float scale = 1.0, int interline = 20, int textStartX = 0, int textStartY = 0);
+	void RenderText(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, float scale = 1.0, int interline = 20, int textStartX = 0, int textStartY = 0);
 
-	void RenderTextCenter(SDL_Renderer* renderer, const std::string& text, SDL_Rect &btnRect, float scale = 1.0, int interline = 20, int textStartX = 0, int textStartY = 0);
+	void RenderTextCenter(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect, float scale = 1.0, int interline = 20, int textStartX = 0, int textStartY = 0);
 
-	void RenderTextFromRight(SDL_Renderer* renderer, const std::string& text, SDL_Rect& btnRect, float scale = 1.0, int interline = 20, int textStartX = 0, int textStartY = 0);
+	void RenderTextFromRight(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect, float scale = 1.0, int interline = 20, int textStartX = 0, int textStartY = 0);
 
-	void RenderTextCenterPred(SDL_Renderer* renderer, const std::string& text, SDL_Rect& btnRect,Point &textSizes, float scale = 1.0, int interline = 20, int textStartX = 0, int textStartY = 0);
+	void RenderTextCenterPred(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect,Point &textSizes, float scale = 1.0, int interline = 20, int textStartX = 0, int textStartY = 0);
 
 	Point CalculatePredefinedSize(const std::string &fontText, int interline);
 };
@@ -48,7 +41,7 @@ public:
 
 	FontManager();
 
-	bool CreateFont(const std::string& name, SDL_Texture* texture, const std::string& jsonPath);
+	bool CreateFont(const std::string& name, MT::Texture* texture, const std::string& jsonPath);
 
 	Font* GetFont(const std::string& name);
 

@@ -3,7 +3,7 @@
 #include "Colision.h"
 #include "Addons.h"
 
-int Collision(const SDL_Rect rect, const SDL_Rect rect2) {
+int Collision(const MT::Rect& rect, const MT::Rect& rect2) {
 
 	int width = rect.w;
 	int height = rect.h;
@@ -40,7 +40,7 @@ int Collision(const SDL_Rect rect, const SDL_Rect rect2) {
 	return 0;
 }
 
-bool SimpleCollision(const SDL_Rect rect, const SDL_Rect rect2) {
+bool SimpleCollision(const MT::Rect& rect, const MT::Rect& rect2) {
 
 	int width = rect.w;
 	int height = rect.h;
@@ -57,7 +57,7 @@ bool SimpleCollision(const SDL_Rect rect, const SDL_Rect rect2) {
 	return 0;
 }
 
-int AdvancedCollision(const SDL_Rect rect, const SDL_Rect rect2, const int deepth) {
+int AdvancedCollision(const MT::Rect &rect, const MT::Rect& rect2, const int deepth) {
 
 	int width = rect.w;
 	int height = rect.h;

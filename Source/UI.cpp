@@ -10,19 +10,6 @@
 
 //BUTTON
 
-
-SDL_Texture* TemplateUIElement::GetTexture() {
-	return texture;
-}
-
-void TemplateUIElement::SetTexture(SDL_Texture* temp) {
-	texture = temp;
-}
-
-SDL_Rect* TemplateUIElement::GetRectangle() {
-	return &rectangle;
-}
-
 std::string& TemplateUIElement::GetName() {
 	return name;
 }
@@ -132,22 +119,17 @@ void TemplateUIElement::SetFontColor(const unsigned char R, const unsigned char 
 	}
 }
 
-void TemplateUIElement::Render(SDL_Renderer* renderer) {
+void TemplateUIElement::Render(MT::Renderer* renderer) {
 	if (!hidden) {
 		if (GetTexture() == nullptr) {
 			RenderItslelf(renderer);
 		}
 		else {
-			SDL_RenderCopy(renderer, GetTexture(), NULL, GetRectangle());
+			renderer->RenderCopy(GetRectangle(), *GetTexture());
 		}
 
 		if (hovered && hoverable) {
-			SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-			SDL_SetRenderDrawColor(renderer, hooverFilter[0], hooverFilter[1], hooverFilter[2], hooverFilter[3]);
-			SDL_RenderFillRect(renderer, &rectangle);
-
-			SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
-			SDL_SetRenderDrawColor(renderer, Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2], 255);
+			renderer->RenderRect(rectangle, { hooverFilter[0], hooverFilter[1], hooverFilter[2] });
 		}
 
 
@@ -159,53 +141,41 @@ void TemplateUIElement::Render(SDL_Renderer* renderer) {
 	}
 }
 
-void TemplateUIElement::RenderItslelf(SDL_Renderer* renderer) {
+void TemplateUIElement::RenderItslelf(MT::Renderer* renderer) {
 	if (!buttonTransparent) {
 		if (hovered && hoverable) {
 
-			SDL_SetRenderDrawColor(renderer, buttonColor[0], buttonColor[1], buttonColor[2], 255);
+			renderer->RenderRect(rectangle, { hooverFilter[0], hooverFilter[1], hooverFilter[2] });
 
-			SDL_RenderFillRect(renderer, &rectangle);
-
-			SDL_SetRenderDrawColor(renderer, Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2], 255);
-
-			SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-			SDL_SetRenderDrawColor(renderer, hooverFilter[0], hooverFilter[1], hooverFilter[2], hooverFilter[3]);
-			SDL_RenderFillRect(renderer, &rectangle);
-			SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+			//SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+			//SDL_SetRenderDrawColor(renderer, hooverFilter[0], hooverFilter[1], hooverFilter[2], hooverFilter[3]);
+			//SDL_RenderFillRect(renderer, &rectangle);
+			//SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 		}
 		else
 		{
-			SDL_SetRenderDrawColor(renderer, buttonColor[0], buttonColor[1], buttonColor[2], 255);
-
-			SDL_RenderFillRect(renderer, &rectangle);
-
-			SDL_SetRenderDrawColor(renderer, Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2], 255);
+			renderer->RenderRect(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2]});
 		}
 
 	}
 }
 
-void TemplateUIElement::RenderBorder(SDL_Renderer* renderer) {
-	SDL_Rect leftLine{ rectangle.x, rectangle.y, borderThickness, rectangle.h };
-	SDL_Rect upperLine{ rectangle.x, rectangle.y, rectangle.w, borderThickness };
-	SDL_Rect rightLine{ (rectangle.x + rectangle.w - borderThickness), rectangle.y, borderThickness, rectangle.h };
-	SDL_Rect downLine{ rectangle.x, (rectangle.y + rectangle.h - borderThickness), rectangle.w, borderThickness };
+void TemplateUIElement::RenderBorder(MT::Renderer* renderer) {
+	MT::Rect leftLine{ rectangle.x, rectangle.y, borderThickness, rectangle.h };
+	MT::Rect upperLine{ rectangle.x, rectangle.y, rectangle.w, borderThickness };
+	MT::Rect rightLine{ (rectangle.x + rectangle.w - borderThickness), rectangle.y, borderThickness, rectangle.h };
+	MT::Rect downLine{ rectangle.x, (rectangle.y + rectangle.h - borderThickness), rectangle.w, borderThickness };
 
-	SDL_SetRenderDrawColor(renderer, borderRGB[0], borderRGB[1], borderRGB[2], 255);
-
-	SDL_RenderFillRect(renderer, &leftLine);
-	SDL_RenderFillRect(renderer, &upperLine);
-	SDL_RenderFillRect(renderer, &rightLine);
-	SDL_RenderFillRect(renderer, &downLine);
-
-	SDL_SetRenderDrawColor(renderer, Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2], 255);
+	renderer->RenderRect(leftLine, { borderRGB[0], borderRGB[1], borderRGB[2] });
+	renderer->RenderRect(upperLine, { borderRGB[0], borderRGB[1], borderRGB[2] });
+	renderer->RenderRect(rightLine, { borderRGB[0], borderRGB[1], borderRGB[2] });
+	renderer->RenderRect(downLine, { borderRGB[0], borderRGB[1], borderRGB[2] });
 }
 
-void TemplateUIElement::RenderText(SDL_Renderer* renderer) {
+void TemplateUIElement::RenderText(MT::Renderer* renderer) {
 	if (font != nullptr) {
-		SDL_SetTextureColorMod(font->GetTexture(), 255, 255, 255); // Reset anyway no matter the color
-		SDL_SetTextureColorMod(font->GetTexture(), fontRGB[0], fontRGB[1], fontRGB[2]);
+		//SDL_SetTextureColorMod(font->GetTexture(), 255, 255, 255); // Reset anyway no matter the color
+		//SDL_SetTextureColorMod(font->GetTexture(), fontRGB[0], fontRGB[1], fontRGB[2]);
 		switch (textRenderType) {
 			case 1:
 				font->RenderText(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
@@ -270,11 +240,11 @@ std::string& TemplateUIElement::GetHooverSound() {
 //MassageBox
 void TextBox::CheckInteraction(SDL_Event& event) {
 	if (event.button.button == SDL_BUTTON_LEFT) {
-		SDL_Rect temprect{ event.button.x ,event.button.y,1,1 };
-		if (SimpleCollision(*GetRectangle(), temprect)) {
+		MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
+		if (SimpleCollision(GetRectangle(), temprect)) {
 			turnedOn = true;
 		}
-		else if (!SimpleCollision(*GetRectangle(), temprect) && turnedOn) {
+		else if (!SimpleCollision(GetRectangle(), temprect) && turnedOn) {
 			turnedOn = false;
 		}
 	}
@@ -343,10 +313,10 @@ void ClickBoxList::Innit(UI* ui, ClickBox* main, std::vector<std::string> names,
 	this->ui = ui;
 	mainElement = main;
 	Elements.reserve(names.size());
-	int y = mainElement->GetRectangle()->y + (mainElement->GetRectangle()->h + space);
+	int y = mainElement->GetRectangle().y + (mainElement->GetRectangle().h + space);
 	for (size_t i = 0; i < names.size(); i++){
 		Elements.emplace_back(
-			ui->CreateClickBox(names[i], mainElement->GetRectangle()->x, y, 
+			ui->CreateClickBox(names[i], mainElement->GetRectangle().x, y, 
 				w, h, nullptr, ui->GetFont("arial12px"), texts[i])
 		);
 		Elements[i]->SetColor(R,G,B);
@@ -408,7 +378,7 @@ void ClickBoxList::Clear() {
 }
 
 //ClickBox List
-UI::UI(SDL_Renderer* renderer) {
+UI::UI(MT::Renderer* renderer) {
 	fontManager = new FontManager();
 	this->renderer = renderer;
 	lastMousePos.x = -10000000;
@@ -435,7 +405,7 @@ void UI::Render() {
 }
 
 
-Button* UI::CreateButton(std::string name, int x, int y, int w, int h, SDL_Texture* texture, Font* font,
+Button* UI::CreateButton(std::string name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	std::string text, float textScale, int textStartX, int textStartY, int borderThickness) {
 
 	if (GetButton(name) != nullptr) {
@@ -445,10 +415,10 @@ Button* UI::CreateButton(std::string name, int x, int y, int w, int h, SDL_Textu
 
 	Buttons.emplace_back(new Button());
 	Buttons.back()->SetName(name);
-	Buttons.back()->GetRectangle()->x = x;
-	Buttons.back()->GetRectangle()->y = y;
-	Buttons.back()->GetRectangle()->w = w;
-	Buttons.back()->GetRectangle()->h = h;
+	Buttons.back()->GetRectangle().x = x;
+	Buttons.back()->GetRectangle().y = y;
+	Buttons.back()->GetRectangle().w = w;
+	Buttons.back()->GetRectangle().h = h;
 
 	Buttons.back()->SetTexture(texture);
 	if (texture == nullptr) {
@@ -475,7 +445,7 @@ Button* UI::CreateButton(std::string name, int x, int y, int w, int h, SDL_Textu
 	return Buttons.back();
 }
 
-TextBox* UI::CreateTextBox(std::string name, int x, int y, int w, int h, SDL_Texture* texture, Font* font,
+TextBox* UI::CreateTextBox(std::string name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	std::string text, float textScale, int textStartX, int textStartY, int borderThickness) {
 
 	if (GetTextBox(name) != nullptr) {
@@ -485,10 +455,10 @@ TextBox* UI::CreateTextBox(std::string name, int x, int y, int w, int h, SDL_Tex
 
 	TextBoxes.emplace_back(new TextBox());
 	TextBoxes.back()->SetName(name);
-	TextBoxes.back()->GetRectangle()->x = x;
-	TextBoxes.back()->GetRectangle()->y = y;
-	TextBoxes.back()->GetRectangle()->w = w;
-	TextBoxes.back()->GetRectangle()->h = h;
+	TextBoxes.back()->GetRectangle().x = x;
+	TextBoxes.back()->GetRectangle().y = y;
+	TextBoxes.back()->GetRectangle().w = w;
+	TextBoxes.back()->GetRectangle().h = h;
 
 	TextBoxes.back()->SetTexture(texture);
 	if (texture == nullptr) {
@@ -517,7 +487,7 @@ TextBox* UI::CreateTextBox(std::string name, int x, int y, int w, int h, SDL_Tex
 	return TextBoxes.back();
 }
 
-ClickBox* UI::CreateClickBox(std::string name, int x, int y, int w, int h, SDL_Texture* texture, Font* font,
+ClickBox* UI::CreateClickBox(std::string name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	std::string text, float textScale, int textStartX, int textStartY, int borderThickness) {
 
 	if (GetClickBox(name) != nullptr) {
@@ -527,10 +497,10 @@ ClickBox* UI::CreateClickBox(std::string name, int x, int y, int w, int h, SDL_T
 
 	ClickBoxes.emplace_back(new ClickBox());
 	ClickBoxes.back()->SetName(name);
-	ClickBoxes.back()->GetRectangle()->x = x;
-	ClickBoxes.back()->GetRectangle()->y = y;
-	ClickBoxes.back()->GetRectangle()->w = w;
-	ClickBoxes.back()->GetRectangle()->h = h;
+	ClickBoxes.back()->GetRectangle().x = x;
+	ClickBoxes.back()->GetRectangle().y = y;
+	ClickBoxes.back()->GetRectangle().w = w;
+	ClickBoxes.back()->GetRectangle().h = h;
 
 	ClickBoxes.back()->SetTexture(texture);
 	if (texture == nullptr) {
@@ -570,14 +540,14 @@ void UI::RemoveListRef(ClickBoxList* ref) {
 void UI::CheckHover() {
 	int x, y;
 	SDL_GetMouseState(&x, &y);
-	SDL_Rect rect{ x,y,1,1 };
+	MT::Rect rect{ x,y,1,1 };
 	for (auto& it : Buttons) {
-		if (SimpleCollision(*it->GetRectangle(), rect)) {
+		if (SimpleCollision(it->GetRectangle(), rect)) {
 			it->SetHover(true);
 			// patrzenie czy mo¿e byæ wydany dŸwiêk tylko wtedy zadzia³a gdy mysz pierwszy raz jest na przycisku
 			if (it->GetHooverSound() != "") { 
-				SDL_Rect prevMousePos{ lastMousePos.x,lastMousePos.y,1,1 };
-				if (!SimpleCollision(prevMousePos, *it->GetRectangle())) {
+				MT::Rect prevMousePos{ lastMousePos.x,lastMousePos.y,1,1 };
+				if (!SimpleCollision(prevMousePos, it->GetRectangle())) {
 					SoundMan::PlaySound(it->GetHooverSound());
 				}
 			}
@@ -588,12 +558,12 @@ void UI::CheckHover() {
 		}
 	}
 	for (auto& it : TextBoxes) {
-		if (SimpleCollision(*it->GetRectangle(), rect)) {
+		if (SimpleCollision(it->GetRectangle(), rect)) {
 			it->SetHover(true);
 			// patrzenie czy mo¿e byæ wydany dŸwiêk tylko wtedy zadzia³a gdy mysz pierwszy raz jest na przycisku
 			if (it->GetHooverSound() != "") {
-				SDL_Rect prevMousePos{ lastMousePos.x,lastMousePos.y,1,1 };
-				if (!SimpleCollision(prevMousePos, *it->GetRectangle())) {
+				MT::Rect prevMousePos{ lastMousePos.x,lastMousePos.y,1,1 };
+				if (!SimpleCollision(prevMousePos, it->GetRectangle())) {
 					SoundMan::PlaySound(it->GetHooverSound());
 				}
 			}
@@ -604,12 +574,12 @@ void UI::CheckHover() {
 		}
 	}
 	for (auto& it : ClickBoxes) {
-		if (SimpleCollision(*it->GetRectangle(), rect)) {
+		if (SimpleCollision(it->GetRectangle(), rect)) {
 			it->SetHover(true);
 			// patrzenie czy mo¿e byæ wydany dŸwiêk tylko wtedy zadzia³a gdy mysz pierwszy raz jest na przycisku
 			if (it->GetHooverSound() != "") {
-				SDL_Rect prevMousePos{ lastMousePos.x,lastMousePos.y,1,1 };
-				if (!SimpleCollision(prevMousePos, *it->GetRectangle())) {
+				MT::Rect prevMousePos{ lastMousePos.x,lastMousePos.y,1,1 };
+				if (!SimpleCollision(prevMousePos, it->GetRectangle())) {
 					SoundMan::PlaySound(it->GetHooverSound());
 				}
 			}
@@ -637,8 +607,8 @@ void UI::CheckClickBoxes(SDL_Event& event) {
 	if (event.type == SDL_MOUSEBUTTONUP) {
 		for (size_t i = 0; i < ClickBoxes.size(); i++) {
 			if (ClickBoxes[i]->IsOn()) {
-				SDL_Rect temprect{ event.button.x ,event.button.y,1,1 };
-				if (SimpleCollision(*ClickBoxes[i]->GetRectangle(), temprect)) {
+				MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
+				if (SimpleCollision(ClickBoxes[i]->GetRectangle(), temprect)) {
 					ClickBoxes[i]->SetStatus(true);
 					if (ClickBoxes[i]->GetClickSound() != "") {
 						SoundMan::PlaySound(ClickBoxes[i]->GetClickSound());
@@ -812,7 +782,7 @@ std::vector<ClickBox*>& UI::GetClickBoxes() {
 	return ClickBoxes;
 }
 
-void UI::CreateFont(const std::string& name, SDL_Texture* texture, const std::string& jsonPath) {
+void UI::CreateFont(const std::string& name, MT::Texture* texture, const std::string& jsonPath) {
 	fontManager->CreateFont(name, texture, jsonPath);
 }
 

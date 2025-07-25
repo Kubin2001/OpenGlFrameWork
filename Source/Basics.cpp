@@ -13,8 +13,8 @@ GameObjectBasic::GameObjectBasic(int x, int y, int w, int h) {
 	this->rectangle.h = h;
 }
 
-SDL_Rect* GameObjectBasic::GetRectangle() {
-	return &rectangle;
+MT::Rect &GameObjectBasic::GetRectangle() {
+	return rectangle;
 }
 
 
@@ -26,15 +26,15 @@ void GameObjectBasic::Innit(int x, int y, int w, int h) {
 }
 //////////////////////
 
-SDL_Rect* GameObject::GetRectangle() {
-	return &rectangle;
+MT::Rect &GameObject::GetRectangle() {
+	return rectangle;
 }
 
 GameObject::GameObject() {
 
 }
 
-GameObject::GameObject(int x, int y, int w, int h, SDL_Texture* texture) {
+GameObject::GameObject(int x, int y, int w, int h, MT::Texture* texture) {
 	this->rectangle.x = x;
 	this->rectangle.y = y;
 	this->rectangle.w = w;
@@ -42,15 +42,15 @@ GameObject::GameObject(int x, int y, int w, int h, SDL_Texture* texture) {
 	this->texture = texture;
 }
 
-SDL_Texture* GameObject::GetTexture() {
+MT::Texture* GameObject::GetTexture() {
 	return texture;
 }
 
-void GameObject::SetTexture(SDL_Texture* texture) {
+void GameObject::SetTexture(MT::Texture* texture) {
 	this->texture = texture;
 }
 
-void GameObject::Innit(int x, int y, int w, int h, SDL_Texture* texture) {
+void GameObject::Innit(int x, int y, int w, int h, MT::Texture* texture) {
 	this->rectangle.x = x;
 	this->rectangle.y = y;
 	this->rectangle.w = w;

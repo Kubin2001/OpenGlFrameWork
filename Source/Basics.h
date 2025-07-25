@@ -1,16 +1,16 @@
 #pragma once
-#include <SDL.h>
+#include "Renderer.h"
 
 class GameObjectBasic {
 	protected:
-		SDL_Rect rectangle;
+		MT::Rect rectangle;
 
 	public:
 		GameObjectBasic();
 
 		GameObjectBasic(int x, int y, int w, int h);
 
-		SDL_Rect* GetRectangle();
+		MT::Rect &GetRectangle();
 
 
 		void Innit(int x, int y, int w, int h);
@@ -18,19 +18,19 @@ class GameObjectBasic {
 
 class GameObject {
 	protected:
-		SDL_Rect rectangle;
-		SDL_Texture* texture = nullptr;
+		MT::Rect rectangle;
+		MT::Texture* texture = nullptr;
 
 	public:
 		GameObject();
 
-		GameObject(int x, int y, int w, int h, SDL_Texture* texture);
+		GameObject(int x, int y, int w, int h, MT::Texture* texture);
 
-		SDL_Rect* GetRectangle();
+		MT::Rect &GetRectangle();
 
-		SDL_Texture* GetTexture();
+		MT::Texture* GetTexture();
 
-		void SetTexture(SDL_Texture* texture);
+		void SetTexture(MT::Texture* texture);
 
-		void Innit(int x, int y, int w, int h, SDL_Texture* texture);
+		void Innit(int x, int y, int w, int h, MT::Texture* texture);
 };

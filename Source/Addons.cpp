@@ -270,7 +270,7 @@ double CalculateEuclidean(int x1,int x2,int y1,int y2) {
 	return std::sqrt(x+y);
 }
 
-Point GetRectangleCenter(const SDL_Rect rect) {
+Point GetRectangleCenter(const MT::Rect rect) {
 	Point point;
 	point.x = rect.x + (int)(rect.w * 0.5);
 	point.y = rect.y + (int)(rect.h * 0.5);
