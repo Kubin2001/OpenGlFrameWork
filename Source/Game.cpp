@@ -46,7 +46,7 @@ void Game::Start() {
 	ui->CreateButton("test", 200, 200, 100, 100, TexMan::GetTex("FeFolderIcon"), ui->GetFont("arial20px"),
 		"testowy Tekst", 1.0f);
 
-	Button* btn = ui->CreateButton("test2", 400, 400, 100, 100, nullptr, ui->GetFont("arial20px"),"text");
+	Button* btn = ui->CreateButton("test2", 400, 400, 100, 100, nullptr, ui->GetFont("arial20px"),"text jakis \ntam");
 	btn->SetColor(30, 30, 30);
 
 	int x = 10;
