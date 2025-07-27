@@ -126,17 +126,15 @@ void TemplateUIElement::Render(MT::Renderer* renderer) {
 		}
 		else {
 			renderer->RenderCopy(GetRectangle(), *GetTexture());
+			if (hovered && hoverable) {
+				renderer->RenderRectAlpha(rectangle, 
+					{ hooverFilter[0], hooverFilter[1], hooverFilter[2] }, hooverFilter[3]);
+			}
 		}
-
-		if (hovered && hoverable) {
-			renderer->RenderRect(rectangle, { hooverFilter[0], hooverFilter[1], hooverFilter[2] });
-		}
-
 
 		if (GetBorder()) {
 			RenderBorder(renderer);
 		}
-
 		RenderText(renderer);
 	}
 }
@@ -144,19 +142,12 @@ void TemplateUIElement::Render(MT::Renderer* renderer) {
 void TemplateUIElement::RenderItslelf(MT::Renderer* renderer) {
 	if (!buttonTransparent) {
 		if (hovered && hoverable) {
-
-			renderer->RenderRect(rectangle, { hooverFilter[0], hooverFilter[1], hooverFilter[2] });
-
-			//SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-			//SDL_SetRenderDrawColor(renderer, hooverFilter[0], hooverFilter[1], hooverFilter[2], hooverFilter[3]);
-			//SDL_RenderFillRect(renderer, &rectangle);
-			//SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+			renderer->RenderRect(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2] });
+			renderer->RenderRectAlpha(rectangle, { hooverFilter[0], hooverFilter[1], hooverFilter[2] }, hooverFilter[3]);
 		}
-		else
-		{
+		else{
 			renderer->RenderRect(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2]});
 		}
-
 	}
 }
 

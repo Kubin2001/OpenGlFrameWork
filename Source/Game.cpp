@@ -43,11 +43,16 @@ void Game::Start() {
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
 
 
-	ui->CreateButton("test", 200, 200, 100, 100, TexMan::GetTex("FeFolderIcon"), ui->GetFont("arial20px"),
-		"testowy Tekst", 1.0f);
+	//ui->CreateButton("test", 200, 200, 100, 100, TexMan::GetTex("FeFolderIcon"), ui->GetFont("arial20px"),
+	//	"testowy Tekst", 1.0f);
 
-	Button* btn = ui->CreateButton("test2", 400, 400, 100, 100, nullptr, ui->GetFont("arial20px"),"text jakis \ntam");
+	ClickBox* btn = ui->CreateClickBox("test2", 400, 400, 100, 100, nullptr, ui->GetFont("arial20px"),"text jakis \ntam");
 	btn->SetColor(30, 30, 30);
+	btn->SetHoverFilter(true, 255, 255, 255, 100);
+
+	//btn = ui->CreateClickBox("test3", 600, 400, 100, 100, TexMan::GetTex("FeFolderIcon"), ui->GetFont("arial20px"), "text jakis \ntam");
+	//btn->SetColor(30, 30, 30);
+	//btn->SetHoverFilter(true, 255, 255, 255, 100);
 
 	int x = 10;
 	int y = 10;
@@ -78,7 +83,7 @@ void Game::FrameUpdate() {
 
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
-		//ui->ManageInput(event);
+		ui->ManageInput(event);
 		Exit();
 	}
 
@@ -89,12 +94,6 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-
-
-
-	for (auto& it : vec) {
-		renderer->RenderCopy(it, *TexMan::GetTex("FeFolderIcon"));
-	}
 
 	ui->Render();
 
