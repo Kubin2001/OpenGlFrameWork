@@ -49,10 +49,11 @@ void Game::Start() {
 	ClickBox* btn = ui->CreateClickBox("test2", 400, 400, 100, 100, nullptr, ui->GetFont("arial20px"),"text jakis \ntam");
 	btn->SetColor(30, 30, 30);
 	btn->SetHoverFilter(true, 255, 255, 255, 100);
+	btn->SetFontColor(0, 255, 0);
 
-	//btn = ui->CreateClickBox("test3", 600, 400, 100, 100, TexMan::GetTex("FeFolderIcon"), ui->GetFont("arial20px"), "text jakis \ntam");
-	//btn->SetColor(30, 30, 30);
-	//btn->SetHoverFilter(true, 255, 255, 255, 100);
+	btn = ui->CreateClickBox("test3", 600, 400, 100, 100, nullptr, ui->GetFont("arial20px"), "text jakis \ntam");
+	btn->SetColor(30, 30, 30);
+	btn->SetHoverFilter(true, 255, 255, 255, 100);
 
 	int x = 10;
 	int y = 10;

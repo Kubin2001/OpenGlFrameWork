@@ -165,8 +165,7 @@ void TemplateUIElement::RenderBorder(MT::Renderer* renderer) {
 
 void TemplateUIElement::RenderText(MT::Renderer* renderer) {
 	if (font != nullptr) {
-		//SDL_SetTextureColorMod(font->GetTexture(), 255, 255, 255); // Reset anyway no matter the color
-		//SDL_SetTextureColorMod(font->GetTexture(), fontRGB[0], fontRGB[1], fontRGB[2]);
+		font->SetFilter(fontRGB[0], fontRGB[1], fontRGB[2]);
 		switch (textRenderType) {
 			case 1:
 				font->RenderText(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
@@ -185,7 +184,6 @@ void TemplateUIElement::RenderText(MT::Renderer* renderer) {
 				font->RenderText(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
 				break;
 		}
-
 	}
 }
 

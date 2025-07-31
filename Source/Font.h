@@ -11,6 +11,10 @@ private:
 	std::string name;
 	std::vector<MT::Rect> sourceRectangles;
 	int standardInterLine = 0;
+	unsigned char rFilter = 255;
+	unsigned char gFilter = 255;
+	unsigned char bFilter = 255;
+
 public:
 	Font(const std::string& name, MT::Texture* texture, const std::string& jsonPath);
 
@@ -22,15 +26,21 @@ public:
 
 	bool LoadTextInfo(const std::string& jsonPath);
 
-	void RenderText(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, float scale = 1.0, int interline = 20, int textStartX = 0, int textStartY = 0);
+	void RenderText(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, float scale = 1.0,
+		int interline = 20, int textStartX = 0, int textStartY = 0);
 
-	void RenderTextCenter(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect, float scale = 1.0, int interline = 20, int textStartX = 0, int textStartY = 0);
+	void RenderTextCenter(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect, float scale = 1.0,
+		int interline = 20, int textStartX = 0, int textStartY = 0);
 
-	void RenderTextFromRight(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect, float scale = 1.0, int interline = 20, int textStartX = 0, int textStartY = 0);
+	void RenderTextFromRight(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect, float scale = 1.0, int interline = 20,
+		int textStartX = 0, int textStartY = 0);
 
-	void RenderTextCenterPred(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect,Point &textSizes, float scale = 1.0, int interline = 20, int textStartX = 0, int textStartY = 0);
+	void RenderTextCenterPred(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect,Point &textSizes,
+		float scale = 1.0, int interline = 20, int textStartX = 0, int textStartY = 0);
 
 	Point CalculatePredefinedSize(const std::string &fontText, int interline);
+
+	void SetFilter(const unsigned char r, const unsigned char g, const unsigned char b);
 };
 
 class FontManager {

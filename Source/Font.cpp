@@ -76,7 +76,9 @@ void Font::RenderText(MT::Renderer* renderer, const std::string &text, MT::Rect 
 			if (text[i] != '\n') {
 				rectangle.w = sourceRectangles[text[i]].w * scale;
 				rectangle.h = sourceRectangles[text[i]].h * scale;
-				renderer->RenderCopyPart(rectangle, sourceRectangles[text[i]],*texture);
+				renderer->RenderCopyPartFiltered(rectangle, sourceRectangles[text[i]], *texture,
+					{ rFilter,gFilter,bFilter });
+				//renderer->RenderCopyPart(rectangle, sourceRectangles[text[i]],*texture);
 				rectangle.x += (sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else
@@ -209,6 +211,12 @@ int Font::GetStandardInterline() {
 
 void Font::SetStandardInterline(int temp) {
 	standardInterLine = temp;
+}
+
+void Font::SetFilter(const unsigned char r, const unsigned char g, const unsigned char b) {
+	this->rFilter = r;
+	this->gFilter = g;
+	this->bFilter = b;
 }
 
 
