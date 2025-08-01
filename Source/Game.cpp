@@ -85,7 +85,6 @@ void Game::Render() {
 	ui->Render();
 
 	renderer->RenderPresent();
-	SDL_GL_SwapWindow(window);
 }
 
 
