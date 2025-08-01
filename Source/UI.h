@@ -25,8 +25,7 @@ protected:
 	int textStartX = 0;
 	int textStartY = 0;
 
-	bool buttonTransparent = false;
-	unsigned char buttonColor[3] = { 255,255,255 };
+	unsigned char buttonColor[4] = { 255,255,255,255 };
 
 	unsigned char borderRGB[3] = { 255,255,255 };
 
@@ -77,14 +76,11 @@ public:
 	int GetTextStartY();
 	void SetTextStartY(int temp);
 
-	bool GetTransparent();
-	void SetTransparent(bool temp);
-
 	Font* GetFont();
 
 	void SetFont(Font* font);
 
-	void SetColor(const unsigned char R, const unsigned char G, const unsigned char B);
+	void SetColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255);
 
 	void SetBorderRGB(const unsigned char R, const unsigned char G, const unsigned char B);
 
@@ -162,6 +158,17 @@ class Button : public TemplateUIElement {
 
 };
 
+class PopUpBox : public TemplateUIElement {
+	private:
+		int lifeTime = 0;
+
+	public:
+		friend class UI;
+
+		int GetLifeTime();
+		void SetLifeTime(const int lifeTime);
+};
+
 class ClickBoxList {
 	private:
 		UI* ui = nullptr;
@@ -210,10 +217,12 @@ private:
 	std::vector<Button*> Buttons;
 	std::vector<TextBox*> TextBoxes;
 	std::vector<ClickBox*> ClickBoxes;
+	std::vector<PopUpBox*> PopUpBoxes;
 
 	std::unordered_map<std::string, Button*> ButtonsMap;
 	std::unordered_map<std::string, TextBox*> TextBoxesMap;
 	std::unordered_map<std::string, ClickBox*> ClickBoxesMap;
+	std::unordered_map<std::string, PopUpBox*> PopUpBoxesMap;
 
 	std::vector<ClickBoxList*> ListReferences;
 
@@ -225,13 +234,16 @@ public:
 
 	UI(MT::Renderer* renderer);
 
-	Button* CreateButton(std::string name, int x, int y, int w, int h, MT::Texture* texture, Font* font = nullptr,
+	Button* CreateButton(std::string name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
 		std::string text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
 
-	TextBox* CreateTextBox(std::string name, int x, int y, int w, int h, MT::Texture* texture, Font* font = nullptr,
+	TextBox* CreateTextBox(std::string name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
 		std::string text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
 
-	ClickBox* CreateClickBox(std::string name, int x, int y, int w, int h, MT::Texture* texture, Font* font = nullptr,
+	ClickBox* CreateClickBox(std::string name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
+		std::string text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+
+	PopUpBox* CreatePopUpBox(std::string name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
 		std::string text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
 
 	void AddListRef(ClickBoxList *ref);
@@ -249,11 +261,14 @@ public:
 	Button* GetButton(const std::string& name);
 	TextBox* GetTextBox(const std::string& name);
 	ClickBox* GetClickBox(const std::string& name);
+	PopUpBox* GetPopUpBox(const std::string& name);
 
 	void SetElementColor(const std::string& name, const unsigned char R, unsigned char G, unsigned char B);
 
 	void SetElementBorderColor(const std::string& name, const unsigned char R, const unsigned char G, const unsigned char B);
 	void SetElementFontColor(const std::string& name, const unsigned char R, const unsigned char G, const unsigned char B);
+
+	void FrameUpdate();
 
 	void ManageInput(SDL_Event& event);
 
@@ -262,6 +277,8 @@ public:
 	bool DeleteTextBox(const std::string& name);
 
 	bool DeleteClickBox(const std::string& name);
+
+	bool DeletePopUpBox(const std::string& name);
 
 	bool DeleteAnyButton(const std::string& name);
 
@@ -272,6 +289,7 @@ public:
 	std::vector<TextBox*>& GetTextBoxes();
 
 	std::vector<ClickBox*>& GetClickBoxes();
+	std::vector<PopUpBox*>& GetPopUpBoxes();
 
 	// You need to provide not name (made up by you) texture (needs to be already loaded by texture manager) path to pregenerated json file
 	void CreateFont(const std::string& name, MT::Texture* texture, const std::string& jsonPath);

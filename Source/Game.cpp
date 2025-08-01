@@ -43,29 +43,14 @@ void Game::Start() {
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
 
 
-	//ui->CreateButton("test", 200, 200, 100, 100, TexMan::GetTex("FeFolderIcon"), ui->GetFont("arial20px"),
-	//	"testowy Tekst", 1.0f);
+	Button* btn = NULL;
 
-	ClickBox* btn = ui->CreateClickBox("test2", 400, 400, 100, 100, nullptr, ui->GetFont("arial20px"),"text jakis \ntam");
-	btn->SetColor(30, 30, 30);
-	btn->SetHoverFilter(true, 255, 255, 255, 100);
-	btn->SetFontColor(0, 255, 0);
-
-	btn = ui->CreateClickBox("test3", 600, 400, 100, 100, nullptr, ui->GetFont("arial20px"), "text jakis \ntam");
-	btn->SetColor(30, 30, 30);
-	btn->SetHoverFilter(true, 255, 255, 255, 100);
-
-	int x = 10;
-	int y = 10;
-
-	for (size_t i = 0; i < 4; i++) {
-		for (size_t i = 0; i < 10; i++) {
-			vec.emplace_back(x, y, 20, 20);
-			x += 20;
-		}
-		x = 10;
-		y += 20;
-	}
+	//btn = ui->CreateButton("Test", 100, 100, 100, 100);
+	//btn->SetColor(30, 30, 30, 255);
+	//btn = ui->CreateButton("Test2", 130, 100, 100, 100);
+	//btn->SetColor(255, 0, 0, 100);
+	PopUpBox *pb =  ui->CreatePopUpBox("box", 120, 100, 100, 100, 100, nullptr , ui->GetFont("arial12px"),"test");
+	pb->SetColor(30, 30, 30);
 }
 
 
@@ -76,6 +61,7 @@ void Game::LogicUpdate() {
 
 void Game::FrameUpdate() {
 	Input();
+	ui->FrameUpdate();
 	Render();
 }
 
