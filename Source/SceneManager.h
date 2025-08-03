@@ -1,6 +1,5 @@
 #pragma once
 
-#include <SDL.h>
 #include <string>
 #include <unordered_map>
 #include "UI.h"
@@ -12,12 +11,12 @@
 class Scene {
 	protected:
 	UI* ui = nullptr;
-	SDL_Renderer* renderer = nullptr;
+	MT::Renderer *renderer = nullptr;
 
 	public:
 	std::string name;
 
-	virtual void Init(SDL_Renderer* renderer = nullptr, UI* ui = nullptr) = 0;
+	virtual void Init(MT::Renderer* renderer = nullptr, UI* ui = nullptr) = 0;
 
 	virtual void LogicUpdate() = 0;
 
@@ -48,9 +47,9 @@ class SceneMan {
 
 	static void SetScene(const std::string& sceneName);
 
-	static void SwitchScene(const std::string& sceneName, SDL_Renderer* renderer = nullptr, UI* ui = nullptr);
+	static void SwitchScene(const std::string& sceneName, MT::Renderer* renderer = nullptr, UI* ui = nullptr);
 
-	static void SwitchResetScene(const std::string& sceneName, SDL_Renderer* renderer = nullptr, UI* ui = nullptr);
+	static void SwitchResetScene(const std::string& sceneName, MT::Renderer* renderer = nullptr, UI* ui = nullptr);
 
 	static void Clear();
 

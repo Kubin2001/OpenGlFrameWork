@@ -278,7 +278,7 @@ Point GetRectangleCenter(const MT::Rect rect) {
 
 }
 
-unsigned int RectanglePointDistance(const SDL_Rect rect, const Point point) {
+unsigned int RectanglePointDistance(const MT::Rect rect, const Point point) {
 	return std::abs(rect.x - point.x) + std::abs(rect.y - point.y);
 
 }
@@ -288,7 +288,7 @@ unsigned int PointsDistance(const Point point, const Point point2) {
 }
 
 
-void ScaleRectanglesToScreen(std::vector<SDL_Rect>& vec, int count, int desiredY, int width, int height, int xSpace, bool clearVec) {
+void ScaleRectanglesToScreen(std::vector<MT::Rect>& vec, int count, int desiredY, int width, int height, int xSpace, bool clearVec) {
 	if (clearVec) { vec.clear(); }
 	vec.reserve(count);
 

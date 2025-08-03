@@ -52,13 +52,13 @@ class TexMan {
 
 class LocalTexMan {
 	private:
-		std::unordered_map<std::string, SDL_Texture*> Textures = {};
+		std::unordered_map<std::string, MT::Texture*> Textures = {};
 		std::vector<std::string> SupportedFormats = {};
-		SDL_Renderer* renderer = nullptr;
+		MT::Renderer* renderer = nullptr;
 		bool isInnit = false;
 
 	public:
-		bool Start(SDL_Renderer* ren);
+		bool Start(MT::Renderer* ren);
 
 		bool IsWorking();
 
@@ -77,7 +77,7 @@ class LocalTexMan {
 		// Example tree.png key = tree
 		void DeepLoad(const std::string& directory);
 
-		SDL_Texture* GetTex(const std::string& name);
+		MT::Texture* GetTex(const std::string& name);
 
 		bool DeleteTexture(const std::string& name);
 

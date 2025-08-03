@@ -95,7 +95,7 @@ int AdvancedCollision(const MT::Rect &rect, const MT::Rect& rect2, const int dee
 }
 
 
-bool CircleMouseCollision(const SDL_Rect circleRect, const SDL_Rect rect) {
+bool CircleMouseCollision(const MT::Rect &circleRect, const MT::Rect &rect) {
 	int centerCirleX = circleRect.x + (int)(circleRect.w * 0.5);
 	int centerCirleY = circleRect.y + (int)(circleRect.h * 0.5);
 	float radius = (float)(circleRect.h * 0.5);
@@ -111,16 +111,16 @@ bool CircleMouseCollision(const SDL_Rect circleRect, const SDL_Rect rect) {
 
 
 CollisonProjectile::CollisonProjectile(int x, int y, int w, int h, int xMov, int yMov) {
-	GetRectangle()->x = x;
-	GetRectangle()->y = y;
-	GetRectangle()->w = w;
-	GetRectangle()->h = h;
+	rectangle.x = x;
+	rectangle.y = y;
+	rectangle.w = w;
+	rectangle.h = h;
 	this->xMov = xMov;
 	this->yMov = yMov;
 }
 
-SDL_Rect* CollisonProjectile::GetRectangle() {
-	return &rectangle;
+MT::Rect& CollisonProjectile::GetRectangle() {
+	return rectangle;
 }
 
 void CollisonProjectile::setSpeedX(int temp) { xMov = temp; }
@@ -136,7 +136,7 @@ void CollisonProjectile::SetTimer(int temp) {
 }
 
 void CollisonProjectile::MoveProjectlile() {
-	GetRectangle()->x += xMov;
-	GetRectangle()->x += yMov;
+	rectangle.x += xMov;
+	rectangle.y += yMov;
 	timer++;
 }

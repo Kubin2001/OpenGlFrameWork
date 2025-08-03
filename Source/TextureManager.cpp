@@ -112,8 +112,7 @@ bool TexMan::DeleteTexture(const std::string& name) {
 		Textures.erase(it);
 		return true;
 	}
-	else
-	{
+	else{
 		return false;
 	}
 }
@@ -215,7 +214,6 @@ void TexMan::SplitTexture(const char* path, const std::vector<std::string> &name
 		SDL_FreeSurface(elem);
 		Textures[names[index]] = tex;
 		index++;
-
 	}
 }
 
@@ -227,7 +225,7 @@ void TexMan::Clear() {
 }
 
 //LocalTexMan
-bool LocalTexMan::Start(SDL_Renderer* ren) {
+bool LocalTexMan::Start(MT::Renderer* ren) {
 	renderer = ren;
 	if (renderer != nullptr) {
 		isInnit = true;
@@ -276,9 +274,7 @@ void LocalTexMan::LoadSingle(const char* filePath, const std::string& name) {
 		std::cout << "Texture: " << name << " is already loaded\n";
 		return;
 	}
-	SDL_Surface* tmpSurface = IMG_Load(filePath);
-	SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, tmpSurface);
-	SDL_FreeSurface(tmpSurface);
+	MT::Texture* tex = MT::LoadTexture(filePath);
 	Textures.insert(std::make_pair(name, tex));
 }
 
@@ -312,7 +308,7 @@ void LocalTexMan::DeepLoad(const std::string& directory) {
 }
 
 
-SDL_Texture* LocalTexMan::GetTex(const std::string& name) {
+MT::Texture* LocalTexMan::GetTex(const std::string& name) {
 	auto it = Textures.find(name);
 	if (it != Textures.end()) {
 		return it->second;
@@ -324,7 +320,7 @@ SDL_Texture* LocalTexMan::GetTex(const std::string& name) {
 bool LocalTexMan::DeleteTexture(const std::string& name) {
 	auto it = Textures.find(name);
 	if (it != Textures.end()) {
-		SDL_DestroyTexture(it->second);
+		delete it->second;
 		Textures.erase(it);
 		return true;
 	}
@@ -336,11 +332,12 @@ bool LocalTexMan::DeleteTexture(const std::string& name) {
 Point LocalTexMan::GetTextureSize(const std::string& name) {
 	Point p(-1, -1);
 	auto it = Textures.find(name);
-	if (it != Textures.end()) {
-		SDL_QueryTexture(it->second, nullptr, nullptr, &p.x, &p.y);
+	if (it == Textures.end()) {
 		return p;
+		std::cerr << "Texture not found: " << name << "\n";
 	}
-	std::cerr << "Texture not found: " << name << "\n";
+	p.x = it->second->w;
+	p.y = it->second->h;
 	return p;
 }
 
@@ -396,17 +393,16 @@ void LocalTexMan::SplitTexture(const char* path, const std::vector<std::string>&
 
 	int index = 0;
 	for (auto& elem : surfaces) {
-		SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, elem);
+		MT::Texture* tex = MT::LoadTextureFromSurface(elem);
 		SDL_FreeSurface(elem);
 		Textures[names[index]] = tex;
 		index++;
-
 	}
 }
 
 void LocalTexMan::Clear() {
 	for (auto& pair : Textures) {
-		SDL_DestroyTexture(pair.second);
+		delete pair.second;
 	}
 	Textures.clear();
 }

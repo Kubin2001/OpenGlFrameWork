@@ -20,10 +20,9 @@ int AdvancedCollision(const MT::Rect& rect, const MT::Rect& rect2, int deepth);
 
 //Kolizja rectangle które udaje ko³o i zwyk³ego sdl rect
 //Mowa o kole idealnym nie np 40 na 60 tylko zawsze musi byæ kwadratowe
-bool CircleMouseCollision(const SDL_Rect circleRect, const SDL_Rect rect);
+bool CircleMouseCollision(const MT::Rect &circleRect, const MT::Rect &rect);
 
-class CollisonProjectile
-{
+class CollisonProjectile{
 	private:
 	int xMov = 0;
 
@@ -31,12 +30,12 @@ class CollisonProjectile
 
 	int timer = 0;
 
-	SDL_Rect rectangle;
+	MT::Rect rectangle;
 
 	public:
 	CollisonProjectile(int x, int y, int w, int h, int xMov, int yMov);
 
-	SDL_Rect* GetRectangle();
+	MT::Rect &GetRectangle();
 
 	void setSpeedX(int temp);
 

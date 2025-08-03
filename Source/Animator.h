@@ -1,13 +1,14 @@
 #pragma once
-#include <SDL.h>
 #include <unordered_map>
 #include <string>
 #include <vector>
 
+#include "Renderer.h"
+
 class Animation {
 	public:
 		std::string name = "";
-		std::vector<SDL_Rect> clips;
+		std::vector<MT::Rect> clips;
 		unsigned int firstFrame = 0;
 		unsigned int lastFrame = 0;
 		unsigned short frameDelay = 20;
@@ -26,7 +27,7 @@ class Animator {
 		static void CreateNew(const std::string& name, const int clipsAmount, const short frameWidth,
 			const short frameHeight, const int frameDelay, const int type = 1);
 
-		static SDL_Rect* Get(const std::string& key);
+		static MT::Rect& Get(const std::string& key);
 
 		static Animation* GetAnim(const std::string& key);
 

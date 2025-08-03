@@ -32,11 +32,11 @@ void Animator::CreateNew(const std::string& name, const int clipsAmount, const s
 	Animations[name] = anim;
 }
 
-SDL_Rect* Animator::Get(const std::string& key) {
+MT::Rect& Animator::Get(const std::string& key) {
 	auto mapAnim = Animations.find(key);
 	if (mapAnim == Animations.end()) {
-		std::cout << "This animation does not exist returned empty rectangle\n";
-		return nullptr;
+		std::cout << "Error this animation does not exist returned empty rectangle\n";
+		throw std::exception("Error this animation does not exist returned empty rectangle");
 	}
 	auto& anim = mapAnim->second;
 	int currentFrame = Global::frameCounter - anim->firstFrame;
@@ -44,78 +44,78 @@ SDL_Rect* Animator::Get(const std::string& key) {
 		case 0:
 			if (currentFrame >= anim->lastFrame) {
 				anim->firstFrame = Global::frameCounter;
-				return &anim->clips[0];
+				return anim->clips[0];
 			}
-			return &anim->clips[currentFrame / anim->frameDelay];
+			return anim->clips[currentFrame / anim->frameDelay];
 		case 1:
 			if (currentFrame >= anim->lastFrame) {
-				return &anim->clips.back();
+				return anim->clips.back();
 			}
-			return &anim->clips[currentFrame / anim->frameDelay];
+			return anim->clips[currentFrame / anim->frameDelay];
 
 		case 2:
 			if (currentFrame >= anim->lastFrame) {
 				anim->firstFrame = Global::frameCounter;
-				return &anim->clips.back();
+				return anim->clips.back();
 			}
-			return &anim->clips[(anim->clips.size() -1) - (currentFrame / anim->frameDelay)];
+			return anim->clips[(anim->clips.size() -1) - (currentFrame / anim->frameDelay)];
 
 		case 3:
 			if (currentFrame >= anim->lastFrame) {
-				return &anim->clips[0];
+				return anim->clips[0];
 			}
-			return &anim->clips[(anim->clips.size() - 1) - (currentFrame / anim->frameDelay)];
+			return anim->clips[(anim->clips.size() - 1) - (currentFrame / anim->frameDelay)];
 
 		case 4:
 			if (currentFrame >= anim->lastFrame) {
 				anim->firstFrame = Global::frameCounter;
 				anim->type = 5;
-				return &anim->clips[0];
+				return anim->clips[0];
 			}
-			return &anim->clips[(anim->clips.size() - 1) - (currentFrame / anim->frameDelay)];
+			return anim->clips[(anim->clips.size() - 1) - (currentFrame / anim->frameDelay)];
 
 		case 5:
 			if (currentFrame >= anim->lastFrame) {
 				anim->firstFrame = Global::frameCounter;
 				anim->type = 4;
-				return &anim->clips.back();
+				return anim->clips.back();
 			}
-			return &anim->clips[currentFrame / anim->frameDelay];
+			return anim->clips[currentFrame / anim->frameDelay];
 
 		case 6:
 			if (currentFrame >= anim->lastFrame) {
 				anim->firstFrame = Global::frameCounter;
 				anim->type = 8;
-				return &anim->clips[0];
+				return anim->clips[0];
 			}
-			return &anim->clips[(anim->clips.size() - 1) - (currentFrame / anim->frameDelay)];
+			return anim->clips[(anim->clips.size() - 1) - (currentFrame / anim->frameDelay)];
 
 		case 7:
 			if (currentFrame >= anim->lastFrame) {
 				anim->firstFrame = Global::frameCounter;
 				anim->type = 9;
-				return &anim->clips.back();
+				return anim->clips.back();
 			}
-			return &anim->clips[currentFrame / anim->frameDelay];
+			return anim->clips[currentFrame / anim->frameDelay];
 
 		case 8:
 			if (currentFrame >= anim->lastFrame) {
-				return &anim->clips.back();
+				return anim->clips.back();
 			}
-			return &anim->clips[currentFrame / anim->frameDelay];
+			return anim->clips[currentFrame / anim->frameDelay];
 
 		case 9:
 			if (currentFrame >= anim->lastFrame) {
-				return &anim->clips[0];
+				return anim->clips[0];
 			}
-			return &anim->clips[(anim->clips.size() - 1) - (currentFrame / anim->frameDelay)];
+			return anim->clips[(anim->clips.size() - 1) - (currentFrame / anim->frameDelay)];
 
 		default:
 			if (currentFrame >= anim->lastFrame) {
 				anim->firstFrame = Global::frameCounter;
-				return &anim->clips[0];
+				return anim->clips[0];
 			}
-			return &anim->clips[currentFrame / anim->frameDelay];
+			return anim->clips[currentFrame / anim->frameDelay];
 	}
 }
 
@@ -153,8 +153,8 @@ bool Animator::CloneFrame(const std::string& key, const unsigned int frame, cons
 		return false;
 	}
 	auto& anim = mapAnim->second;
-	SDL_Rect copyClip =  anim->clips[frame];
-	std::vector<SDL_Rect> copyVec;
+	MT::Rect copyClip =  anim->clips[frame];
+	std::vector<MT::Rect> copyVec;
 	copyVec.reserve(count);
 	for (size_t i = 0; i < count; ++i){
 		copyVec.emplace_back(copyClip);

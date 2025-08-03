@@ -23,8 +23,7 @@ void SceneMan::AddScene(Scene* scene, const std::string& sceneName) {
 		scene->name = sceneName;
 		Scenes.insert(std::make_pair(sceneName, scene));
 	}
-	else
-	{
+	else{
 		std::cerr << "ERROR: Scene '" << sceneName << "' already exists!\n";
 	}
 
@@ -36,8 +35,7 @@ void SceneMan::AddRegisterScene(Scene* scene, const std::string& sceneName, std:
 		Scenes.insert(std::make_pair(sceneName, scene));
 		SceneFactory::RegisterScene(sceneName, factoryFn);
 	}
-	else
-	{
+	else{
 		std::cerr << "ERROR: Scene '" << sceneName << "' already exists!\n";
 	}
 
@@ -48,13 +46,12 @@ void SceneMan::SetScene(const std::string& sceneName) {
 		currentScene = Scenes[sceneName];
 
 	}
-	else
-	{
+	else{
 		std::cerr << "ERROR: Scene '" << sceneName << "' not found!\n";
 	}
 }
 
-void SceneMan::SwitchScene(const std::string& sceneName, SDL_Renderer* renderer, UI* ui) {
+void SceneMan::SwitchScene(const std::string& sceneName, MT::Renderer* renderer, UI* ui) {
 	if (Scenes.find(sceneName) != Scenes.end()) {
 		if (currentScene != nullptr) {
 			currentScene->Clear();
@@ -69,7 +66,7 @@ void SceneMan::SwitchScene(const std::string& sceneName, SDL_Renderer* renderer,
 	}
 }
 
-void SceneMan::SwitchResetScene(const std::string& sceneName, SDL_Renderer* renderer, UI* ui) {
+void SceneMan::SwitchResetScene(const std::string& sceneName, MT::Renderer* renderer, UI* ui) {
 	if (Scenes.find(sceneName) != Scenes.end()) {
 		if (currentScene != nullptr) { // usuwanie obecnej sceny
 			currentScene->Clear();
@@ -90,8 +87,7 @@ void SceneMan::SwitchResetScene(const std::string& sceneName, SDL_Renderer* rend
 		currentScene->Init(renderer, ui);
 
 	}
-	else
-	{
+	else{
 		std::cerr << "ERROR: Scene '" << sceneName << "' not found!\n";
 	}
 }

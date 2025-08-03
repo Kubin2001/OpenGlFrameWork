@@ -91,7 +91,7 @@ double CalculateEuclidean(int x1, int x2, int y1, int y2);
 
 Point GetRectangleCenter(const MT::Rect rect);
 
-unsigned int RectanglePointDistance(const SDL_Rect rect, const Point point);
+unsigned int RectanglePointDistance(const MT::Rect rect, const Point point);
 
 unsigned int PointsDistance(const Point point, const Point point2);
 
@@ -146,7 +146,7 @@ void AnyData::Set(T tempData) {
 }
 
 
-void ScaleRectanglesToScreen(std::vector<SDL_Rect>& vec, int count, int desiredY, int width, int height, int xSpace, bool clearVec = true);
+void ScaleRectanglesToScreen(std::vector<MT::Rect>& vec, int count, int desiredY, int width, int height, int xSpace, bool clearVec = true);
 
 std::vector<std::string> SplitString(const std::string &str, const char seperator, const bool keepSep = false);
 
