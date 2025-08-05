@@ -4,11 +4,6 @@
 #include <sstream>
 #include <streambuf>
 
-int ShaderLoader::success;
-char ShaderLoader::infoLog[512];
-std::unordered_map<std::string, unsigned int> ShaderLoader::shaders;
-std::unordered_map<std::string, unsigned int> ShaderLoader::shaderPrograms;
-
 std::string LoadShaderFile(const char* fileName) {
     std::ifstream file;
     std::stringstream buf;
@@ -87,7 +82,7 @@ unsigned int& ShaderLoader::GetShader(const std::string& name) {
 }
 
 
-void ShaderLoader::CreateShaderProgram(std::vector<std::string> &names, const std::string& programName, bool deleteShader) {
+void ShaderLoader::CreateProgram(std::vector<std::string> &names, const std::string& programName, bool deleteShader) {
     for (auto& it : names) {
         if (shaders.find(it) == shaders.end()) {
             std::cout << "Shader " << it << "not found program creation stopped\n";
@@ -113,8 +108,7 @@ void ShaderLoader::CreateShaderProgram(std::vector<std::string> &names, const st
 
         std::cout << "Error with vertex shader compilation: \n" << infoLog << "\n";
     }
-    else
-    {
+    else{
         std::cout << "Linking succesfull\n";
     }
 
@@ -126,6 +120,58 @@ void ShaderLoader::CreateShaderProgram(std::vector<std::string> &names, const st
         }
     }
 
+}
+
+unsigned int ShaderLoader::LoadShaderStrRaw(const char* shaderText, GLenum shaderType) {
+    //Compile Shader
+    unsigned int shaderID;
+    shaderID = glCreateShader(shaderType);
+    const GLchar* shader = shaderText;
+    glShaderSource(shaderID, 1, &shader, nullptr);
+
+    glCompileShader(shaderID);
+
+    //catch compile error
+    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
+
+    if (!success) {
+        glGetShaderInfoLog(shaderID, 512, nullptr, infoLog);
+        std::cout << "Error with vertex shader compilation: \n" << infoLog << "\n";
+        return -1;
+    }
+    else {
+        std::cout << "Compilation succesfull\n";
+    }
+    return shaderID;
+}
+
+void ShaderLoader::CreateProgramStr(const std::string name, const char* vertexStr, const char* fragmentStr) {
+    unsigned int vertex = LoadShaderStrRaw(vertexStr, GL_VERTEX_SHADER);
+    unsigned int fragment = LoadShaderStrRaw(fragmentStr, GL_FRAGMENT_SHADER);
+
+    unsigned int shaderProgram = 0;
+
+    shaderProgram = glCreateProgram();
+    shaderPrograms[name] = shaderProgram;
+    glAttachShader(shaderPrograms[name], vertex);
+    glAttachShader(shaderPrograms[name], fragment);
+
+    glLinkProgram(shaderPrograms[name]);
+
+    //catch error
+    glGetProgramiv(shaderPrograms[name], GL_LINK_STATUS, &success);
+
+    if (!success) {
+        glGetProgramInfoLog(shaderPrograms[name], 512, nullptr, infoLog);
+        std::cout << "Shader Linking error\n" << "Error: " << infoLog << "\n";
+    }
+    else {
+        std::cout << "Linking succesfull\n";
+    }
+
+    //Usuwanie shaderów bo z racji po³¹czenia w program s¹ niepotrzebne
+    glDeleteShader(vertex);
+    glDeleteShader(fragment);
 }
 
 unsigned int& ShaderLoader::GetProgram(const std::string& name) {
@@ -142,4 +188,12 @@ bool ShaderLoader::IsProgram(const std::string& name) {
         return false;
     }
     return true;
+}
+
+
+ShaderLoader::~ShaderLoader() {
+    for (auto& [name, program] : shaderPrograms) {
+        glDeleteProgram(program);
+    }
+    shaderPrograms.clear(); 
 }

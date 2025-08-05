@@ -68,7 +68,6 @@ void Game::Input() {
 		ui->ManageInput(event);
 		Exit();
 	}
-
 	Global::inputDelay++;
 }
 
@@ -94,11 +93,10 @@ void Game::Exit() {
 
 
 Game::~Game() {
-	//TexMan::Clear();
-	//SoundMan::Clear();
-	//SceneMan::Clear();
-	//SDL_DestroyRenderer(renderer);
+	TexMan::Clear();
+	SoundMan::Clear();
+	SceneMan::Clear();
+	renderer->Clear();
 	SDL_DestroyWindow(window);
 	SDL_Quit();
-	//std::cout << "Resources Destroyed";
 }

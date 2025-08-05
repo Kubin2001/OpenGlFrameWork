@@ -65,14 +65,30 @@ namespace MT {
 
 	Texture* LoadTexture(const char* path);
 
+	void DeleteTexture(Texture *tex);
+
 	Texture* LoadTextureFromSurface(SDL_Surface *surf);
 	
+	struct ConstextGuard {
+		SDL_Window* window;
+		SDL_GLContext context;
+
+		ConstextGuard() {
+			window = SDL_GL_GetCurrentWindow();
+			context = SDL_GL_GetCurrentContext();
+		}
+		~ConstextGuard() {
+			SDL_GL_MakeCurrent(window, context);
+		}
+	};
+
 
 	class Renderer {
 
 		private:
-			SDL_Window* window = nullptr;
-			 SDL_GLContext context;
+			 SDL_Window* window = nullptr;
+			 unsigned int VAO, VBO;
+			 ShaderLoader loader;
 			 unsigned int currentProgram;
 			 
 			 unsigned int renderCopyId;
@@ -99,9 +115,8 @@ namespace MT {
 
 
 		public:
-			 unsigned int VAO, VBO;
 			 int W, H;
-
+			 SDL_GLContext context;
 
 			 bool Start(SDL_Window* window, SDL_GLContext context);
 

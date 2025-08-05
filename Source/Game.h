@@ -12,12 +12,8 @@ private:
 	MT::Renderer *renderer;
 	SDL_Event event = {};
 
-	std::vector<MT::Rect> vec;
-	MT::Texture tex1;
-
 	std::unique_ptr<UI> ui;
 
-	ClickBoxList list;
 
 public:
 	Game();

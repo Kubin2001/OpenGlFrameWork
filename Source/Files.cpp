@@ -1,6 +1,6 @@
 #include "Files.h"
 #include <fstream>
-#include <iostream>
+#include <print>
 
 std::vector<std::string> ReadCsvLine(const std::string& line, const char separator) {
 	std::vector<std::string> items;
@@ -44,12 +44,14 @@ void FileExplorer::CreateElement(int x, int y, const std::string& dirPath, const
 	folderElementsNames.emplace_back(ui->CreateClickBox("Name" + dirPath, x + 20, y, 300 - 75, 20,
 		nullptr, ui->GetFont("arial12px")
 		, "", 1.0f, 25, 5));
+	folderElementsNames.back()->SetColor(255, 255, 255, 0);
 	folderElementsNames.back()->SetHoverFilter(1, 255, 255, 255, 70);
 }
 
 std::string FileExplorer::Open(const std::string& path) {
+	MT::ConstextGuard cg;
 	window = SDL_CreateWindow("FileWindow", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		300, 300, SDL_WINDOW_SHOWN | SDL_WINDOW_ALWAYS_ON_TOP);
+		300, 300, SDL_WINDOW_SHOWN | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_OPENGL);
 	renderer = new MT::Renderer();
 	renderer->Start(window, MT::Innit(window));
 
@@ -80,9 +82,12 @@ std::string FileExplorer::Open(const std::string& path) {
 
 std::string FileExplorer::Maintain() {
 	while (!finished) {
+		int x, y;
+		SDL_GetMouseState(&x, &y);
 		Input();
-		Update();
+		//Update();
 		renderer->ClearFrame(30, 30, 30);
+		ui->FrameUpdate();
 		ui->Render();
 		renderer->RenderPresent();
 		SDL_Delay(32);
@@ -90,6 +95,7 @@ std::string FileExplorer::Maintain() {
 
 	ui->ClearAll();
 	texMan.Clear();
+	renderer->Clear();
 	delete renderer;
 	SDL_DestroyWindow(window);
 	return retPath;
@@ -108,8 +114,7 @@ void FileExplorer::Input() {
 				folderElements.back()->GetRectangle().h)) { //down
 				absoluteY -= 10;
 				for (auto& it : folderElements) {
-					it->GetRectangle().y-=10;
-					
+					it->GetRectangle().y-=10;	
 				}
 			}
 		}

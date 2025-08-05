@@ -8,23 +8,27 @@
 
 class ShaderLoader {
 	private:
-		static int success;
-		static char infoLog[512];
-		static std::unordered_map<std::string,unsigned int> shaders;
-		static std::unordered_map<std::string, unsigned int> shaderPrograms;
+		int success;
+		char infoLog[512];
+		std::unordered_map<std::string,unsigned int> shaders;
+		std::unordered_map<std::string, unsigned int> shaderPrograms;
 
 	public:
-		static void LoadShader(const std::string& name, const std::string& path, GLenum shaderType);
+		void LoadShader(const std::string& name, const std::string& path, GLenum shaderType);
 
-		static void LoadShaderStr(const std::string& name, const std::string& shaderText, GLenum shaderType);
+		void LoadShaderStr(const std::string& name, const std::string& shaderText, GLenum shaderType);
 
-		static unsigned int& GetShader(const std::string& name);
+		unsigned int& GetShader(const std::string& name);
 
-		static void CreateShaderProgram(std::vector<std::string>& names, const std::string& programName, bool deleteShader = false);
+		void CreateProgram(std::vector<std::string>& names, const std::string& programName, bool deleteShader = false);
 
-		static unsigned int& GetProgram(const std::string& name);
+		unsigned int LoadShaderStrRaw(const char* shaderText, GLenum shaderType);
 
-		static bool IsProgram(const std::string& name);
+		void CreateProgramStr(const std::string name, const char* vertexStr, const char* fragmentStr);
 
+		unsigned int& GetProgram(const std::string& name);
 
+		bool IsProgram(const std::string& name);
+
+		~ShaderLoader();
 };

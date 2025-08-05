@@ -36,8 +36,6 @@ SDL_GLContext MT::Innit(SDL_Window *window) {
         SDL_Quit();
         throw std::runtime_error("Failed to initialize GLAD");
     }
-
-    
     return context;
 }
 
@@ -75,6 +73,13 @@ MT::Texture* MT::LoadTexture(const char* path) {
     SDL_FreeSurface(surf);
 
     return metTex;
+}
+
+void MT::DeleteTexture(Texture* tex) {
+    glDeleteTextures(1,&tex->texture);
+    tex->texture = 0;
+    tex->w = 0;
+    tex->h = 0;
 }
 
 MT::Texture* MT::LoadTextureFromSurface(SDL_Surface* surf) {
@@ -170,8 +175,8 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     glEnableVertexAttribArray(8);
     glEnableVertexAttribArray(9);
 
-    if (!ShaderLoader::IsProgram("ShaderProgram")) {
-        const std::string vertexShaderStr = R"glsl(
+    if (!loader.IsProgram("RenderRect")) {
+        constexpr const char * vertexStr = R"glsl(
         #version 330 core
         layout(location = 0) in vec3 aPos;
         layout(location = 1) in vec3 aColor;
@@ -184,7 +189,7 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
             }
         )glsl";
 
-            const std::string fragmentShaderStr = R"glsl(
+        constexpr const char* fragmentStr = R"glsl(
         #version 330 core
 
         out vec4 FragColor;
@@ -196,16 +201,11 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         }
         )glsl";
 
-
-        ShaderLoader::LoadShaderStr("VertexShader", vertexShaderStr, GL_VERTEX_SHADER);
-        ShaderLoader::LoadShaderStr("FragmentShader", fragmentShaderStr, GL_FRAGMENT_SHADER);
-
-        std::vector<std::string> names = { "VertexShader" ,"FragmentShader" };
-        ShaderLoader::CreateShaderProgram(names, "ShaderProgram");
+        loader.CreateProgramStr("RenderRect", vertexStr, fragmentStr);
     }
 
-    if (!ShaderLoader::IsProgram("ShaderProgramRecAlpha")) {
-        const std::string vertexShaderStr = R"glsl(
+    if (!loader.IsProgram("RecAlpha")) {
+        constexpr const char* vertexStr = R"glsl(
         #version 330 core
         layout(location = 0) in vec3 aPos;
         layout(location = 1) in vec3 aColor;
@@ -218,7 +218,7 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
             }
         )glsl";
 
-        const std::string fragmentShaderStr = R"glsl(
+        constexpr const char* fragmentStr = R"glsl(
         #version 330 core
 
         out vec4 FragColor;
@@ -232,16 +232,11 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         }
         )glsl";
 
-
-        ShaderLoader::LoadShaderStr("VertexShaderAlpha", vertexShaderStr, GL_VERTEX_SHADER);
-        ShaderLoader::LoadShaderStr("FragmentShaderAlpha", fragmentShaderStr, GL_FRAGMENT_SHADER);
-
-        std::vector<std::string> names = { "VertexShaderAlpha" ,"FragmentShaderAlpha" };
-        ShaderLoader::CreateShaderProgram(names, "ShaderProgramAlpha");
+        loader.CreateProgramStr("RecAlpha", vertexStr, fragmentStr);
     }
 
-    if (!ShaderLoader::IsProgram("ShaderProgramRenderCopy")) {
-        const std::string vertexRenderCopyStr = R"glsl(
+    if (!loader.IsProgram("RenderCopy")) {
+        constexpr const char* vertexStr = R"glsl(
         #version 330 core
         layout (location = 2) in vec3 aPos;
         layout (location = 3) in vec2 aTexCord;
@@ -256,7 +251,7 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         }
         )glsl";
 
-            const std::string fragmentRenderCopyStr = R"glsl(
+        constexpr const char* fragmentStr = R"glsl(
         #version 330 core
 
         out vec4 FragColor;
@@ -274,19 +269,11 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         }
         )glsl";
 
-
-
-        ShaderLoader::LoadShaderStr("VertexShaderRenderCopy", vertexRenderCopyStr, GL_VERTEX_SHADER);
-        ShaderLoader::LoadShaderStr("FragmentShaderRenderCopy", fragmentRenderCopyStr, GL_FRAGMENT_SHADER);
-
-
-
-        std::vector<std::string> names2 = { "VertexShaderRenderCopy" ,"FragmentShaderRenderCopy" };
-        ShaderLoader::CreateShaderProgram(names2, "ShaderProgramRenderCopy");
+        loader.CreateProgramStr("RenderCopy", vertexStr, fragmentStr);
     }
 
-    if (!ShaderLoader::IsProgram("ShaderProgramRenderCopyCircle")) {
-        const std::string vertexRenderCopyCircleStr = R"glsl(
+    if (!loader.IsProgram("RenderCopyCircle")) {
+        constexpr const char* vertexStr = R"glsl(
         #version 330 core
         layout (location = 2) in vec3 aPos;
         layout (location = 3) in vec2 aTexCord;
@@ -300,7 +287,7 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         }
         )glsl";
 
-        const std::string fragementRenderCopyCircleStr = R"glsl(
+        constexpr const char* fragmentStr = R"glsl(
         #version 330 core
         in vec2 texCord;
         out vec4 FragColor;
@@ -322,18 +309,11 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         }
         )glsl";
 
-
-
-        ShaderLoader::LoadShaderStr("VertexShaderRenderCopyCircle", vertexRenderCopyCircleStr, GL_VERTEX_SHADER);
-        ShaderLoader::LoadShaderStr("FragmentShaderRenderCopyCircle", fragementRenderCopyCircleStr, GL_FRAGMENT_SHADER);
-
-
-        std::vector<std::string> names2 = { "VertexShaderRenderCopyCircle" ,"FragmentShaderRenderCopyCircle" };
-        ShaderLoader::CreateShaderProgram(names2, "ShaderProgramRenderCopyCircle");
+        loader.CreateProgramStr("RenderCopyCircle", vertexStr, fragmentStr);
     }
 
-    if (!ShaderLoader::IsProgram("ShaderProgramRenderCircle")) {
-        const std::string vertexRenderCircleStr = R"glsl(
+    if (!loader.IsProgram("RenderCircle")) {
+        constexpr const char* vertexStr = R"glsl(
         #version 330 core
         layout(location = 4) in vec3 aPos;
         layout(location = 5) in vec3 aColor;
@@ -349,7 +329,7 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         }
         )glsl";
 
-        const std::string fragementRenderCircleStr = R"glsl(
+        constexpr const char* fragmentStr = R"glsl(
         #version 330 core
 
         in vec3 ourColor;
@@ -368,18 +348,11 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         }
         )glsl";
 
-
-
-        ShaderLoader::LoadShaderStr("VertexShaderRenderCircle", vertexRenderCircleStr, GL_VERTEX_SHADER);
-        ShaderLoader::LoadShaderStr("FragmentShaderRenderCircle", fragementRenderCircleStr, GL_FRAGMENT_SHADER);
-
-
-        std::vector<std::string> names = { "VertexShaderRenderCircle" ,"FragmentShaderRenderCircle" };
-        ShaderLoader::CreateShaderProgram(names, "ShaderProgramRenderCircle");
+        loader.CreateProgramStr("RenderCircle", vertexStr, fragmentStr);
     }
 
-    if (!ShaderLoader::IsProgram("ShaderProgramRenderCopyFilter")) {
-        const std::string vertexRenderCopyStr = R"glsl(
+    if (!loader.IsProgram("RenderCopyFilter")) {
+        constexpr const char* vertexStr = R"glsl(
         #version 330 core
         layout (location = 7) in vec3 aPos;
         layout (location = 8) in vec2 aTexCord;
@@ -395,7 +368,7 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         }
         )glsl";
 
-        const std::string fragmentRenderCopyStr = R"glsl(
+        constexpr const char* fragmentStr = R"glsl(
         #version 330 core
         out vec4 FragColor;
 
@@ -416,25 +389,17 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         }
         )glsl";
 
-
-
-        ShaderLoader::LoadShaderStr("VertexShaderRenderCopyFilter", vertexRenderCopyStr, GL_VERTEX_SHADER);
-        ShaderLoader::LoadShaderStr("FragmentShaderRenderCopyFilter", fragmentRenderCopyStr, GL_FRAGMENT_SHADER);
-
-
-
-        std::vector<std::string> names2 = { "VertexShaderRenderCopyFilter" ,"FragmentShaderRenderCopyFilter" };
-        ShaderLoader::CreateShaderProgram(names2, "ShaderProgramRenderCopyFilter");
+        loader.CreateProgramStr("RenderCopyFilter", vertexStr, fragmentStr);
     }
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    renderCopyId = ShaderLoader::GetProgram("ShaderProgramRenderCopy");
-    renderRectId = ShaderLoader::GetProgram("ShaderProgram");
-    renderCopyCircleId = ShaderLoader::GetProgram("ShaderProgramRenderCopyCircle");
-    renderCircleId = ShaderLoader::GetProgram("ShaderProgramRenderCircle");
-    renderRectAlphaId = ShaderLoader::GetProgram("ShaderProgramAlpha");
-    renderCopyFilterId = ShaderLoader::GetProgram("ShaderProgramRenderCopyFilter");
+    renderCopyId = loader.GetProgram("RenderCopy");
+    renderRectId = loader.GetProgram("RenderRect");
+    renderCopyCircleId = loader.GetProgram("RenderCopyCircle");
+    renderCircleId = loader.GetProgram("RenderCircle");
+    renderRectAlphaId = loader.GetProgram("RecAlpha");
+    renderCopyFilterId = loader.GetProgram("RenderCopyFilter");
     
 
     textureLocation = glGetUniformLocation(renderCopyId, "texture1");
@@ -1234,12 +1199,36 @@ void MT::Renderer::RenderPresent(bool switchContext) {
 
 
 void MT::Renderer::Clear() {
-    // Odwiązanie VAO - bezpieczne praktyka, aby nie modyfikować przypadkowo tego VAO w przyszłości
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    // czyszczenie aby nie było wycieków pamięci nie tworzyć jak vbo i vao są globalnie zadeklarowane
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+    VAO = 0;
+    VBO = 0;
+
+    currentProgram = 0;
+    currentTexture = 0;
+    renderCopyId = 0;
+    renderRectId = 0;
+    renderCopyCircleId = 0;
+    renderCircleId = 0;
+    renderRectAlphaId = 0;
+    renderCopyFilterId = 0;
+    RenderCopyExTransform = 0;
+
+    textureLocation = 0;
+    renderRectMatrixLoc = 0;
+    alphaLoc = 0;
+    alphaLocRect = 0;
+    radiusLoc = 0;
+    radiusLoc2 = 0;
+    alphaLocFilter = 0;
+    textureLocationFilter = 0;
+
+    currentRadius = 0.0f;
+    globalVertices.clear();
+    globalVertices.shrink_to_fit();
+
     SDL_GL_DeleteContext(context);
 }

@@ -219,6 +219,7 @@ void TexMan::SplitTexture(const char* path, const std::vector<std::string> &name
 
 void TexMan::Clear() {
 	for (auto& pair : Textures) {
+		MT::DeleteTexture(pair.second);
 		delete pair.second;
 	}
 	Textures.clear();
@@ -402,6 +403,7 @@ void LocalTexMan::SplitTexture(const char* path, const std::vector<std::string>&
 
 void LocalTexMan::Clear() {
 	for (auto& pair : Textures) {
+		MT::DeleteTexture(pair.second);
 		delete pair.second;
 	}
 	Textures.clear();
