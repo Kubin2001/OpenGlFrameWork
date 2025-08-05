@@ -729,8 +729,8 @@ void UI::FrameUpdate() {
 	for (auto it = PopUpBoxes.begin(); it != PopUpBoxes.end();) {
 		(*it)->lifeTime--;
 		if ((*it)->lifeTime < 1) {
-			delete* it;
-			it = PopUpBoxes.erase(it);
+			DeletePopUpBox((*it)->name);
+			return;
 		}
 		else {
 			++it;
