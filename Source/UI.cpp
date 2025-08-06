@@ -153,6 +153,7 @@ void TemplateUIElement::RenderBorder(MT::Renderer* renderer) {
 
 void TemplateUIElement::RenderText(MT::Renderer* renderer) {
 	if (font != nullptr) {
+		if (text.empty()) { return; }
 		font->SetFilter(fontRGB[0], fontRGB[1], fontRGB[2]);
 		switch (textRenderType) {
 			case 1:

@@ -54,8 +54,7 @@ bool Font::LoadTextInfo(const std::string& jsonPath) {
 		//std::cout << "InterLine: " << standardInterLine << "\n";
 
 	}
-	else
-	{
+	else{
 		std::cout << "Error font json not loaded correctly!\n";
 		return false;
 	}
@@ -91,7 +90,7 @@ void Font::RenderText(MT::Renderer* renderer, const std::string &text, MT::Rect 
 }
 
 void Font::RenderTextCenter(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect, float scale, int interline, int textStartX, int textStartY) {
-	Point textSizes = CalculatePredefinedSize(text,interline);
+	Point textSizes = CalculatePredefinedSize(text,interline,scale);
 
 	Point center = GetRectangleCenter(btnRect);
 	rectangle.x = center.x - (textSizes.x * 0.5) + textStartX;
@@ -118,12 +117,9 @@ void Font::RenderTextCenter(MT::Renderer* renderer, const std::string& text, MT:
 
 
 void Font::RenderTextFromRight(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, float scale, int interline, int textStartX, int textStartY) {
-	if (text.empty()) {	return;}
 
 	rectangle.x = (btnRect.x + btnRect.w) - textStartX;
 	rectangle.y = btnRect.y + textStartY;
-	rectangle.w = 0;
-	rectangle.h = 0;
 	int initialX = rectangle.x; 
 
 	for (int i = text.length() - 1; i >= 0; --i) {
