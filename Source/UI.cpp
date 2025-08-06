@@ -305,8 +305,8 @@ void ClickBoxList::Innit(UI* ui, ClickBox* main, std::vector<std::string> names,
 	for (size_t i = 0; i < names.size(); i++){
 		Elements.emplace_back(
 			ui->CreateClickBox(names[i], mainElement->GetRectangle().x, y, 
-				w, h, nullptr, ui->GetFont("arial12px"), texts[i])
-		);
+				w, h, nullptr, ui->GetFont("arial12px"), texts[i]));
+
 		Elements[i]->SetColor(R,G,B);
 		Elements.back()->Hide();
 		y += (h + space);
