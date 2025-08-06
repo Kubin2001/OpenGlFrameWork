@@ -35,10 +35,7 @@ public:
 	void RenderTextFromRight(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect, float scale = 1.0, int interline = 20,
 		int textStartX = 0, int textStartY = 0);
 
-	void RenderTextCenterPred(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect,Point &textSizes,
-		float scale = 1.0, int interline = 20, int textStartX = 0, int textStartY = 0);
-
-	Point CalculatePredefinedSize(const std::string &fontText, int interline);
+	Point CalculatePredefinedSize(const std::string& fontText, const int interline, const float scale);
 
 	void SetFilter(const unsigned char r, const unsigned char g, const unsigned char b);
 };

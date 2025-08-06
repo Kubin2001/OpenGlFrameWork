@@ -93,13 +93,9 @@ void Font::RenderText(MT::Renderer* renderer, const std::string &text, MT::Rect 
 void Font::RenderTextCenter(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect, float scale, int interline, int textStartX, int textStartY) {
 	Point textSizes = CalculatePredefinedSize(text,interline);
 
-	textSizes.x *= 0.5;
-	textSizes.y *= 0.5;
 	Point center = GetRectangleCenter(btnRect);
-	rectangle.x = center.x + textStartX - textSizes.x;
-	rectangle.y = center.y + textStartY - textSizes.y;
-	rectangle.w = 0;
-	rectangle.h = 0;
+	rectangle.x = center.x - (textSizes.x * 0.5) + textStartX;
+	rectangle.y = center.y - (textSizes.y * 0.5) + textStartY;
 	int temp = rectangle.x;
 
 
@@ -147,54 +143,29 @@ void Font::RenderTextFromRight(MT::Renderer* renderer, const std::string& text, 
 	}
 }
 
+Point Font::CalculatePredefinedSize(const std::string& fontText, const int interline, const float scale) {
+	Point predSize(0, interline); // x width y height
 
-//Only use if button text is static and will not change between frames
-void Font::RenderTextCenterPred(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, Point& textSizes, float scale, int interline, int textStartX, int textStartY) {
-	textSizes.x *= 0.5;
-	textSizes.y *= 0.5;
-	Point center = GetRectangleCenter(btnRect);
-	rectangle.x = center.x + textStartX - textSizes.x;
-	rectangle.y = center.y + textStartY - textSizes.y;
-	rectangle.w = 0;
-	rectangle.h = 0;
-	int temp = rectangle.x;
-
-
-	for (int i = 0; i < text.length(); i++){
-		if (text[i] < sourceRectangles.size()) {
-			if (text[i] != '\n') {
-				rectangle.w = sourceRectangles[text[i]].w * scale;
-				rectangle.h = sourceRectangles[text[i]].h * scale;
-				renderer->RenderCopyPart(rectangle, sourceRectangles[text[i]], *texture);
-				rectangle.x += (sourceRectangles[text[i]].w * scale) + 1;
+	int longest = 0;
+	int currentLenght = 0;
+	for (int i = 0; i < fontText.length(); ++i) {
+		if (fontText[i] > sourceRectangles.size()) { continue; }
+		if (fontText[i] == '\n') {
+			predSize.y += interline;
+			if (currentLenght > longest) {
+				longest = currentLenght;
+				currentLenght = 0;
 			}
-			else{
-				rectangle.y += interline * scale;
-				rectangle.x = temp;
-			}
+			continue;
 		}
+
+		currentLenght += sourceRectangles[fontText[i]].w * scale + 1;
+
 	}
-}
-
-
-Point Font::CalculatePredefinedSize(const std::string& fontText, int interline) {
-	Point predSize(0, 0 + interline);
-	bool firstLine = true;
-	for (int i = 0; i < fontText.length(); i++){
-		if (fontText[i] < sourceRectangles.size()) {
-			if (fontText[i] != '\n') {
-				if (firstLine) {
-					predSize.x += sourceRectangles[fontText[i]].w;
-				}
-
-			}
-			else{
-				predSize.y += interline;
-				firstLine = false;
-			}
-		}
+	if (currentLenght > longest) {
+		longest = currentLenght;
 	}
-
+	predSize.x = longest;
 	return predSize;
 }
 

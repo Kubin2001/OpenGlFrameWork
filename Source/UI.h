@@ -97,7 +97,6 @@ public:
 	// 1 Standard
 	// 2 Center
 	// 3 From Right
-	// 4 center static
 	void SetRenderTextType(const unsigned short textRenderType);
 
 	bool IsHidden();
