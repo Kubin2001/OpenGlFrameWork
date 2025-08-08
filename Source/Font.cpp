@@ -117,23 +117,24 @@ void Font::RenderTextCenter(MT::Renderer* renderer, const std::string& text, MT:
 
 
 void Font::RenderTextFromRight(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, float scale, int interline, int textStartX, int textStartY) {
+	const Point textSizes = CalculatePredefinedSize(text, interline, scale);
 
-	rectangle.x = (btnRect.x + btnRect.w) - textStartX;
+	rectangle.x = btnRect.x + btnRect.w - textSizes.x + textStartX;
 	rectangle.y = btnRect.y + textStartY;
-	int initialX = rectangle.x; 
+	const int temp = rectangle.x;
 
-	for (int i = text.length() - 1; i >= 0; --i) {
+
+	for (int i = 0; i < text.length(); ++i) {
 		if (text[i] < sourceRectangles.size()) {
 			if (text[i] != '\n') {
 				rectangle.w = sourceRectangles[text[i]].w * scale;
 				rectangle.h = sourceRectangles[text[i]].h * scale;
-
-				rectangle.x -= rectangle.w + 1; 
 				renderer->RenderCopyPart(rectangle, sourceRectangles[text[i]], *texture);
+				rectangle.x += (sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else {
 				rectangle.y += interline * scale;
-				rectangle.x = initialX; 
+				rectangle.x = temp;
 			}
 		}
 	}
