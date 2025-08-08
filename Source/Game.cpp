@@ -30,7 +30,7 @@ void Game::Start() {
 	Global::defaultDrawColor[0] = 255;
 	Global::defaultDrawColor[1] = 255;
 	Global::defaultDrawColor[2] = 255;
-	//SDL_SetRenderDrawColor(renderer, Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2], 255); 
+
 	TexMan::Start(renderer);
 	TexMan::DeepLoad("Textures");
 	SoundMan::Innit();
@@ -41,6 +41,10 @@ void Game::Start() {
 	ui->CreateFont("arial40px", TexMan::GetTex("arial40px"), "Textures/Interface/Fonts/arial40px.json");
 	ui->CreateFont("arial20px", TexMan::GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
+
+	FileExplorer fe;
+	std::string ret = fe.Open();
+	std::cout << "Explorer returned: " << ret << "\n";
 }
 
 

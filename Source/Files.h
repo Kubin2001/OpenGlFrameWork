@@ -41,7 +41,7 @@ class FileExplorer {
 	public:
 		FileExplorer() = default;
 
-		std::string Open(const std::string& path);
+		std::string Open(const std::string& path = "");
 
 
 

@@ -55,7 +55,14 @@ std::string FileExplorer::Open(const std::string& path) {
 	renderer = new MT::Renderer();
 	renderer->Start(window, MT::Innit(window));
 
-	std::filesystem::path current = std::filesystem::current_path();
+	std::filesystem::path current;
+	if (std::filesystem::exists(path)) {
+		current = path;
+	}
+	else {
+		current = std::filesystem::current_path();
+	}
+
 	currentPath = current.string();
 	texMan.Start(renderer);
 	texMan.LoadMultiple("Textures/FileExplorer");
@@ -109,12 +116,18 @@ void FileExplorer::Input() {
 				for (auto &it:folderElements) {
 					it->GetRectangle().y+=10;
 				}
+				for (auto& it : folderElementsNames) {
+					it->GetRectangle().y += 10;
+				}
 			}
 			else if (event.wheel.y < 0 && std::abs(absoluteY) < (folderElements.back()->GetRectangle().y +
 				folderElements.back()->GetRectangle().h)) { //down
 				absoluteY -= 10;
 				for (auto& it : folderElements) {
 					it->GetRectangle().y-=10;	
+				}
+				for (auto& it : folderElementsNames) {
+					it->GetRectangle().y -= 10;
 				}
 			}
 		}
@@ -134,22 +147,25 @@ void FileExplorer::Input() {
 
 	for (size_t i = 0; i < folderElements.size(); ++i) {
 		if (folderElements[i]->ConsumeStatus() || folderElementsNames[i]->ConsumeStatus()) {
+			std::string temp = std::filesystem::path(folderElements[i]->GetName()).string();
 			if (selectedElement == nullptr) {
 				selectedElement = folderElements[i];
-				break;
-			}
-			if (folderElements[i] == selectedElement) {
-				std::string temp = std::filesystem::path(folderElements[i]->GetName()).string();
 				if (std::filesystem::is_directory(temp)) {
-					currentPath = temp;
-					retPath = temp;
-					Update();
-				}
-				else {
 					retPath = temp;
 				}
 				break;
 			}
+			if (folderElements[i] != selectedElement) { continue; }
+
+			if (std::filesystem::is_directory(temp)) {
+				currentPath = temp;
+				retPath = temp;
+				Update();
+			}
+			else {
+				retPath = temp;
+			}
+			break;
 		}
 	}
 }
