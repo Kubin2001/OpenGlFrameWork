@@ -84,6 +84,10 @@ std::string FileExplorer::Open(const std::string& path) {
 
 	ui->CreateClickBox("ArrowLeft", 10, 10, 30, 20, nullptr, ui->GetFont("arial12px"), "<-");
 	ui->GetClickBox("ArrowLeft")->SetColor(60, 60, 60);
+
+	selectedBox = ui->CreateButton("selectionButton", 50, 100, 300, 20, nullptr);
+	selectedBox->SetColor(135, 206, 250, 150);
+	selectedBox->Hide();
 	return Maintain();
 }
 
@@ -119,6 +123,7 @@ void FileExplorer::Input() {
 				for (auto& it : folderElementsNames) {
 					it->GetRectangle().y += 10;
 				}
+				selectedBox->GetRectangle().y += 10;
 			}
 			else if (event.wheel.y < 0 && std::abs(absoluteY) < (folderElements.back()->GetRectangle().y +
 				folderElements.back()->GetRectangle().h)) { //down
@@ -129,6 +134,7 @@ void FileExplorer::Input() {
 				for (auto& it : folderElementsNames) {
 					it->GetRectangle().y -= 10;
 				}
+				selectedBox->GetRectangle().y -= 10;
 			}
 		}
 		if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE) {
@@ -150,22 +156,29 @@ void FileExplorer::Input() {
 			std::string temp = std::filesystem::path(folderElements[i]->GetName()).string();
 			if (selectedElement == nullptr) {
 				selectedElement = folderElements[i];
-				if (std::filesystem::is_directory(temp)) {
-					retPath = temp;
-				}
+				selectedBox->Show();
+				selectedBox->GetRectangle().y = selectedElement->GetRectangle().y;
+				retPath = temp;
 				break;
 			}
-			if (folderElements[i] != selectedElement) { continue; }
+			if (selectedElement == folderElements[i]) {
 
-			if (std::filesystem::is_directory(temp)) {
-				currentPath = temp;
-				retPath = temp;
-				Update();
+				if (folderElements[i] != selectedElement) { continue; }
+
+				if (std::filesystem::is_directory(temp)) {
+					currentPath = temp;
+					retPath = temp;
+					Update();
+				}
+				else {
+					retPath = temp;
+				}
 			}
-			else {
-				retPath = temp;
+			if (selectedElement != nullptr) {
+				selectedElement = folderElements[i];
+				selectedBox->GetRectangle().y = selectedElement->GetRectangle().y;
+				selectedBox->Show();
 			}
-			break;
 		}
 	}
 }
@@ -193,4 +206,5 @@ void FileExplorer::Update() {
 		y += 35;
 	}
 	selectedElement = nullptr;
+	selectedBox->Hide();
 }

@@ -6,3 +6,4 @@
 1.1
 - File explorer improvements
 - Better text rendering from right
+- Better hovering of selected element in file explorer
