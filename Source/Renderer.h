@@ -5,6 +5,24 @@
 
 #include "ShaderLoader.h"
 #include "Rectangle.h"
+
+class Command {
+	public:
+	unsigned int shaderID = 0;
+	unsigned int vertexSize = 0;
+	unsigned int textureID = 0;
+
+	std::vector<float> verts;
+
+
+
+	template<typename Iter>
+	Command(const unsigned int shader, const unsigned int vsize, const unsigned int textureID, 
+		Iter begin, Iter end)
+		: shaderID(shader), vertexSize(vsize), textureID(textureID) ,verts(begin, end) {
+	}
+};
+
 namespace MT {
 
 	SDL_GLContext Innit(SDL_Window* window);
@@ -60,6 +78,7 @@ namespace MT {
 
 		private:
 			 SDL_Window* window = nullptr;
+			 Rect vievPort;
 			 unsigned int VAO, VBO;
 			 ShaderLoader loader;
 			 unsigned int currentProgram;
@@ -74,7 +93,6 @@ namespace MT {
 			 unsigned int RenderCopyExTransform;
 			 unsigned int textureLocation;
 			 unsigned int currentTexture;
-			 unsigned int renderRectMatrixLoc;
 			 unsigned int alphaLoc;
 			 unsigned int alphaLocRect;
 			 unsigned int radiusLoc;
@@ -83,7 +101,15 @@ namespace MT {
 			 unsigned int textureLocationFilter;
 			 float currentRadius;
 
+			 //Veretex Sizes
+			 unsigned int currentSize = 0;
+			 unsigned int renderRectSize = 5; // Wszystkie renderowania bez tesktur
+			 unsigned int renderCopySize = 4; // Wszystkie renderowania tekstur
+			 unsigned int renderCircleSize = 7;
+			 unsigned int renderFilteredSize = 7;
+
 			 std::vector<float> globalVertices;
+			 std::vector<Command> commands;
 
 
 
@@ -95,22 +121,16 @@ namespace MT {
 
 			 void ClearFrame(const unsigned char R, const unsigned char G, const unsigned char B);
 
-			 void RenderRectF(const RectF& rect, const Color& col);
 			 void RenderRect(const Rect& rect, const Color& col);
 
-			 void RenderRectFEX(const RectF& rect, const Color& col, const float rotation);
 			 void RenderRectEX(const Rect& rect, const Color& col, const float rotation);
 
-			 void RenderCopyF(const RectF& rect, const Texture* texture);
 			 void RenderCopy(const Rect& rect, const Texture* texture);
 
-			 void RenderCopyPartF(const RectF& rect, const RectF& source, const Texture* texture);
 			 void RenderCopyPart(const Rect& rect, const Rect& source, const Texture* texture);
 
-			 void RenderCopyFEX(const RectF& rect, const Texture* texture, const float rotation);
 			 void RenderCopyEX(const Rect& rect, const Texture* texture, const float rotation);
 
-			 void RenderCopyPartFEX(const RectF& rect, const RectF& source, const Texture* texture, const float rotation);
 			 void RenderCopyPartEX(const Rect& rect, const Rect& source, const Texture* texture, const float rotation);
 
 			 void RenderCopyCircle(const Rect& rect, const Texture* texture, const float radius = 0.5f);
@@ -123,6 +143,8 @@ namespace MT {
 			 void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter);
 
 			 void RenderCopyPartFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
+
+			 void AddCommand();
 
 			 void RenderPresent(bool switchContext = true);
 
