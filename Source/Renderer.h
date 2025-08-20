@@ -101,28 +101,28 @@ namespace MT {
 			 void RenderRectFEX(const RectF& rect, const Color& col, const float rotation);
 			 void RenderRectEX(const Rect& rect, const Color& col, const float rotation);
 
-			 void RenderCopyF(const RectF& rect, const Texture& texture);
-			 void RenderCopy(const Rect& rect, const Texture& texture);
+			 void RenderCopyF(const RectF& rect, const Texture* texture);
+			 void RenderCopy(const Rect& rect, const Texture* texture);
 
-			 void RenderCopyPartF(const RectF& rect, const RectF& source, const Texture& texture);
-			 void RenderCopyPart(const Rect& rect, const Rect& source, const Texture& texture);
+			 void RenderCopyPartF(const RectF& rect, const RectF& source, const Texture* texture);
+			 void RenderCopyPart(const Rect& rect, const Rect& source, const Texture* texture);
 
-			 void RenderCopyFEX(const RectF& rect, const Texture& texture, const float rotation);
-			 void RenderCopyEX(const Rect& rect, const Texture& texture, const float rotation);
+			 void RenderCopyFEX(const RectF& rect, const Texture* texture, const float rotation);
+			 void RenderCopyEX(const Rect& rect, const Texture* texture, const float rotation);
 
-			 void RenderCopyPartFEX(const RectF& rect, const RectF& source, const Texture& texture, const float rotation);
-			 void RenderCopyPartEX(const Rect& rect, const Rect& source, const Texture& texture, const float rotation);
+			 void RenderCopyPartFEX(const RectF& rect, const RectF& source, const Texture* texture, const float rotation);
+			 void RenderCopyPartEX(const Rect& rect, const Rect& source, const Texture* texture, const float rotation);
 
-			 void RenderCopyCircle(const Rect& rect, const Texture& texture, const float radius = 0.5f);
+			 void RenderCopyCircle(const Rect& rect, const Texture* texture, const float radius = 0.5f);
 
 			 void RenderCircle(const Rect& rect, const Color& col, const float radius = 0.5f);
 
 			 void RenderRectAlpha(const Rect& rect, const Color& col, unsigned char alpha);
 			 void RenderRectAlphaEX(const Rect& rect, const Color& col, unsigned char alpha, const float rotation);
 
-			 void RenderCopyFiltered(const Rect& rect, const Texture& texture, const Color& filter);
+			 void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter);
 
-			 void RenderCopyPartFiltered(const Rect& rect, const Rect& source, const Texture& texture, const Color& filter);
+			 void RenderCopyPartFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
 
 			 void RenderPresent(bool switchContext = true);
 

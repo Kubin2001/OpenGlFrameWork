@@ -115,7 +115,7 @@ void TemplateUIElement::Render(MT::Renderer* renderer) {
 			RenderItslelf(renderer);
 		}
 		else {
-			renderer->RenderCopy(GetRectangle(), *GetTexture());
+			renderer->RenderCopy(GetRectangle(), texture);
 			if (hovered && hoverable) {
 				renderer->RenderRectAlpha(rectangle, 
 					{ hooverFilter[0], hooverFilter[1], hooverFilter[2] }, hooverFilter[3]);

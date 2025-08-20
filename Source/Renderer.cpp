@@ -589,13 +589,13 @@ void MT::Renderer::RenderRectEX(const Rect& rect, const Color &col, const float 
 
 
 
-void MT::Renderer::RenderCopyF(const RectF& rect, const Texture& texture) {
+void MT::Renderer::RenderCopyF(const RectF& rect, const Texture* texture) {
     // Włączenie atrybututów iwerzchołków
-    if (Renderer::currentTexture != texture.texture) {
+    if (Renderer::currentTexture != texture->texture) {
         RenderPresent(false);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.texture);
-        currentTexture = texture.texture;
+        glBindTexture(GL_TEXTURE_2D, texture->texture);
+        currentTexture = texture->texture;
     }
 
     if (Renderer::currentProgram != Renderer::renderCopyId) {
@@ -621,18 +621,18 @@ void MT::Renderer::RenderCopyF(const RectF& rect, const Texture& texture) {
 
 }
 
-void MT::Renderer::RenderCopy(const Rect& rect, const Texture& texture){
+void MT::Renderer::RenderCopy(const Rect& rect, const Texture* texture){
     const float x = (rect.x / static_cast<float>(W)) * 2.0f - 1.0f;
     const float y = 1.0f - (rect.y / static_cast<float>(H)) * 2.0f;
     const float w = (rect.w / static_cast<float>(W)) * 2.0f;
     const float h = (rect.h / static_cast<float>(H)) * 2.0f;
 
     // aktywacja tekstury
-    if (Renderer::currentTexture != texture.texture) {
+    if (Renderer::currentTexture != texture->texture) {
         RenderPresent(false);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.texture);
-        currentTexture = texture.texture;
+        glBindTexture(GL_TEXTURE_2D, texture->texture);
+        currentTexture = texture->texture;
     }
     
     if (Renderer::currentProgram != Renderer::renderCopyId) {
@@ -641,7 +641,7 @@ void MT::Renderer::RenderCopy(const Rect& rect, const Texture& texture){
         glUseProgram(Renderer::renderCopyId);
     }
 
-    glUniform1f(alphaLoc, texture.alpha);
+    glUniform1f(alphaLoc, texture->alpha);
     
 
     //    // pos.x, pos.y, pos.z, tex.u, tex.v
@@ -656,12 +656,12 @@ void MT::Renderer::RenderCopy(const Rect& rect, const Texture& texture){
     globalVertices.insert(globalVertices.end(), std::begin(verticles), std::end(verticles));
 }
 
-void MT::Renderer::RenderCopyPartF(const RectF& rect, const RectF& source, const Texture& texture) {
-    if (Renderer::currentTexture != texture.texture) {
+void MT::Renderer::RenderCopyPartF(const RectF& rect, const RectF& source, const Texture* texture) {
+    if (Renderer::currentTexture != texture->texture) {
         RenderPresent(false);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.texture);
-        currentTexture = texture.texture;
+        glBindTexture(GL_TEXTURE_2D, texture->texture);
+        currentTexture = texture->texture;
     }
 
     if (Renderer::currentProgram != Renderer::renderCopyId) {
@@ -669,7 +669,7 @@ void MT::Renderer::RenderCopyPartF(const RectF& rect, const RectF& source, const
         Renderer::currentProgram = Renderer::renderCopyId;
         glUseProgram(Renderer::renderCopyId);
     }
-    glUniform1f(alphaLoc, texture.alpha);
+    glUniform1f(alphaLoc, texture->alpha);
 
 
     const float u0 = source.x;
@@ -690,18 +690,18 @@ void MT::Renderer::RenderCopyPartF(const RectF& rect, const RectF& source, const
     globalVertices.insert(globalVertices.end(), std::begin(verticles), std::end(verticles));
 }
 
-void MT::Renderer::RenderCopyPart(const Rect& rect, const Rect& source, const Texture &texture) {
+void MT::Renderer::RenderCopyPart(const Rect& rect, const Rect& source, const Texture *texture) {
     const float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
     const float y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
     const float w = (static_cast<float>(rect.w) / W) * 2.0f;
     const float h = (static_cast<float>(rect.h) / H) * 2.0f;
 
 
-    if (Renderer::currentTexture != texture.texture) {
+    if (Renderer::currentTexture != texture->texture) {
         RenderPresent(false);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.texture);
-        currentTexture = texture.texture;
+        glBindTexture(GL_TEXTURE_2D, texture->texture);
+        currentTexture = texture->texture;
     }
 
     if (Renderer::currentProgram != Renderer::renderCopyId) {
@@ -709,14 +709,14 @@ void MT::Renderer::RenderCopyPart(const Rect& rect, const Rect& source, const Te
         Renderer::currentProgram = Renderer::renderCopyId;
         glUseProgram(Renderer::renderCopyId);
     }
-    glUniform1f(alphaLoc, texture.alpha);
+    glUniform1f(alphaLoc, texture->alpha);
 
     RectF tempSource;
 
-    tempSource.x = static_cast<float>(source.x) / texture.w;
-    tempSource.y = static_cast<float>(source.y) / texture.h;
-    tempSource.w = static_cast<float>(source.w) / texture.w;
-    tempSource.h = static_cast<float>(source.h) / texture.h;
+    tempSource.x = static_cast<float>(source.x) / texture->w;
+    tempSource.y = static_cast<float>(source.y) / texture->h;
+    tempSource.w = static_cast<float>(source.w) / texture->w;
+    tempSource.h = static_cast<float>(source.h) / texture->h;
 
     float u0 = tempSource.x;
     float u1 = tempSource.x + tempSource.w;
@@ -736,12 +736,12 @@ void MT::Renderer::RenderCopyPart(const Rect& rect, const Rect& source, const Te
     globalVertices.insert(globalVertices.end(), std::begin(verticles), std::end(verticles));
 }
 
-void MT::Renderer::RenderCopyFEX(const RectF& rect, const Texture& texture, const float rotation) {
-    if (Renderer::currentTexture != texture.texture) {
+void MT::Renderer::RenderCopyFEX(const RectF& rect, const Texture* texture, const float rotation) {
+    if (Renderer::currentTexture != texture->texture) {
         RenderPresent(false);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.texture);
-        currentTexture = texture.texture;
+        glBindTexture(GL_TEXTURE_2D, texture->texture);
+        currentTexture = texture->texture;
     }
 
     if (Renderer::currentProgram != Renderer::renderCopyId) {
@@ -749,7 +749,7 @@ void MT::Renderer::RenderCopyFEX(const RectF& rect, const Texture& texture, cons
         Renderer::currentProgram = Renderer::renderCopyId;
         glUseProgram(Renderer::renderCopyId);
     }
-    glUniform1f(alphaLoc, texture.alpha);
+    glUniform1f(alphaLoc, texture->alpha);
 
     float halfW = rect.w / 2.0f;
     float halfH = rect.h / 2.0f;
@@ -778,12 +778,12 @@ void MT::Renderer::RenderCopyFEX(const RectF& rect, const Texture& texture, cons
     globalVertices.insert(globalVertices.end(), std::begin(vertex), std::end(vertex));
 }
 
-void MT::Renderer::RenderCopyEX(const Rect& rect, const Texture& texture, const float rotation) {
-    if (Renderer::currentTexture != texture.texture) {
+void MT::Renderer::RenderCopyEX(const Rect& rect, const Texture* texture, const float rotation) {
+    if (Renderer::currentTexture != texture->texture) {
         RenderPresent(false);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.texture);
-        currentTexture = texture.texture;
+        glBindTexture(GL_TEXTURE_2D, texture->texture);
+        currentTexture = texture->texture;
     }
 
     if (Renderer::currentProgram != Renderer::renderCopyId) {
@@ -791,7 +791,7 @@ void MT::Renderer::RenderCopyEX(const Rect& rect, const Texture& texture, const 
         Renderer::currentProgram = Renderer::renderCopyId;
         glUseProgram(Renderer::renderCopyId);
     }
-    glUniform1f(alphaLoc, texture.alpha);
+    glUniform1f(alphaLoc, texture->alpha);
 
     float aspect = static_cast<float>(H) / static_cast<float>(W);
     float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
@@ -827,12 +827,12 @@ void MT::Renderer::RenderCopyEX(const Rect& rect, const Texture& texture, const 
     globalVertices.insert(globalVertices.end(), std::begin(vertex), std::end(vertex));
 }
 
-void MT::Renderer::RenderCopyPartFEX(const RectF& rect, const RectF& source, const Texture& texture, const float rotation) {
-    if (Renderer::currentTexture != texture.texture) {
+void MT::Renderer::RenderCopyPartFEX(const RectF& rect, const RectF& source, const Texture* texture, const float rotation) {
+    if (Renderer::currentTexture != texture->texture) {
         RenderPresent(false);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.texture);
-        currentTexture = texture.texture;
+        glBindTexture(GL_TEXTURE_2D, texture->texture);
+        currentTexture = texture->texture;
     }
 
     if (Renderer::currentProgram != Renderer::renderCopyId) {
@@ -840,7 +840,7 @@ void MT::Renderer::RenderCopyPartFEX(const RectF& rect, const RectF& source, con
         Renderer::currentProgram = Renderer::renderCopyId;
         glUseProgram(Renderer::renderCopyId);
     }
-    glUniform1f(alphaLoc, texture.alpha);
+    glUniform1f(alphaLoc, texture->alpha);
 
     ////////
     float halfW = rect.w / 2.0f;
@@ -875,12 +875,12 @@ void MT::Renderer::RenderCopyPartFEX(const RectF& rect, const RectF& source, con
     globalVertices.insert(globalVertices.end(), std::begin(vertex), std::end(vertex));
 }
 
-void MT::Renderer::RenderCopyPartEX(const Rect& rect, const Rect& source, const Texture& texture, const float rotation) {
-    if (Renderer::currentTexture != texture.texture) {
+void MT::Renderer::RenderCopyPartEX(const Rect& rect, const Rect& source, const Texture* texture, const float rotation) {
+    if (Renderer::currentTexture != texture->texture) {
         RenderPresent(false);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.texture);
-        currentTexture = texture.texture;
+        glBindTexture(GL_TEXTURE_2D, texture->texture);
+        currentTexture = texture->texture;
     }
 
     if (Renderer::currentProgram != Renderer::renderCopyId) {
@@ -888,7 +888,7 @@ void MT::Renderer::RenderCopyPartEX(const Rect& rect, const Rect& source, const 
         Renderer::currentProgram = Renderer::renderCopyId;
         glUseProgram(Renderer::renderCopyId);
     }
-    glUniform1f(alphaLoc, texture.alpha);
+    glUniform1f(alphaLoc, texture->alpha);
 
     float aspect = static_cast<float>(H) / static_cast<float>(W);
     const float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
@@ -899,8 +899,8 @@ void MT::Renderer::RenderCopyPartEX(const Rect& rect, const Rect& source, const 
     float halfW = w / 2.0f;
     float halfH = h / 2.0f;
 
-    const float texW = static_cast<float>(texture.w);
-    const float texH = static_cast<float>(texture.h);
+    const float texW = static_cast<float>(texture->w);
+    const float texH = static_cast<float>(texture->h);
 
 
     const float u0 = static_cast<float>(source.x) / texW;
@@ -935,7 +935,7 @@ void MT::Renderer::RenderCopyPartEX(const Rect& rect, const Rect& source, const 
 }
 
 
-void MT::Renderer::RenderCopyCircle(const Rect& rect, const Texture& texture, const float radius) {
+void MT::Renderer::RenderCopyCircle(const Rect& rect, const Texture* texture, const float radius) {
     const float x = (rect.x / static_cast<float>(W)) * 2.0f - 1.0f;
     const float y = 1.0f - (rect.y / static_cast<float>(H)) * 2.0f;
     const float w = (rect.w / static_cast<float>(W)) * 2.0f;
@@ -944,11 +944,11 @@ void MT::Renderer::RenderCopyCircle(const Rect& rect, const Texture& texture, co
     // aktywacja tekstury
 
 
-    if (currentTexture != texture.texture) {
+    if (currentTexture != texture->texture) {
         RenderPresent(false);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.texture);
-        currentTexture = texture.texture;
+        glBindTexture(GL_TEXTURE_2D, texture->texture);
+        currentTexture = texture->texture;
     }
 
     if (currentProgram != renderCopyCircleId) {
@@ -964,7 +964,7 @@ void MT::Renderer::RenderCopyCircle(const Rect& rect, const Texture& texture, co
         glUniform1f(radiusLoc, currentRadius);
     }
 
-    glUniform1f(alphaLoc, texture.alpha);
+    glUniform1f(alphaLoc, texture->alpha);
 
 
     //    // pos.x, pos.y, pos.z, tex.u, tex.v
@@ -1097,18 +1097,18 @@ void MT::Renderer::RenderRectAlphaEX(const Rect& rect, const Color& col, unsigne
     globalVertices.insert(globalVertices.end(), std::begin(vertex), std::end(vertex));
 }
 
-void MT::Renderer::RenderCopyFiltered(const Rect& rect, const Texture& texture, const Color& filter) {
+void MT::Renderer::RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter) {
     const float x = (rect.x / static_cast<float>(W)) * 2.0f - 1.0f;
     const float y = 1.0f - (rect.y / static_cast<float>(H)) * 2.0f;
     const float w = (rect.w / static_cast<float>(W)) * 2.0f;
     const float h = (rect.h / static_cast<float>(H)) * 2.0f;
 
     // aktywacja tekstury
-    if (Renderer::currentTexture != texture.texture) {
+    if (Renderer::currentTexture != texture->texture) {
         RenderPresent(false);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.texture);
-        currentTexture = texture.texture;
+        glBindTexture(GL_TEXTURE_2D, texture->texture);
+        currentTexture = texture->texture;
     }
 
     if (currentProgram != renderCopyFilterId) {
@@ -1117,7 +1117,7 @@ void MT::Renderer::RenderCopyFiltered(const Rect& rect, const Texture& texture, 
         glUseProgram(renderCopyFilterId);
     }
 
-    glUniform1f(alphaLoc, texture.alpha);
+    glUniform1f(alphaLoc, texture->alpha);
     const float fR = float(filter.R) / 255;
     const float fG = float(filter.G) / 255;
     const float fB = float(filter.B) / 255;
@@ -1134,18 +1134,18 @@ void MT::Renderer::RenderCopyFiltered(const Rect& rect, const Texture& texture, 
     globalVertices.insert(globalVertices.end(), std::begin(verticles), std::end(verticles));
 }
 
-void MT::Renderer::RenderCopyPartFiltered(const Rect& rect, const Rect& source, const Texture& texture, const Color& filter) {
+void MT::Renderer::RenderCopyPartFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter) {
     const float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
     const float y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
     const float w = (static_cast<float>(rect.w) / W) * 2.0f;
     const float h = (static_cast<float>(rect.h) / H) * 2.0f;
 
 
-    if (Renderer::currentTexture != texture.texture) {
+    if (Renderer::currentTexture != texture->texture) {
         RenderPresent(false);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.texture);
-        currentTexture = texture.texture;
+        glBindTexture(GL_TEXTURE_2D, texture->texture);
+        currentTexture = texture->texture;
     }
 
     if (currentProgram != renderCopyFilterId) {
@@ -1153,15 +1153,15 @@ void MT::Renderer::RenderCopyPartFiltered(const Rect& rect, const Rect& source, 
         currentProgram = renderCopyFilterId;
         glUseProgram(renderCopyFilterId);
     }
-    glUniform1f(alphaLoc, texture.alpha);
+    glUniform1f(alphaLoc, texture->alpha);
     const float fR = float(filter.R) / 255;
     const float fG = float(filter.G) / 255;
     const float fB = float(filter.B) / 255;
 
-    const float tempSourceX = static_cast<float>(source.x) / texture.w;
-    const float tempSourceY = static_cast<float>(source.y) / texture.h;
-    const float tempSourceW = static_cast<float>(source.w) / texture.w;
-    const float tempSourceH = static_cast<float>(source.h) / texture.h;
+    const float tempSourceX = static_cast<float>(source.x) / texture->w;
+    const float tempSourceY = static_cast<float>(source.y) / texture->h;
+    const float tempSourceW = static_cast<float>(source.w) / texture->w;
+    const float tempSourceH = static_cast<float>(source.h) / texture->h;
 
     float u0 = tempSourceX;
     float u1 = tempSourceX + tempSourceW;
