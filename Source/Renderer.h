@@ -1,40 +1,13 @@
 #pragma once
 
 #include "glm.hpp"
-#include "ShaderLoader.h"
 #include <SDL.h>
 
+#include "ShaderLoader.h"
+#include "Rectangle.h"
 namespace MT {
 
 	SDL_GLContext Innit(SDL_Window* window);
-
-	struct RectF {
-		float x;
-		float y;
-		float w;
-		float h;
-
-		constexpr void Set(const float x, const float y, const float w, const float h) noexcept{
-			this->x = x;
-			this->y = y;
-			this->w = w;
-			this->h = h;
-		}
-	};
-
-	struct Rect {
-		int x;
-		int y;
-		int w;
-		int h;
-
-		constexpr void Set(const int x, const int y, const int w, const int h) noexcept {
-			this->x = x;
-			this->y = y;
-			this->w = w;
-			this->h = h;
-		}
-	};
 
 	struct Color {
 		unsigned char R, G, B;

@@ -4,21 +4,7 @@
 #include <SDL.h>
 #include <vector>
 #include "GlobalVariables.h"
-#include "Renderer.h"
-
-struct Point
-{
-	int x = 0;
-	int y = 0;
-	Point();
-	Point(int x, int y);
-
-	bool operator==(const Point& other) const {
-		return x == other.x && y == other.y;
-	}
-};
-
-
+#include "Rectangle.h"
 
 struct MapPos {
 	int rows = 0; //Du¿e Regiony

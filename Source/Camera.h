@@ -41,8 +41,14 @@ class Camera {
 		void UpdateZoom(SDL_Event& event);
 
 		SDL_Rect TransformFlat(const SDL_Rect& rect);
+		MT::Rect TransformFlat(const MT::Rect& rect);
+		MT::RectF TransformFlat(const MT::RectF& rect);
+		MT::CompositeRect TransformFlat(const MT::CompositeRect& rect);
 
 		SDL_Rect Transform(const SDL_Rect& rect);
+		MT::Rect Transform(const MT::Rect& rect);
+		MT::RectF Transform(const MT::RectF& rect);
+		MT::CompositeRect Transform(const MT::CompositeRect& rect);
 
 		Point UntransformFlat(int x, int y);
 

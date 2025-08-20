@@ -41,20 +41,43 @@ int Collision(const MT::Rect& rect, const MT::Rect& rect2) {
 }
 
 bool SimpleCollision(const MT::Rect& rect, const MT::Rect& rect2) {
-
-	int width = rect.w;
-	int height = rect.h;
-
-	int width2 = rect2.w;
-	int height2 = rect2.h;
-
-	if (rect.x + width >= rect2.x &&
-		rect.x - width2 <= rect2.x &&
-		rect.y + height >= rect2.y &&
-		rect.y - height2 <= rect2.y) {
-		return 1;
+	if (rect.x + rect.w >= rect2.x &&
+		rect.x - rect2.w <= rect2.x &&
+		rect.y + rect.h >= rect2.y &&
+		rect.y - rect2.h <= rect2.y) {
+		return true;
 	}
-	return 0;
+	return false;
+}
+
+bool SimpleCollision(const SDL_Rect& rect, const MT::Rect& rect2) {
+	if (rect.x + rect.w >= rect2.x &&
+		rect.x - rect2.w <= rect2.x &&
+		rect.y + rect.h >= rect2.y &&
+		rect.y - rect2.h <= rect2.y) {
+		return true;
+	}
+	return false;
+}
+
+bool SimpleCollision(const SDL_Rect& rect, const MT::RectF& rect2) {
+	if (rect.x + rect.w >= rect2.x &&
+		rect.x - rect2.w <= rect2.x &&
+		rect.y + rect.h >= rect2.y &&
+		rect.y - rect2.h <= rect2.y) {
+		return true;
+	}
+	return false;
+}
+
+bool SimpleCollision(const SDL_Rect& rect, const MT::CompositeRect& rect2) {
+	if (rect.x + rect.w >= rect2.x &&
+		rect.x - rect2.w <= rect2.x &&
+		rect.y + rect.h >= rect2.y &&
+		rect.y - rect2.h <= rect2.y) {
+		return true;
+	}
+	return false;
 }
 
 int AdvancedCollision(const MT::Rect &rect, const MT::Rect& rect2, const int deepth) {

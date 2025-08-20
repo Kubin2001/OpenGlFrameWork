@@ -89,17 +89,57 @@ void Camera::UpdateZoom(SDL_Event& event) {
 }
 
 SDL_Rect Camera::TransformFlat(const SDL_Rect& rect) {
-	SDL_Rect r{ 0,0,rect.w,rect.h };
-	r.x = rect.x - rectangle.x;
-	r.y = rect.y - rectangle.y;
-	return r;
+	return { rect.x - rectangle.x ,rect.y - rectangle.y ,rect.w,rect.h };
 }
+MT::Rect Camera::TransformFlat(const MT::Rect& rect) {
+	return { rect.x - rectangle.x ,rect.y - rectangle.y ,rect.w,rect.h };
+}
+MT::RectF Camera::TransformFlat(const MT::RectF& rect) {
+	return { (float)(rect.x - rectangle.x) ,(float)(rect.y - rectangle.y) 
+		,(float)(rect.w),(rect.h) };
+}
+MT::CompositeRect Camera::TransformFlat(const MT::CompositeRect& rect) {
+	return { (float)(rect.x - rectangle.x) ,(float)(rect.y - rectangle.y) ,rect.w,rect.h };
+}
+
 
 
 SDL_Rect Camera::Transform(const SDL_Rect& rect) {
 	SDL_Rect r{0, 0, static_cast<int>(rect.w * zoom) + 1,static_cast<int>(rect.h * zoom) + 1}; // +1 to prevent white lines
 	r.x = static_cast<int>((rect.x - rectangle.x) * zoom);
 	r.y = static_cast<int>((rect.y - rectangle.y) * zoom);
+	return r;
+}
+
+MT::Rect Camera::Transform(const MT::Rect& rect) {
+	MT::Rect r{
+		static_cast<int>((rect.x - static_cast<int>(rectangle.x)) * zoom),
+		static_cast<int>((rect.y - static_cast<int>(rectangle.y)) * zoom),
+		static_cast<int>(rect.w * zoom) + 1,
+		static_cast<int>(rect.h * zoom) + 1
+	};
+	return r;
+}
+
+// MT::RectF
+MT::RectF Camera::Transform(const MT::RectF& rect) {
+	MT::RectF r{
+		(rect.x - rectangle.x) * zoom,
+		(rect.y - rectangle.y) * zoom,
+		rect.w * zoom + 1.0f,
+		rect.h * zoom + 1.0f
+	};
+	return r;
+}
+
+// MT::CompositeRect
+MT::CompositeRect Camera::Transform(const MT::CompositeRect& rect) {
+	MT::CompositeRect r{
+		(rect.x - rectangle.x) * zoom,
+		(rect.y - rectangle.y) * zoom,
+		static_cast<int>(rect.w * zoom) + 1,
+		static_cast<int>(rect.h * zoom) + 1
+	};
 	return r;
 }
 

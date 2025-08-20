@@ -1,5 +1,5 @@
 #pragma once
-#include "Renderer.h"
+#include "Rectangle.h"
 // Wymaga sdl2 do dzia³ania
 // Funcja do wykrywania kolizji obiektów 2d w œrodkowisku sdl
 // Zwarca od 1 do 4 w przypadku wykrycia kolizji a 0 w przypadku jej braku
@@ -12,6 +12,9 @@ int Collision(const MT::Rect &rect, const MT::Rect& rect2);
 // Zwarca od 1 przypadku wykrycia kolizji a 0 w przypadku jej braku
 // Nie wykrywa strony kolizji a tylko czy takowa mia³a miejsce
 bool SimpleCollision(const MT::Rect& rect, const MT::Rect& rect2);
+bool SimpleCollision(const SDL_Rect& rect, const MT::Rect& rect2);
+bool SimpleCollision(const SDL_Rect& rect, const MT::RectF& rect2);
+bool SimpleCollision(const SDL_Rect& rect, const MT::CompositeRect& rect2);
 // Wymaga sdl2 do dzia³ania
 // Funcja do wykrywania kolizji obiektów 2d w œrodkowisku sdl
 // Zwarca od 1 do 4 w przypadku wykrycia kolizji a 0 w przypadku jej braku
