@@ -6,23 +6,6 @@
 #include "ShaderLoader.h"
 #include "Rectangle.h"
 
-class Command {
-	public:
-	unsigned int shaderID = 0;
-	unsigned int vertexSize = 0;
-	unsigned int textureID = 0;
-
-	std::vector<float> verts;
-
-
-
-	template<typename Iter>
-	Command(const unsigned int shader, const unsigned int vsize, const unsigned int textureID, 
-		Iter begin, Iter end)
-		: shaderID(shader), vertexSize(vsize), textureID(textureID) ,verts(begin, end) {
-	}
-};
-
 namespace MT {
 
 	SDL_GLContext Innit(SDL_Window* window);
@@ -101,13 +84,16 @@ namespace MT {
 
 			 //Veretex Sizes
 			 unsigned int currentSize = 0;
-			 unsigned int renderRectSize = 5; // Wszystkie renderowania bez tesktur
-			 unsigned int renderCopySize = 4; // Wszystkie renderowania tekstur
+			 unsigned int renderRectSize = 6; // Wszystkie renderowania bez tesktur
+			 unsigned int renderCopySize = 5; // Wszystkie renderowania tekstur
 			 unsigned int renderCircleSize = 7;
 			 unsigned int renderFilteredSize = 7;
 
 			 std::vector<float> globalVertices;
-			 std::vector<Command> commands;
+
+			 //Agressive Batching Rendering
+			 std::unordered_map<const Texture*, std::vector<float>> renderMap = {};
+
 
 
 
@@ -142,6 +128,15 @@ namespace MT {
 			 void RenderPresent(bool switchContext = true);
 
 			 void Clear();
+
+			 //
+			 //
+			 // Experimental
+			 // Agressive Batching Rendering good for multiple texture tile rendering but does
+			 // not rememeber deepth so new texture can be obscured by an old one 
+			 void AgressiveRenderCopy(const Rect& rect, const Texture* texture);
+
+			 void AgressiveRenderCopyPresent(bool clearVectors = true);
 	};
 }
 

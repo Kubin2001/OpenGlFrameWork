@@ -12,3 +12,4 @@
 
 1.2
 - Texture nullability check when rendering
+- Experimental agressive rendering about 3 times faster for render copy

@@ -71,12 +71,12 @@ void Game::Input() {
 
 
 void Game::Render() {
+
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
 
 	ui->Render();
 
 	renderer->RenderPresent();
-
 }
 
 

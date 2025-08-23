@@ -870,6 +870,7 @@ void MT::Renderer::RenderCopyPartFiltered(const Rect& rect, const Rect& source, 
 
 void MT::Renderer::RenderPresent(bool switchContext) {
     if (globalVertices.empty()) {
+        if (switchContext) { SDL_GL_SwapWindow(window); }
         return;
     }  
 
@@ -915,4 +916,60 @@ void MT::Renderer::Clear() {
     globalVertices.shrink_to_fit();
 
     SDL_GL_DeleteContext(context);
+}
+
+
+void MT::Renderer::AgressiveRenderCopy(const Rect& rect, const Texture* texture) {
+    if (!texture) { return; }
+    if (!vievPort.IsColliding(rect)) {
+        return;
+    }
+    const float x = (rect.x / static_cast<float>(W)) * 2.0f - 1.0f;
+    const float y = 1.0f - (rect.y / static_cast<float>(H)) * 2.0f;
+    const float w = (rect.w / static_cast<float>(W)) * 2.0f;
+    const float h = (rect.h / static_cast<float>(H)) * 2.0f;
+
+    //    // pos.x, pos.y tex.u, tex.v
+    float verticles[] = {
+        x,     y - h, 0.0f, 0.0f,texture->alpha,
+        x,     y,     0.0f, 1.0f,texture->alpha,
+        x + w, y - h, 1.0f, 0.0f,texture->alpha,
+        x,     y,     0.0f, 1.0f,texture->alpha,
+        x + w, y,     1.0f, 1.0f,texture->alpha,
+        x + w, y - h, 1.0f, 0.0f,texture->alpha
+    };
+
+    if (renderMap.find(texture) == renderMap.end()) {
+        renderMap.emplace(
+            texture,
+            std::vector<float>(std::begin(verticles), std::end(verticles))
+        );
+    }
+    else {
+        renderMap[texture].insert(renderMap[texture].end(), std::begin(verticles), std::end(verticles));
+    }
+
+
+}
+
+void MT::Renderer::AgressiveRenderCopyPresent(bool clearVectors) {
+    const unsigned int prevProgram = currentProgram;
+
+    glUseProgram(renderCopyId);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    for (auto& mapElem : renderMap) {
+        glBindTexture(GL_TEXTURE_2D, mapElem.first->texture);
+        auto& mapElemVec = mapElem.second;
+        glBufferData(GL_ARRAY_BUFFER, mapElemVec.size() * sizeof(float), mapElemVec.data(), GL_DYNAMIC_DRAW);
+
+        glDrawArrays(GL_TRIANGLES, 0, mapElemVec.size() / renderCircleSize);
+    }
+
+    if (clearVectors) {
+        renderMap.clear();
+    }
+
+    if (prevProgram) glUseProgram(prevProgram);
+
 }
