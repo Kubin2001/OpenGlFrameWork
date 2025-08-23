@@ -117,7 +117,7 @@ void TemplateUIElement::Render(MT::Renderer* renderer) {
 		else {
 			renderer->RenderCopy(GetRectangle(), texture);
 			if (hovered && hoverable) {
-				renderer->RenderRectAlpha(rectangle, 
+				renderer->RenderRect(rectangle, 
 					{ hooverFilter[0], hooverFilter[1], hooverFilter[2] }, hooverFilter[3]);
 			}
 		}
@@ -131,11 +131,11 @@ void TemplateUIElement::Render(MT::Renderer* renderer) {
 
 void TemplateUIElement::RenderItslelf(MT::Renderer* renderer) {
 	if (hovered && hoverable) {
-		renderer->RenderRectAlpha(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2]}, buttonColor[3]);
-		renderer->RenderRectAlpha(rectangle, { hooverFilter[0], hooverFilter[1], hooverFilter[2] }, hooverFilter[3]);
+		renderer->RenderRect(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2]}, buttonColor[3]);
+		renderer->RenderRect(rectangle, { hooverFilter[0], hooverFilter[1], hooverFilter[2] }, hooverFilter[3]);
 	}
 	else{
-		renderer->RenderRectAlpha(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2]},buttonColor[3]);
+		renderer->RenderRect(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2]},buttonColor[3]);
 	}
 }
 

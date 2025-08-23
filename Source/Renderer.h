@@ -87,14 +87,12 @@ namespace MT {
 			 unsigned int renderRectId;
 			 unsigned int renderCopyCircleId;
 			 unsigned int renderCircleId;
-			 unsigned int renderRectAlphaId;
 			 unsigned int renderCopyFilterId;
 
 			 unsigned int RenderCopyExTransform;
 			 unsigned int textureLocation;
 			 unsigned int currentTexture;
 			 unsigned int alphaLoc;
-			 unsigned int alphaLocRect;
 			 unsigned int radiusLoc;
 			 unsigned int radiusLoc2;
 			 unsigned int alphaLocFilter;
@@ -121,9 +119,9 @@ namespace MT {
 
 			 void ClearFrame(const unsigned char R, const unsigned char G, const unsigned char B);
 
-			 void RenderRect(const Rect& rect, const Color& col);
+			 void RenderRect(const Rect& rect, const Color& col, const int alpha = 255);
 
-			 void RenderRectEX(const Rect& rect, const Color& col, const float rotation);
+			 void RenderRectEX(const Rect& rect, const Color& col, const float rotation, const int alpha = 255);
 
 			 void RenderCopy(const Rect& rect, const Texture* texture);
 
@@ -137,14 +135,9 @@ namespace MT {
 
 			 void RenderCircle(const Rect& rect, const Color& col, const float radius = 0.5f);
 
-			 void RenderRectAlpha(const Rect& rect, const Color& col, unsigned char alpha);
-			 void RenderRectAlphaEX(const Rect& rect, const Color& col, unsigned char alpha, const float rotation);
-
 			 void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter);
 
 			 void RenderCopyPartFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
-
-			 void AddCommand();
 
 			 void RenderPresent(bool switchContext = true);
 

@@ -11,9 +11,7 @@ private:
 	SDL_Window* window = nullptr;
 	MT::Renderer *renderer;
 	SDL_Event event = {};
-
 	std::unique_ptr<UI> ui;
-
 
 public:
 	Game();
