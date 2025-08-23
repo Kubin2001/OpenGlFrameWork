@@ -501,6 +501,7 @@ void MT::Renderer::RenderRectEX(const Rect& rect, const Color &col, const float 
 
 
 void MT::Renderer::RenderCopy(const Rect& rect, const Texture* texture){
+    if (!texture) { return; }
     if (!vievPort.IsColliding(rect)) {
         return;
     }
@@ -535,6 +536,7 @@ void MT::Renderer::RenderCopy(const Rect& rect, const Texture* texture){
 }
 
 void MT::Renderer::RenderCopyPart(const Rect& rect, const Rect& source, const Texture *texture) {
+    if (!texture) { return; }
     if (!vievPort.IsColliding(rect)) {
         return;
     }
@@ -583,6 +585,7 @@ void MT::Renderer::RenderCopyPart(const Rect& rect, const Rect& source, const Te
 }
 
 void MT::Renderer::RenderCopyEX(const Rect& rect, const Texture* texture, const float rotation) {
+    if (!texture) { return; }
     if (currentTexture != texture->texture) {
         RenderPresent(false);
         glBindTexture(GL_TEXTURE_2D, texture->texture);
@@ -631,6 +634,7 @@ void MT::Renderer::RenderCopyEX(const Rect& rect, const Texture* texture, const 
 }
 
 void MT::Renderer::RenderCopyPartEX(const Rect& rect, const Rect& source, const Texture* texture, const float rotation) {
+    if (!texture) { return; }
     if (currentTexture != texture->texture) {
         RenderPresent(false);
         glBindTexture(GL_TEXTURE_2D, texture->texture);
@@ -690,6 +694,7 @@ void MT::Renderer::RenderCopyPartEX(const Rect& rect, const Rect& source, const 
 
 
 void MT::Renderer::RenderCopyCircle(const Rect& rect, const Texture* texture, const float radius) {
+    if (!texture) { return; }
     if (!vievPort.IsColliding(rect)) {
         return;
     }
@@ -772,6 +777,7 @@ void MT::Renderer::RenderCircle(const Rect& rect, const Color& col, const float 
 
 
 void MT::Renderer::RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter) {
+    if (!texture) { return; }
     if (!vievPort.IsColliding(rect)) {
         return;
     }
@@ -811,6 +817,7 @@ void MT::Renderer::RenderCopyFiltered(const Rect& rect, const Texture* texture, 
 }
 
 void MT::Renderer::RenderCopyPartFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter) {
+    if (!texture) { return; }
     if (!vievPort.IsColliding(rect)) {
         return;
     }

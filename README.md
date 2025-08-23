@@ -9,3 +9,6 @@
 - Better hovering of selected element in file explorer
 - More object orientet set of rectangles
 - Faster and simpler alpha rendering
+
+1.2
+- Texture nullability check when rendering
