@@ -1,13 +1,5 @@
 #include "Addons.h"
 
-Point::Point() {
-
-}
-
-Point::Point(int x, int y) : x(x), y(y) {}
-
-
-
 MapPos::MapPos() {
 
 }

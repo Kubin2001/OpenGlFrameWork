@@ -5,7 +5,7 @@
 
 class Camera {
 	private:
-		SDL_Rect rectangle{ 0,0,Global::windowWidth,Global::windowHeight };
+		MT::Rect rectangle{ 0,0,Global::windowWidth,Global::windowHeight };
 		float zoom = 1.0f; // Base zoom =1 (or no zoom)
 		float zoomRelativeMoveSpeed = 1.0f;
 		float zoomValue = 0.05f; // Since 0.05f does not give white lines between objects
@@ -26,7 +26,7 @@ class Camera {
 
 		float GetZoom();
 
-		SDL_Rect* GetRectangle();
+		MT::Rect& GetRectangle();
 
 		void UseBorders(bool temp);
 

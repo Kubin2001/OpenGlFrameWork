@@ -10,8 +10,8 @@ float Camera::GetZoom() {
 	return zoom;
 }
 
-SDL_Rect* Camera::GetRectangle() {
-	return &rectangle;
+MT::Rect &Camera::GetRectangle() {
+	return rectangle;
 }
 
 void Camera::UseBorders(bool temp) {
@@ -63,8 +63,6 @@ void Camera::UpdatePosition(const Uint8* state) {
 		if (state[SDL_SCANCODE_W] && rectangle.y > minY) {
 			rectangle.y -= moveSpeed + (zoomRelativeMoveSpeed * 15);
 		}
-
-
 	}
 
 }
