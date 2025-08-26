@@ -168,9 +168,10 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); // uv dla koła
 
     //Rectangle Filtered
-    glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); // powierzchnie
-    glVertexAttribPointer(10, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); // tekstury
-    glVertexAttribPointer(11, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); // filtr koloru tekstury
+    glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // powierzchnie
+    glVertexAttribPointer(10, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(2 * sizeof(float))); // tekstury
+    glVertexAttribPointer(11, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(4 * sizeof(float))); // filtr koloru tekstury
+    glVertexAttribPointer(12, 1, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(7 * sizeof(float))); // alpha
 
 
     glEnableVertexAttribArray(0);
@@ -185,6 +186,7 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     glEnableVertexAttribArray(9);
     glEnableVertexAttribArray(10);
     glEnableVertexAttribArray(11);
+    glEnableVertexAttribArray(12);
 
     if (!loader.IsProgram("RenderRect")) {
         constexpr const char * vertexStr = R"glsl(
@@ -346,14 +348,17 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         layout (location = 9) in vec2 aPos;
         layout (location = 10) in vec2 aTexCord;
         layout (location = 11) in vec3 aFilter;
+        layout (location = 12) in float aAlpha;
 
         out vec2 texCord;
         out vec3 filter;
+        out float vAlpha;
 
         void main(){
 	        gl_Position = vec4(aPos, 0.0 ,1.0);
 	        texCord = aTexCord;
             filter = aFilter;
+            vAlpha = aAlpha;
         }
         )glsl";
 
@@ -363,17 +368,17 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
 
         in vec2 texCord;
         in vec3 filter;
+        in float vAlpha;
 
         uniform sampler2D texture1;
 
-        uniform float alpha;
 
         void main(){
 	        vec4 texcolor = texture(texture1,texCord);
             texcolor.x *= filter.x; 
             texcolor.y *= filter.y; 
             texcolor.z *= filter.z; 
-	        texcolor.a *= alpha;
+	        texcolor.a *= vAlpha;
 	        FragColor = texcolor;
         }
         )glsl";
@@ -806,12 +811,12 @@ void MT::Renderer::RenderCopyFiltered(const Rect& rect, const Texture* texture, 
 
     // pos.x, pos.y, tex.u, tex.v col.r,col.g,col.b
     float verticles[] = {
-        x,     y - h, 0.0f, 0.0f, fR, fG, fB,
-        x,     y,     0.0f, 1.0f, fR, fG, fB,
-        x + w, y - h, 1.0f, 0.0f, fR, fG, fB,
-        x,     y,     0.0f, 1.0f, fR, fG, fB,
-        x + w, y,     1.0f, 1.0f, fR, fG, fB,
-        x + w, y - h, 1.0f, 0.0f, fR, fG, fB
+        x,     y - h, 0.0f, 0.0f, fR, fG, fB, texture->alpha,
+        x,     y,     0.0f, 1.0f, fR, fG, fB, texture->alpha,
+        x + w, y - h, 1.0f, 0.0f, fR, fG, fB, texture->alpha,
+        x,     y,     0.0f, 1.0f, fR, fG, fB, texture->alpha,
+        x + w, y,     1.0f, 1.0f, fR, fG, fB, texture->alpha,
+        x + w, y - h, 1.0f, 0.0f, fR, fG, fB, texture->alpha
     };
     globalVertices.insert(globalVertices.end(), std::begin(verticles), std::end(verticles));
 }
@@ -856,12 +861,12 @@ void MT::Renderer::RenderCopyPartFiltered(const Rect& rect, const Rect& source, 
 
     // pos.x, pos.y, tex.u, tex.v col.r,col.g,col.b
     float verticles[] = {
-        x,     y - h, u0, v0, fR, fG, fB,
-        x,     y,     u0, v1, fR, fG, fB,
-        x + w, y - h, u1, v0, fR, fG, fB,
-        x,     y,     u0, v1, fR, fG, fB,
-        x + w, y,     u1, v1, fR, fG, fB,
-        x + w, y - h, u1, v0, fR, fG, fB
+        x,     y - h, u0, v0, fR, fG, fB, texture->alpha,
+        x,     y,     u0, v1, fR, fG, fB, texture->alpha,
+        x + w, y - h, u1, v0, fR, fG, fB, texture->alpha,
+        x,     y,     u0, v1, fR, fG, fB, texture->alpha,
+        x + w, y,     u1, v1, fR, fG, fB, texture->alpha,
+        x + w, y - h, u1, v0, fR, fG, fB, texture->alpha
     };
     globalVertices.insert(globalVertices.end(), std::begin(verticles), std::end(verticles));
 }
