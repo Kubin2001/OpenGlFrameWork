@@ -6,6 +6,8 @@
 #include "GlobalVariables.h"
 #include "Rectangle.h"
 
+void MethaneVersion();
+
 struct MapPos {
 	int rows = 0; //Du¿e Regiony
 	int column = 0;
@@ -71,7 +73,6 @@ struct MapPos {
 
 
 };
-
 
 double CalculateEuclidean(int x1, int x2, int y1, int y2);
 

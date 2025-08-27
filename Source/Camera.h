@@ -61,4 +61,6 @@ class Camera {
 		void SetMoveSpeed(const int temp);
 
 		int& GetMoveSpeed();
+
+		void Focus(const int x, const int y);
 };

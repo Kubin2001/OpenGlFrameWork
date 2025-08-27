@@ -1,5 +1,9 @@
 #include "Addons.h"
 
+void MethaneVersion() {
+	std::cout << "Using Methane SDL OpenGL Framework v1.02\n";
+}
+
 MapPos::MapPos() {
 
 }
@@ -7,8 +11,6 @@ MapPos::MapPos() {
 MapPos::MapPos(int x, int y) {
 	CalcAll(x, y);
 }
-
-
 
 int MapPos::minX = 0;
 int MapPos::minY = 0;
