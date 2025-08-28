@@ -2,9 +2,21 @@
 #include <iostream>
 #include <SDL.h>
 #include <vector>
+#include <array>
+
 #include "Addons.h"
 #include "Basics.h"
 
+
+constexpr std::array<char32_t, 200> MakeCharset() {
+	std::array<char32_t, 200> cs{};
+	for (size_t i = 0; i < cs.size(); i++) {
+		cs[i] = (char32_t)(i);
+	}
+	return cs;
+}
+
+static constexpr std::array<char32_t, 200> charset = MakeCharset();
 
 class Font : public GameObject{
 private:
@@ -58,3 +70,5 @@ public:
 
 	~FontManager();
 };
+
+void CrateFontFromTTF(const char* ttfPath, const int size, const std::string& name, const std::string& outPath = "");

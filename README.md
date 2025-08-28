@@ -14,3 +14,6 @@
 - Texture nullability check when rendering
 - Experimental agressive rendering about 3 times faster for render copy
 - Camera focus function
+
+1.03
+- New font loading option allowing to load any ttf into png and json

@@ -1,13 +1,14 @@
+#include "Game.h"
+
 #include <SDL.h>
 #include <iostream>
 #include <string>
-#include "SDL_image.h"
-#include "Game.h"
+#include <SDL_image.h>
+
 #include "GlobalVariables.h"
 #include "TextureManager.h"
 #include "SoundManager.h"
 #include "SceneManager.h"
-#include "Animator.h"
 #include "Addons.h"
 #include "Files.h"
 
@@ -44,6 +45,7 @@ void Game::Start() {
 	ui->CreateFont("arial40px", TexMan::GetTex("arial40px"), "Textures/Interface/Fonts/arial40px.json");
 	ui->CreateFont("arial20px", TexMan::GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
+
 }
 
 
