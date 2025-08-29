@@ -153,13 +153,11 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
 
     //Rectangle
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // powierzchnie
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2* sizeof(float))); // kolory
-    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(5 * sizeof(float))); // alpha
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2* sizeof(float))); // kolory + alpha
 
     //Render Copy
     glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // powierzchnie
-    glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float))); // tekstury
-    glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(4 * sizeof(float))); // alpha
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float))); // tekstury + alpha
 
 
     // Koło
@@ -170,38 +168,33 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     //Rectangle Filtered
     glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // powierzchnie
     glVertexAttribPointer(10, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(2 * sizeof(float))); // tekstury
-    glVertexAttribPointer(11, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(4 * sizeof(float))); // filtr koloru tekstury
-    glVertexAttribPointer(12, 1, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(7 * sizeof(float))); // alpha
+    glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(4 * sizeof(float))); // filtr koloru tekstury + alpha
 
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
     glEnableVertexAttribArray(3);
     glEnableVertexAttribArray(4);
-    glEnableVertexAttribArray(5);
     glEnableVertexAttribArray(6);
     glEnableVertexAttribArray(7);
     glEnableVertexAttribArray(8);
     glEnableVertexAttribArray(9);
     glEnableVertexAttribArray(10);
     glEnableVertexAttribArray(11);
-    glEnableVertexAttribArray(12);
 
     if (!loader.IsProgram("RenderRect")) {
         constexpr const char * vertexStr = R"glsl(
         #version 330 core
         layout(location = 0) in vec2 aPos;
-        layout(location = 1) in vec3 aColor;
-        layout(location = 2) in float aAlpha;
+        layout(location = 1) in vec4 aColor;
 
             out vec3 ourColor;
             out float vAlpha;
 
             void main() {
                 gl_Position = vec4(aPos,0.0, 1.0);
-                ourColor = aColor;
-                vAlpha = aAlpha;    
+                ourColor = aColor.xyz;
+                vAlpha = aColor.a;    
             }
         )glsl";
 
@@ -225,8 +218,7 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         constexpr const char* vertexStr = R"glsl(
         #version 330 core
         layout (location = 3) in vec2 aPos;
-        layout (location = 4) in vec2 aTexCord;
-        layout (location = 5) in float aAlpha;
+        layout (location = 4) in vec3 aTexCordAlpha;
 
         out vec2 texCord;
         out float vAlpha;
@@ -234,8 +226,8 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         void main(){
 	        gl_Position = vec4(aPos, 0.0 ,1.0);
 
-	        texCord = aTexCord;
-            vAlpha = aAlpha;
+	        texCord = aTexCordAlpha.xy;
+            vAlpha = aTexCordAlpha.z;
         }
         )glsl";
 
@@ -264,24 +256,20 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         constexpr const char* vertexStr = R"glsl(
         #version 330 core
         layout (location = 3) in vec2 aPos;
-        layout (location = 4) in vec2 aTexCord;
-        layout (location = 5) in float aAlpha;
+        layout (location = 4) in vec3 aTexCordAlpha;
 
-        out vec2 texCord;
-        out float vAlpha;        
+        out vec3 texCord;       
 
         void main(){
 	        gl_Position = vec4(aPos,0.0 ,1.0);
 
-	        texCord = aTexCord;
-            vAlpha = aAlpha;
+	        texCord = aTexCordAlpha;
         }
         )glsl";
 
         constexpr const char* fragmentStr = R"glsl(
         #version 330 core
-        in vec2 texCord;
-        in float vAlpha;
+        in vec3 texCord;
         out vec4 FragColor;
 
         uniform sampler2D texture0;
@@ -291,12 +279,12 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         {
             vec2 center = vec2(0.5, 0.5);
 
-            float dist = distance(texCord, center);
+            float dist = distance(texCord.xy, center);
             if (dist > radius)
                 discard;
 
-            vec4 texColor = texture(texture0, texCord);
-            FragColor = vec4(texColor.rgb, texColor.a * vAlpha);
+            vec4 texColor = texture(texture0, texCord.xy);
+            FragColor = vec4(texColor.rgb, texColor.a * texCord.z);
         }
         )glsl";
 
@@ -347,18 +335,15 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         #version 330 core
         layout (location = 9) in vec2 aPos;
         layout (location = 10) in vec2 aTexCord;
-        layout (location = 11) in vec3 aFilter;
-        layout (location = 12) in float aAlpha;
+        layout (location = 11) in vec4 aColor;
 
         out vec2 texCord;
-        out vec3 filter;
-        out float vAlpha;
+        out vec4 filter;
 
         void main(){
 	        gl_Position = vec4(aPos, 0.0 ,1.0);
 	        texCord = aTexCord;
-            filter = aFilter;
-            vAlpha = aAlpha;
+            filter = aColor;
         }
         )glsl";
 
@@ -367,18 +352,17 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         out vec4 FragColor;
 
         in vec2 texCord;
-        in vec3 filter;
-        in float vAlpha;
+        in vec4 filter;
 
         uniform sampler2D texture1;
 
 
         void main(){
 	        vec4 texcolor = texture(texture1,texCord);
-            texcolor.x *= filter.x; 
-            texcolor.y *= filter.y; 
-            texcolor.z *= filter.z; 
-	        texcolor.a *= vAlpha;
+            texcolor.x *= filter.r; 
+            texcolor.y *= filter.g; 
+            texcolor.z *= filter.b; 
+	        texcolor.a *= filter.a; 
 	        FragColor = texcolor;
         }
         )glsl";
