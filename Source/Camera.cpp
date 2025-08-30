@@ -38,30 +38,30 @@ void Camera::SetMaxMinZoom(const float min, const float max) {
 void Camera::UpdatePosition(const Uint8* state) {
 	if (!useBorders) {
 		if (state[SDL_SCANCODE_D]) {
-			rectangle.x += moveSpeed + (zoomRelativeMoveSpeed * 15);
+			rectangle.x += moveSpeed + (int)(zoomRelativeMoveSpeed * 15);
 		}
 		if (state[SDL_SCANCODE_A]) {
-			rectangle.x -= moveSpeed + (zoomRelativeMoveSpeed * 15);
+			rectangle.x -= moveSpeed + (int)(zoomRelativeMoveSpeed * 15);
 		}
 		if (state[SDL_SCANCODE_S]) {
-			rectangle.y += moveSpeed + (zoomRelativeMoveSpeed * 15);
+			rectangle.y += moveSpeed + (int)(zoomRelativeMoveSpeed * 15);
 		}
 		if (state[SDL_SCANCODE_W]) {
-			rectangle.y -= moveSpeed + (zoomRelativeMoveSpeed * 15);
+			rectangle.y -= moveSpeed + (int)(zoomRelativeMoveSpeed * 15);
 		}
 	}
 	else{
 		if (state[SDL_SCANCODE_D] && (rectangle.x + GetScaledWidth()) < maxX) {
-			rectangle.x += moveSpeed + (zoomRelativeMoveSpeed * 15);
+			rectangle.x += moveSpeed + (int)(zoomRelativeMoveSpeed * 15);
 		}
 		if (state[SDL_SCANCODE_A] && rectangle.x > minX) {
-			rectangle.x -= moveSpeed + (zoomRelativeMoveSpeed * 15);
+			rectangle.x -= moveSpeed + (int)(zoomRelativeMoveSpeed * 15);
 		}
 		if (state[SDL_SCANCODE_S] && (rectangle.y + GetScaledHeight()) < maxY) {
-			rectangle.y += moveSpeed + (zoomRelativeMoveSpeed * 15);
+			rectangle.y += moveSpeed + (int)(zoomRelativeMoveSpeed * 15);
 		}
 		if (state[SDL_SCANCODE_W] && rectangle.y > minY) {
-			rectangle.y -= moveSpeed + (zoomRelativeMoveSpeed * 15);
+			rectangle.y -= moveSpeed + (int)(zoomRelativeMoveSpeed * 15);
 		}
 	}
 
@@ -168,7 +168,7 @@ void Camera::SetMoveSpeed(const int temp) {
 int& Camera::GetMoveSpeed() { return this->moveSpeed; }
 
 void Camera::Focus(const int x, const int y) {
-	rectangle.x = x - ((rectangle.w / zoom) / 2);
-	rectangle.y = y - ((rectangle.h / zoom) / 2);
+	rectangle.x = x - (int)((rectangle.w / zoom) / 2);
+	rectangle.y = y - (int)((rectangle.h / zoom) / 2);
 }
 
