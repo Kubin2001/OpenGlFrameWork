@@ -80,7 +80,6 @@ void Font::RenderText(MT::Renderer* renderer, const std::string &text, MT::Rect 
 				rectangle.h = (int)(sourceRectangles[text[i]].h * scale);
 				renderer->RenderCopyPartFiltered(rectangle, sourceRectangles[text[i]], texture,
 					{ rFilter,gFilter,bFilter });
-				//renderer->RenderCopyPart(rectangle, sourceRectangles[text[i]],*texture);
 				rectangle.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else{
@@ -105,7 +104,8 @@ void Font::RenderTextCenter(MT::Renderer* renderer, const std::string& text, MT:
 			if (text[i] != '\n') {
 				rectangle.w = (int)(sourceRectangles[text[i]].w * scale);
 				rectangle.h = (int)(sourceRectangles[text[i]].h * scale);
-				renderer->RenderCopyPart(rectangle, sourceRectangles[text[i]], texture);
+				renderer->RenderCopyPartFiltered(rectangle, sourceRectangles[text[i]], texture,
+					{ rFilter,gFilter,bFilter });
 				rectangle.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else{
@@ -130,7 +130,8 @@ void Font::RenderTextFromRight(MT::Renderer* renderer, const std::string& text, 
 			if (text[i] != '\n') {
 				rectangle.w = (int)(sourceRectangles[text[i]].w * scale);
 				rectangle.h = (int)(sourceRectangles[text[i]].h * scale);
-				renderer->RenderCopyPart(rectangle, sourceRectangles[text[i]], texture);
+				renderer->RenderCopyPartFiltered(rectangle, sourceRectangles[text[i]], texture,
+					{ rFilter,gFilter,bFilter });
 				rectangle.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else {

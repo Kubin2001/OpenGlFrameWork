@@ -46,6 +46,10 @@ void Game::Start() {
 	ui->CreateFont("arial20px", TexMan::GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
 
+	Button *btn = ui->CreateButton("test", 10, 10, 100, 100, nullptr, ui->GetFont("arial20px"),
+		"some texts");
+	btn->SetColor(30, 30, 30);
+	btn->SetFontColor(255, 0, 0);
 }
 
 
