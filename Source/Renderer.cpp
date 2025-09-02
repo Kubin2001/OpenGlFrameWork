@@ -161,14 +161,17 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
 
 
     // Koło
-    glVertexAttribPointer(6, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); // powierzchnie
-    glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); // kolory
-    glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); // uv dla koła
+    glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); // powierzchnie + radius
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float))); // kolory
 
     //Rectangle Filtered
-    glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // powierzchnie
-    glVertexAttribPointer(10, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(2 * sizeof(float))); // tekstury
-    glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(4 * sizeof(float))); // filtr koloru tekstury + alpha
+    glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // powierzchnie
+    glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(2 * sizeof(float))); // tekstury
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(4 * sizeof(float))); // filtr koloru tekstury + alpha
+
+    // Koło Render Copy
+    glVertexAttribPointer(11, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // powierzchnie + radius
+    glVertexAttribPointer(12, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); // uv + alpha
 
 
     glEnableVertexAttribArray(0);
@@ -181,6 +184,8 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     glEnableVertexAttribArray(9);
     glEnableVertexAttribArray(10);
     glEnableVertexAttribArray(11);
+    glEnableVertexAttribArray(12);
+
 
     if (!loader.IsProgram("RenderRect")) {
         constexpr const char * vertexStr = R"glsl(
@@ -255,28 +260,29 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     if (!loader.IsProgram("RenderCopyCircle")) {
         constexpr const char* vertexStr = R"glsl(
         #version 330 core
-        layout (location = 3) in vec2 aPos;
-        layout (location = 4) in vec3 aTexCordAlpha;
+        layout (location = 11) in vec3 aPosR;
+        layout (location = 12) in vec3 aTexCordAlpha;
 
-        out vec3 texCord;       
+        out vec3 texCord;
+        out float radius;       
 
         void main(){
-	        gl_Position = vec4(aPos,0.0 ,1.0);
+	        gl_Position = vec4(aPosR.xy,0.0 ,1.0);
 
 	        texCord = aTexCordAlpha;
+            radius = aPosR.z;
         }
         )glsl";
 
         constexpr const char* fragmentStr = R"glsl(
         #version 330 core
         in vec3 texCord;
+        in float radius;
         out vec4 FragColor;
 
         uniform sampler2D texture0;
-        uniform float radius;
 
-        void main()
-        {
+        void main(){
             vec2 center = vec2(0.5, 0.5);
 
             float dist = distance(texCord.xy, center);
@@ -294,36 +300,43 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     if (!loader.IsProgram("RenderCircle")) {
         constexpr const char* vertexStr = R"glsl(
         #version 330 core
-        layout(location = 6) in vec2 aPos;
-        layout(location = 7) in vec3 aColor;
-        layout(location = 8) in vec2 aUv;
+        layout(location = 6) in vec3 aPosRad;
+        layout(location = 7) in vec4 aColor;
 
-        out vec3 ourColor;
-        out vec2 uv;
+        out vec4 ourColor;
+        out vec3 uvR;
+
+        vec2 uvFromVertexID(int id) {
+            if      (id == 0) return vec2(0.0, 0.0);
+            else if (id == 1) return vec2(0.0, 1.0);
+            else if (id == 2) return vec2(1.0, 0.0);
+            else if (id == 3) return vec2(0.0, 1.0);
+            else if (id == 4) return vec2(1.0, 1.0);
+            else              return vec2(1.0, 0.0);
+        }
 
         void main() {
-            gl_Position = vec4(aPos, 0.0, 1.0);
+            gl_Position = vec4(aPosRad.xy, 0.0, 1.0);
             ourColor = aColor;
-            uv = aUv;
+            uvR.xy = uvFromVertexID(gl_VertexID % 6);
+            uvR.z = aPosRad.z;
         }
         )glsl";
 
         constexpr const char* fragmentStr = R"glsl(
         #version 330 core
 
-        in vec3 ourColor;
-        in vec2 uv;
+        in vec4 ourColor;
+        in vec3 uvR;
         out vec4 FragColor;
-
-        uniform float radius;
 
         void main(){
             vec2 center = vec2(0.5, 0.5);
-            float dist = distance(uv, center);
-            if (dist > radius)
+            float dist = distance(uvR.xy, center);
+            if (dist > uvR.z)
                 discard;
 
-            FragColor = vec4(ourColor, 1.0);
+            FragColor = vec4(ourColor);
         }
         )glsl";
 
@@ -333,9 +346,9 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     if (!loader.IsProgram("RenderCopyFilter")) {
         constexpr const char* vertexStr = R"glsl(
         #version 330 core
-        layout (location = 9) in vec2 aPos;
-        layout (location = 10) in vec2 aTexCord;
-        layout (location = 11) in vec4 aColor;
+        layout (location = 8) in vec2 aPos;
+        layout (location = 9) in vec2 aTexCord;
+        layout (location = 10) in vec4 aColor;
 
         out vec2 texCord;
         out vec4 filter;
@@ -378,16 +391,8 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     renderCircleId = loader.GetProgram("RenderCircle");
     renderCopyFilterId = loader.GetProgram("RenderCopyFilter");
     
-    textureLocation = glGetUniformLocation(renderCopyId, "texture1");
 
-    alphaLoc = glGetUniformLocation(renderCopyId, "alpha");
-    radiusLoc = glGetUniformLocation(renderCopyCircleId, "radius");
-    radiusLoc2 = glGetUniformLocation(renderCircleId, "radius");
-    textureLocationFilter = glGetUniformLocation(renderCopyFilterId, "texture1");
-    alphaLocFilter = glGetUniformLocation(renderCopyFilterId, "alpha");
     currentRadius = 0.5f;
-    glUniform1f(radiusLoc, currentRadius);
-    glUniform1f(radiusLoc2, currentRadius);
     globalVertices.reserve(1'000'000);
     return true;
 }
@@ -702,29 +707,23 @@ void MT::Renderer::RenderCopyCircle(const Rect& rect, const Texture* texture, co
         RenderPresent(false);
         currentProgram = renderCopyCircleId;
         glUseProgram(renderCopyCircleId);
-        glUniform1f(radiusLoc, currentRadius);
     }
 
-    if (currentRadius != radius) {
-        currentRadius = radius;
-        RenderPresent(false);
-        glUniform1f(radiusLoc, currentRadius);
-    }
-    currentSize = renderCopySize;
+    currentSize = renderCopyCircleSize;
 
-    //    // pos.x, pos.y, pos.z, tex.u, tex.v
+    // pos.x, pos.y,radius tex.u, tex.v, alpha
     float verticles[] = {
-        x,     y - h, 0.0f, 0.0f, texture->alpha,
-        x,     y,     0.0f, 1.0f, texture->alpha,
-        x + w, y - h, 1.0f, 0.0f, texture->alpha,
-        x,     y,     0.0f, 1.0f, texture->alpha,
-        x + w, y,     1.0f, 1.0f, texture->alpha,
-        x + w, y - h, 1.0f, 0.0f, texture->alpha
+        x,     y - h,radius, 0.0f, 0.0f, texture->alpha,
+        x,     y,    radius, 0.0f, 1.0f, texture->alpha,
+        x + w, y - h,radius, 1.0f, 0.0f, texture->alpha,
+        x,     y,    radius, 0.0f, 1.0f, texture->alpha,
+        x + w, y,    radius, 1.0f, 1.0f, texture->alpha,
+        x + w, y - h,radius, 1.0f, 0.0f, texture->alpha
     };
     globalVertices.insert(globalVertices.end(), std::begin(verticles), std::end(verticles));
 }
 
-void MT::Renderer::RenderCircle(const Rect& rect, const Color& col, const float radius) {
+void MT::Renderer::RenderCircle(const Rect& rect, const Color& col, const unsigned char alpha, const float radius) {
     if (!vievPort.IsColliding(rect)) {
         return;
     }
@@ -732,33 +731,28 @@ void MT::Renderer::RenderCircle(const Rect& rect, const Color& col, const float 
         RenderPresent(false);
         currentProgram = renderCircleId;
         glUseProgram(renderCircleId);
-        glUniform1f(radiusLoc2, currentRadius);
     }
 
-    if (currentRadius != radius) {
-        currentRadius = radius;
-        RenderPresent(false);
-        glUniform1f(radiusLoc2, currentRadius);
-    }
     currentSize = renderCircleSize;
-    float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
-    float y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
-    float w = (static_cast<float>(rect.w) / W) * 2.0f;
-    float h = (static_cast<float>(rect.h) / H) * 2.0f;
+    const float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
+    const float y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
+    const float w = (static_cast<float>(rect.w) / W) * 2.0f;
+    const float h = (static_cast<float>(rect.h) / H) * 2.0f;
 
     const float fR = float(col.R) / 255;
     const float fG = float(col.G) / 255;
     const float fB = float(col.B) / 255;
+    const float fA = float(alpha) / 255;
 
 
-    // pos.x, pos.y, pos.z,  col.r, col.g, col.b u,v
-    float vertices[] = {
-        x,     y - h, fR, fG, fB,   0.0f, 0.0f,
-        x,     y,     fR, fG, fB,   0.0f, 1.0f,
-        x + w, y - h, fR, fG, fB,   1.0f, 0.0f,
-        x,     y,     fR, fG, fB,   0.0f, 1.0f,
-        x + w, y,     fR, fG, fB,   1.0f, 1.0f,
-        x + w, y - h, fR, fG, fB,   1.0f, 0.0f
+    // pos.x, pos.y, pos.z,radius  col.r, col.g, col.b col.a
+    const float vertices[] = {
+        x,     y - h, radius, fR, fG, fB, fA,
+        x,     y    , radius, fR, fG, fB, fA,
+        x + w, y - h, radius, fR, fG, fB, fA,
+        x,     y    , radius, fR, fG, fB, fA,
+        x + w, y    , radius, fR, fG, fB, fA,
+        x + w, y - h, radius, fR, fG, fB, fA
     };
 
     globalVertices.insert(globalVertices.end(), std::begin(vertices), std::end(vertices));
@@ -788,13 +782,12 @@ void MT::Renderer::RenderCopyFiltered(const Rect& rect, const Texture* texture, 
         glUseProgram(renderCopyFilterId);
     }
     currentSize = renderFilteredSize;
-    glUniform1f(alphaLocFilter, texture->alpha);
     const float fR = float(filter.R) / 255;
     const float fG = float(filter.G) / 255;
     const float fB = float(filter.B) / 255;
 
     // pos.x, pos.y, tex.u, tex.v col.r,col.g,col.b
-    float verticles[] = {
+    const float verticles[] = {
         x,     y - h, 0.0f, 0.0f, fR, fG, fB, texture->alpha,
         x,     y,     0.0f, 1.0f, fR, fG, fB, texture->alpha,
         x + w, y - h, 1.0f, 0.0f, fR, fG, fB, texture->alpha,
@@ -828,7 +821,6 @@ void MT::Renderer::RenderCopyPartFiltered(const Rect& rect, const Rect& source, 
         glUseProgram(renderCopyFilterId);
     }
     currentSize = renderFilteredSize;
-    glUniform1f(alphaLocFilter, texture->alpha);
     const float fR = float(filter.R) / 255;
     const float fG = float(filter.G) / 255;
     const float fB = float(filter.B) / 255;
@@ -838,13 +830,13 @@ void MT::Renderer::RenderCopyPartFiltered(const Rect& rect, const Rect& source, 
     const float tempSourceW = static_cast<float>(source.w) / texture->w;
     const float tempSourceH = static_cast<float>(source.h) / texture->h;
 
-    float u0 = tempSourceX;
-    float u1 = tempSourceX + tempSourceW;
-    float v1 = 1.0f - tempSourceY;
-    float v0 = v1 - tempSourceH;
+    const float u0 = tempSourceX;
+    const float u1 = tempSourceX + tempSourceW;
+    const float v1 = 1.0f - tempSourceY;
+    const float v0 = v1 - tempSourceH;
 
     // pos.x, pos.y, tex.u, tex.v col.r,col.g,col.b
-    float verticles[] = {
+    const float verticles[] = {
         x,     y - h, u0, v0, fR, fG, fB, texture->alpha,
         x,     y,     u0, v1, fR, fG, fB, texture->alpha,
         x + w, y - h, u1, v0, fR, fG, fB, texture->alpha,
@@ -893,12 +885,7 @@ void MT::Renderer::Clear() {
     renderCopyFilterId = 0;
     RenderCopyExTransform = 0;
 
-    textureLocation = 0;
-    alphaLoc = 0;
-    radiusLoc = 0;
-    radiusLoc2 = 0;
-    alphaLocFilter = 0;
-    textureLocationFilter = 0;
+
 
     currentRadius = 0.0f;
     globalVertices.clear();

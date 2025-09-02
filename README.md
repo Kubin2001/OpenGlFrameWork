@@ -36,3 +36,4 @@ Required CPP version at least 23
 
 1.03
 - New font loading option allowing to load any ttf into png and json
+- Simpler and about 20 % faster circle rendering

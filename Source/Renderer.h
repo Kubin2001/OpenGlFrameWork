@@ -73,13 +73,7 @@ namespace MT {
 			 unsigned int renderCopyFilterId;
 
 			 unsigned int RenderCopyExTransform;
-			 unsigned int textureLocation;
 			 unsigned int currentTexture;
-			 unsigned int alphaLoc;
-			 unsigned int radiusLoc;
-			 unsigned int radiusLoc2;
-			 unsigned int alphaLocFilter;
-			 unsigned int textureLocationFilter;
 			 float currentRadius;
 
 			 //Veretex Sizes
@@ -87,7 +81,8 @@ namespace MT {
 			 unsigned int renderRectSize = 6; // Wszystkie renderowania bez tesktur
 			 unsigned int renderCopySize = 5; // Wszystkie renderowania tekstur
 			 unsigned int renderCircleSize = 7;
-			 unsigned int renderFilteredSize = 7;
+			 unsigned int renderCopyCircleSize = 6;
+			 unsigned int renderFilteredSize = 8;
 
 			 std::vector<float> globalVertices;
 
@@ -119,7 +114,7 @@ namespace MT {
 
 			 void RenderCopyCircle(const Rect& rect, const Texture* texture, const float radius = 0.5f);
 
-			 void RenderCircle(const Rect& rect, const Color& col, const float radius = 0.5f);
+			 void RenderCircle(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f);
 
 			 void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter);
 
