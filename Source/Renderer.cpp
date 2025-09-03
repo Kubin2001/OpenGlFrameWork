@@ -949,3 +949,17 @@ void MT::Renderer::AgressiveRenderCopyPresent(bool clearVectors) {
     if (prevProgram) glUseProgram(prevProgram);
 
 }
+
+
+void MT::Renderer::SetClipSize(const MT::Rect& rect) {
+    RenderPresent(false);
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(rect.x, rect.y, rect.w, rect.h);
+    
+}
+
+void MT::Renderer::ResetClipSize() {
+    RenderPresent(false);
+    glScissor(0, 0, W, H);
+    glDisable(GL_SCISSOR_TEST);
+}

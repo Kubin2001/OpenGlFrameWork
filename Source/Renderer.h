@@ -132,6 +132,10 @@ namespace MT {
 			 void AgressiveRenderCopy(const Rect& rect, const Texture* texture);
 
 			 void AgressiveRenderCopyPresent(bool clearVectors = true);
+
+			 void SetClipSize(const Rect& rect);
+
+			 void ResetClipSize();
 	};
 }
 
