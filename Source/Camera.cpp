@@ -36,6 +36,7 @@ void Camera::SetMaxMinZoom(const float min, const float max) {
 }
 
 void Camera::UpdatePosition(const Uint8* state) {
+	if (!enabled) { return; }
 	if (!useBorders) {
 		if (state[SDL_SCANCODE_D]) {
 			rectangle.x += moveSpeed + (int)(zoomRelativeMoveSpeed * 15);
@@ -68,6 +69,7 @@ void Camera::UpdatePosition(const Uint8* state) {
 }
 
 void Camera::UpdateZoom(SDL_Event& event) {
+	if (!enabled) { return; }
 	if (event.type == SDL_MOUSEWHEEL) {
 		if (event.wheel.y > 0) { // Scroll Up (Zoom In)
 			if (zoom < zoomMin) {
@@ -84,6 +86,14 @@ void Camera::UpdateZoom(SDL_Event& event) {
 			}
 		}
 	}
+}
+
+void Camera::Enable() {
+	enabled = true;
+}
+
+void Camera::Disable() {
+	enabled = false;
 }
 
 SDL_Rect Camera::TransformFlat(const SDL_Rect& rect) {

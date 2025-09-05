@@ -12,6 +12,7 @@ class Camera {
 		float zoomMin = 1.0f;
 		float zoomMax = 0.25f;
 		int moveSpeed = 3;
+		bool enabled = true;
 
 		bool useBorders = false;
 
@@ -39,6 +40,10 @@ class Camera {
 		void UpdatePosition(const Uint8* state);
 
 		void UpdateZoom(SDL_Event& event);
+
+		void Enable();
+
+		void Disable();
 
 		SDL_Rect TransformFlat(const SDL_Rect& rect);
 		MT::Rect TransformFlat(const MT::Rect& rect);
