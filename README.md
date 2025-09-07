@@ -39,3 +39,4 @@ Required CPP version at least 23
 - Simpler and about 20 % faster circle rendering
 - New clipping options (useful in some interface rendering)
 - Camera enable/disable functions
+- Draw Line Renderer Function

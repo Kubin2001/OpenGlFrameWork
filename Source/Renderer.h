@@ -104,6 +104,9 @@ namespace MT {
 
 			 void RenderRectEX(const Rect& rect, const Color& col, const float rotation, const int alpha = 255);
 
+			 void DrawLine(const int x1, const int y1, const int x2, const int y2, const int thickness,
+				 const Color& col, const unsigned char alpha = 255);
+
 			 void RenderCopy(const Rect& rect, const Texture* texture);
 
 			 void RenderCopyPart(const Rect& rect, const Rect& source, const Texture* texture);

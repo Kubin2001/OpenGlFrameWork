@@ -494,6 +494,58 @@ void MT::Renderer::RenderRectEX(const Rect& rect, const Color &col, const float 
 }
 
 
+void MT::Renderer::DrawLine(const int x1, const int y1, const int x2, const int y2,const int thickness,
+    const Color& col, const unsigned char alpha) {
+
+    if (currentProgram != renderRectId) {
+        RenderPresent(false);
+        currentProgram = renderRectId;
+        glUseProgram(renderRectId);
+    }
+
+    currentSize = renderRectSize;
+
+
+
+    glm::vec2 p1 = glm::vec2{ (static_cast<float>(x1) / W) * 2.0f - 1.0f,
+    1.0f - (static_cast<float>(y1) / H) * 2.0f };
+
+    glm::vec2 p2 = glm::vec2{ (static_cast<float>(x2) / W) * 2.0f - 1.0f,
+    1.0f - (static_cast<float>(y2) / H) * 2.0f };
+
+    glm::vec2 dir = p2 - p1;
+    float len = glm::length(dir);
+    if (len < 1e-6f) { return; };
+
+    glm::vec2 normal = glm::normalize(glm::vec2(-dir.y, dir.x));
+
+    float thick = ((float)(thickness) / H) * 2.0f;
+    glm::vec2 offset = normal * (thick * 0.5f);
+
+    glm::vec2 v0 = p1 + offset;
+    glm::vec2 v1 = p1 - offset;
+    glm::vec2 v2 = p2 - offset;
+    glm::vec2 v3 = p2 + offset;
+
+    const float fR = float(col.R) / 255;
+    const float fG = float(col.G) / 255;
+    const float fB = float(col.B) / 255;
+    const float fA = float(alpha) / 255;
+
+    const float vertex[] = {
+        v0.x, v0.y, fR, fG, fB, fA,
+        v1.x, v1.y, fR, fG, fB, fA,
+        v2.x, v2.y, fR, fG, fB, fA,
+
+        v0.x, v0.y, fR, fG, fB, fA,
+        v2.x, v2.y, fR, fG, fB, fA,
+        v3.x, v3.y, fR, fG, fB, fA
+    };
+
+    globalVertices.insert(globalVertices.end(), std::begin(vertex), std::end(vertex));
+}
+
+
 void MT::Renderer::RenderCopy(const Rect& rect, const Texture* texture){
     if (!texture) { return; }
     if (!vievPort.IsColliding(rect)) {
