@@ -72,9 +72,7 @@ namespace MT {
 			 unsigned int renderCircleId;
 			 unsigned int renderCopyFilterId;
 
-			 unsigned int RenderCopyExTransform;
 			 unsigned int currentTexture;
-			 float currentRadius;
 
 			 //Veretex Sizes
 			 unsigned int currentSize = 0;
@@ -126,6 +124,8 @@ namespace MT {
 			 void RenderPresent(bool switchContext = true);
 
 			 void Clear();
+
+			 void Resize(const unsigned int w, const unsigned int h);
 
 			 //
 			 //

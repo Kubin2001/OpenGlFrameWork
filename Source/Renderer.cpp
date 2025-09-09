@@ -391,8 +391,6 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     renderCircleId = loader.GetProgram("RenderCircle");
     renderCopyFilterId = loader.GetProgram("RenderCopyFilter");
     
-
-    currentRadius = 0.5f;
     globalVertices.reserve(1'000'000);
     return true;
 }
@@ -935,15 +933,21 @@ void MT::Renderer::Clear() {
     renderCopyCircleId = 0;
     renderCircleId = 0;
     renderCopyFilterId = 0;
-    RenderCopyExTransform = 0;
 
 
-
-    currentRadius = 0.0f;
     globalVertices.clear();
     globalVertices.shrink_to_fit();
 
     SDL_GL_DeleteContext(context);
+}
+
+void MT::Renderer::Resize(const unsigned int w, const unsigned int h) {
+    W = w;
+    H = h;
+    vievPort.w = W;
+    vievPort.h = H;
+    SDL_GL_GetDrawableSize(window, &W, &H);
+    glViewport(0, 0, W, H);
 }
 
 
