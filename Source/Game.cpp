@@ -1,7 +1,7 @@
 #include "Game.h"
 
 #include <SDL.h>
-#include <iostream>
+#include <print>
 #include <string>
 #include <SDL_image.h>
 
@@ -45,6 +45,7 @@ void Game::Start() {
 	ui->CreateFont("arial40px", TexMan::GetTex("arial40px"), "Textures/Interface/Fonts/arial40px.json");
 	ui->CreateFont("arial20px", TexMan::GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
+
 }
 
 
@@ -75,25 +76,6 @@ void Game::Input() {
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
 	ui->Render();
-	MT::Rect rect1{ 100,100,100,100 };
-	MT::Rect rect2{ 300,400,100,100 };
-	int x1 = rect1.x + rect1.w;
-	int y1 = rect1.y + rect1.h;
-
-	int x2 = rect2.x;
-	int y2 = rect2.y;
-
-	renderer->RenderRect(rect1, {0,255,0});
-	renderer->RenderRect(rect2, { 0,0,255 });
-	auto start = std::chrono::high_resolution_clock::now();
-
-	renderer->DrawLine(x1, y1, x2, y2,5, { 0,0,0 });
-
-	auto end = std::chrono::high_resolution_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-
-	std::cout << "DrawLine czas: " << elapsed << " ns\n";
-
 	renderer->RenderPresent();
 }
 

@@ -40,3 +40,4 @@ Required CPP version at least 23
 - New clipping options (useful in some interface rendering)
 - Camera enable/disable functions
 - Draw Line Renderer Function
+- Cleaner ClickBoxList
