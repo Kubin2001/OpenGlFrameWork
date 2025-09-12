@@ -41,3 +41,4 @@ Required CPP version at least 23
 - Camera enable/disable functions
 - Draw Line Renderer Function
 - Cleaner ClickBoxList
+- Flipping in Ex functions

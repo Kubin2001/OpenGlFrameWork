@@ -109,9 +109,9 @@ namespace MT {
 
 			 void RenderCopyPart(const Rect& rect, const Rect& source, const Texture* texture);
 
-			 void RenderCopyEX(const Rect& rect, const Texture* texture, const float rotation);
+			 void RenderCopyEX(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
 
-			 void RenderCopyPartEX(const Rect& rect, const Rect& source, const Texture* texture, const float rotation);
+			 void RenderCopyPartEX(const Rect& rect, const Rect& source, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
 
 			 void RenderCopyCircle(const Rect& rect, const Texture* texture, const float radius = 0.5f);
 

@@ -628,7 +628,7 @@ void MT::Renderer::RenderCopyPart(const Rect& rect, const Rect& source, const Te
     globalVertices.insert(globalVertices.end(), std::begin(verticles), std::end(verticles));
 }
 
-void MT::Renderer::RenderCopyEX(const Rect& rect, const Texture* texture, const float rotation) {
+void MT::Renderer::RenderCopyEX(const Rect& rect, const Texture* texture, const bool flip, const float rotation) {
     if (!texture) { return; }
     if (currentTexture != texture->texture) {
         RenderPresent(false);
@@ -665,19 +665,31 @@ void MT::Renderer::RenderCopyEX(const Rect& rect, const Texture* texture, const 
     glm::vec2 p4 = RotateAndTranslate2D(halfW, halfH, center, cosA, sinA);
     glm::vec2 p5 = RotateAndTranslate2D(halfW, -halfH, center, cosA, sinA);
 
-    const float vertex[] = {
-        p0.x, p0.y, 0.0f, 0.0f,texture->alpha,
-        p1.x, p1.y, 0.0f, 1.0f,texture->alpha,
-        p2.x, p2.y, 1.0f, 1.0f,texture->alpha,
-        p3.x, p3.y, 0.0f, 0.0f,texture->alpha,
-        p4.x, p4.y, 1.0f, 1.0f,texture->alpha,
-        p5.x, p5.y, 1.0f, 0.0f,texture->alpha
-    };
-
-    globalVertices.insert(globalVertices.end(), std::begin(vertex), std::end(vertex));
+    if (flip) {
+        const float vertex[] = {
+            p0.x, p0.y, 1.0f, 0.0f, texture->alpha,
+            p1.x, p1.y, 1.0f, 1.0f, texture->alpha,
+            p2.x, p2.y, 0.0f, 1.0f, texture->alpha,
+            p3.x, p3.y, 1.0f, 0.0f, texture->alpha,
+            p4.x, p4.y, 0.0f, 1.0f, texture->alpha,
+            p5.x, p5.y, 0.0f, 0.0f, texture->alpha
+        };
+        globalVertices.insert(globalVertices.end(), std::begin(vertex), std::end(vertex));
+    }
+    else {
+        const float vertex[] = {
+            p0.x, p0.y, 0.0f, 0.0f,texture->alpha,
+            p1.x, p1.y, 0.0f, 1.0f,texture->alpha,
+            p2.x, p2.y, 1.0f, 1.0f,texture->alpha,
+            p3.x, p3.y, 0.0f, 0.0f,texture->alpha,
+            p4.x, p4.y, 1.0f, 1.0f,texture->alpha,
+            p5.x, p5.y, 1.0f, 0.0f,texture->alpha
+        };
+        globalVertices.insert(globalVertices.end(), std::begin(vertex), std::end(vertex));
+    }
 }
 
-void MT::Renderer::RenderCopyPartEX(const Rect& rect, const Rect& source, const Texture* texture, const float rotation) {
+void MT::Renderer::RenderCopyPartEX(const Rect& rect, const Rect& source, const Texture* texture, const bool flip, const float rotation) {
     if (!texture) { return; }
     if (currentTexture != texture->texture) {
         RenderPresent(false);
@@ -725,15 +737,29 @@ void MT::Renderer::RenderCopyPartEX(const Rect& rect, const Rect& source, const 
     glm::vec2 p4 = RotateAndTranslate2D(halfW, halfH, center, cosA, sinA);
     glm::vec2 p5 = RotateAndTranslate2D(halfW, -halfH, center, cosA, sinA);
 
-    const float vertex[] = {
-        p0.x, p0.y, u0, v0,texture->alpha,
-        p1.x, p1.y, u0, v1,texture->alpha,
-        p2.x, p2.y, u1, v1,texture->alpha,
-        p3.x, p3.y, u0, v0,texture->alpha,
-        p4.x, p4.y, u1, v1,texture->alpha,
-        p5.x, p5.y, u1, v0,texture->alpha
-    };
-    globalVertices.insert(globalVertices.end(), std::begin(vertex), std::end(vertex));
+    if (flip) {
+        const float vertex[] = {
+            p0.x, p0.y, u1, v0,texture->alpha,
+            p1.x, p1.y, u1, v1,texture->alpha,
+            p2.x, p2.y, u0, v1,texture->alpha,
+            p3.x, p3.y, u1, v0,texture->alpha,
+            p4.x, p4.y, u0, v1,texture->alpha,
+            p5.x, p5.y, u0, v0,texture->alpha
+        };
+        globalVertices.insert(globalVertices.end(), std::begin(vertex), std::end(vertex));
+    }
+    else {
+        const float vertex[] = {
+            p0.x, p0.y, u0, v0,texture->alpha,
+            p1.x, p1.y, u0, v1,texture->alpha,
+            p2.x, p2.y, u1, v1,texture->alpha,
+            p3.x, p3.y, u0, v0,texture->alpha,
+            p4.x, p4.y, u1, v1,texture->alpha,
+            p5.x, p5.y, u1, v0,texture->alpha
+        };
+
+        globalVertices.insert(globalVertices.end(), std::begin(vertex), std::end(vertex));
+    }
 }
 
 
