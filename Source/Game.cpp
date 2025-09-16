@@ -74,7 +74,9 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
+
 	ui->Render();
+
 	renderer->RenderPresent();
 }
 
@@ -83,7 +85,7 @@ void Game::Exit() {
 	if (event.type == SDL_QUIT) {
 		Global::status = false; 
 	}
-	else if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+	else if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
 		Global::status = false;
 	}
 }

@@ -42,3 +42,7 @@ Required CPP version at least 23
 - Draw Line Renderer Function
 - Cleaner ClickBoxList
 - Flipping in Ex functions
+
+1.04
+- 4 Times faster rendering in debug
+- About 15 % faster rendering in realse
