@@ -11,112 +11,116 @@
 #include "Renderer.h"
 #include "Basics.h"
 
-class TemplateUIElement : public GameObject{
-protected:
-	std::string name = "";
-	std::string text = "";
-	float textScale = 1.0f;
-	int interLine = 20;
+// Basic non interactive button
+class Button : public GameObject {
+	protected:
+		std::string name = "";
+		std::string text = "";
+		float textScale = 1.0f;
+		int interLine = 20;
 
-	bool border = false;
+		bool border = false;
 
-	int borderThickness = 0;
+		int borderThickness = 0;
 
-	int textStartX = 0;
-	int textStartY = 0;
+		int textStartX = 0;
+		int textStartY = 0;
 
-	unsigned char buttonColor[4] = { 255,255,255,255 };
+		unsigned char buttonColor[4] = { 255,255,255,255 };
 
-	unsigned char borderRGB[3] = { 255,255,255 };
+		unsigned char borderRGB[3] = { 255,255,255 };
 
-	unsigned char fontRGB[3] = { 255,255,255 };
+		unsigned char fontRGB[3] = { 255,255,255 };
 
-	Font* font = nullptr;
+		Font* font = nullptr;
 
-	unsigned short textRenderType = 1;
+		unsigned short textRenderType = 1;
 
-	Point predefinedSize;
+		Point predefinedSize;
 
-	bool hidden = false;
+		bool hidden = false;
 
-	bool hovered = false; // Is button in collidion with mouse
+		bool hovered = false; // Is button in collidion with mouse
 
-	bool hoverable = false; // Is hover filter aplied with mouse collisojn
+		bool hoverable = false; // Is hover filter aplied with mouse collisojn
 
-	unsigned char hooverFilter[4] = { 0,0,0,0 };
+		unsigned char hooverFilter[4] = { 0,0,0,0 };
 
-	std::string hooverSound = "";
+		std::string hooverSound = "";
 
-	bool GetBorder();
+		bool GetBorder();
 
-	void SetBorder(bool temp);
+		void SetBorder(bool temp);
 
-public:
+	public:
 
-	std::string& GetName();
+		std::string& GetName();
 
-	void SetName(const std::string value);
+		void SetName(const std::string value);
 
-	std::string& GetText();
-	void SetText(std::string temptext);
+		std::string& GetText();
+		void SetText(std::string temptext);
 
-	float GetTextScale();
-	void SetTextScale(float temp);
-	int GetInterLine();
-	void SetInterLine(int temp);
+		float GetTextScale();
+		void SetTextScale(float temp);
+		int GetInterLine();
+		void SetInterLine(int temp);
 
-	int GetBorderThickness();
+		int GetBorderThickness();
 
-	void SetBorderThickness(const int temp);
+		void SetBorderThickness(const int temp);
 
-	void SetBorder(const int width, const unsigned char R, const unsigned char G, const unsigned char B);
+		void SetBorder(const int width, const unsigned char R, const unsigned char G, const unsigned char B);
 
-	int GetTextStartX();
-	void SetTextStartX(int temp);
-	int GetTextStartY();
-	void SetTextStartY(int temp);
+		int GetTextStartX();
+		void SetTextStartX(int temp);
+		int GetTextStartY();
+		void SetTextStartY(int temp);
 
-	Font* GetFont();
+		Font* GetFont();
 
-	void SetFont(Font* font);
+		void SetFont(Font* font);
 
-	void SetColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255);
+		void SetColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255);
 
-	void SetBorderRGB(const unsigned char R, const unsigned char G, const unsigned char B);
+		void SetBorderRGB(const unsigned char R, const unsigned char G, const unsigned char B);
 
-	void SetFontColor(const unsigned char R, const unsigned char G, const unsigned char B);
+		void SetFontColor(const unsigned char R, const unsigned char G, const unsigned char B);
 
-	void Render(MT::Renderer* renderer);
+		void Render(MT::Renderer* renderer);
 
-	void RenderItslelf(MT::Renderer* renderer);
+		void RenderItslelf(MT::Renderer* renderer);
 
-	void RenderBorder(MT::Renderer* renderer);
+		void RenderBorder(MT::Renderer* renderer);
 
-	void RenderText(MT::Renderer* renderer);
+		void RenderText(MT::Renderer* renderer);
 
-	// 1 Standard
-	// 2 Center
-	// 3 From Right
-	void SetRenderTextType(const unsigned short textRenderType);
+		// 1 Standard
+		// 2 Center
+		// 3 From Right
+		// 4 Centered on X axis
+		// 5 Centered on Y axis
+		void SetRenderTextType(const unsigned short textRenderType);
 
-	bool IsHidden();
+		bool IsHidden();
 
-	void Hide();
+		void Hide();
 
-	void Show();
+		void Show();
 
-	bool IsHovered();
+		bool IsHovered();
 
-	void SetHover(bool temp);
+		void SetHover(bool temp);
 
-	void SetHoverFilter(const bool filter,const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A, const std::string &sound = "");
+		void SetHoverFilter(const bool filter, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A, const std::string& sound = "");
 
-	std::string& GetHooverSound();
+		std::string& GetHooverSound();
 
+	friend class UI;
 };
 
 // A button that can be clicked with a mouse
-class ClickBox : public TemplateUIElement {
+class ClickBox : public Button {
 private:
 	bool status = false;
 	bool turnedOn = true;
@@ -144,7 +148,7 @@ public:
 
 
 // Button that can accept text input
-class TextBox : public TemplateUIElement {
+class TextBox : public Button {
 private:
 	bool turnedOn = false;
 public:
@@ -154,14 +158,9 @@ public:
 	friend class UI;
 };
 
-// Basic non interactive button
-class Button : public TemplateUIElement {
-	public:
-		friend class UI;
 
-};
 
-class PopUpBox : public TemplateUIElement {
+class PopUpBox : public Button {
 	private:
 		int lifeTime = 0;
 

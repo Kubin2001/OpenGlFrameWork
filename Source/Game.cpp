@@ -45,6 +45,10 @@ void Game::Start() {
 	ui->CreateFont("arial40px", TexMan::GetTex("arial40px"), "Textures/Interface/Fonts/arial40px.json");
 	ui->CreateFont("arial20px", TexMan::GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
+	Button *btn = ui->CreateButton("Btn1", 100, 100, 100, 100, nullptr, ui->GetFont("arial12px"), "some text"
+	,1.0f,0,0);
+	btn->SetColor(30, 30, 30);
+	btn->SetRenderTextType(5);
 }
 
 
@@ -73,11 +77,13 @@ void Game::Input() {
 
 
 void Game::Render() {
+	using namespace std::chrono;
+	auto start = high_resolution_clock::now();
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-
+	ui->GetButton("Btn1")->GetRectangle().w++;
+	ui->GetButton("Btn1")->GetRectangle().h++;
 	ui->Render();
-
-	renderer->RenderPresent();
+	renderer->RenderPresent(); 
 }
 
 

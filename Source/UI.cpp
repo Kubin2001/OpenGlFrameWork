@@ -10,61 +10,61 @@
 
 //BUTTON
 
-std::string& TemplateUIElement::GetName() {
+std::string& Button::GetName() {
 	return name;
 }
 
-void TemplateUIElement::SetName(const std::string value) {
+void Button::SetName(const std::string value) {
 	name = value;
 }
 
-void TemplateUIElement::SetText(std::string temptext) {
+void Button::SetText(std::string temptext) {
 	text = temptext;
 }
 
-std::string& TemplateUIElement::GetText() {
+std::string& Button::GetText() {
 	return text;
 }
 
-float TemplateUIElement::GetTextScale() {
+float Button::GetTextScale() {
 	return textScale;
 }
-void TemplateUIElement::SetTextScale(float temp) {
+void Button::SetTextScale(float temp) {
 	textScale = temp;
 }
-int TemplateUIElement::GetInterLine() {
+int Button::GetInterLine() {
 	return interLine;
 }
-void TemplateUIElement::SetInterLine(int temp) {
+void Button::SetInterLine(int temp) {
 	interLine = temp;
 }
 
-bool TemplateUIElement::GetBorder() {
+bool Button::GetBorder() {
 	return border;
 }
 
-Font* TemplateUIElement::GetFont() {
+Font* Button::GetFont() {
 	return font;
 }
 
-void TemplateUIElement::SetFont(Font* font) {
+void Button::SetFont(Font* font) {
 	this->font = font;
 }
 
-void TemplateUIElement::SetBorder(bool temp) {
+void Button::SetBorder(bool temp) {
 	border = temp;
 }
 
-int TemplateUIElement::GetBorderThickness() {
+int Button::GetBorderThickness() {
 	return borderThickness;
 }
 
-void TemplateUIElement::SetBorderThickness(const int temp) {
+void Button::SetBorderThickness(const int temp) {
 	borderThickness = temp;
 	border = true;
 }
 
-void TemplateUIElement::SetBorder(const int width, const unsigned char R, const unsigned char G, const unsigned char B) {
+void Button::SetBorder(const int width, const unsigned char R, const unsigned char G, const unsigned char B) {
 	border = true;
 	borderThickness = width;
 	borderRGB[0] = R;
@@ -72,20 +72,20 @@ void TemplateUIElement::SetBorder(const int width, const unsigned char R, const 
 	borderRGB[2] = B;
 }
 
-int TemplateUIElement::GetTextStartX() {
+int Button::GetTextStartX() {
 	return textStartX;
 }
-void TemplateUIElement::SetTextStartX(int temp) {
+void Button::SetTextStartX(int temp) {
 	textStartX = temp;
 }
-int TemplateUIElement::GetTextStartY() {
+int Button::GetTextStartY() {
 	return textStartY;
 }
-void TemplateUIElement::SetTextStartY(int temp) {
+void Button::SetTextStartY(int temp) {
 	textStartY = temp;
 }
 
-void TemplateUIElement::SetColor(const unsigned char R, const unsigned char G, const unsigned char B , const unsigned char A) {
+void Button::SetColor(const unsigned char R, const unsigned char G, const unsigned char B , const unsigned char A) {
 	buttonColor[0] = R;
 	buttonColor[1] = G;
 	buttonColor[2] = B;
@@ -93,13 +93,13 @@ void TemplateUIElement::SetColor(const unsigned char R, const unsigned char G, c
 }
 
 
-void TemplateUIElement::SetBorderRGB(const unsigned char R, const unsigned char G, const unsigned char B) {
+void Button::SetBorderRGB(const unsigned char R, const unsigned char G, const unsigned char B) {
 	borderRGB[0] = R;
 	borderRGB[1] = G;
 	borderRGB[2] = B;
 }
 
-void TemplateUIElement::SetFontColor(const unsigned char R, const unsigned char G, const unsigned char B) {
+void Button::SetFontColor(const unsigned char R, const unsigned char G, const unsigned char B) {
 	if (font != nullptr) {
 		if (font->GetTexture() != nullptr) {
 			fontRGB[0] = R;
@@ -109,7 +109,7 @@ void TemplateUIElement::SetFontColor(const unsigned char R, const unsigned char 
 	}
 }
 
-void TemplateUIElement::Render(MT::Renderer* renderer) {
+void Button::Render(MT::Renderer* renderer) {
 	if (!hidden) {
 		if (GetTexture() == nullptr) {
 			RenderItslelf(renderer);
@@ -129,7 +129,7 @@ void TemplateUIElement::Render(MT::Renderer* renderer) {
 	}
 }
 
-void TemplateUIElement::RenderItslelf(MT::Renderer* renderer) {
+void Button::RenderItslelf(MT::Renderer* renderer) {
 	if (hovered && hoverable) {
 		renderer->RenderRect(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2]}, buttonColor[3]);
 		renderer->RenderRect(rectangle, { hooverFilter[0], hooverFilter[1], hooverFilter[2] }, hooverFilter[3]);
@@ -139,7 +139,7 @@ void TemplateUIElement::RenderItslelf(MT::Renderer* renderer) {
 	}
 }
 
-void TemplateUIElement::RenderBorder(MT::Renderer* renderer) {
+void Button::RenderBorder(MT::Renderer* renderer) {
 	MT::Rect leftLine{ rectangle.x, rectangle.y, borderThickness, rectangle.h };
 	MT::Rect upperLine{ rectangle.x, rectangle.y, rectangle.w, borderThickness };
 	MT::Rect rightLine{ (rectangle.x + rectangle.w - borderThickness), rectangle.y, borderThickness, rectangle.h };
@@ -151,7 +151,7 @@ void TemplateUIElement::RenderBorder(MT::Renderer* renderer) {
 	renderer->RenderRect(downLine, { borderRGB[0], borderRGB[1], borderRGB[2] });
 }
 
-void TemplateUIElement::RenderText(MT::Renderer* renderer) {
+void Button::RenderText(MT::Renderer* renderer) {
 	if (font != nullptr) {
 		if (text.empty()) { return; }
 		font->SetFilter(fontRGB[0], fontRGB[1], fontRGB[2]);
@@ -165,6 +165,12 @@ void TemplateUIElement::RenderText(MT::Renderer* renderer) {
 			case 3:
 				font->RenderTextFromRight(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
 				break;
+			case 4:
+				font->RenderTextCenterX(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
+				break;
+			case 5:
+				font->RenderTextCenterY(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
+				break;
 			default: // Standardowa opcja
 				font->RenderText(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
 				break;
@@ -172,32 +178,32 @@ void TemplateUIElement::RenderText(MT::Renderer* renderer) {
 	}
 }
 
-void TemplateUIElement::SetRenderTextType(const unsigned short textRenderType) {
+void Button::SetRenderTextType(const unsigned short textRenderType) {
 	this->textRenderType = textRenderType;
 }
 
 
-bool TemplateUIElement::IsHidden() {
+bool Button::IsHidden() {
 	return hidden;
 }
 
-void TemplateUIElement::Hide() {
+void Button::Hide() {
 	hidden = true;
 }
 
-void TemplateUIElement::Show() {
+void Button::Show() {
 	hidden = false;
 }
 
-bool TemplateUIElement::IsHovered() {
+bool Button::IsHovered() {
 	return hovered;
 }
 
-void TemplateUIElement::SetHover(bool temp) {
+void Button::SetHover(bool temp) {
 	hovered = temp;
 }
 
-void TemplateUIElement::SetHoverFilter(const bool filter, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A, const std::string& sound) {
+void Button::SetHoverFilter(const bool filter, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A, const std::string& sound) {
 	this->hoverable = filter;
 	hooverFilter[0] = R;
 	hooverFilter[1] = G;
@@ -206,7 +212,7 @@ void TemplateUIElement::SetHoverFilter(const bool filter, const unsigned char R,
 	hooverSound = sound;
 }
 
-std::string& TemplateUIElement::GetHooverSound() {
+std::string& Button::GetHooverSound() {
 	return hooverSound;
 }
 
