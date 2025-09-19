@@ -47,3 +47,4 @@ Required CPP version at least 23
 - 4 Times faster rendering in debug
 - About 15 % faster rendering in realse
 - Options for centered text rendering only on X or Y axis
+- Improved and much faster experimental flat rendering (still unstable)

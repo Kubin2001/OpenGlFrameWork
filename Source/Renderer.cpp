@@ -8,6 +8,7 @@
 #include <SDL_image.h>
 #include <chrono>
 #include "Colision.h"
+#include "TextureManager.h"
 
 SDL_Surface* FlipSurfaceVertical(SDL_Surface* surface) {
     SDL_Surface* flipped = SDL_CreateRGBSurfaceWithFormat(0, surface->w, surface->h,
@@ -1012,6 +1013,9 @@ void MT::Renderer::Resize(const unsigned int w, const unsigned int h) {
     glViewport(0, 0, W, H);
 }
 
+void MT::Renderer::AgresiveRenderCopySetUp() {
+    agresiveRenderVec.resize(TexMan::GetTexturesAmount() +1);
+}
 
 void MT::Renderer::AgressiveRenderCopy(const Rect& rect, const Texture* texture) {
     if (!texture) { return; }
@@ -1033,17 +1037,11 @@ void MT::Renderer::AgressiveRenderCopy(const Rect& rect, const Texture* texture)
         x + w, y - h, 1.0f, 0.0f,texture->alpha
     };
 
-    if (renderMap.find(texture) == renderMap.end()) {
-        renderMap.emplace(
-            texture,
-            std::vector<float>(std::begin(verticles), std::end(verticles))
-        );
-    }
-    else {
-        renderMap[texture].insert(renderMap[texture].end(), std::begin(verticles), std::end(verticles));
-    }
-
-
+    constexpr int N = 30;
+    std::vector<float>& vec = agresiveRenderVec[texture->texture];
+    const size_t old = vec.size();
+    vec.resize(old + N);
+    std::memcpy(vec.data() + old, verticles, N * sizeof(float));
 }
 
 void MT::Renderer::AgressiveRenderCopyPresent(bool clearVectors) {
@@ -1052,16 +1050,13 @@ void MT::Renderer::AgressiveRenderCopyPresent(bool clearVectors) {
     glUseProgram(renderCopyId);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    for (auto& mapElem : renderMap) {
-        glBindTexture(GL_TEXTURE_2D, mapElem.first->texture);
-        auto& mapElemVec = mapElem.second;
-        glBufferData(GL_ARRAY_BUFFER, mapElemVec.size() * sizeof(float), mapElemVec.data(), GL_DYNAMIC_DRAW);
-
-        glDrawArrays(GL_TRIANGLES, 0, mapElemVec.size() / renderCircleSize);
-    }
-
-    if (clearVectors) {
-        renderMap.clear();
+    for (size_t i = 0; i < agresiveRenderVec.size(); i++) {
+        std::vector<float>& vec = agresiveRenderVec[i];
+        if (vec.empty()) { continue; }
+        glBindTexture(GL_TEXTURE_2D, i);
+        glBufferData(GL_ARRAY_BUFFER, vec.size() * sizeof(float),  vec.data(), GL_DYNAMIC_DRAW);
+        glDrawArrays(GL_TRIANGLES, 0, vec.size() / renderCopySize);
+        vec.clear();
     }
 
     if (prevProgram) glUseProgram(prevProgram);

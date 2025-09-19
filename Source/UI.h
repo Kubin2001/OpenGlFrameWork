@@ -281,7 +281,7 @@ public:
 
 	bool DeletePopUpBox(const std::string& name);
 
-	bool DeleteAnyButton(const std::string& name);
+	bool DeleteAnyElem(const std::string& name);
 
 	void Render();
 
