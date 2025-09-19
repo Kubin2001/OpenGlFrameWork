@@ -8,6 +8,7 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <print>
+#include "TextureManager.h"
 
 struct Pixel {
 	unsigned char R;
@@ -22,6 +23,11 @@ Font::Font(const std::string& name, MT::Texture* texture, const std::string& jso
 	LoadTextInfo(jsonPath);
 }
 
+Font::Font(const std::string& name, MT::Texture* texture, const std::string& charset, std::vector<MT::Rect>& rectangles) {
+	this->name = name;
+	this->texture = texture;
+	LoadTextCharset(charset, rectangles);
+}
 
 std::string Font::GetName() {
 	return name;
@@ -48,20 +54,20 @@ bool Font::LoadTextInfo(const std::string& jsonPath) {
 			}
 		}
 
-		/*for (size_t i = 0; i < sourceRectangles.size(); i++)
-		{
-			std::cout << i << " : X: " << sourceRectangles[i].x << " Y: " << sourceRectangles[i].y
-				<< " W: " << sourceRectangles[i].w << " H: " << sourceRectangles[i].h << "\n";
-
-		}*/
-		//std::cout << "InterLine: " << standardInterLine << "\n";
-
 	}
 	else{
 		std::cout << "Error font json not loaded correctly!\n";
 		return false;
 	}
 	return true;
+}
+
+void Font::LoadTextCharset(const std::string& charset ,std::vector<MT::Rect> &rectangles) {
+	sourceRectangles.resize(200);
+	for (size_t i = 0; i < charset.size(); i++) {
+		if (charset[i] < 0) { return; }
+		sourceRectangles[charset[i]] = rectangles[i];
+	}
 }
 
 
@@ -402,8 +408,6 @@ void CrateFontFromTTF(const char* ttfPath, const int size, const std::string& na
 		}
 	}
 
-
-
 	TTF_Font* font = TTF_OpenFont(ttfPath, size);
 
 	// Creating string containing all signs
@@ -504,6 +508,99 @@ void CrateFontFromTTF(const char* ttfPath, const int size, const std::string& na
 	else {
 		std::println("ERROR cannot generate font: {}", name);
 	}
+
+	//Clean Up
+	SDL_FreeSurface(atlas);
+	for (auto& it : surfaces) {
+		SDL_FreeSurface(it);
+	}
+	TTF_CloseFont(font);
+	TTF_Quit();
+}
+
+void FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name) {
+	TTF_Init();
+
+	TTF_Font* font = TTF_OpenFont(ttfPath, size);
+
+	// Creating string containing all signs
+	std::string strCharset = "";
+	strCharset.reserve(100); // Nie wiem ile w sumie bo jeszcze nie wiem ile znaków trzymaæ
+
+	for (size_t i = 32; i < 127; i++) { // od 31 do 127 bo od 31 w dól znaki kontrolne i 127 do 159 tak samo
+		strCharset += charset[i];
+	}
+
+	for (size_t i = 160; i < 199; i++) { // dziwne znaki czy to wogóle zachowaæ nie wiem mo¿e opcja w funkcji?
+		strCharset += charset[i];
+	}
+
+
+	// Creating rectangles and glyps
+	std::vector<SDL_Surface*> surfaces;
+	surfaces.reserve(strCharset.size());
+
+	std::vector<MT::Rect> sourceRectangles;
+	sourceRectangles.reserve(strCharset.size());
+
+	int x = 0;
+	int y = 0;
+
+
+
+	for (auto& it : strCharset) {
+		SDL_Surface* surf = TTF_RenderGlyph32_Blended(font, it, { 255,255,255,255 });
+		if (!surf) continue;
+
+		SDL_Surface* newSurf = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_RGBA32, 0);
+		SDL_FreeSurface(surf);
+		if (!newSurf) continue;
+
+		SDL_SetSurfaceBlendMode(newSurf, SDL_BLENDMODE_NONE);
+		SDL_SetColorKey(newSurf, SDL_FALSE, 0);
+		surfaces.emplace_back(newSurf);
+		sourceRectangles.emplace_back(x, y, newSurf->w, newSurf->h);
+		x += newSurf->w + 1;
+	}
+
+	// Creating texture atlas from glyphs
+
+	int w = 0;
+	int maxH = 0;
+
+	for (auto& it : sourceRectangles) {
+		w += it.w + 1;
+		if (it.h > maxH) {
+			maxH = it.h;
+		}
+	}
+
+	SDL_Surface* atlas = SDL_CreateRGBSurfaceWithFormat(0, w, maxH, 32, SDL_PIXELFORMAT_RGBA32);
+	SDL_FillRect(atlas, nullptr, SDL_MapRGBA(atlas->format, 0, 0, 0, 0));
+
+
+
+
+	for (size_t i = 0; i < sourceRectangles.size(); i++) {
+		SDL_Rect tempRect = sourceRectangles[i].ToSDLRect();
+		SDL_BlitSurface(surfaces[i], nullptr, atlas, &tempRect);
+	}
+	
+	MT::Texture *tex = MT::LoadTextureFromSurface(atlas);
+	
+	if (!TexMan::AddTexture(tex, name)) {
+		throw std::runtime_error("Texture name already taken");
+	}
+	if (fonts.size() > 0) {
+		for (auto& it : fonts) {
+			if (it->GetName() == name) {
+				throw std::runtime_error("font with idenical name already exist");
+				return;
+			}
+		}
+	}
+	fonts.emplace_back(new Font(name, tex, strCharset, sourceRectangles));
+
 
 	//Clean Up
 	SDL_FreeSurface(atlas);

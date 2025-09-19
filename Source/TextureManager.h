@@ -26,6 +26,8 @@ class TexMan {
 		// You need to pass extenstion with . example .png it supports all formats supported by sdl_image IMG_LOAD
 		static bool IsFormatSupported(const std::string& format);
 
+		static bool AddTexture(MT::Texture* tex, const std::string& name);
+
 		static void LoadSingle(const char* filePath, const std::string& name);
 
 		//Loads single folder and uses file names (without extensions) as keys

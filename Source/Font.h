@@ -30,6 +30,8 @@ private:
 public:
 	Font(const std::string& name, MT::Texture* texture, const std::string& jsonPath);
 
+	Font(const std::string& name, MT::Texture* texture, const std::string &charset, std::vector<MT::Rect>& rectangles);
+
 	std::string GetName();
 
 	int GetStandardInterline();
@@ -37,6 +39,8 @@ public:
 	void SetStandardInterline(int temp);
 
 	bool LoadTextInfo(const std::string& jsonPath);
+
+	void LoadTextCharset(const std::string& charset,std::vector<MT::Rect>& rectangles);
 
 	void RenderText(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, float scale = 1.0,
 		int interline = 20, int textStartX = 0, int textStartY = 0);
@@ -75,6 +79,8 @@ public:
 	void ScanFont(const std::string& texturePath, const std::string& charactersDataPath,
 		unsigned char fR, unsigned char fG, unsigned char fB, unsigned char bR, unsigned char bG, unsigned char bB, int width, int height
 	, const std::string& outputPath = "font.json");
+
+	void CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name);
 
 	~FontManager();
 };

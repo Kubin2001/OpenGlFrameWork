@@ -295,6 +295,8 @@ public:
 	// You need to provide not name (made up by you) texture (needs to be already loaded by texture manager) path to pregenerated json file
 	void CreateFont(const std::string& name, MT::Texture* texture, const std::string& jsonPath);
 
+	void CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name);
+
 	Font* GetFont(const std::string& name);
 
 	//Function to create json file for font png file that contains charcter glyps separated by lines in other color than the font

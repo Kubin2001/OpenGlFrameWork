@@ -48,3 +48,4 @@ Required CPP version at least 23
 - About 15 % faster rendering in realse
 - Options for centered text rendering only on X or Y axis
 - Improved and much faster experimental flat rendering (still unstable)
+- Experimental function for creating temporary font directly from ttf

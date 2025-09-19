@@ -45,27 +45,12 @@ void Game::Start() {
 	ui->CreateFont("arial40px", TexMan::GetTex("arial40px"), "Textures/Interface/Fonts/arial40px.json");
 	ui->CreateFont("arial20px", TexMan::GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
+
+	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 30, "arial30px");
+
 	renderer->AgresiveRenderCopySetUp();
-
-	int x = 0;
-	int y = 0;
-	for (size_t i = 0; i < 500; i++) {
-		objects.emplace_back();
-		objects.back().GetRectangle().Set(x, y, 25, 25);
-		int random = RandInt(0, 10);
-		if(random == 1){
-			objects.back().SetTexture(TexMan::GetTex("MenuIcon"));
-		}
-		else {
-			objects.back().SetTexture(TexMan::GetTex("RetryIcon"));
-		}
-		x += 30;
-		if (i % 40 == 0) {
-			y += 30;
-			x = 0;
-		}
-	}
-
+	Button *btn = ui->CreateButton("test", 100, 100, 100, 100, nullptr, ui->GetFont("arial30px"), "some text");
+	btn->SetColor(30,30,30);
 }
 
 
@@ -94,39 +79,9 @@ void Game::Input() {
 
 
 void Game::Render() {
-
-
 	renderer->ClearFrame(Global::defaultDrawColor[0],Global::defaultDrawColor[1],Global::defaultDrawColor[2]);
-	using namespace std::chrono;
-
-	auto start = high_resolution_clock::now();
-	for (auto& it : objects) {
-		renderer->AgressiveRenderCopy(it.GetRectangle(), it.GetTexture());
-	}
-
-	renderer->AgressiveRenderCopyPresent();
-	auto end = high_resolution_clock::now();
-	auto duration = duration_cast<microseconds>(end - start).count();
-
-	std::println("Render took {} microsec", duration);
-
-	
-
-	//auto start = high_resolution_clock::now();
-	//for (auto& it : objects) {
-	//	renderer->RenderCopy(it.GetRectangle(), it.GetTexture());
-	//}
+	ui->Render();
 	renderer->RenderPresent();
-
-	//auto end = high_resolution_clock::now();
-	//auto duration = duration_cast<microseconds>(end - start).count();
-
-	//std::println("Render took {} microsec", duration);
-
-	//ui->Render();
-
-
-
 }
 
 
