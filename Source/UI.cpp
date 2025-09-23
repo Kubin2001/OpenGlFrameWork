@@ -446,7 +446,7 @@ TextBox* UI::CreateTextBox(std::string name, int x, int y, int w, int h, MT::Tex
 
 	tb->SetTexture(texture);
 
-	tb->SetText("");
+	tb->SetText(text);
 
 	tb->SetTextScale(textScale);
 	tb->SetFont(font);
