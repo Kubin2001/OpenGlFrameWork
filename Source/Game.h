@@ -13,8 +13,6 @@ private:
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui;
 
-	std::vector<GameObject> objects;
-
 public:
 	Game();
 

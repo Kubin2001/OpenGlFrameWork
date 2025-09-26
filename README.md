@@ -49,3 +49,4 @@ Required CPP version at least 23
 - Options for centered text rendering only on X or Y axis
 - Improved and much faster experimental flat rendering (still unstable)
 - Experimental function for creating temporary font directly from ttf
+- Option to Set Base Font for UI

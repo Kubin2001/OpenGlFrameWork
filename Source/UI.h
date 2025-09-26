@@ -231,6 +231,8 @@ private:
 
 	Point lastMousePos;
 
+	Font* baseFont = nullptr;
+
 public:
 
 	UI(MT::Renderer* renderer);
@@ -298,6 +300,10 @@ public:
 	void CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name);
 
 	Font* GetFont(const std::string& name);
+
+	void SetBaseFont(Font *font);
+
+	Font* GetBaseFont();
 
 	//Function to create json file for font png file that contains charcter glyps separated by lines in other color than the font
 	//Requires provided txt file with ordered glyps
