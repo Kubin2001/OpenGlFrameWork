@@ -46,6 +46,8 @@ class TexMan {
 
 		static size_t GetTexturesAmount();
 
+		static std::unordered_map<std::string, MT::Texture*> &GetAllTex();
+
 		// Function to split texture into multiple smaller textures at runtime
 		// Original texture needs to have seperator color at higest pixel at the row and cant use it anywere else
 		static void SplitTexture(const char* path, const std::vector<std::string>& names,

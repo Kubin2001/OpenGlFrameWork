@@ -305,6 +305,8 @@ public:
 
 	Font* GetBaseFont();
 
+	std::vector<Font*>& GetAllFonts();
+
 	//Function to create json file for font png file that contains charcter glyps separated by lines in other color than the font
 	//Requires provided txt file with ordered glyps
 	//Example:

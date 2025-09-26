@@ -50,3 +50,4 @@ Required CPP version at least 23
 - Improved and much faster experimental flat rendering (still unstable)
 - Experimental function for creating temporary font directly from ttf
 - Option to Set Base Font for UI
+- Function to get all textures and fonts from Texture Manager and UI

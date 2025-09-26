@@ -841,6 +841,10 @@ Font* UI::GetBaseFont() {
 	return this->baseFont;
 }
 
+std::vector<Font*>& UI::GetAllFonts() {
+	return this->fontManager->fonts;
+}
+
 void UI::ScanFont(const std::string& texturePath, const std::string& charactersDataPath,
 	unsigned char fR, unsigned char fG, unsigned char fB, unsigned char bR, unsigned char bG, unsigned char bB, Point size,
 	const std::string& outputPath) {
