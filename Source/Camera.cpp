@@ -162,6 +162,15 @@ Point Camera::Untransform(int x, int y) {
 	};
 }
 
+Point Camera::GetMouseUntransform() {
+	int x, y;
+	SDL_GetMouseState(&x, &y);
+	return {
+	static_cast<int>(x / zoom + rectangle.x),
+	static_cast<int>(y / zoom + rectangle.y)
+	};
+}
+
 int Camera::GetScaledWidth() {
 	return static_cast<int>(rectangle.w / zoom);
 }

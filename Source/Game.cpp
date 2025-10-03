@@ -46,15 +46,8 @@ void Game::Start() {
 	ui->CreateFont("arial20px", TexMan::GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
 
-	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
-
+	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
 	renderer->AgresiveRenderCopySetUp();
-	ui->SetBaseFont(ui->GetFont("arial30px"));
-	Button *btn = ui->CreateButton("test", 100, 100, 100, 100, nullptr, ui->GetBaseFont(), "some text");
-	btn->SetColor(30,30,30);
-
-	btn = ui->CreateButton("test2", 100, 300, 100, 100, nullptr, ui->GetFont("arial12px"), "some text");
-	btn->SetColor(30, 30, 30);
 }
 
 
@@ -86,6 +79,8 @@ void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0],Global::defaultDrawColor[1],Global::defaultDrawColor[2]);
 	ui->Render();
 	renderer->RenderPresent();
+	Point p = GetMousePos();
+	std::println("X:{}  Y{}", p.x, p.y);
 }
 
 

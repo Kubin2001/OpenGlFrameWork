@@ -56,8 +56,8 @@ class Camera {
 		MT::CompositeRect Transform(const MT::CompositeRect& rect);
 
 		Point UntransformFlat(int x, int y);
-
 		Point Untransform(int x, int y);
+		Point GetMouseUntransform();
 
 		int GetScaledWidth();
 

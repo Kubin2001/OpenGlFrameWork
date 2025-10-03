@@ -336,3 +336,13 @@ std::vector<std::string> SplitString(const std::string& str, const char seperato
 	}
 	return outVec;
 }
+
+int RandInt(int min, int max) {
+	return min + rand() % (max - min + 1);
+}
+
+Point GetMousePos() {
+	int x, y;
+	SDL_GetMouseState(&x, &y);
+	return { x,y };
+}
