@@ -351,6 +351,7 @@ void ClickBoxList::Hide() {
 }
 
 void ClickBoxList::Clear() {
+	if (!initalized) { return; }
 	for (const auto& it : Elements) {
 		ui->DeleteClickBox(it->GetName());
 	}
