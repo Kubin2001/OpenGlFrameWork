@@ -7,7 +7,6 @@
 
 class Animation {
 	public:
-		std::string name = "";
 		std::vector<MT::Rect> clips;
 		unsigned int firstFrame = 0;
 		unsigned int lastFrame = 0;
@@ -17,27 +16,15 @@ class Animation {
 		//6 back - up singular 8 up - back singullar
 		//7 up - back singular 9 back - up singullar
 
+		MT::Rect &Get();
+
+		void Reset();
+
+		void CloneFrame(const unsigned int index, const unsigned int count);
+
 };
 
-class Animator {
-	private:
-		static std::unordered_map<std::string, Animation*> Animations;
+Animation* CreateAnimation(const int clipsAmount, const short frameWidth,
+	const short frameHeight, const int frameDelay, const int type = 1);
 
-	public:
-		static void CreateNew(const std::string& name, const int clipsAmount, const short frameWidth,
-			const short frameHeight, const int frameDelay, const int type = 1);
-
-		static MT::Rect& Get(const std::string& key);
-
-		static Animation* GetAnim(const std::string& key);
-
-		static void Reset(const std::string& key);
-
-		static bool ClearSingle(const std::string& key);
-
-		static bool CloneFrame(const std::string& key, const unsigned int frame, const unsigned int index, const unsigned int count);
-
-		static bool DeleteAnimation(const std::string& key);
-
-		static void ClearAll();
-};
+void DeleteAnimation(Animation*& animation);

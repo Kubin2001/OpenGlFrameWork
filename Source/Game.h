@@ -5,6 +5,8 @@
 #include "UI.h"
 #include "Renderer.h"
 
+#include "Animator.h"
+
 
 class Game {
 private:
@@ -12,6 +14,7 @@ private:
 	MT::Renderer *renderer;
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui;
+	Animation* anim = nullptr;
 
 public:
 	Game();

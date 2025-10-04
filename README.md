@@ -52,3 +52,6 @@ Required CPP version at least 23
 - Option to Set Base Font for UI
 - Function to get all textures and fonts from Texture Manager and UI
 - New function for easier mouse pos retrieval
+
+1.05
+- Animations are simpler to make and faster and no longer use keys just pointers
