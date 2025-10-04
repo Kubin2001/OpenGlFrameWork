@@ -1,7 +1,7 @@
 #include "Addons.h"
 
 void MethaneVersion() {
-	std::cout << "Using Methane SDL OpenGL Framework v1.04\n";
+	std::cout << "Using Methane SDL OpenGL Framework v1.05\n";
 }
 
 MapPos::MapPos() {
