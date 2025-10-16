@@ -48,12 +48,13 @@ class Button : public GameObject {
 
 		std::string hooverSound = "";
 
+		int zLayer = 0; // Bazowo zawsze 0 
+
 		bool GetBorder();
 
 		void SetBorder(bool temp);
 
 	public:
-
 		std::string& GetName();
 
 		void SetName(const std::string value);
@@ -115,6 +116,10 @@ class Button : public GameObject {
 		void SetHoverFilter(const bool filter, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A, const std::string& sound = "");
 
 		std::string& GetHooverSound();
+
+		int GetZLayer();
+
+		void SetZLayer(const int temp);
 
 	friend class UI;
 };
@@ -209,6 +214,16 @@ class ClickBoxList {
 		}
 };
 
+class RenderingLayer {
+	public:
+		friend class UI;
+	private:
+		std::vector<Button*> Buttons;
+		std::vector<TextBox*> TextBoxes;
+		std::vector<ClickBox*> ClickBoxes;
+		std::vector<PopUpBox*> PopUpBoxes;
+};
+
 // To propelly start the UI you need to pleace manage input function in event loop and render in rendering loop
 class UI{
 private:
@@ -224,6 +239,8 @@ private:
 	std::unordered_map<std::string, TextBox*> TextBoxesMap;
 	std::unordered_map<std::string, ClickBox*> ClickBoxesMap;
 	std::unordered_map<std::string, PopUpBox*> PopUpBoxesMap;
+
+	std::map<int, RenderingLayer> Zlayers;
 
 	std::vector<ClickBoxList*> ListReferences;
 
@@ -287,6 +304,9 @@ public:
 
 	void Render();
 
+	void RenderRawText(Font* font, const int x, const int y, const std::string& text,const int interline,
+		const unsigned char R, const unsigned char G, const unsigned char B);
+
 	std::vector<Button*>& GetButtons();
 
 	std::vector<TextBox*>& GetTextBoxes();
@@ -320,6 +340,7 @@ public:
 
 	void ClearAll(bool clearLists = true);
 
+	bool useLayersInRendering = false;
 
 	~UI();
 };

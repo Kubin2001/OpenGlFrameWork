@@ -8,6 +8,8 @@
 #include "Font.h"
 #include "GlobalVariables.h"
 
+#include <chrono>
+
 //BUTTON
 
 std::string& Button::GetName() {
@@ -216,6 +218,14 @@ std::string& Button::GetHooverSound() {
 	return hooverSound;
 }
 
+int Button::GetZLayer() {
+	return this->zLayer;
+}
+
+void Button::SetZLayer(const int temp) {
+	zLayer = temp;
+}
+
 //BUTTON
 //MassageBox
 void TextBox::CheckInteraction(SDL_Event& event) {
@@ -376,18 +386,56 @@ UI::UI(MT::Renderer* renderer) {
 
 
 void UI::Render() {
-	for (const auto &it: Buttons){
-		it->Render(renderer);
+	if (!useLayersInRendering) {
+		for (const auto& it : Buttons) {
+			it->Render(renderer);
+		}
+		for (const auto& it : TextBoxes) {
+			it->Render(renderer);
+		}
+		for (const auto& it : ClickBoxes) {
+			it->Render(renderer);
+		}
+		for (const auto& it : PopUpBoxes) {
+			it->Render(renderer);
+		}
 	}
-	for (const auto& it : TextBoxes){
-		it->Render(renderer);
+	else {
+		for (const auto& it : Buttons) {
+			Zlayers[it->zLayer].Buttons.emplace_back(it);
+		}
+		for (const auto& it : TextBoxes) {
+			Zlayers[it->zLayer].TextBoxes.emplace_back(it);
+		}
+		for (const auto& it : ClickBoxes) {
+			Zlayers[it->zLayer].ClickBoxes.emplace_back(it);
+		}
+		for (const auto& it : PopUpBoxes) {
+			Zlayers[it->zLayer].PopUpBoxes.emplace_back(it);
+		}
+		for (auto& it : Zlayers) {
+			auto& layer = it.second;
+			for (auto& btn : layer.Buttons) {
+				btn->Render(renderer);
+			}
+			for (auto& btn : layer.ClickBoxes) {
+				btn->Render(renderer);
+			}
+			for (auto& btn : layer.TextBoxes) {
+				btn->Render(renderer);
+			}
+			for (auto& btn : layer.PopUpBoxes) {
+				btn->Render(renderer);
+			}
+		}
+		Zlayers.clear();
 	}
-	for (const auto& it : ClickBoxes){
-		it->Render(renderer);
-	}
-	for (const auto& it : PopUpBoxes) {
-		it->Render(renderer);
-	}
+}
+
+
+void UI::RenderRawText(Font* font, const int x, const int y, const std::string& text,const int interline,
+		const unsigned char R, const unsigned char G, const unsigned char B) {
+	font->RenderRawText(renderer, x, y, text, interline, R, G, B);
 }
 
 

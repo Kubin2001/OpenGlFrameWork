@@ -51,9 +51,6 @@ void Game::Start() {
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
 	renderer->AgresiveRenderCopySetUp();
 
-	anim = CreateAnimation(6, 30, 30, 20, 1);
-	anim->CloneFrame(2, 10);
-
 }
 
 
@@ -84,8 +81,7 @@ void Game::Input() {
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0],Global::defaultDrawColor[1],Global::defaultDrawColor[2]);
 	ui->Render();
-	MT::Rect rect{ 100,100,30,30 };
-	renderer->RenderCopyPart(rect, anim->Get(), TexMan::GetTex("AnimTest"));
+
 	renderer->RenderPresent();
 }
 

@@ -11,9 +11,9 @@
 class Game {
 private:
 	SDL_Window* window = nullptr;
-	MT::Renderer *renderer;
+	MT::Renderer *renderer = nullptr;
 	SDL_Event event = {};
-	std::unique_ptr<UI> ui;
+	std::unique_ptr<UI> ui = nullptr;
 	Animation* anim = nullptr;
 
 public:

@@ -71,6 +71,30 @@ void Font::LoadTextCharset(const std::string& charset ,std::vector<MT::Rect> &re
 }
 
 
+void Font::RenderRawText(MT::Renderer* renderer, const int x, const int y, const std::string& text, const int interline,
+	const unsigned char R, const unsigned char G, const unsigned char B) {
+	rectangle.x = x;
+	rectangle.y = y;
+	rectangle.w = 0;
+	rectangle.h = 0;
+	int temp = rectangle.x;
+	for (int i = 0; i < text.length(); i++) {
+		if (text[i] < sourceRectangles.size()) {
+			if (text[i] != '\n') {
+				rectangle.w = (int)(sourceRectangles[text[i]].w);
+				rectangle.h = (int)(sourceRectangles[text[i]].h);
+				renderer->RenderCopyPartFiltered(rectangle, sourceRectangles[text[i]], texture,
+					{ R,G,B });
+				rectangle.x += (int)(sourceRectangles[text[i]].w) + 1;
+			}
+			else {
+				rectangle.y += (int)(interline);
+				rectangle.x = temp;
+			}
+		}
+	}
+}
+
 // Basic text rendering with possition in left up corner of the button
 void Font::RenderText(MT::Renderer* renderer, const std::string &text, MT::Rect &btnRect, float scale, int interline, int textStartX, int textStartY) {
 	rectangle.x = btnRect.x + textStartX;
@@ -78,8 +102,7 @@ void Font::RenderText(MT::Renderer* renderer, const std::string &text, MT::Rect 
 	rectangle.w = 0;
 	rectangle.h = 0;
 	int temp = rectangle.x;
-	for (int i = 0; i < text.length(); i++)
-	{
+	for (int i = 0; i < text.length(); i++){
 		if (text[i] < sourceRectangles.size()) {
 			if (text[i] != '\n') {
 				rectangle.w = (int)(sourceRectangles[text[i]].w * scale);

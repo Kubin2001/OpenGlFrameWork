@@ -42,6 +42,9 @@ public:
 
 	void LoadTextCharset(const std::string& charset,std::vector<MT::Rect>& rectangles);
 
+	void RenderRawText(MT::Renderer* renderer, const int x, const int y, const std::string& text, const int interline,
+		const unsigned char R, const unsigned char G, const unsigned char B);
+
 	void RenderText(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, float scale = 1.0,
 		int interline = 20, int textStartX = 0, int textStartY = 0);
 
