@@ -130,3 +130,13 @@ void Animation::CloneFrame(const unsigned int index, const unsigned int count) {
 
 	lastFrame += copyVec.size() * frameDelay;
 }
+
+Animation* CopyAnimation(Animation* animation) {
+	Animation* anim = new Animation();
+	anim->firstFrame = Global::frameCounter;
+	anim->frameDelay = animation->frameDelay;
+	anim->lastFrame = animation->frameDelay * animation->clips.size();
+	anim->type = animation->type;
+	anim->clips = animation->clips;
+	return anim;
+}

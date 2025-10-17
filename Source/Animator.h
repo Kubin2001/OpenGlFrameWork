@@ -28,3 +28,5 @@ Animation* CreateAnimation(const int clipsAmount, const short frameWidth,
 	const short frameHeight, const int frameDelay, const int type = 1);
 
 void DeleteAnimation(Animation*& animation);
+
+Animation* CopyAnimation(Animation* animation);
