@@ -57,3 +57,5 @@ Required CPP version at least 23
 - Animations are simpler to make and faster and no longer use keys just pointers
 - Option to render raw text with UI class
 - Z layer rendering for ui (toogle)
+- More friendly ui elements managment
+- Faster any button removal

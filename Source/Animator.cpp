@@ -132,6 +132,9 @@ void Animation::CloneFrame(const unsigned int index, const unsigned int count) {
 }
 
 Animation* CopyAnimation(Animation* animation) {
+	if (animation == nullptr) {
+		return nullptr;
+	}
 	Animation* anim = new Animation();
 	anim->firstFrame = Global::frameCounter;
 	anim->frameDelay = animation->frameDelay;
