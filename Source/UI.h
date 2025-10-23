@@ -260,17 +260,30 @@ class UI{
 
 		UI(MT::Renderer* renderer);
 
-		Button* CreateButton(std::string name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
-			std::string text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+		Button* CreateButton(const std::string &name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
 
-		TextBox* CreateTextBox(std::string name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
-			std::string text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+		TextBox* CreateTextBox(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
 
-		ClickBox* CreateClickBox(std::string name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
-			std::string text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+		ClickBox* CreateClickBox(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
 
-		PopUpBox* CreatePopUpBox(std::string name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
-			std::string text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+		PopUpBox* CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+
+
+		Button* CreateButtonF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string &fontStr = "",
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+
+		TextBox* CreateTextBoxF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string& fontStr ="",
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+
+		ClickBox* CreateClickBoxF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string& fontStr = "",
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+
+		PopUpBox* CreatePopUpBoxF(const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string& fontStr= "",
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
 
 		void AddListRef(ClickBoxList *ref);
 

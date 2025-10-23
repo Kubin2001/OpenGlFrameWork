@@ -439,8 +439,8 @@ void UI::RenderRawText(Font* font, const int x, const int y, const std::string& 
 }
 
 
-Button* UI::CreateButton(std::string name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
-	std::string text, float textScale, int textStartX, int textStartY, int borderThickness) {
+Button* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
 
 	if (GetButton(name) != nullptr) {
 		std::cout << "Warning name collision button with name: " << name << " already exists addition abborted\n";
@@ -450,10 +450,7 @@ Button* UI::CreateButton(std::string name, int x, int y, int w, int h, MT::Textu
 	Buttons.emplace_back(new Button());
 	Button* btn = Buttons.back();
 	btn->SetName(name);
-	btn->GetRectangle().x = x;
-	btn->GetRectangle().y = y;
-	btn->GetRectangle().w = w;
-	btn->GetRectangle().h = h;
+	btn->GetRectangle().Set(x, y, w, h);
 
 	btn->SetTexture(texture);
 
@@ -477,8 +474,8 @@ Button* UI::CreateButton(std::string name, int x, int y, int w, int h, MT::Textu
 	return btn;
 }
 
-TextBox* UI::CreateTextBox(std::string name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
-	std::string text, float textScale, int textStartX, int textStartY, int borderThickness) {
+TextBox* UI::CreateTextBox(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
 
 	if (GetTextBox(name) != nullptr) {
 		std::cout << "Warning name collision massage box with name: " << name << " already exists addition abborted\n";
@@ -488,10 +485,7 @@ TextBox* UI::CreateTextBox(std::string name, int x, int y, int w, int h, MT::Tex
 	TextBoxes.emplace_back(new TextBox());
 	TextBox* tb = TextBoxes.back();
 	tb->SetName(name);
-	tb->GetRectangle().x = x;
-	tb->GetRectangle().y = y;
-	tb->GetRectangle().w = w;
-	tb->GetRectangle().h = h;
+	tb->GetRectangle().Set(x, y, w, h);
 
 	tb->SetTexture(texture);
 
@@ -517,8 +511,8 @@ TextBox* UI::CreateTextBox(std::string name, int x, int y, int w, int h, MT::Tex
 	return tb;
 }
 
-ClickBox* UI::CreateClickBox(std::string name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
-	std::string text, float textScale, int textStartX, int textStartY, int borderThickness) {
+ClickBox* UI::CreateClickBox(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
 
 	if (GetClickBox(name) != nullptr) {
 		std::cout << "Warning name collision interaction box with name: " << name << " already exists addition abborted\n";
@@ -528,10 +522,7 @@ ClickBox* UI::CreateClickBox(std::string name, int x, int y, int w, int h, MT::T
 	ClickBoxes.emplace_back(new ClickBox());
 	ClickBox* cb = ClickBoxes.back();
 	cb->SetName(name);
-	cb->GetRectangle().x = x;
-	cb->GetRectangle().y = y;
-	cb->GetRectangle().w = w;
-	cb->GetRectangle().h = h;
+	cb->GetRectangle().Set(x, y, w, h);
 
 	cb->SetTexture(texture);
 
@@ -556,8 +547,8 @@ ClickBox* UI::CreateClickBox(std::string name, int x, int y, int w, int h, MT::T
 	return cb;
 }
 
-PopUpBox* UI::CreatePopUpBox(std::string name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture, Font* font,
-	std::string text, float textScale, int textStartX, int textStartY, int borderThickness) {
+PopUpBox* UI::CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
 	if (GetPopUpBox(name) != nullptr) {
 		std::cout << "Warning name collision interaction box with name: " << name << " already exists addition abborted\n";
 		return nullptr;
@@ -567,10 +558,7 @@ PopUpBox* UI::CreatePopUpBox(std::string name, int lifeSpan, int x, int y, int w
 	PopUpBox* pb = PopUpBoxes.back();
 	pb->SetName(name);
 	pb->SetLifeTime(lifeSpan);
-	pb->GetRectangle().x = x;
-	pb->GetRectangle().y = y;
-	pb->GetRectangle().w = w;
-	pb->GetRectangle().h = h;
+	pb->GetRectangle().Set(x, y, w, h);
 
 	pb->SetTexture(texture);
 
@@ -580,6 +568,158 @@ PopUpBox* UI::CreatePopUpBox(std::string name, int lifeSpan, int x, int y, int w
 	pb->SetFont(font);
 	if (font != nullptr) {
 		pb->SetInterLine(font->GetStandardInterline());
+	}
+
+	pb->SetTextStartX(textStartX);
+
+	pb->SetTextStartY(textStartY);
+
+	if (borderThickness > 0) {
+		pb->SetBorderThickness(borderThickness);
+		pb->SetBorder(true);
+	}
+
+	UIElemMap.emplace(pb->GetName(), pb);
+	return pb;
+}
+
+Button* UI::CreateButtonF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, const std::string& fontSt,
+	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
+
+	if (GetButton(name) != nullptr) {
+		std::cout << "Warning name collision button with name: " << name << " already exists addition abborted\n";
+		return nullptr;
+	}
+
+	Buttons.emplace_back(new Button());
+	Button* btn = Buttons.back();
+	btn->SetName(name);
+	btn->GetRectangle().Set(x, y, w, h);
+
+	btn->SetTexture(texture);
+
+	btn->SetText(text);
+	btn->SetTextScale(textScale);
+	if (fontSt != "") {
+		btn->SetFont(GetFont(fontSt));	
+	}
+	if (btn->font != nullptr) {
+		btn->SetInterLine(btn->font->GetStandardInterline());
+	}
+
+	btn->SetTextStartX(textStartX);
+
+	btn->SetTextStartY(textStartY);
+
+	if (borderThickness > 0) {
+		btn->SetBorderThickness(borderThickness);
+		btn->SetBorder(true);
+	}
+
+	UIElemMap.emplace(btn->GetName(), btn);
+	return btn;
+}
+
+TextBox* UI::CreateTextBoxF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, const std::string& fontSt,
+	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
+
+	if (GetTextBox(name) != nullptr) {
+		std::cout << "Warning name collision text box with name: " << name << " already exists addition abborted\n";
+		return nullptr;
+	}
+
+	TextBoxes.emplace_back(new TextBox());
+	TextBox* tb = TextBoxes.back();
+	tb->SetName(name);
+	tb->GetRectangle().Set(x, y, w, h);
+
+	tb->SetTexture(texture);
+
+	tb->SetText(text);
+
+	tb->SetTextScale(textScale);
+	if (fontSt != "") {
+		tb->SetFont(GetFont(fontSt));
+	}
+	if (tb->font != nullptr) {
+		tb->SetInterLine(tb->font->GetStandardInterline());
+	}
+
+	tb->SetTextStartX(textStartX);
+
+	tb->SetTextStartY(textStartY);
+
+
+	if (borderThickness > 0) {
+		tb->SetBorderThickness(borderThickness);
+		tb->SetBorder(true);
+	}
+
+	UIElemMap.emplace(tb->GetName(), tb);
+	return tb;
+}
+
+ClickBox* UI::CreateClickBoxF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, const std::string& fontSt,
+	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
+
+	if (GetClickBox(name) != nullptr) {
+		std::cout << "Warning name collision click box with name: " << name << " already exists addition abborted\n";
+		return nullptr;
+	}
+
+	ClickBoxes.emplace_back(new ClickBox());
+	ClickBox* cb = ClickBoxes.back();
+	cb->SetName(name);
+	cb->GetRectangle().Set(x, y, w, h);
+
+	cb->SetTexture(texture);
+
+	cb->SetText(text);
+
+	cb->SetTextScale(textScale);
+	if (fontSt != "") {
+		cb->SetFont(GetFont(fontSt));
+	}
+	if (cb->font != nullptr) {
+		cb->SetInterLine(cb->font->GetStandardInterline());
+	}
+
+	cb->SetTextStartX(textStartX);
+
+	cb->SetTextStartY(textStartY);
+
+	if (borderThickness > 0) {
+		cb->SetBorderThickness(borderThickness);
+		cb->SetBorder(true);
+	}
+
+	UIElemMap.emplace(cb->GetName(), cb);
+	return cb;
+}
+
+PopUpBox* UI::CreatePopUpBoxF(const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture, const std::string& fontSt,
+	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
+	if (GetPopUpBox(name) != nullptr) {
+		std::cout << "Warning name collision pop up box with name: " << name << " already exists addition abborted\n";
+		return nullptr;
+	}
+
+	PopUpBoxes.emplace_back(new PopUpBox());
+	PopUpBox* pb = PopUpBoxes.back();
+	pb->SetName(name);
+	pb->SetLifeTime(lifeSpan);
+	pb->GetRectangle().Set(x, y, w, h);
+
+	pb->SetTexture(texture);
+
+	pb->SetText(text);
+
+	pb->SetTextScale(textScale);
+	if (fontSt != "") {
+		pb->SetFont(GetFont(fontSt));
+	}
+	if (pb->font != nullptr) {
+		pb->SetInterLine(pb->font->GetStandardInterline());
 	}
 
 	pb->SetTextStartX(textStartX);

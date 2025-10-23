@@ -1,6 +1,6 @@
 Libs/
 x64/
 *.dll
-OpenGLFrameWork.vcxproj
-OpenGLFrameWork.vcxproj.filters
-OpenGLFrameWork.vcxproj.user
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user

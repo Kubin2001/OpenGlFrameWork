@@ -352,12 +352,12 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         layout (location = 10) in vec4 aColor;
 
         out vec2 texCord;
-        out vec4 filter;
+        out vec4 cFilter;
 
         void main(){
 	        gl_Position = vec4(aPos, 0.0 ,1.0);
 	        texCord = aTexCord;
-            filter = aColor;
+            cFilter = aColor;
         }
         )glsl";
 
@@ -366,17 +366,17 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         out vec4 FragColor;
 
         in vec2 texCord;
-        in vec4 filter;
+        in vec4 cFilter;
 
         uniform sampler2D texture1;
 
 
         void main(){
 	        vec4 texcolor = texture(texture1,texCord);
-            texcolor.x *= filter.r; 
-            texcolor.y *= filter.g; 
-            texcolor.z *= filter.b; 
-	        texcolor.a *= filter.a; 
+            texcolor.x *= cFilter.r; 
+            texcolor.y *= cFilter.g; 
+            texcolor.z *= cFilter.b; 
+	        texcolor.a *= cFilter.a; 
 	        FragColor = texcolor;
         }
         )glsl";

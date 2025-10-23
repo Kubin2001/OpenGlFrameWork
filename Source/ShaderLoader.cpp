@@ -1,5 +1,5 @@
 #include "ShaderLoader.h"
-#include <iostream>
+#include <print>
 #include <fstream>
 #include <sstream>
 #include <streambuf>
@@ -13,11 +13,10 @@ std::string LoadShaderFile(const char* fileName) {
     if (file.is_open()) {
         buf << file.rdbuf();
         ret = buf.str();
-
-        std::cout << "Shader: " << fileName << " loaded...\n";
+        std::println("Shader : {} loaded ", fileName);
     }
     else{
-        std::cout << "Error file: " << fileName << " not openned\n";
+        std::println("Error file: {} not openned ", fileName);
     }
     file.close();
 
@@ -39,12 +38,11 @@ void ShaderLoader::LoadShader(const std::string& name, const std::string& path, 
 
     if (!success) {
         glGetShaderInfoLog(shaderID, 512, nullptr, infoLog);
-
-        std::cout << "Error with vertex shader compilation: \n" << infoLog << "\n";
+        std::println("Error with shader compilation NAME: {} ERROR:{}", name,infoLog);
     }
     else{
         shaders[name] = shaderID;
-        std::cout << "Compilation succesfull\n";
+        std::println("Shader Compilation succesfull: {}",name);
     }
 }
 
@@ -63,12 +61,11 @@ void ShaderLoader::LoadShaderStr(const std::string& name, const std::string& sha
 
     if (!success) {
         glGetShaderInfoLog(shaderID, 512, nullptr, infoLog);
-
-        std::cout << "Error with vertex shader compilation: \n" << infoLog << "\n";
+        std::println("Error with shader compilation NAME: {} ERROR:{}", name, infoLog);
     }
     else {
         shaders[name] = shaderID;
-        std::cout << "Compilation succesfull\n";
+        std::println("Shader Compilation succesfull: {}", name);
     }
 }
 
@@ -85,7 +82,7 @@ unsigned int& ShaderLoader::GetShader(const std::string& name) {
 void ShaderLoader::CreateProgram(std::vector<std::string> &names, const std::string& programName, bool deleteShader) {
     for (auto& it : names) {
         if (shaders.find(it) == shaders.end()) {
-            std::cout << "Shader " << it << "not found program creation stopped\n";
+            std::println("Shader {} not found program creation stopped", it);
             return;
         }
     }
@@ -104,12 +101,10 @@ void ShaderLoader::CreateProgram(std::vector<std::string> &names, const std::str
 
     if (!success) {
         glGetProgramInfoLog(shaderPrograms[programName], 512, nullptr, infoLog);
-        std::cout << "Shader Linking error\n" << "Error: " << infoLog << "\n";
-
-        std::cout << "Error with vertex shader compilation: \n" << infoLog << "\n";
+        std::println ("Cannot create shader program: {} ERROR: {}",programName,infoLog);
     }
     else{
-        std::cout << "Linking succesfull\n";
+        std::println("Linking succesfull");
     }
 
     //Usuwanie shaderów bo z racji po³¹czenia w program s¹ niepotrzebne
@@ -136,12 +131,10 @@ unsigned int ShaderLoader::LoadShaderStrRaw(const char* shaderText, GLenum shade
 
     if (!success) {
         glGetShaderInfoLog(shaderID, 512, nullptr, infoLog);
-        std::cout << "Error with vertex shader compilation: \n" << infoLog << "\n";
+        std::println("Error with shader compilation  ERROR: {} in \n {}", infoLog, shaderText);
         return -1;
     }
-    else {
-        std::cout << "Compilation succesfull\n";
-    }
+    std::println("Raw Shader Compilation succesfull");
     return shaderID;
 }
 
@@ -163,10 +156,10 @@ void ShaderLoader::CreateProgramStr(const std::string name, const char* vertexSt
 
     if (!success) {
         glGetProgramInfoLog(shaderPrograms[name], 512, nullptr, infoLog);
-        std::cout << "Shader Linking error\n" << "Error: " << infoLog << "\n";
+        std::println ("Cannot create shader program: {} ERROR: {}",name,infoLog);
     }
-    else {
-        std::cout << "Linking succesfull\n";
+    else{
+        std::println("Linking succesfull");
     }
 
     //Usuwanie shaderów bo z racji po³¹czenia w program s¹ niepotrzebne
