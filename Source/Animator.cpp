@@ -1,7 +1,6 @@
 #include "Animator.h"
-#include "GlobalVariables.h"
-#include <iostream>
 
+#include "GlobalVariables.h"
 
 Animation* CreateAnimation(const int clipsAmount, const short frameWidth,const short frameHeight, 
 	const int frameDelay, const int type) {

@@ -1,6 +1,5 @@
-#include <SDL.h>
-#include <cmath>
 #include "Colision.h"
+
 #include "Addons.h"
 
 int Collision(const MT::Rect& rect, const MT::Rect& rect2) {

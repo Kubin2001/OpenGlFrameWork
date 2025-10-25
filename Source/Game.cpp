@@ -2,19 +2,15 @@
 
 #include <SDL.h>
 #include <print>
-#include <string>
-#include <SDL_image.h>
 
 #include "GlobalVariables.h"
 #include "TextureManager.h"
 #include "SoundManager.h"
 #include "SceneManager.h"
 #include "Addons.h"
-#include "Files.h"
 
 #include <chrono>
 
-#include "Animator.h"
 
 
 
@@ -55,6 +51,7 @@ void Game::Start() {
 
 void Game::LogicUpdate() {
 	Global::frameCounter++;
+
 }
 
 

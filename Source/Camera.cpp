@@ -1,5 +1,3 @@
-#include <iostream>
-#include <SDL.h>
 #include "Camera.h"
 
 Camera::Camera(bool useBorders) {

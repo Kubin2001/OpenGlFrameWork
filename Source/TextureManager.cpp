@@ -1,10 +1,12 @@
-#include <iostream>
-#include <SDL.h>
+#include "TextureManager.h"
 
+#include <iostream>
+#include <SDL_image.h>
+#include <SDL.h>
 #include <filesystem>
 #include <vector>
 #include <string>
-#include "TextureManager.h"
+
 
 
 std::unordered_map<std::string, MT::Texture*> TexMan::Textures;

@@ -1,5 +1,4 @@
 #include "GlobalVariables.h"
-#include "SDL.h"
 
 namespace Global {
 	int windowWidth = 1400;

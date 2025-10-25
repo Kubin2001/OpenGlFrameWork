@@ -1,7 +1,7 @@
 #pragma once
-#include <iostream>
-#include <SDL.h>
 #include "Addons.h"
+
+#include <SDL.h>
 
 class Camera {
 	private:

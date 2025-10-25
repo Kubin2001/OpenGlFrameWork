@@ -1,5 +1,4 @@
 #include "SceneManager.h"
-#include "iostream"
 
 std::unordered_map<std::string, Scene*> SceneMan::Scenes;
 std::unordered_map<std::string, std::unique_ptr<AnyData>> SceneMan::SharedData;

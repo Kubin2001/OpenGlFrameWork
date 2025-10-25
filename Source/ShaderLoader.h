@@ -2,8 +2,9 @@
 
 #include <unordered_map>
 #include <string>
-#include "glad\glad.h"
 #include <vector>
+
+#include "glad\glad.h"
 
 
 class ShaderLoader {

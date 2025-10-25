@@ -1,14 +1,14 @@
 #include "Font.h"
 
-#include "json.hpp"
-
-#include <iostream>
-#include <SDL.h>
 #include <fstream>
+#include <print>
+
+#include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
-#include <print>
+
 #include "TextureManager.h"
+#include "json.hpp"
 
 struct Pixel {
 	unsigned char R;

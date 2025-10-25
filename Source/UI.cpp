@@ -1,11 +1,6 @@
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <SDL.h>
-#include <optional>
 #include "UI.h"
+
 #include "Colision.h"
-#include "Font.h"
 #include "GlobalVariables.h"
 
 #include <chrono>
@@ -309,73 +304,6 @@ void PopUpBox::SetLifeTime(const int lifeTime) {
 }
 
 //Pop Up Box
-//ClickBox List
-void ClickBoxList::Innit(UI* ui, ClickBox* main, int w, int h, int R, int G, int B, const std::vector<std::string> &texts, short space) {
-	this->ui = ui;
-	mainElement = main;
-	Elements.reserve(texts.size());
-	int y = mainElement->GetRectangle().y + (mainElement->GetRectangle().h + space);
-	int counter = 0;
-	for (size_t i = 0; i < texts.size(); i++){
-		Elements.emplace_back(
-			ui->CreateClickBox(main->GetName() + std::to_string(counter), mainElement->GetRectangle().x, y,
-				w, h, nullptr, ui->GetFont("arial12px"), texts[i]));
-
-		Elements[i]->SetColor(R,G,B);
-		Elements.back()->Hide();
-		y += (h + space);
-		counter++;
-	}
-	ui->AddListRef(this);
-	initalized = true;
-}
-
-bool ClickBoxList::IsInitialized() {
-	return initalized;
-}
-
-bool ClickBoxList::IsExpanded() {
-	return expanded;
-}
-
-ClickBox* ClickBoxList::Main() {
-	return mainElement;
-}
-
-std::vector<ClickBox*>& ClickBoxList::GetAll() {
-	return Elements;
-}
-
-void ClickBoxList::Expand() {
-	for (const auto& it : Elements) {
-		it->Show();
-	}
-	expanded = true;
-}
-
-void ClickBoxList::Hide() {
-	for (const auto& it : Elements) {
-		it->Hide();
-	}
-	expanded = false;
-}
-
-void ClickBoxList::Clear() {
-	if (!initalized) { return; }
-	for (const auto& it : Elements) {
-		ui->DeleteClickBox(it->GetName());
-	}
-	Elements.clear();
-	if (mainElement != nullptr) {
-		ui->DeleteClickBox(mainElement->GetName());
-	}
-	mainElement = nullptr;
-	ui->RemoveListRef(this);
-	initalized = false;
-	expanded = false;
-}
-
-//ClickBox List
 UI::UI(MT::Renderer* renderer) {
 	fontManager = new FontManager();
 	this->renderer = renderer;
@@ -735,15 +663,6 @@ PopUpBox* UI::CreatePopUpBoxF(const std::string& name, int lifeSpan, int x, int 
 	return pb;
 }
 
-void UI::AddListRef(ClickBoxList* ref) {
-	ListReferences.emplace_back(ref);
-}
-
-void UI::RemoveListRef(ClickBoxList* ref) {
-	std::erase(ListReferences, ref);
-}
-
-
 void UI::CheckHover() {
 	int x, y;
 	SDL_GetMouseState(&x, &y);
@@ -1062,11 +981,20 @@ void UI::ScanFont(const std::string& texturePath, const std::string& charactersD
 
 void UI::ClearAll(bool clearLists) {
 	if (clearLists) {
-		for (auto& it : ListReferences) {
+		for (auto& it : ListBtnRef) {
 			it->Clear();
 		}
-
-		ListReferences.clear();
+		ListBtnRef.clear();
+		for (auto& it : ListTbRef) {
+			it->Clear();
+		}
+		ListBtnRef.clear();
+		for (auto& it : ListCbRef) {
+			it->Clear();
+		}
+		ListBtnRef.clear();
+		ListTbRef.clear();
+		ListCbRef.clear();
 	}
 
 	for (auto& it : Buttons) {
@@ -1084,6 +1012,7 @@ void UI::ClearAll(bool clearLists) {
 	Buttons.clear();
 	TextBoxes.clear();
 	ClickBoxes.clear();
+	PopUpBoxes.clear();
 
 	UIElemMap.clear();
 }

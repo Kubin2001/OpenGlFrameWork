@@ -61,3 +61,5 @@ Required CPP version at least 23
 - Faster any button removal
 - Faster ui element creation
 - Altreantive element creation
+- ClickBoxList Rework it is now UIList and can store also Button or TextBox
+- Faster Compilation

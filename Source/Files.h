@@ -1,9 +1,6 @@
 #pragma once
-#include <vector>
-#include <string>
-#include <SDL.h>
-#include <filesystem>
 #include "UI.h"
+
 
 std::vector<std::string> ReadCsvLine(const std::string& line, const char separator = ',');
 

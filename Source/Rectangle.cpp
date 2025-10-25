@@ -1,6 +1,5 @@
 #include "Rectangle.h"
 
-
 Point::Point() {
 
 }

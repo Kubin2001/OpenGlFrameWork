@@ -1,12 +1,9 @@
 ﻿#include "Renderer.h"
+
 #include "glad/glad.h"
-#include "glm.hpp"
-#include "gtc/type_ptr.hpp"
-#include "gtc/matrix_transform.hpp"
-#include <iostream>
-#include <SDL.h>
 #include <SDL_image.h>
 #include <chrono>
+
 #include "Colision.h"
 #include "TextureManager.h"
 

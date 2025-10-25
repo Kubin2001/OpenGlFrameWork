@@ -1,12 +1,10 @@
 #pragma once
-#include <iostream>
-#include <SDL.h>
+#include <unordered_map>
 #include <vector>
-#include <optional>
 #include <map>
+
 #include "Font.h"
 #include "TextureManager.h"
-#include "unordered_map"
 #include "SoundManager.h"
 #include "Renderer.h"
 #include "Basics.h"
@@ -185,43 +183,6 @@ class PopUpBox : public UIElemBase {
 		void SetLifeTime(const int lifeTime);
 };
 
-class ClickBoxList {
-	private:
-		UI* ui = nullptr;
-
-		ClickBox* mainElement = nullptr;
-
-		std::vector<ClickBox*> Elements = {};
-
-		bool initalized = false;
-
-		bool expanded = false;
-
-	public:
-
-		void Innit(UI* ui, ClickBox* main, int w, int h, int R, int G, int B, const std::vector<std::string>& texts, short space = 0);
-
-		bool IsInitialized();
-
-		bool IsExpanded();
-
-		ClickBox* Main();
-
-		std::vector<ClickBox*>& GetAll();
-
-		void Expand();
-
-		void Hide();
-
-		void Clear();
-
-		ClickBox* operator [](const size_t index) {
-			if (index > Elements.size() -1) {
-				throw std::runtime_error("Click box list element out of index");
-			}
-			return Elements[index];
-		}
-};
 
 class RenderingLayer {
 	public:
@@ -233,7 +194,10 @@ class RenderingLayer {
 		std::vector<PopUpBox*> PopUpBoxes;
 };
 
-// To propelly start the UI you need to pleace manage input function in event loop and render in rendering loop
+template<typename T>
+class UIList;
+
+// To propelly start the UI you need to place manage input function in event loop and render in rendering loop
 class UI{
 	private:
 		MT::Renderer* renderer;
@@ -248,7 +212,9 @@ class UI{
 
 		std::map<int, RenderingLayer> Zlayers;
 
-		std::vector<ClickBoxList*> ListReferences;
+		std::vector<UIList<Button>*> ListBtnRef;
+		std::vector<UIList<TextBox>*> ListTbRef;
+		std::vector<UIList<ClickBox>*> ListCbRef;
 
 		FontManager* fontManager;
 
@@ -256,8 +222,36 @@ class UI{
 
 		Font* baseFont = nullptr;
 
-	public:
+		template<typename T>
+		void AddListRef(UIList<T>* ref) {
+			if constexpr (std::is_same_v<T*, Button*>) {
+				ListBtnRef.emplace_back(ref);
+			}
+			if constexpr (std::is_same_v<T*, TextBox*>) {
+				ListTbRef.emplace_back(ref);
+			}
+			if constexpr (std::is_same_v<T*, ClickBox*>) {
+				ListCbRef.emplace_back(ref);
+			}
+		}
+		
+		template<typename T>
+		void RemoveListRef(UIList<T>* ref) {
+			if constexpr (std::is_same_v<T*, Button*>) {
+				std::erase(ListBtnRef, ref);
+			}
+			if constexpr (std::is_same_v<T*, TextBox*>) {
+				std::erase(ListTbRef, ref);
+			}
+			if constexpr (std::is_same_v<T*, ClickBox*>) {
+				std::erase(ListCbRef, ref);
+			}
+		}
 
+
+	public:
+		template<typename T>
+		friend class UIList;
 		UI(MT::Renderer* renderer);
 
 		Button* CreateButton(const std::string &name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
@@ -284,10 +278,6 @@ class UI{
 
 		PopUpBox* CreatePopUpBoxF(const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string& fontStr= "",
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
-
-		void AddListRef(ClickBoxList *ref);
-
-		void RemoveListRef(ClickBoxList* ref);
 
 		void CheckHover();
 
@@ -327,6 +317,44 @@ class UI{
 		void FrameUpdate();
 
 		void ManageInput(SDL_Event& event);
+
+
+		template<typename T>
+		bool EraseVec(std::vector<T*>& vec, const std::string &name) {
+			for (unsigned int i = 0; i < vec.size(); i++) {
+				if (vec[i]->GetName() == name) {
+					delete vec[i];
+					vec.erase(vec.begin() + i);
+					return true;
+				}
+			}
+			return false;
+		}
+
+		template<typename T>
+		bool DeleteElem(const std::string& name) {
+			static_assert(
+					std::is_same_v<T*,Button*> ||
+					std::is_same_v<T*, ClickBox*> ||
+					std::is_same_v<T*, TextBox*> ||
+					std::is_same_v<T*, PopUpBox*>, "Wrong type allowed : Button, ClickBox, TextBox, PopUpBox"
+				);
+			UIElemMap.erase(name);
+
+			if constexpr (std::is_same_v<T*, Button*>) {
+				return EraseVec(Buttons,name);
+			}
+			else if constexpr (std::is_same_v<T*, ClickBox*>) {
+				return EraseVec(ClickBoxes, name);
+			}
+			else if constexpr (std::is_same_v<T*, TextBox*>) {
+				return EraseVec(TextBoxes, name);
+			}
+			else if constexpr (std::is_same_v<T*, PopUpBox*>) {
+				return EraseVec(PopUpBoxes, name);
+			}
+			return false;
+		}
 
 		bool DeleteButton(const std::string& name);
 		bool DeleteTextBox(const std::string& name);
@@ -376,4 +404,128 @@ class UI{
 		bool useLayersInRendering = false;
 
 		~UI();
+};
+
+template<typename T>
+class UIList {
+	static_assert((!std::is_pointer_v<T>) && (std::is_same_v<T, Button> || std::is_same_v<T, TextBox> ||
+		std::is_same_v<T, ClickBox>), "Not a valid type you need to pass Button , TextBox or ClickBox also not a pointer type");
+private:
+	UI* ui = nullptr;
+
+	ClickBox* mainElement = nullptr;
+
+	std::vector<T*> Elements = {};
+
+	bool initalized = false;
+
+	bool expanded = false;
+
+public:
+
+	void Innit(UI* ui, ClickBox* main, int w, int h, int R, int G, int B, const std::vector<std::string>& texts, short space = 0) {
+		this->ui = ui;
+		mainElement = main;
+		Elements.reserve(texts.size());
+		MT::Rect& rect = mainElement->GetRectangle();
+		int y = rect.y + (rect.h + space);
+		int counter = 0;
+		for (size_t i = 0; i < texts.size(); i++) {
+			if constexpr (std::is_same_v<T*, Button*>) {
+				Elements.emplace_back(
+					ui->CreateButton(main->GetName() + std::to_string(counter), rect.x, y,
+						w, h, nullptr, ui->GetFont("arial12px"), texts[i]));
+			}
+			else if constexpr (std::is_same_v<T*, TextBox*>) {
+				Elements.emplace_back(
+					ui->CreateTextBox(main->GetName() + std::to_string(counter), rect.x, y,
+						w, h, nullptr, ui->GetFont("arial12px"), texts[i]));
+			}
+			else if constexpr (std::is_same_v<T*, ClickBox*>) {
+				Elements.emplace_back(
+					ui->CreateClickBox(main->GetName() + std::to_string(counter), rect.x, y,
+						w, h, nullptr, ui->GetFont("arial12px"), texts[i]));
+			}
+			Elements[i]->SetColor(R, G, B);
+			Elements.back()->Hide();
+			y += (h + space);
+			counter++;
+		}
+		ui->AddListRef(this);
+		initalized = true;
+	}
+
+	bool IsInitialized() {
+		return initalized;
+	}
+
+	bool IsExpanded() {
+		return expanded;
+	}
+
+	ClickBox* Main() {
+		return mainElement;
+	}
+
+	std::vector<T*>& GetAll() {
+		return Elements;
+	}
+
+	void Toogle() {
+		if (expanded) {
+			Hide();
+		}
+		else {
+			Expand();
+		}
+	}
+
+	void Expand() {
+		for (const auto& it : Elements) {
+			it->Show();
+		}
+		expanded = true;
+	}
+
+	void Hide() {
+		for (const auto& it : Elements) {
+			it->Hide();
+		}
+		expanded = false;
+	}
+
+	void Clear() {
+		if (!initalized) { return; }
+		if constexpr (std::is_same_v<T*, Button*>) {
+			for (const auto& it : Elements) {
+				ui->DeleteButton(it->GetName());
+			}
+		}
+		else if constexpr (std::is_same_v<T*, TextBox*>) {
+			for (const auto& it : Elements) {
+				ui->DeleteTextBox(it->GetName());
+			}
+
+		}
+		else if constexpr (std::is_same_v<T*, ClickBox*>) {
+			for (const auto& it : Elements) {
+				ui->DeleteClickBox(it->GetName());
+			}
+		}
+		Elements.clear();
+		if (mainElement != nullptr) {
+			ui->DeleteClickBox(mainElement->GetName());
+		}
+		mainElement = nullptr;
+		ui->RemoveListRef(this);
+		initalized = false;
+		expanded = false;
+	}
+
+	T* operator [](const size_t index) {
+		if (index > Elements.size() - 1) {
+			throw std::runtime_error("List element index out of bounds");
+		}
+		return Elements[index];
+	}
 };

@@ -1,5 +1,5 @@
 #include <iostream>
-#include <SDL.h>
+
 #include "SoundManager.h"
 #include <filesystem>
 
@@ -9,7 +9,6 @@ std::unordered_map<std::string, Mix_Chunk*> SoundMan::Sounds;
 void SoundMan::Innit() {
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
 		std::cerr << "Failed to sound manager (sdl_mixer error): " << Mix_GetError() << "\n";
-
 	}
 }
 

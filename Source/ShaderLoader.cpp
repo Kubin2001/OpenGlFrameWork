@@ -1,8 +1,8 @@
 #include "ShaderLoader.h"
+
 #include <print>
 #include <fstream>
 #include <sstream>
-#include <streambuf>
 
 std::string LoadShaderFile(const char* fileName) {
     std::ifstream file;

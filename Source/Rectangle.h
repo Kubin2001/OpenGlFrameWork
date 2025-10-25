@@ -1,5 +1,5 @@
 #pragma once
-#include <SDL.h>
+#include <SDL_rect.h>
 
 struct Point {
 	int x = 0;

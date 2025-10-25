@@ -1,5 +1,7 @@
 #include "Addons.h"
 
+#include <SDL_mouse.h>
+
 void MethaneVersion() {
 	std::cout << "Using Methane SDL OpenGL Framework v1.05\n";
 }

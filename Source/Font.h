@@ -1,10 +1,7 @@
 #pragma once
-#include <iostream>
-#include <SDL.h>
 #include <vector>
 #include <array>
 
-#include "Addons.h"
 #include "Basics.h"
 
 

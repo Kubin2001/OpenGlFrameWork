@@ -1,7 +1,5 @@
 #pragma once
 #include <iostream>
-#include <math.h>
-#include <SDL.h>
 #include <vector>
 #include "GlobalVariables.h"
 #include "Rectangle.h"
