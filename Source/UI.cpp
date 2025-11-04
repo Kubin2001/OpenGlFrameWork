@@ -243,14 +243,14 @@ void TextBox::ManageTextInput(SDL_Event& event) {
 			GetText() += event.text.text;
 		}
 		if (event.type == SDL_KEYDOWN) {
-			if (event.key.keysym.sym == SDLK_RETURN) {
+			if (event.key.keysym.scancode == SDL_SCANCODE_RETURN) {
 				GetText() += '\n';
+			}
+			if (event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE && !text.empty()) {
+				GetText().pop_back();
 			}
 		}
 
-		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_BACKSPACE && GetText().length() > 0) {
-			GetText().pop_back();
-		}
 	}
 
 }
@@ -443,7 +443,7 @@ ClickBox* UI::CreateClickBox(const std::string& name, int x, int y, int w, int h
 	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
 
 	if (GetClickBox(name) != nullptr) {
-		std::cout << "Warning name collision interaction box with name: " << name << " already exists addition abborted\n";
+		std::cout << "Warning name collision click box with name: " << name << " already exists addition abborted\n";
 		return nullptr;
 	}
 

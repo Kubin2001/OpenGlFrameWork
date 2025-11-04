@@ -63,3 +63,7 @@ Required CPP version at least 23
 - Altreantive element creation
 - ClickBoxList Rework it is now UIList and can store also Button or TextBox
 - Faster Compilation
+
+1.06
+- New renderer function for rendering modern curved ui elements
+- UI now only use scancode

@@ -300,7 +300,6 @@ class UI{
 				throw std::runtime_error("UI::GetElem wrong cast for " + name);
 			}
 		#endif // DEBUG
-
 			return elem;
 		}
 
@@ -334,23 +333,23 @@ class UI{
 		template<typename T>
 		bool DeleteElem(const std::string& name) {
 			static_assert(
-					std::is_same_v<T*,Button*> ||
-					std::is_same_v<T*, ClickBox*> ||
-					std::is_same_v<T*, TextBox*> ||
-					std::is_same_v<T*, PopUpBox*>, "Wrong type allowed : Button, ClickBox, TextBox, PopUpBox"
+					std::is_same_v<T,Button> ||
+					std::is_same_v<T, ClickBox> ||
+					std::is_same_v<T, TextBox> ||
+					std::is_same_v<T, PopUpBox>, "Wrong type allowed : Button, ClickBox, TextBox, PopUpBox"
 				);
 			UIElemMap.erase(name);
 
-			if constexpr (std::is_same_v<T*, Button*>) {
+			if constexpr (std::is_same_v<T, Button>) {
 				return EraseVec(Buttons,name);
 			}
-			else if constexpr (std::is_same_v<T*, ClickBox*>) {
+			else if constexpr (std::is_same_v<T, ClickBox>) {
 				return EraseVec(ClickBoxes, name);
 			}
-			else if constexpr (std::is_same_v<T*, TextBox*>) {
+			else if constexpr (std::is_same_v<T, TextBox>) {
 				return EraseVec(TextBoxes, name);
 			}
-			else if constexpr (std::is_same_v<T*, PopUpBox*>) {
+			else if constexpr (std::is_same_v<T, PopUpBox>) {
 				return EraseVec(PopUpBoxes, name);
 			}
 			return false;
@@ -496,18 +495,18 @@ public:
 
 	void Clear() {
 		if (!initalized) { return; }
-		if constexpr (std::is_same_v<T*, Button*>) {
+		if constexpr (std::is_same_v<T, Button>) {
 			for (const auto& it : Elements) {
 				ui->DeleteButton(it->GetName());
 			}
 		}
-		else if constexpr (std::is_same_v<T*, TextBox*>) {
+		else if constexpr (std::is_same_v<T, TextBox>) {
 			for (const auto& it : Elements) {
 				ui->DeleteTextBox(it->GetName());
 			}
 
 		}
-		else if constexpr (std::is_same_v<T*, ClickBox*>) {
+		else if constexpr (std::is_same_v<T, ClickBox>) {
 			for (const auto& it : Elements) {
 				ui->DeleteClickBox(it->GetName());
 			}

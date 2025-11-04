@@ -64,6 +64,7 @@ namespace MT {
 			 Rect vievPort;
 			 unsigned int VAO, VBO;
 			 ShaderLoader loader;
+			 //Shaders IDs
 			 unsigned int currentProgram;
 			 
 			 unsigned int renderCopyId;
@@ -71,8 +72,18 @@ namespace MT {
 			 unsigned int renderCopyCircleId;
 			 unsigned int renderCircleId;
 			 unsigned int renderCopyFilterId;
+			 unsigned int renderRoundedRectId;
+			 unsigned int renderCopyRoundedRectId;
 
+			 //Uniforms Ids
 			 unsigned int currentTexture;
+			 unsigned int roundRectRadius;
+			 unsigned int roundRectCopyRadius;
+
+			 //Uniforms Values
+			 glm::vec2 roundRectRadiusVal = { 0.0f,0.0f };
+			 glm::vec2 roundRectCopyRadiusVal = { 0.0f,0.0f };
+		
 
 			 //Veretex Sizes
 			 unsigned int currentSize = 0;
@@ -80,15 +91,14 @@ namespace MT {
 			 unsigned int renderCopySize = 5; // Wszystkie renderowania tekstur
 			 unsigned int renderCircleSize = 7;
 			 unsigned int renderCopyCircleSize = 6;
+			 unsigned int renderRoundedSize = 6;
+			 unsigned int renderCopyRoundedSize = 5;
 			 unsigned int renderFilteredSize = 8;
 
 			 std::vector<float> globalVertices;
 
 			 //Agressive Batching Rendering
 			 std::vector<std::vector<float>> agresiveRenderVec = {};
-
-
-
 
 		public:
 			 int W, H;
@@ -116,6 +126,10 @@ namespace MT {
 			 void RenderCopyCircle(const Rect& rect, const Texture* texture, const float radius = 0.5f);
 
 			 void RenderCircle(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f);
+
+			 void RenderRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha);
+
+			 void RenderCopyRoundedRect(const Rect& rect, const Texture* texture);
 
 			 void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter);
 

@@ -381,6 +381,116 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         loader.CreateProgramStr("RenderCopyFilter", vertexStr, fragmentStr);
     }
 
+    if (!loader.IsProgram("RenderRoundedRectangle")) {
+        constexpr const char* vertexStr = R"glsl(
+        #version 330 core
+        layout(location = 0) in vec2 aPos;
+        layout(location = 1) in vec4 aColor;
+
+        out vec4 ourColor;
+        out vec2 uv;
+
+        vec2 uvFromVertexID(int id) {
+            if      (id == 0) return vec2(0.0, 0.0);
+            else if (id == 1) return vec2(0.0, 1.0);
+            else if (id == 2) return vec2(1.0, 0.0);
+            else if (id == 3) return vec2(0.0, 1.0);
+            else if (id == 4) return vec2(1.0, 1.0);
+            else              return vec2(1.0, 0.0);
+        }
+
+        void main() {
+            gl_Position = vec4(aPos, 0.0, 1.0);
+            ourColor = aColor;
+            uv = uvFromVertexID(gl_VertexID % 6);
+        }
+        )glsl";
+
+        constexpr const char* fragmentStr = R"glsl(
+        #version 330 core
+
+        in vec4 ourColor;
+        in vec2 uv; 
+        out vec4 FragColor;
+
+        uniform vec2 uPixelSize; // W and H
+
+        float roundedBoxSDF(vec2 p, vec2 size, float r)
+        {
+            vec2 d = abs(p - size * 0.5) - (size * 0.5 - vec2(r));
+            return length(max(d, 0.0)) - r;
+        }
+
+        void main()
+        {
+            vec2 p_px = uv * uPixelSize;
+
+            float d = roundedBoxSDF(p_px, uPixelSize, 8.0); // 8.0 is the size of a curve if nedded the change uniform is requied
+
+            float alpha = 1.0 - smoothstep(0.0, 1.0, d);
+
+            if (alpha <= 0.001) discard;
+
+            FragColor = vec4(ourColor.rgb, ourColor.a * alpha);
+        }
+        )glsl";
+
+        loader.CreateProgramStr("RenderRoundedRectangle", vertexStr, fragmentStr);
+    }
+
+    if (!loader.IsProgram("RenderCopyRoundedRectangle")) {
+        constexpr const char* vertexStr = R"glsl(
+        #version 330 core
+        layout (location = 3) in vec2 aPos;
+        layout (location = 4) in vec3 aTexCordAlpha;
+
+        out vec4 ourColor;
+        out vec2 uv;
+        out float vAlpha;
+
+        void main() {
+            gl_Position = vec4(aPos, 0.0, 1.0);
+            uv = aTexCordAlpha.xy;
+            vAlpha = aTexCordAlpha.z;
+        }
+        )glsl";
+
+        constexpr const char* fragmentStr = R"glsl(
+        #version 330 core
+
+        in vec2 uv;
+        in float vAlpha; 
+        out vec4 FragColor;
+
+        uniform sampler2D texture1;
+        uniform vec2 uPixelSize; // W and H
+
+        float roundedBoxSDF(vec2 p, vec2 size, float r)
+        {
+            vec2 d = abs(p - size * 0.5) - (size * 0.5 - vec2(r));
+            return length(max(d, 0.0)) - r;
+        }
+
+        void main()
+        {
+
+            vec2 p_px = uv * uPixelSize;
+            float d = roundedBoxSDF(p_px, uPixelSize, 8.0); // 8.0 is the size of a curve if nedded the change uniform is requied
+
+            float alpha = 1.0 - smoothstep(0.0, 1.0, d);
+
+            if (alpha <= 0.001) discard;
+            
+           	vec4 texcolor = texture(texture1,uv);
+	        texcolor.a *= vAlpha;
+
+	        FragColor = texcolor;
+        }
+        )glsl";
+
+        loader.CreateProgramStr("RenderCopyRoundedRectangle", vertexStr, fragmentStr);
+    }
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     renderCopyId = loader.GetProgram("RenderCopy");
@@ -388,7 +498,12 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     renderCopyCircleId = loader.GetProgram("RenderCopyCircle");
     renderCircleId = loader.GetProgram("RenderCircle");
     renderCopyFilterId = loader.GetProgram("RenderCopyFilter");
+    renderRoundedRectId = loader.GetProgram("RenderRoundedRectangle");
+    renderCopyRoundedRectId = loader.GetProgram("RenderCopyRoundedRectangle");
     
+    roundRectRadius = glGetUniformLocation(renderRoundedRectId, "uPixelSize");
+    roundRectCopyRadius = glGetUniformLocation(renderCopyRoundedRectId, "uPixelSize");
+
     globalVertices.reserve(1'000'000);
     return true;
 }
@@ -857,6 +972,97 @@ void MT::Renderer::RenderCircle(const Rect& rect, const Color& col, const unsign
     };
 
     constexpr int N = 42;
+    const size_t old = globalVertices.size();
+    globalVertices.resize(old + N);
+    std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
+}
+
+void MT::Renderer::RenderRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha) {
+    if (!vievPort.IsColliding(rect)) {
+        return;
+    }
+    if (currentProgram != renderRoundedRectId) {
+        RenderPresent(false);
+        currentProgram = renderRoundedRectId;
+        glUseProgram(currentProgram);
+    }
+
+    glm::vec2 rectPixelSize = { (float)rect.w,(float)rect.h };
+
+    if (roundRectRadiusVal != rectPixelSize) {
+        RenderPresent(false);
+        roundRectRadiusVal = rectPixelSize;
+        glUniform2f(roundRectRadius, rectPixelSize.x, rectPixelSize.y);
+    }
+
+    currentSize = renderRoundedSize; 
+    const float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
+    const float y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
+    const float w = (static_cast<float>(rect.w) / W) * 2.0f;
+    const float h = (static_cast<float>(rect.h) / H) * 2.0f;
+
+    const float fR = float(col.R) / 255;
+    const float fG = float(col.G) / 255;
+    const float fB = float(col.B) / 255;
+    const float fA = float(alpha) / 255;
+
+
+    // pos.x, pos.y, pos.z,radius  col.r, col.g, col.b col.a
+    const float vertex[] = {
+        x,     y - h, fR, fG, fB, fA,
+        x,     y    , fR, fG, fB, fA,
+        x + w, y - h, fR, fG, fB, fA,
+        x,     y    , fR, fG, fB, fA,
+        x + w, y    , fR, fG, fB, fA,
+        x + w, y - h, fR, fG, fB, fA
+    };
+
+    constexpr int N = 36;
+    const size_t old = globalVertices.size();
+    globalVertices.resize(old + N);
+    std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
+}
+
+void MT::Renderer::RenderCopyRoundedRect(const MT::Rect& rect, const MT::Texture* texture) {
+    if (!vievPort.IsColliding(rect)) {
+        return;
+    }
+    if (currentProgram != renderCopyRoundedRectId) {
+        RenderPresent(false);
+        currentProgram = renderCopyRoundedRectId;
+        glUseProgram(currentProgram);
+    }
+    if (currentTexture != texture->texture) {
+        RenderPresent(false);
+        glBindTexture(GL_TEXTURE_2D, texture->texture);
+        currentTexture = texture->texture;
+    }
+
+    glm::vec2 rectPixelSize = { (float)rect.w,(float)rect.h };
+
+    if (roundRectCopyRadiusVal != rectPixelSize) {
+        RenderPresent(false);
+        roundRectCopyRadiusVal = rectPixelSize;
+        glUniform2f(roundRectCopyRadius, rectPixelSize.x, rectPixelSize.y);
+    }
+
+    currentSize = renderCopyRoundedSize;
+    const float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
+    const float y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
+    const float w = (static_cast<float>(rect.w) / W) * 2.0f;
+    const float h = (static_cast<float>(rect.h) / H) * 2.0f;
+
+
+    const float vertex[] = {
+        x,     y - h, 0.0f, 0.0f,texture->alpha,
+        x,     y,     0.0f, 1.0f,texture->alpha,
+        x + w, y - h, 1.0f, 0.0f,texture->alpha,
+        x,     y,     0.0f, 1.0f,texture->alpha,
+        x + w, y,     1.0f, 1.0f,texture->alpha,
+        x + w, y - h, 1.0f, 0.0f,texture->alpha
+    };
+
+    constexpr int N = 30;
     const size_t old = globalVertices.size();
     globalVertices.resize(old + N);
     std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
