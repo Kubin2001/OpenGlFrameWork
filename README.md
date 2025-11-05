@@ -67,3 +67,4 @@ Required CPP version at least 23
 1.06
 - New renderer function for rendering modern curved ui elements
 - UI now only use scancode
+- UI can now create rounded buttons

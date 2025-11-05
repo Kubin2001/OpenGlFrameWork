@@ -46,6 +46,17 @@ void Game::Start() {
 
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
 	renderer->AgresiveRenderCopySetUp();
+
+	Button *btn = ui->CreateButton("test", 100, 100, 100, 100, nullptr);
+	btn->SetColor(30, 30, 30);
+	btn->SetHoverFilter(true, 255, 255, 255, 120);
+	btn->SetBorder(4, 188, 20, 200);
+
+	btn = ui->CreateButton("test2", 250, 100, 100, 100, nullptr);
+	btn->SetColor(30, 30, 30);
+	btn->SetRenderType(2);
+	btn->SetBorder(4, 188, 20, 200);
+	btn->SetHoverFilter(true, 255, 255, 255, 120);
 }
 
 

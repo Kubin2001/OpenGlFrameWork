@@ -106,23 +106,39 @@ void UIElemBase::SetFontColor(const unsigned char R, const unsigned char G, cons
 	}
 }
 
-void UIElemBase::Render(MT::Renderer* renderer) {
-	if (!hidden) {
-		if (GetTexture() == nullptr) {
-			RenderItslelf(renderer);
+void UIElemBase::Render(UIElemBase* elem, MT::Renderer* renderer) {
+	if (!elem->hidden) {
+		if (elem->GetTexture() == nullptr) {
+			elem->RenderItslelf(renderer);
 		}
 		else {
-			renderer->RenderCopy(GetRectangle(), texture);
-			if (hovered && hoverable) {
-				renderer->RenderRect(rectangle, 
-					{ hooverFilter[0], hooverFilter[1], hooverFilter[2] }, hooverFilter[3]);
+			renderer->RenderCopy(elem->rectangle, elem->texture);
+			if (elem->hovered && elem->hoverable) {
+				renderer->RenderRect(elem->rectangle,
+					{ elem->hooverFilter[0], elem->hooverFilter[1], elem->hooverFilter[2] }, elem->hooverFilter[3]);
 			}
 		}
 
-		if (GetBorder()) {
-			RenderBorder(renderer);
+		if (elem->GetBorder()) {
+			elem->RenderBorder(renderer);
 		}
-		RenderText(renderer);
+		elem->RenderText(renderer);
+	}
+}
+
+void UIElemBase::RenderRounded(UIElemBase* elem, MT::Renderer* renderer) {
+	if (!elem->hidden) {
+		if (elem->GetTexture() == nullptr) {
+			elem->RenderItslelfRounded(renderer);
+		}
+		else {
+			renderer->RenderCopyRoundedRect(elem->rectangle, elem->texture);
+			if (elem->hovered && elem->hoverable) {
+				renderer->RenderRoundedRect(elem->rectangle,
+					{ elem->hooverFilter[0], elem->hooverFilter[1], elem->hooverFilter[2] }, elem->hooverFilter[3]);
+			}
+		}
+		elem->RenderText(renderer);
 	}
 }
 
@@ -133,6 +149,16 @@ void UIElemBase::RenderItslelf(MT::Renderer* renderer) {
 	}
 	else{
 		renderer->RenderRect(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2]},buttonColor[3]);
+	}
+}
+
+void UIElemBase::RenderItslelfRounded(MT::Renderer* renderer) {
+	if (hovered && hoverable) {
+		renderer->RenderRoundedRect(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2] }, buttonColor[3]);
+		renderer->RenderRoundedRect(rectangle, { hooverFilter[0], hooverFilter[1], hooverFilter[2] }, hooverFilter[3]);
+	}
+	else {
+		renderer->RenderRoundedRect(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2] }, buttonColor[3]);
 	}
 }
 
@@ -172,6 +198,18 @@ void UIElemBase::RenderText(MT::Renderer* renderer) {
 				font->RenderText(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
 				break;
 		}
+	}
+}
+
+void UIElemBase::SetRenderType(const unsigned int renderType) {
+	if (renderType == 1) {
+		renderFunction = &UIElemBase::Render;
+	}
+	else  if (renderType == 2) {
+		renderFunction = &UIElemBase::RenderRounded;
+	}
+	else {
+		renderFunction = &UIElemBase::Render;
 	}
 }
 
@@ -316,16 +354,16 @@ UI::UI(MT::Renderer* renderer) {
 void UI::Render() {
 	if (!useLayersInRendering) {
 		for (const auto& it : Buttons) {
-			it->Render(renderer);
+			it->renderFunction(it,renderer);
 		}
 		for (const auto& it : TextBoxes) {
-			it->Render(renderer);
+			it->renderFunction(it, renderer);
 		}
 		for (const auto& it : ClickBoxes) {
-			it->Render(renderer);
+			it->renderFunction(it, renderer);
 		}
 		for (const auto& it : PopUpBoxes) {
-			it->Render(renderer);
+			it->renderFunction(it, renderer);
 		}
 	}
 	else {
@@ -344,16 +382,16 @@ void UI::Render() {
 		for (auto& it : Zlayers) {
 			auto& layer = it.second;
 			for (auto& btn : layer.Buttons) {
-				btn->Render(renderer);
+				btn->renderFunction(btn, renderer);
 			}
 			for (auto& btn : layer.ClickBoxes) {
-				btn->Render(renderer);
+				btn->renderFunction(btn, renderer);
 			}
 			for (auto& btn : layer.TextBoxes) {
-				btn->Render(renderer);
+				btn->renderFunction(btn, renderer);
 			}
 			for (auto& btn : layer.PopUpBoxes) {
-				btn->Render(renderer);
+				btn->renderFunction(btn, renderer);
 			}
 		}
 		Zlayers.clear();
@@ -365,7 +403,6 @@ void UI::RenderRawText(Font* font, const int x, const int y, const std::string& 
 		const unsigned char R, const unsigned char G, const unsigned char B) {
 	font->RenderRawText(renderer, x, y, text, interline, R, G, B);
 }
-
 
 Button* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
@@ -379,6 +416,7 @@ Button* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT
 	Button* btn = Buttons.back();
 	btn->SetName(name);
 	btn->GetRectangle().Set(x, y, w, h);
+	btn->SetRenderType(1);
 
 	btn->SetTexture(texture);
 
@@ -390,7 +428,6 @@ Button* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT
 	}
 
 	btn->SetTextStartX(textStartX);
-
 	btn->SetTextStartY(textStartY);
 
 	if (borderThickness > 0) {
@@ -414,6 +451,7 @@ TextBox* UI::CreateTextBox(const std::string& name, int x, int y, int w, int h, 
 	TextBox* tb = TextBoxes.back();
 	tb->SetName(name);
 	tb->GetRectangle().Set(x, y, w, h);
+	tb->SetRenderType(1);
 
 	tb->SetTexture(texture);
 
@@ -426,7 +464,6 @@ TextBox* UI::CreateTextBox(const std::string& name, int x, int y, int w, int h, 
 	}
 
 	tb->SetTextStartX(textStartX);
-
 	tb->SetTextStartY(textStartY);
 
 
@@ -451,6 +488,7 @@ ClickBox* UI::CreateClickBox(const std::string& name, int x, int y, int w, int h
 	ClickBox* cb = ClickBoxes.back();
 	cb->SetName(name);
 	cb->GetRectangle().Set(x, y, w, h);
+	cb->SetRenderType(1);
 
 	cb->SetTexture(texture);
 
@@ -463,7 +501,6 @@ ClickBox* UI::CreateClickBox(const std::string& name, int x, int y, int w, int h
 	}
 
 	cb->SetTextStartX(textStartX);
-
 	cb->SetTextStartY(textStartY);
 
 	if (borderThickness > 0) {
@@ -487,6 +524,7 @@ PopUpBox* UI::CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y
 	pb->SetName(name);
 	pb->SetLifeTime(lifeSpan);
 	pb->GetRectangle().Set(x, y, w, h);
+	pb->SetRenderType(1);
 
 	pb->SetTexture(texture);
 
@@ -499,7 +537,6 @@ PopUpBox* UI::CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y
 	}
 
 	pb->SetTextStartX(textStartX);
-
 	pb->SetTextStartY(textStartY);
 
 	if (borderThickness > 0) {
@@ -513,154 +550,22 @@ PopUpBox* UI::CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y
 
 Button* UI::CreateButtonF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, const std::string& fontSt,
 	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
-
-	if (GetButton(name) != nullptr) {
-		std::cout << "Warning name collision button with name: " << name << " already exists addition abborted\n";
-		return nullptr;
-	}
-
-	Buttons.emplace_back(new Button());
-	Button* btn = Buttons.back();
-	btn->SetName(name);
-	btn->GetRectangle().Set(x, y, w, h);
-
-	btn->SetTexture(texture);
-
-	btn->SetText(text);
-	btn->SetTextScale(textScale);
-	if (fontSt != "") {
-		btn->SetFont(GetFont(fontSt));	
-	}
-	if (btn->font != nullptr) {
-		btn->SetInterLine(btn->font->GetStandardInterline());
-	}
-
-	btn->SetTextStartX(textStartX);
-
-	btn->SetTextStartY(textStartY);
-
-	if (borderThickness > 0) {
-		btn->SetBorderThickness(borderThickness);
-		btn->SetBorder(true);
-	}
-
-	UIElemMap.emplace(btn->GetName(), btn);
-	return btn;
+	return CreateButton(name, x, y, w, h, texture, GetFont(fontSt), text, textScale, textStartX, textStartY, borderThickness);
 }
 
 TextBox* UI::CreateTextBoxF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, const std::string& fontSt,
 	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
-
-	if (GetTextBox(name) != nullptr) {
-		std::cout << "Warning name collision text box with name: " << name << " already exists addition abborted\n";
-		return nullptr;
-	}
-
-	TextBoxes.emplace_back(new TextBox());
-	TextBox* tb = TextBoxes.back();
-	tb->SetName(name);
-	tb->GetRectangle().Set(x, y, w, h);
-
-	tb->SetTexture(texture);
-
-	tb->SetText(text);
-
-	tb->SetTextScale(textScale);
-	if (fontSt != "") {
-		tb->SetFont(GetFont(fontSt));
-	}
-	if (tb->font != nullptr) {
-		tb->SetInterLine(tb->font->GetStandardInterline());
-	}
-
-	tb->SetTextStartX(textStartX);
-
-	tb->SetTextStartY(textStartY);
-
-
-	if (borderThickness > 0) {
-		tb->SetBorderThickness(borderThickness);
-		tb->SetBorder(true);
-	}
-
-	UIElemMap.emplace(tb->GetName(), tb);
-	return tb;
+	return CreateTextBox(name, x, y, w, h, texture, GetFont(fontSt), text, textScale, textStartX, textStartY, borderThickness);
 }
 
 ClickBox* UI::CreateClickBoxF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, const std::string& fontSt,
 	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
-
-	if (GetClickBox(name) != nullptr) {
-		std::cout << "Warning name collision click box with name: " << name << " already exists addition abborted\n";
-		return nullptr;
-	}
-
-	ClickBoxes.emplace_back(new ClickBox());
-	ClickBox* cb = ClickBoxes.back();
-	cb->SetName(name);
-	cb->GetRectangle().Set(x, y, w, h);
-
-	cb->SetTexture(texture);
-
-	cb->SetText(text);
-
-	cb->SetTextScale(textScale);
-	if (fontSt != "") {
-		cb->SetFont(GetFont(fontSt));
-	}
-	if (cb->font != nullptr) {
-		cb->SetInterLine(cb->font->GetStandardInterline());
-	}
-
-	cb->SetTextStartX(textStartX);
-
-	cb->SetTextStartY(textStartY);
-
-	if (borderThickness > 0) {
-		cb->SetBorderThickness(borderThickness);
-		cb->SetBorder(true);
-	}
-
-	UIElemMap.emplace(cb->GetName(), cb);
-	return cb;
+	return CreateClickBox(name, x, y, w, h, texture, GetFont(fontSt), text, textScale, textStartX, textStartY, borderThickness);
 }
 
 PopUpBox* UI::CreatePopUpBoxF(const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture, const std::string& fontSt,
 	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
-	if (GetPopUpBox(name) != nullptr) {
-		std::cout << "Warning name collision pop up box with name: " << name << " already exists addition abborted\n";
-		return nullptr;
-	}
-
-	PopUpBoxes.emplace_back(new PopUpBox());
-	PopUpBox* pb = PopUpBoxes.back();
-	pb->SetName(name);
-	pb->SetLifeTime(lifeSpan);
-	pb->GetRectangle().Set(x, y, w, h);
-
-	pb->SetTexture(texture);
-
-	pb->SetText(text);
-
-	pb->SetTextScale(textScale);
-	if (fontSt != "") {
-		pb->SetFont(GetFont(fontSt));
-	}
-	if (pb->font != nullptr) {
-		pb->SetInterLine(pb->font->GetStandardInterline());
-	}
-
-	pb->SetTextStartX(textStartX);
-
-	pb->SetTextStartY(textStartY);
-
-	if (borderThickness > 0) {
-		pb->SetBorderThickness(borderThickness);
-		pb->SetBorder(true);
-	}
-
-	UIElemMap.emplace(pb->GetName(), pb);
-	return pb;
+	return CreatePopUpBox(name, lifeSpan, x, y, w, h, texture, GetFont(fontSt), text, textScale, textStartX, textStartY, borderThickness);
 }
 
 void UI::CheckHover() {

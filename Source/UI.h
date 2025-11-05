@@ -11,7 +11,7 @@
 
 // Basic non interactive button
 class UIElemBase :public GameObject {
-	protected:
+protected:
 	std::string name = "";
 	std::string text = "";
 	float textScale = 1.0f;
@@ -31,6 +31,8 @@ class UIElemBase :public GameObject {
 	unsigned char fontRGB[3] = { 255,255,255 };
 
 	Font* font = nullptr;
+
+	void (*renderFunction)(UIElemBase* ,MT::Renderer*) = nullptr;
 
 	unsigned short textRenderType = 1;
 
@@ -52,7 +54,15 @@ class UIElemBase :public GameObject {
 
 	void SetBorder(bool temp);
 
-	public:
+	void RenderItslelf(MT::Renderer* renderer);
+
+	void RenderItslelfRounded(MT::Renderer* renderer);
+
+	void RenderBorder(MT::Renderer* renderer);
+
+	void RenderText(MT::Renderer* renderer);
+
+public:
 	std::string& GetName();
 
 	void SetName(const std::string value);
@@ -86,14 +96,14 @@ class UIElemBase :public GameObject {
 
 	void SetFontColor(const unsigned char R, const unsigned char G, const unsigned char B);
 
-	void Render(MT::Renderer* renderer);
+	static void Render(UIElemBase *elem, MT::Renderer* renderer);
 
-	void RenderItslelf(MT::Renderer* renderer);
+	static void RenderRounded(UIElemBase* elem, MT::Renderer* renderer);
 
-	void RenderBorder(MT::Renderer* renderer);
-
-	void RenderText(MT::Renderer* renderer);
-
+	// 1 normal rectangle
+	// 2 rounded rectangle
+	void SetRenderType(const unsigned int renderType);
+	
 	// 1 Standard
 	// 2 Center
 	// 3 From Right
