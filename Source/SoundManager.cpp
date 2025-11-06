@@ -54,6 +54,16 @@ void SoundMan::LoadSounds(const std::string& directory) {
 
 }
 
+void SoundMan::DeppLoad(const std::string& directory) {
+	LoadSounds(directory);
+	for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(directory)) {
+		if (entry.is_directory()) {
+			const std::string path = entry.path().string();
+			LoadSounds(path);
+		}
+	}
+}
+
 void SoundMan::PlaySound(const std::string& name) {
 	auto it = Sounds.find(name);
 	if (it != Sounds.end()) {
@@ -62,6 +72,26 @@ void SoundMan::PlaySound(const std::string& name) {
 	}
 	std::cout << "Sound not found: " << name << "\n";
 	return ;
+}
+
+void SoundMan::PlayRawSound(Mix_Chunk* sound) {
+	Mix_PlayChannel(-1, sound, 0);
+}
+
+void SoundMan::PlaySoundStereo(const std::string& name, uint8_t left, uint8_t right) {
+	auto it = Sounds.find(name);
+	if (it != Sounds.end()) {
+		int channel = Mix_PlayChannel(-1, it->second, 0);
+		Mix_SetPanning(channel, left, right);
+		return;
+	}
+	std::cout << "Sound not found: " << name << "\n";
+	return;
+}
+
+void SoundMan::PlayRawSoundStereo(Mix_Chunk* sound, uint8_t left, uint8_t right) {
+	int channel = Mix_PlayChannel(-1, sound, 0);
+	Mix_SetPanning(channel, left, right);
 }
 
 Mix_Chunk *SoundMan::GetSound(const std::string& name) {

@@ -68,3 +68,5 @@ Required CPP version at least 23
 - New renderer function for rendering modern curved ui elements
 - UI now only use scancode
 - UI can now create rounded buttons
+- SoundMan now can load sound with depp load recursive function
+- SoundMan can now play stereo sound and raw sounds

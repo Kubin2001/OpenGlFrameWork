@@ -36,7 +36,7 @@ void Game::Start() {
 	TexMan::Start(renderer);
 	TexMan::DeepLoad("Textures");
 	SoundMan::Innit();
-	SoundMan::LoadSounds("Sounds");
+	SoundMan::DeppLoad("Sounds");
 
 	ui = std::make_unique<UI>(renderer);
 
@@ -46,17 +46,6 @@ void Game::Start() {
 
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
 	renderer->AgresiveRenderCopySetUp();
-
-	Button *btn = ui->CreateButton("test", 100, 100, 100, 100, nullptr);
-	btn->SetColor(30, 30, 30);
-	btn->SetHoverFilter(true, 255, 255, 255, 120);
-	btn->SetBorder(4, 188, 20, 200);
-
-	btn = ui->CreateButton("test2", 250, 100, 100, 100, nullptr);
-	btn->SetColor(30, 30, 30);
-	btn->SetRenderType(2);
-	btn->SetBorder(4, 188, 20, 200);
-	btn->SetHoverFilter(true, 255, 255, 255, 120);
 }
 
 
@@ -78,6 +67,15 @@ void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
 		Exit();
+		if (event.type == SDL_MOUSEBUTTONUP) {
+			Mix_Chunk* sound = SoundMan::GetSound("medKit");
+			if (event.button.button == SDL_BUTTON_LEFT) {
+				SoundMan::PlayRawSoundStereo (sound,50,255);
+			}
+			if (event.button.button == SDL_BUTTON_RIGHT) {
+				SoundMan::PlayRawSoundStereo(sound, 255, 50);
+			}
+		}
 	}
 	Global::inputDelay++;
 }
