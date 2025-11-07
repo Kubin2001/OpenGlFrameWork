@@ -70,3 +70,4 @@ Required CPP version at least 23
 - UI can now create rounded buttons
 - SoundMan now can load sound with depp load recursive function
 - SoundMan can now play stereo sound and raw sounds
+- Simple class UI Section for better big ui managment

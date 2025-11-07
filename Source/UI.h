@@ -538,3 +538,58 @@ public:
 		return Elements[index];
 	}
 };
+
+
+class UISection {
+	private:
+		std::vector<Button*> buttons = {};
+
+		std::vector<TextBox*> textBoxes = {};
+
+		std::vector<ClickBox*> clickBoxes = {};
+
+		UI* ui = nullptr;
+
+	public:
+		void Init(UI *ui) {
+			this->ui = ui;		
+		}
+
+		void Add(Button* button) {
+			if (ui == nullptr) {
+				throw std::runtime_error("UI is nullptr section is not inicialized");
+			}
+			buttons.emplace_back(button);
+		}
+		void Add(TextBox* textBox) {
+			if (ui == nullptr) {
+				throw std::runtime_error("UI is nullptr section is not inicialized");
+			}
+			textBoxes.emplace_back(textBox);
+		}
+		void Add(ClickBox* clickBox) {
+			if (ui == nullptr) {
+				throw std::runtime_error("UI is nullptr section is not inicialized");
+			}
+			clickBoxes.emplace_back(clickBox);
+		}
+
+		void Clear() {
+			for (auto& elem: buttons) {
+				ui->DeleteButton(elem->GetName());
+			}
+			for (auto& elem : clickBoxes) {
+				ui->DeleteClickBox(elem->GetName());
+			}
+			for (auto& elem : textBoxes) {
+				ui->DeleteTextBox(elem->GetName());
+			}
+			buttons.clear();
+			textBoxes.clear();
+			clickBoxes.clear();
+		}	
+
+		std::vector<Button*>& GetButtons() { return buttons; }
+		std::vector<TextBox*>& GetTextBoxes() { return textBoxes; }
+		std::vector<ClickBox*>& GetClickBoxes() { return clickBoxes; }
+};
