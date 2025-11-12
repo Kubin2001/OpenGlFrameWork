@@ -305,11 +305,11 @@ class UI{
 			}
 
 			T* elem = dynamic_cast<T*>(elemFind->second);
-		#ifdef _DEBUG
-			if (elem == nullptr) {
-				throw std::runtime_error("UI::GetElem wrong cast for " + name);
-			}
-		#endif // DEBUG
+		//#ifdef _DEBUG
+		//	if (elem == nullptr) {
+		//		throw std::runtime_error("UI::GetElem wrong cast for " + name);
+		//	}
+		//#endif // DEBUG
 			return elem;
 		}
 
