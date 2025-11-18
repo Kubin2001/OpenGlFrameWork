@@ -71,3 +71,6 @@ Required CPP version at least 23
 - SoundMan now can load sound with depp load recursive function
 - SoundMan can now play stereo sound and raw sounds
 - Simple class UI Section for better big ui managment
+
+1.07
+- Simpler Scene Manager Interface

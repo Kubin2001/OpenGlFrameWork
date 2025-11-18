@@ -67,15 +67,6 @@ void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
 		Exit();
-		if (event.type == SDL_MOUSEBUTTONUP) {
-			Mix_Chunk* sound = SoundMan::GetSound("medKit");
-			if (event.button.button == SDL_BUTTON_LEFT) {
-				SoundMan::PlayRawSoundStereo (sound,50,255);
-			}
-			if (event.button.button == SDL_BUTTON_RIGHT) {
-				SoundMan::PlayRawSoundStereo(sound, 255, 50);
-			}
-		}
 	}
 	Global::inputDelay++;
 }
@@ -104,6 +95,7 @@ Game::~Game() {
 	SoundMan::Clear();
 	SceneMan::Clear();
 	renderer->Clear();
+	ui->ClearAll();
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }

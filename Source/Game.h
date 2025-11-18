@@ -3,9 +3,6 @@
 #include <memory>
 
 #include "UI.h"
-#include "Renderer.h"
-
-
 
 class Game {
 private:

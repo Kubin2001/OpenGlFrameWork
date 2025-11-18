@@ -3,7 +3,7 @@
 #include <SDL_mouse.h>
 
 void MethaneVersion() {
-	std::cout << "Using Methane SDL OpenGL Framework v1.06\n";
+	std::cout << "Using Methane SDL OpenGL Framework v1.07\n";
 }
 
 MapPos::MapPos() {
