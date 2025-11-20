@@ -2,7 +2,7 @@
 
 #include "glm.hpp"
 #include <SDL.h>
-
+#include <unordered_map>
 #include "ShaderLoader.h"
 #include "Rectangle.h"
 
@@ -98,7 +98,7 @@ namespace MT {
 			 std::vector<float> globalVertices;
 
 			 //Agressive Batching Rendering
-			 std::vector<std::vector<float>> agresiveRenderVec = {};
+			 std::unordered_map<int,std::vector<float>> agresiveRenderMap = {};
 
 		public:
 			 int W, H;
@@ -135,7 +135,7 @@ namespace MT {
 
 			 void RenderCopyPartFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
 
-			 void RenderPresent(bool switchContext = true);
+			 void Present(bool switchContext = true);
 
 			 void Clear();
 

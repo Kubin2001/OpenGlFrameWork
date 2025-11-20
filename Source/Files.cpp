@@ -102,7 +102,7 @@ std::string FileExplorer::Maintain() {
 		renderer->ClearFrame(30, 30, 30);
 		ui->FrameUpdate();
 		ui->Render();
-		renderer->RenderPresent();
+		renderer->Present();
 		SDL_Delay(32);
 	}
 
