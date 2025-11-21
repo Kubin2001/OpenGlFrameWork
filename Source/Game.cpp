@@ -45,6 +45,28 @@ void Game::Start() {
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
 
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
+	for (size_t i = 0; i < 10'000; i++) {
+		objects.emplace_back();
+		Object& ob = objects.back();
+		int random = rand() % 3;
+		switch (random) {
+			case 0:
+				ob.rect.Set(40, 40, 40, 40);
+				ob.col = { 255,0,0 };
+				ob.Radius = 45.0f;
+				break;
+			case 1:
+				ob.rect.Set(90, 40, 40, 40);
+				ob.col = { 0,255,0 };
+				ob.Radius = 90.0f;
+				break;
+			case 2:
+				ob.rect.Set(140, 40, 40, 40);
+				ob.col = { 0,0,255 };
+				ob.Radius = 180.0f;
+				break;
+		}
+	}
 }
 
 
@@ -74,6 +96,27 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0],Global::defaultDrawColor[1],Global::defaultDrawColor[2]);
+	auto start = std::chrono::high_resolution_clock::now();
+
+	for (auto& it : objects) {
+		//renderer->RenderRect({ 40, 100, 40, 40 }, it.col);
+		renderer->RenderRectEX(it.rect, it.col, 0);
+		MT::Rect rect = it.rect;
+		rect.y += 60;
+		//renderer->RenderCopyEX(rect,TexMan::GetTex("MenuIcon"),false,Global::frameCounter);
+		renderer->RenderCopyPartEX(rect, {100,0,100,200}, TexMan::GetTex("MenuIcon"), false, Global::frameCounter);
+	}
+	std::cout << Global::frameCounter << "\n";
+	renderer->Present(false);
+
+	auto end = std::chrono::high_resolution_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+	fullTime += elapsed;
+	if (Global::frameCounter % 200 == 0) {
+		std::cout << "Render time: " << fullTime/1000 << " ms\n";
+		fullTime = 0;
+	}
+
 	ui->Render();
 	renderer->Present();
 }

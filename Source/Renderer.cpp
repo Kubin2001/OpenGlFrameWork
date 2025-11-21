@@ -552,7 +552,82 @@ void MT::Renderer::RenderRect(const Rect& rect, const Color& col, const int alph
     std::memcpy(globalVertices.data() + old, vertices, N * sizeof(float));
 }
 
-void MT::Renderer::RenderRectEX(const Rect& rect, const Color &col, const float rotation, const int alpha) {
+//void MT::Renderer::RenderRectEX(const Rect& rect, const Color &col, const float rotation, const int alpha) {
+//    if (!vievPort.IsColliding(rect)) {
+//        return;
+//    }
+//
+//    if (currentProgram != renderRectId) {
+//        Present(false);
+//        currentProgram = renderRectId;
+//        glUseProgram(renderRectId);
+//    }
+//
+//    currentSize = renderRectSize;
+//    RectF temp;
+//
+//    float aspect = static_cast<float>(H) / static_cast<float>(W);
+//    temp.x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
+//    temp.y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
+//    temp.w = (static_cast<float>(rect.w) / W) * 2.0f;
+//    temp.h = (static_cast<float>(rect.h) / H) * 2.0f * aspect;
+//
+//
+//    const float halfW = temp.w / 2.0f;
+//    const float halfH = temp.h / 2.0f;
+//
+//    const float fR = float(col.R) / 255;
+//    const float fG = float(col.G) / 255;
+//    const float fB = float(col.B) / 255;
+//
+//    const float rad = glm::radians(rotation);
+//    const float cosA = cosf(rad);
+//    const float sinA = sinf(rad);
+//
+//    glm::vec2 center = { temp.x + halfW, temp.y - halfH };
+//
+//    glm::vec2 p0 = RotateAndTranslate2D(-halfW, -halfH, center, cosA, sinA);
+//    glm::vec2 p1 = RotateAndTranslate2D(-halfW, halfH, center, cosA, sinA);
+//    glm::vec2 p2 = RotateAndTranslate2D(halfW, halfH, center, cosA, sinA);
+//    glm::vec2 p3 = RotateAndTranslate2D(-halfW, -halfH, center, cosA, sinA);
+//    glm::vec2 p4 = RotateAndTranslate2D(halfW, halfH, center, cosA, sinA);
+//    glm::vec2 p5 = RotateAndTranslate2D(halfW, -halfH, center, cosA, sinA);
+//
+//    const float floatAlpha = float(alpha) / 255;
+//
+//    const float vertex[] = {
+//        p0.x, p0.y, fR, fG, fB, floatAlpha,
+//        p1.x, p1.y, fR, fG, fB, floatAlpha,
+//        p2.x, p2.y, fR, fG, fB, floatAlpha,
+//        p3.x, p3.y, fR, fG, fB, floatAlpha,
+//        p4.x, p4.y, fR, fG, fB, floatAlpha,
+//        p5.x, p5.y, fR, fG, fB, floatAlpha,
+//    };
+//    constexpr int N = 36;
+//    const size_t old = globalVertices.size();
+//    globalVertices.resize(old + N);
+//    std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
+//}
+
+glm::vec2 RotateNdc(float localX, float localY, const glm::vec2& mainCenter, float cosA, float sinA, int w, int h) {
+    // Odwracamy lokalną oś Y (bo piksele rosną w dół)
+    localY = -localY;
+
+    // rotate local around origin then translate by center
+    float rx = localX * cosA - localY * sinA;
+    float ry = localX * sinA + localY * cosA;
+
+    float px = mainCenter.x + rx;
+    float py = mainCenter.y + ry;
+
+    // convert to NDC
+    float ndc_x = (px / float(w)) * 2.0f - 1.0f;
+    float ndc_y = 1.0f - (py / float(h)) * 2.0f;
+
+    return { ndc_x, ndc_y };
+}
+
+void MT::Renderer::RenderRectEX(const Rect& rect, const Color& col, const float rotation, const int alpha) {
     if (!vievPort.IsColliding(rect)) {
         return;
     }
@@ -564,49 +639,39 @@ void MT::Renderer::RenderRectEX(const Rect& rect, const Color &col, const float 
     }
 
     currentSize = renderRectSize;
-    RectF temp;
+    float halfW = rect.w * 0.5f;
+    float halfH = rect.h * 0.5f;
 
-    float aspect = static_cast<float>(H) / static_cast<float>(W);
-    temp.x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
-    temp.y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
-    temp.w = (static_cast<float>(rect.w) / W) * 2.0f;
-    temp.h = (static_cast<float>(rect.h) / H) * 2.0f * aspect;
+    const float fR = float(col.R) / 255.0f;
+    const float fG = float(col.G) / 255.0f;
+    const float fB = float(col.B) / 255.0f;
+    const float fA = float(alpha) / 255.0f;
 
+    const float rad = glm::radians(rotation);
+    const float cosA = cosf(rad);
+    const float sinA = sinf(rad);
 
-    float halfW = temp.w / 2.0f;
-    float halfH = temp.h / 2.0f;
+    glm::vec2 centerPx = { rect.x + halfW, rect.y + halfH };
 
-    const float fR = float(col.R) / 255;
-    const float fG = float(col.G) / 255;
-    const float fB = float(col.B) / 255;
+    const glm::vec2 p0 = RotateNdc(-halfW, -halfH, centerPx, cosA,sinA, W,H);
+    const glm::vec2 p1 = RotateNdc (-halfW, halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p2 = RotateNdc(halfW, halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p3 = RotateNdc(-halfW, -halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p4 = RotateNdc(halfW, halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p5 = RotateNdc(halfW, -halfH, centerPx, cosA, sinA, W, H);
 
-    float rad = glm::radians(rotation);
-    float cosA = cosf(rad);
-    float sinA = sinf(rad);
-
-    glm::vec2 center = { temp.x + halfW, temp.y - halfH };
-
-    glm::vec2 p0 = RotateAndTranslate2D(-halfW, -halfH, center, cosA, sinA);
-    glm::vec2 p1 = RotateAndTranslate2D(-halfW, halfH, center, cosA, sinA);
-    glm::vec2 p2 = RotateAndTranslate2D(halfW, halfH, center, cosA, sinA);
-    glm::vec2 p3 = RotateAndTranslate2D(-halfW, -halfH, center, cosA, sinA);
-    glm::vec2 p4 = RotateAndTranslate2D(halfW, halfH, center, cosA, sinA);
-    glm::vec2 p5 = RotateAndTranslate2D(halfW, -halfH, center, cosA, sinA);
-
-    float floatAlpha = float(alpha) / 255;
-
-    const float vertex[] = {
-        p0.x, p0.y, fR, fG, fB, floatAlpha,
-        p1.x, p1.y, fR, fG, fB, floatAlpha,
-        p2.x, p2.y, fR, fG, fB, floatAlpha,
-        p3.x, p3.y, fR, fG, fB, floatAlpha,
-        p4.x, p4.y, fR, fG, fB, floatAlpha,
-        p5.x, p5.y, fR, fG, fB, floatAlpha,
+    const float vertices[] = {
+        p0.x, p0.y, fR, fG, fB, fA,
+        p1.x, p1.y, fR, fG, fB, fA,
+        p2.x, p2.y, fR, fG, fB, fA,
+        p3.x, p3.y, fR, fG, fB, fA,
+        p4.x, p4.y, fR, fG, fB, fA,
+        p5.x, p5.y, fR, fG, fB, fA
     };
     constexpr int N = 36;
     const size_t old = globalVertices.size();
     globalVertices.resize(old + N);
-    std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
+    std::memcpy(globalVertices.data() + old, vertices, N * sizeof(float));
 }
 
 
@@ -783,27 +848,21 @@ void MT::Renderer::RenderCopyEX(const Rect& rect, const Texture* texture, const 
     }
     currentSize = renderCopySize;
 
-    float aspect = static_cast<float>(H) / static_cast<float>(W);
-    float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
-    float y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
-    float w = (static_cast<float>(rect.w) / W) * 2.0f;
-    float h = (static_cast<float>(rect.h) / H) * 2.0f * aspect;
+    float halfW = rect.w * 0.5f;
+    float halfH = rect.h * 0.5f;
 
-    float halfW = w / 2.0f;
-    float halfH = h / 2.0f;
+    const float rad = glm::radians(rotation);
+    const float cosA = cosf(rad);
+    const float sinA = sinf(rad);
 
-    float rad = glm::radians(rotation);
-    float cosA = cosf(rad);
-    float sinA = sinf(rad);
+    glm::vec2 centerPx = { rect.x + halfW, rect.y + halfH };
 
-    glm::vec2 center = { x + halfW, y - halfH };
-
-    glm::vec2 p0 = RotateAndTranslate2D(-halfW, -halfH, center, cosA, sinA);
-    glm::vec2 p1 = RotateAndTranslate2D(-halfW, halfH, center, cosA, sinA);
-    glm::vec2 p2 = RotateAndTranslate2D(halfW, halfH, center, cosA, sinA);
-    glm::vec2 p3 = RotateAndTranslate2D(-halfW, -halfH, center, cosA, sinA);
-    glm::vec2 p4 = RotateAndTranslate2D(halfW, halfH, center, cosA, sinA);
-    glm::vec2 p5 = RotateAndTranslate2D(halfW, -halfH, center, cosA, sinA);
+    const glm::vec2 p0 = RotateNdc(-halfW, -halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p1 = RotateNdc(-halfW, halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p2 = RotateNdc(halfW, halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p3 = RotateNdc(-halfW, -halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p4 = RotateNdc(halfW, halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p5 = RotateNdc(halfW, -halfH, centerPx, cosA, sinA, W, H);
 
     if (flip) {
         const float vertex[] = {
@@ -850,14 +909,22 @@ void MT::Renderer::RenderCopyPartEX(const Rect& rect, const Rect& source, const 
     }
     currentSize = renderCopySize;
 
-    float aspect = static_cast<float>(H) / static_cast<float>(W);
-    const float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
-    const float y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
-    const float w = (static_cast<float>(rect.w) / W) * 2.0f;
-    const float h = (static_cast<float>(rect.h) / H) * 2.0f *aspect;
 
-    float halfW = w / 2.0f;
-    float halfH = h / 2.0f;
+    float halfW = rect.w * 0.5f;
+    float halfH = rect.h * 0.5f;
+
+    const float rad = glm::radians(rotation);
+    const float cosA = cosf(rad);
+    const float sinA = sinf(rad);
+
+    glm::vec2 centerPx = { rect.x + halfW, rect.y + halfH };
+
+    const glm::vec2 p0 = RotateNdc(-halfW, -halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p1 = RotateNdc(-halfW, halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p2 = RotateNdc(halfW, halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p3 = RotateNdc(-halfW, -halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p4 = RotateNdc(halfW, halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p5 = RotateNdc(halfW, -halfH, centerPx, cosA, sinA, W, H);
 
     const float texW = static_cast<float>(texture->w);
     const float texH = static_cast<float>(texture->h);
@@ -869,19 +936,6 @@ void MT::Renderer::RenderCopyPartEX(const Rect& rect, const Rect& source, const 
     const float v1 = 1.0f - static_cast<float>(source.y) / texH;
     const float v0 = v1 - static_cast<float>(source.h) / texH;
 
-
-    float rad = glm::radians(rotation);
-    float cosA = cosf(rad);
-    float sinA = sinf(rad);
-
-    glm::vec2 center = { x + halfW, y - halfH };
-
-    glm::vec2 p0 = RotateAndTranslate2D(-halfW, -halfH, center, cosA, sinA);
-    glm::vec2 p1 = RotateAndTranslate2D(-halfW, halfH, center, cosA, sinA);
-    glm::vec2 p2 = RotateAndTranslate2D(halfW, halfH, center, cosA, sinA);
-    glm::vec2 p3 = RotateAndTranslate2D(-halfW, -halfH, center, cosA, sinA);
-    glm::vec2 p4 = RotateAndTranslate2D(halfW, halfH, center, cosA, sinA);
-    glm::vec2 p5 = RotateAndTranslate2D(halfW, -halfH, center, cosA, sinA);
 
     if (flip) {
         const float vertex[] = {

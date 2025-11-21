@@ -12,6 +12,17 @@ struct Point {
 	}
 };
 
+struct FPoint {
+	float x = 0.0f;
+	float y = 0.0;
+	FPoint();
+	FPoint(float x, float y);
+
+	bool operator==(const FPoint& other) const {
+		return x == other.x && y == other.y;
+	}
+};
+
 namespace MT {
 	struct Rect;
 	struct RectF;

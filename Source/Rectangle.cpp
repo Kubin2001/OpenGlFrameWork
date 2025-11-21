@@ -1,10 +1,12 @@
 #include "Rectangle.h"
 
-Point::Point() {
-
-}
+Point::Point() {}
 
 Point::Point(int x, int y) : x(x), y(y) {}
+
+FPoint::FPoint() {}
+
+FPoint::FPoint(float x, float y) : x(x), y(y) {}
 
 
 namespace MT {

@@ -75,3 +75,4 @@ Required CPP version at least 23
 1.07
 - Simpler Scene Manager Interface
 - Experimental Render Copy Should should be safe in all OpenGL versions
+- Any RenderEx function render is much better quaility
