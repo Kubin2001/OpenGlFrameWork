@@ -76,3 +76,4 @@ Required CPP version at least 23
 - Simpler Scene Manager Interface
 - Experimental Render Copy Should should be safe in all OpenGL versions
 - Any RenderEx function render is much better quaility
+- Rounded buttons now support border rendering (also rounded)

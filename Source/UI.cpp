@@ -153,13 +153,29 @@ void UIElemBase::RenderItslelf(MT::Renderer* renderer) {
 }
 
 void UIElemBase::RenderItslelfRounded(MT::Renderer* renderer) {
-	if (hovered && hoverable) {
-		renderer->RenderRoundedRect(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2] }, buttonColor[3]);
-		renderer->RenderRoundedRect(rectangle, { hooverFilter[0], hooverFilter[1], hooverFilter[2] }, hooverFilter[3]);
+	if (!border) {
+		renderer->RenderRoundedRect(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2] }, 255);
 	}
 	else {
-		renderer->RenderRoundedRect(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2] }, buttonColor[3]);
+		MT::Rect newBtnRect = rectangle;
+		int width = 0;
+		if (borderThickness % 2 == 0) {
+			width = borderThickness / 2;
+		}
+		else {
+			width = (borderThickness / 2) + 1;
+		}
+		newBtnRect.x += borderThickness;
+		newBtnRect.y += borderThickness;
+		newBtnRect.w -= borderThickness *2;
+		newBtnRect.h -= borderThickness *2;
+		renderer->RenderRoundedRect(rectangle, { borderRGB[0], borderRGB[1], borderRGB[2] }, 255);
+		renderer->RenderRoundedRect(newBtnRect, { buttonColor[0], buttonColor[1], buttonColor[2] }, buttonColor[3]);
 	}
+	if (hovered && hoverable) {
+		renderer->RenderRoundedRect(rectangle, { hooverFilter[0], hooverFilter[1], hooverFilter[2] }, hooverFilter[3]);
+	}
+
 }
 
 void UIElemBase::RenderBorder(MT::Renderer* renderer) {
