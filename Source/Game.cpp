@@ -45,14 +45,23 @@ void Game::Start() {
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
 
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
-	Button *bnt = ui->CreateButton("test", 100, 100, 200, 100);
-	bnt->SetColor(30, 30, 30);
-	bnt->SetRenderType(2);
-	bnt->SetBorder(10, 40, 40, 220);
-
-	bnt = ui->CreateButton("test2", 100, 300, 200, 100);
-	bnt->SetColor(30, 30, 30);
-	bnt->SetBorder(10, 40, 40, 220);
+	for (size_t i = 0; i < 10'000; i++) {
+		int random = rand() % 3;
+		Objects.emplace_back();
+		auto &back = Objects.back();
+		if (random == 0) {
+			back.GetRectangle().Set(40, 40, 40, 40);
+			back.SetTexture(TexMan::GetTex("MenuIcon"));
+		}
+		else if(random == 1) {
+			back.GetRectangle().Set(90, 40, 30, 30);
+			back.SetTexture(TexMan::GetTex("MenuIcon"));
+		}
+		else if (random == 2) {
+			back.GetRectangle().Set(130, 40, 20, 20);
+			back.SetTexture(TexMan::GetTex("RetryIcon"));
+		}
+	}
 }
 
 
@@ -82,6 +91,20 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0],Global::defaultDrawColor[1],Global::defaultDrawColor[2]);
+	auto start = std::chrono::high_resolution_clock::now();
+	for (auto& ob : Objects) {
+		renderer->AgressiveRenderCopy(ob.GetRectangle(), ob.GetTexture());
+	}
+	renderer->AgressiveRenderCopyPresent();
+	auto end = std::chrono::high_resolution_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+	totalTIme += elapsed;
+	if(Global::frameCounter % 200 == 0) {
+		std::cout << "Render time: " << totalTIme/1000 << " ms\n";
+		totalTIme = 0;
+	}
+
+
 	ui->Render();
 	renderer->Present();
 }

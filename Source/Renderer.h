@@ -67,6 +67,7 @@ namespace MT {
 			 //Shaders IDs
 			 unsigned int currentProgram;
 			 
+			 unsigned int renderBaseId;
 			 unsigned int renderCopyId;
 			 unsigned int renderRectId;
 			 unsigned int renderCopyCircleId;
@@ -89,6 +90,7 @@ namespace MT {
 			 unsigned int currentSize = 0;
 			 unsigned int renderRectSize = 6; // Wszystkie renderowania bez tesktur
 			 unsigned int renderCopySize = 5; // Wszystkie renderowania tekstur
+			 unsigned int renderCopyBaseSize = 3;
 			 unsigned int renderCircleSize = 7;
 			 unsigned int renderCopyCircleSize = 6;
 			 unsigned int renderRoundedSize = 6;
@@ -114,6 +116,10 @@ namespace MT {
 
 			 void DrawLine(const int x1, const int y1, const int x2, const int y2, const int thickness,
 				 const Color& col, const unsigned char alpha = 255);
+
+			 // Same as render copy but it uses faster shader but is extreamly slow when switching betweeen any other renderCopy functions
+			 void RenderCopyAS(const Rect& rect, const Texture* texture);
+
 
 			 void RenderCopy(const Rect& rect, const Texture* texture);
 

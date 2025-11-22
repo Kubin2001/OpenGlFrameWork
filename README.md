@@ -77,3 +77,5 @@ Required CPP version at least 23
 - Experimental Render Copy Should should be safe in all OpenGL versions
 - Any RenderEx function render is much better quaility
 - Rounded buttons now support border rendering (also rounded)
+- Agresive Render Copy is about 20 percent faster
+- Render Copy AS function same as rendercopy but uses diffrent shader

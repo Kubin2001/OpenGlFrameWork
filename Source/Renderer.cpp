@@ -23,14 +23,14 @@ SDL_Surface* FlipSurfaceVertical(SDL_Surface* surface) {
     return flipped;
 }
 
-SDL_GLContext MT::Innit(SDL_Window *window) {
+SDL_GLContext MT::Innit(SDL_Window* window) {
 
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-    
+
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
         std::cerr << "Failed to initialize GLAD\n";
         SDL_DestroyWindow(window);
@@ -55,7 +55,7 @@ MT::Texture* MT::LoadTexture(const char* path) {
 
     SDL_Surface* surf = IMG_Load(path);
 
-    MT::Texture *metTex = new MT::Texture;
+    MT::Texture* metTex = new MT::Texture;
     metTex->texture = texture;
     if (!surf) {
         std::cout << "Failed to load image MT::LoadTexture: " << IMG_GetError() << "\n";
@@ -77,7 +77,7 @@ MT::Texture* MT::LoadTexture(const char* path) {
 }
 
 void MT::DeleteTexture(Texture* tex) {
-    glDeleteTextures(1,&tex->texture);
+    glDeleteTextures(1, &tex->texture);
     tex->texture = 0;
     tex->w = 0;
     tex->h = 0;
@@ -151,7 +151,10 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
 
     //Rectangle
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // powierzchnie
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2* sizeof(float))); // kolory + alpha
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float))); // kolory + alpha
+
+    //Render Copy Base
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // powierzchnie + aplha bez tekstur
 
     //Render Copy
     glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // powierzchnie
@@ -174,6 +177,7 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
     glEnableVertexAttribArray(3);
     glEnableVertexAttribArray(4);
     glEnableVertexAttribArray(6);
@@ -186,7 +190,7 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
 
 
     if (!loader.IsProgram("RenderRect")) {
-        constexpr const char * vertexStr = R"glsl(
+        constexpr const char* vertexStr = R"glsl(
         #version 330 core
         layout(location = 0) in vec2 aPos;
         layout(location = 1) in vec4 aColor;
@@ -215,6 +219,49 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
         )glsl";
 
         loader.CreateProgramStr("RenderRect", vertexStr, fragmentStr);
+    }
+
+    if (!loader.IsProgram("RenderCopyBase")) {
+        constexpr const char* vertexStr = R"glsl(
+        #version 330 core
+        layout (location = 2) in vec3 aPosA;
+
+        vec2 uvFromVertexID(int id) {
+            if      (id == 0) return vec2(0.0, 0.0);
+            else if (id == 1) return vec2(0.0, 1.0);
+            else if (id == 2) return vec2(1.0, 0.0);
+            else if (id == 3) return vec2(0.0, 1.0);
+            else if (id == 4) return vec2(1.0, 1.0);
+            else              return vec2(1.0, 0.0);
+        }
+        out vec2 texCord;
+        out float vAlpha;
+
+        void main(){
+	        gl_Position = vec4(aPosA.xy, 0.0 ,1.0);
+            texCord = uvFromVertexID(gl_VertexID % 6);
+            vAlpha = aPosA.z;
+        }
+        )glsl";
+
+        constexpr const char* fragmentStr = R"glsl(
+        #version 330 core
+
+        out vec4 FragColor;
+
+        in vec2 texCord;
+        in float vAlpha;
+
+        uniform sampler2D texture1;
+
+        void main(){
+	        vec4 texcolor = texture(texture1,texCord);
+	        texcolor.a *= vAlpha;
+	        FragColor = texcolor;
+        }
+        )glsl";
+
+        loader.CreateProgramStr("RenderCopyBase", vertexStr, fragmentStr);
     }
 
     if (!loader.IsProgram("RenderCopy")) {
@@ -494,13 +541,14 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     renderCopyId = loader.GetProgram("RenderCopy");
+    renderBaseId = loader.GetProgram("RenderCopyBase");
     renderRectId = loader.GetProgram("RenderRect");
     renderCopyCircleId = loader.GetProgram("RenderCopyCircle");
     renderCircleId = loader.GetProgram("RenderCircle");
     renderCopyFilterId = loader.GetProgram("RenderCopyFilter");
     renderRoundedRectId = loader.GetProgram("RenderRoundedRectangle");
     renderCopyRoundedRectId = loader.GetProgram("RenderCopyRoundedRectangle");
-    
+
     roundRectRadius = glGetUniformLocation(renderRoundedRectId, "uPixelSize");
     roundRectCopyRadius = glGetUniformLocation(renderCopyRoundedRectId, "uPixelSize");
 
@@ -653,8 +701,8 @@ void MT::Renderer::RenderRectEX(const Rect& rect, const Color& col, const float 
 
     glm::vec2 centerPx = { rect.x + halfW, rect.y + halfH };
 
-    const glm::vec2 p0 = RotateNdc(-halfW, -halfH, centerPx, cosA,sinA, W,H);
-    const glm::vec2 p1 = RotateNdc (-halfW, halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p0 = RotateNdc(-halfW, -halfH, centerPx, cosA, sinA, W, H);
+    const glm::vec2 p1 = RotateNdc(-halfW, halfH, centerPx, cosA, sinA, W, H);
     const glm::vec2 p2 = RotateNdc(halfW, halfH, centerPx, cosA, sinA, W, H);
     const glm::vec2 p3 = RotateNdc(-halfW, -halfH, centerPx, cosA, sinA, W, H);
     const glm::vec2 p4 = RotateNdc(halfW, halfH, centerPx, cosA, sinA, W, H);
@@ -675,7 +723,7 @@ void MT::Renderer::RenderRectEX(const Rect& rect, const Color& col, const float 
 }
 
 
-void MT::Renderer::DrawLine(const int x1, const int y1, const int x2, const int y2,const int thickness,
+void MT::Renderer::DrawLine(const int x1, const int y1, const int x2, const int y2, const int thickness,
     const Color& col, const unsigned char alpha) {
 
     if (currentProgram != renderRectId) {
@@ -727,7 +775,7 @@ void MT::Renderer::DrawLine(const int x1, const int y1, const int x2, const int 
 }
 
 
-void MT::Renderer::RenderCopy(const Rect& rect, const Texture* texture){
+void MT::Renderer::RenderCopyAS(const Rect& rect, const Texture* texture) {
     if (!texture) { return; }
     if (!vievPort.IsColliding(rect)) {
         return;
@@ -742,13 +790,52 @@ void MT::Renderer::RenderCopy(const Rect& rect, const Texture* texture){
         glBindTexture(GL_TEXTURE_2D, texture->texture);
         currentTexture = texture->texture;
     }
-    
+
+    if (currentProgram != renderBaseId) {
+        Present(false);
+        currentProgram = renderBaseId;
+        glUseProgram(currentProgram);
+    }
+    currentSize = renderCopyBaseSize;
+
+    //    // pos.x, pos.y tex.u, tex.v
+    const float verticles[] = {
+        x,     y - h ,texture->alpha,
+        x,     y     ,texture->alpha,
+        x + w, y - h ,texture->alpha,
+        x,     y     ,texture->alpha,
+        x + w, y     ,texture->alpha,
+        x + w, y - h ,texture->alpha
+    };
+
+    constexpr int N = 18;
+    const size_t old = globalVertices.size();
+    globalVertices.resize(old + N);
+    std::memcpy(globalVertices.data() + old, verticles, N * sizeof(float));
+}
+
+void MT::Renderer::RenderCopy(const Rect& rect, const Texture* texture) {
+    if (!texture) { return; }
+    if (!vievPort.IsColliding(rect)) {
+        return;
+    }
+    const float x = (rect.x / static_cast<float>(W)) * 2.0f - 1.0f;
+    const float y = 1.0f - (rect.y / static_cast<float>(H)) * 2.0f;
+    const float w = (rect.w / static_cast<float>(W)) * 2.0f;
+    const float h = (rect.h / static_cast<float>(H)) * 2.0f;
+
+    if (currentTexture != texture->texture) {
+        Present(false);
+        glBindTexture(GL_TEXTURE_2D, texture->texture);
+        currentTexture = texture->texture;
+    }
+
     if (currentProgram != renderCopyId) {
         Present(false);
         currentProgram = renderCopyId;
         glUseProgram(renderCopyId);
     }
-    currentSize = renderCopySize; 
+    currentSize = renderCopySize;
 
     //    // pos.x, pos.y tex.u, tex.v
     const float verticles[] = {
@@ -764,24 +851,9 @@ void MT::Renderer::RenderCopy(const Rect& rect, const Texture* texture){
     const size_t old = globalVertices.size();
     globalVertices.resize(old + N);
     std::memcpy(globalVertices.data() + old, verticles, N * sizeof(float));
-
-    //Potentially faster (by few percent)but needs more tests
-    //constexpr int N = 30;
-    //const size_t old = globalVertices.size();
-    //globalVertices.resize(old + N);
-
-    //float* out = globalVertices.data() + old;
-
-    //out[0] = x;     out[1] = y - h; out[2] = 0.0f; out[3] = 0.0f; out[4] = texture->alpha;
-    //out[5] = x;     out[6] = y;     out[7] = 0.0f; out[8] = 1.0f; out[9] = texture->alpha;
-    //out[10] = x + w; out[11] = y - h; out[12] = 1.0f; out[13] = 0.0f; out[14] = texture->alpha;
-
-    //out[15] = x;     out[16] = y;     out[17] = 0.0f; out[18] = 1.0f; out[19] = texture->alpha;
-    //out[20] = x + w; out[21] = y;     out[22] = 1.0f; out[23] = 1.0f; out[24] = texture->alpha;
-    //out[25] = x + w; out[26] = y - h; out[27] = 1.0f; out[28] = 0.0f; out[29] = texture->alpha;
 }
 
-void MT::Renderer::RenderCopyPart(const Rect& rect, const Rect& source, const Texture *texture) {
+void MT::Renderer::RenderCopyPart(const Rect& rect, const Rect& source, const Texture* texture) {
     if (!texture) { return; }
     if (!vievPort.IsColliding(rect)) {
         return;
@@ -793,7 +865,7 @@ void MT::Renderer::RenderCopyPart(const Rect& rect, const Rect& source, const Te
 
 
     if (currentTexture != texture->texture) {
-        Present(false); 
+        Present(false);
         glBindTexture(GL_TEXTURE_2D, texture->texture);
         currentTexture = texture->texture;
     }
@@ -1064,7 +1136,7 @@ void MT::Renderer::RenderRoundedRect(const Rect& rect, const Color& col, const u
         glUniform2f(roundRectRadius, rectPixelSize.x, rectPixelSize.y);
     }
 
-    currentSize = renderRoundedSize; 
+    currentSize = renderRoundedSize;
     const float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
     const float y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
     const float w = (static_cast<float>(rect.w) / W) * 2.0f;
@@ -1156,7 +1228,7 @@ void MT::Renderer::RenderCopyFiltered(const Rect& rect, const Texture* texture, 
     }
 
     if (currentProgram != renderCopyFilterId) {
-        Present(false);  
+        Present(false);
         currentProgram = renderCopyFilterId;
         glUseProgram(renderCopyFilterId);
     }
@@ -1192,7 +1264,7 @@ void MT::Renderer::RenderCopyPartFiltered(const Rect& rect, const Rect& source, 
 
 
     if (currentTexture != texture->texture) {
-        Present(false);  
+        Present(false);
         glBindTexture(GL_TEXTURE_2D, texture->texture);
         currentTexture = texture->texture;
     }
@@ -1238,12 +1310,12 @@ void MT::Renderer::Present(bool switchContext) {
     if (globalVertices.empty()) {
         if (switchContext) { SDL_GL_SwapWindow(window); }
         return;
-    }  
+    }
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, globalVertices.size() * sizeof(float), globalVertices.data(), GL_DYNAMIC_DRAW);
 
-    glDrawArrays(GL_TRIANGLES, 0, globalVertices.size()/currentSize);
+    glDrawArrays(GL_TRIANGLES, 0, globalVertices.size() / currentSize);
 
     globalVertices.clear();
 
@@ -1287,8 +1359,8 @@ void MT::Renderer::Resize(const unsigned int w, const unsigned int h) {
 
 void MT::Renderer::AgresiveRenderCopySetUp() {
     agresiveRenderMap.clear();
-    for (auto& tex: TexMan::GetAllTex()) {
-        agresiveRenderMap.emplace(std::make_pair(tex.second->texture, std::vector<float>() ));
+    for (auto& tex : TexMan::GetAllTex()) {
+        agresiveRenderMap.emplace(std::make_pair(tex.second->texture, std::vector<float>()));
     }
 }
 
@@ -1304,15 +1376,15 @@ void MT::Renderer::AgressiveRenderCopy(const Rect& rect, const Texture* texture)
 
     //    // pos.x, pos.y tex.u, tex.v
     float verticles[] = {
-        x,     y - h, 0.0f, 0.0f,texture->alpha,
-        x,     y,     0.0f, 1.0f,texture->alpha,
-        x + w, y - h, 1.0f, 0.0f,texture->alpha,
-        x,     y,     0.0f, 1.0f,texture->alpha,
-        x + w, y,     1.0f, 1.0f,texture->alpha,
-        x + w, y - h, 1.0f, 0.0f,texture->alpha
+        x,     y - h ,texture->alpha,
+        x,     y     ,texture->alpha,
+        x + w, y - h ,texture->alpha,
+        x,     y     ,texture->alpha,
+        x + w, y     ,texture->alpha,
+        x + w, y - h ,texture->alpha
     };
 
-    constexpr int N = 30;
+    constexpr int N = 18;
     std::vector<float>& vec = agresiveRenderMap[texture->texture];
     const size_t old = vec.size();
     vec.resize(old + N);
@@ -1322,7 +1394,7 @@ void MT::Renderer::AgressiveRenderCopy(const Rect& rect, const Texture* texture)
 void MT::Renderer::AgressiveRenderCopyPresent(bool clearVectors) {
     const unsigned int prevProgram = currentProgram;
 
-    glUseProgram(renderCopyId);
+    glUseProgram(renderBaseId);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     for (auto& entry : agresiveRenderMap) {
@@ -1330,7 +1402,7 @@ void MT::Renderer::AgressiveRenderCopyPresent(bool clearVectors) {
         if (vec.empty()) { continue; }
         glBindTexture(GL_TEXTURE_2D, entry.first);
         glBufferData(GL_ARRAY_BUFFER, vec.size() * sizeof(float), vec.data(), GL_DYNAMIC_DRAW);
-        glDrawArrays(GL_TRIANGLES, 0, vec.size() / renderCopySize);
+        glDrawArrays(GL_TRIANGLES, 0, vec.size() / renderCopyBaseSize);
         vec.clear();
     }
 
@@ -1343,7 +1415,7 @@ void MT::Renderer::SetClipSize(const MT::Rect& rect) {
     Present(false);
     glEnable(GL_SCISSOR_TEST);
     glScissor(rect.x, rect.y, rect.w, rect.h);
-    
+
 }
 
 void MT::Renderer::ResetClipSize() {
