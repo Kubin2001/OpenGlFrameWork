@@ -64,9 +64,9 @@ void UIElemBase::SetBorderThickness(const int temp) {
 void UIElemBase::SetBorder(const int width, const unsigned char R, const unsigned char G, const unsigned char B) {
 	border = true;
 	borderThickness = width;
-	borderRGB[0] = R;
-	borderRGB[1] = G;
-	borderRGB[2] = B;
+	borderRGB.R = R;
+	borderRGB.G = G;
+	borderRGB.B = B;
 }
 
 int UIElemBase::GetTextStartX() {
@@ -83,25 +83,25 @@ void UIElemBase::SetTextStartY(int temp) {
 }
 
 void UIElemBase::SetColor(const unsigned char R, const unsigned char G, const unsigned char B , const unsigned char A) {
-	buttonColor[0] = R;
-	buttonColor[1] = G;
-	buttonColor[2] = B;
-	buttonColor[3] = A;
+	buttonColor.R = R;
+	buttonColor.G = G;
+	buttonColor.B = B;
+	buttonColor.A = A;
 }
 
 
 void UIElemBase::SetBorderRGB(const unsigned char R, const unsigned char G, const unsigned char B) {
-	borderRGB[0] = R;
-	borderRGB[1] = G;
-	borderRGB[2] = B;
+	borderRGB.R = R;
+	borderRGB.G = G;
+	borderRGB.B = B;
 }
 
 void UIElemBase::SetFontColor(const unsigned char R, const unsigned char G, const unsigned char B) {
 	if (font != nullptr) {
 		if (font->GetTexture() != nullptr) {
-			fontRGB[0] = R;
-			fontRGB[1] = G;
-			fontRGB[2] = B;
+			fontRGB.R = R;
+			fontRGB.G = G;
+			fontRGB.B = B;
 		}
 	}
 }
@@ -144,17 +144,17 @@ void UIElemBase::RenderRounded(UIElemBase* elem, MT::Renderer* renderer) {
 
 void UIElemBase::RenderItslelf(MT::Renderer* renderer) {
 	if (hovered && hoverable) {
-		renderer->RenderRect(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2]}, buttonColor[3]);
+		renderer->RenderRect(rectangle, { buttonColor.R, buttonColor.G, buttonColor.B}, buttonColor.A);
 		renderer->RenderRect(rectangle, { hooverFilter[0], hooverFilter[1], hooverFilter[2] }, hooverFilter[3]);
 	}
 	else{
-		renderer->RenderRect(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2]},buttonColor[3]);
+		renderer->RenderRect(rectangle, { buttonColor.R, buttonColor.G, buttonColor.B }, buttonColor.A);
 	}
 }
 
 void UIElemBase::RenderItslelfRounded(MT::Renderer* renderer) {
 	if (!border) {
-		renderer->RenderRoundedRect(rectangle, { buttonColor[0], buttonColor[1], buttonColor[2] }, 255);
+		renderer->RenderRoundedRect(rectangle, { buttonColor.R, buttonColor.G, buttonColor.B }, buttonColor.A);
 	}
 	else {
 		MT::Rect newBtnRect = rectangle;
@@ -169,8 +169,8 @@ void UIElemBase::RenderItslelfRounded(MT::Renderer* renderer) {
 		newBtnRect.y += borderThickness;
 		newBtnRect.w -= borderThickness *2;
 		newBtnRect.h -= borderThickness *2;
-		renderer->RenderRoundedRect(rectangle, { borderRGB[0], borderRGB[1], borderRGB[2] }, 255);
-		renderer->RenderRoundedRect(newBtnRect, { buttonColor[0], buttonColor[1], buttonColor[2] }, buttonColor[3]);
+		renderer->RenderRoundedRect(rectangle, { borderRGB.R, borderRGB.G, borderRGB.B }, 255);
+		renderer->RenderRoundedRect(newBtnRect, { buttonColor.R, buttonColor.G, buttonColor.B }, buttonColor.A);
 	}
 	if (hovered && hoverable) {
 		renderer->RenderRoundedRect(rectangle, { hooverFilter[0], hooverFilter[1], hooverFilter[2] }, hooverFilter[3]);
@@ -184,16 +184,16 @@ void UIElemBase::RenderBorder(MT::Renderer* renderer) {
 	MT::Rect rightLine{ (rectangle.x + rectangle.w - borderThickness), rectangle.y, borderThickness, rectangle.h };
 	MT::Rect downLine{ rectangle.x, (rectangle.y + rectangle.h - borderThickness), rectangle.w, borderThickness };
 
-	renderer->RenderRect(leftLine, { borderRGB[0], borderRGB[1], borderRGB[2] });
-	renderer->RenderRect(upperLine, { borderRGB[0], borderRGB[1], borderRGB[2] });
-	renderer->RenderRect(rightLine, { borderRGB[0], borderRGB[1], borderRGB[2] });
-	renderer->RenderRect(downLine, { borderRGB[0], borderRGB[1], borderRGB[2] });
+	renderer->RenderRect(leftLine, { borderRGB.R, borderRGB.G, borderRGB.B });
+	renderer->RenderRect(upperLine, { borderRGB.R, borderRGB.G, borderRGB.B });
+	renderer->RenderRect(rightLine, { borderRGB.R, borderRGB.G, borderRGB.B });
+	renderer->RenderRect(downLine, { borderRGB.R, borderRGB.G, borderRGB.B });
 }
 
 void UIElemBase::RenderText(MT::Renderer* renderer) {
 	if (font != nullptr) {
 		if (text.empty()) { return; }
-		font->SetFilter(fontRGB[0], fontRGB[1], fontRGB[2]);
+		font->SetFilter(fontRGB.R, fontRGB.G, fontRGB.B);
 		switch (textRenderType) {
 			case 1:
 				font->RenderText(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);

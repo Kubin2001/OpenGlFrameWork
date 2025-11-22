@@ -18,6 +18,14 @@ namespace MT {
 		Color(const unsigned char R, const unsigned char G, const unsigned char B) : R(R), G(G), B(B) {}
 	};
 
+	struct ColorA {
+		unsigned char R, G, B, A;
+
+		ColorA() : R(0), G(0), B(0), A(0) {}
+
+		ColorA(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A) : R(R), G(G), B(B), A(A) {}
+	};
+
 	struct ColorF {
 		float R, G, B;
 

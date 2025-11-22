@@ -79,3 +79,4 @@ Required CPP version at least 23
 - Rounded buttons now support border rendering (also rounded)
 - Agresive Render Copy is about 20 percent faster
 - Render Copy AS function same as rendercopy but uses diffrent shader
+- UI now uses build in MT::Color and MT::ColorA

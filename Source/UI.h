@@ -24,11 +24,11 @@ protected:
 	int textStartX = 0;
 	int textStartY = 0;
 
-	unsigned char buttonColor[4] = { 255,255,255,255 };
+	MT::ColorA buttonColor{ 255,255,255,255 };
 
-	unsigned char borderRGB[3] = { 255,255,255 };
+	MT::Color borderRGB{ 255,255,255 };
 
-	unsigned char fontRGB[3] = { 255,255,255 };
+	MT::Color fontRGB{ 255,255,255 };
 
 	Font* font = nullptr;
 

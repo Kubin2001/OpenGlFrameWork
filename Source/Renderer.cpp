@@ -1375,7 +1375,7 @@ void MT::Renderer::AgressiveRenderCopy(const Rect& rect, const Texture* texture)
     const float h = (rect.h / static_cast<float>(H)) * 2.0f;
 
     //    // pos.x, pos.y tex.u, tex.v
-    float verticles[] = {
+    const float verticles[] = {
         x,     y - h ,texture->alpha,
         x,     y     ,texture->alpha,
         x + w, y - h ,texture->alpha,
@@ -1393,9 +1393,9 @@ void MT::Renderer::AgressiveRenderCopy(const Rect& rect, const Texture* texture)
 
 void MT::Renderer::AgressiveRenderCopyPresent(bool clearVectors) {
     const unsigned int prevProgram = currentProgram;
-
+    const unsigned int prevTexture = currentTexture;
     glUseProgram(renderBaseId);
-
+   
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     for (auto& entry : agresiveRenderMap) {
         auto& vec = entry.second;
@@ -1405,9 +1405,8 @@ void MT::Renderer::AgressiveRenderCopyPresent(bool clearVectors) {
         glDrawArrays(GL_TRIANGLES, 0, vec.size() / renderCopyBaseSize);
         vec.clear();
     }
-
+    glBindTexture(GL_TEXTURE_2D, currentTexture);
     if (prevProgram) glUseProgram(prevProgram);
-
 }
 
 
