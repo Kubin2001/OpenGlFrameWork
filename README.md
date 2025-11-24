@@ -80,3 +80,7 @@ Required CPP version at least 23
 - Agresive Render Copy is about 20 percent faster
 - Render Copy AS function same as rendercopy but uses diffrent shader
 - UI now uses build in MT::Color and MT::ColorA
+
+1.08
+- Added New Set of universal rendering functions they are slower than normal ones but never change shader
+	what makes them much faster when someting is rendered using different functions

@@ -67,6 +67,24 @@ void Game::Start() {
 	btn->SetBorder(5, 40, 40, 240);
 	btn->SetFontColor(255, 0, 0);
 	btn->SetRenderTextType(2);
+
+	btn = ui->CreateButtonF("test2", 300, 100, 200, 100, TexMan::GetTex("MenuIcon"), "arial20px", "Some text");
+	btn->SetColor(30, 30, 30);
+	btn->SetBorder(5, 40, 40, 240);
+	btn->SetFontColor(255, 0, 0);
+	btn->SetRenderTextType(2);
+
+	btn = ui->CreateButtonF("test3", 500, 100, 200, 100, TexMan::GetTex("MenuIcon"), "arial20px", "Some text");
+	btn->SetColor(30, 30, 30);
+	btn->SetBorder(5, 40, 40, 240);
+	btn->SetFontColor(255, 0, 0);
+	btn->SetRenderTextType(2);
+
+	btn = ui->CreateButtonF("test4", 700, 100, 200, 100, nullptr, "arial20px", "Some text");
+	btn->SetColor(30, 30, 30);
+	btn->SetBorder(5, 40, 40, 240);
+	btn->SetFontColor(255, 0, 0);
+	btn->SetRenderTextType(2);
 }
 
 
@@ -96,21 +114,21 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0],Global::defaultDrawColor[1],Global::defaultDrawColor[2]);
-
 	auto start = std::chrono::high_resolution_clock::now();
-	for (auto& ob : Objects) {
-		renderer->AgressiveRenderCopy(ob.GetRectangle(), ob.GetTexture());
-	}
-	renderer->AgressiveRenderCopyPresent();
+	//for (auto& ob : Objects) {
+	//	renderer->RenderCopyFilteredUPR(ob.GetRectangle(), ob.GetTexture(), {255,0,0});
+	//	MT::Rect rect = ob.GetRectangle();
+	//	rect.y += 100;
+	//	renderer->RenderCopyPartFilteredUPR(rect, { 0,0,200,200 }, ob.GetTexture(), {0,255,0});
+	//}
+	ui->Render();
 	auto end = std::chrono::high_resolution_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 	totalTIme += elapsed;
 	if(Global::frameCounter % 200 == 0) {
-		std::cout << "Render time: " << totalTIme/1000 << " ms\n";
+		std::cout << "Render time: " << totalTIme << " microseconds\n";
 		totalTIme = 0;
 	}
-
-	ui->Render();
 
 	renderer->Present();
 }

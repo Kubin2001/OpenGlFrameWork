@@ -1,4 +1,5 @@
 Libs/
+GLSLTest/
 x64/
 *.dll
 *.vcxproj

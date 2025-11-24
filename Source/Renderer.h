@@ -83,6 +83,7 @@ namespace MT {
 			 unsigned int renderCopyFilterId;
 			 unsigned int renderRoundedRectId;
 			 unsigned int renderCopyRoundedRectId;
+			 unsigned int uprId;
 
 			 //Uniforms Ids
 			 unsigned int currentTexture;
@@ -92,7 +93,7 @@ namespace MT {
 			 //Uniforms Values
 			 glm::vec2 roundRectRadiusVal = { 0.0f,0.0f };
 			 glm::vec2 roundRectCopyRadiusVal = { 0.0f,0.0f };
-		
+
 
 			 //Veretex Sizes
 			 unsigned int currentSize = 0;
@@ -104,11 +105,14 @@ namespace MT {
 			 unsigned int renderRoundedSize = 6;
 			 unsigned int renderCopyRoundedSize = 5;
 			 unsigned int renderFilteredSize = 8;
+			 unsigned int renderUPRSize = 9;
 
 			 std::vector<float> globalVertices;
 
 			 //Agressive Batching Rendering
 			 std::unordered_map<int,std::vector<float>> agresiveRenderMap = {};
+
+			 void LoadShaders();
 
 		public:
 			 int W, H;
@@ -128,7 +132,6 @@ namespace MT {
 			 // Same as render copy but it uses faster shader but is extreamly slow when switching betweeen any other renderCopy functions
 			 void RenderCopyAS(const Rect& rect, const Texture* texture);
 
-
 			 void RenderCopy(const Rect& rect, const Texture* texture);
 
 			 void RenderCopyPart(const Rect& rect, const Rect& source, const Texture* texture);
@@ -141,13 +144,39 @@ namespace MT {
 
 			 void RenderCircle(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f);
 
-			 void RenderRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha);
+			 void RenderRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha = 255);
 
 			 void RenderCopyRoundedRect(const Rect& rect, const Texture* texture);
 
 			 void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter);
 
 			 void RenderCopyPartFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
+
+			 //UPR Universal Pipeline Render does not change shader ever so it is much faster in shader switch rendering but slower overall
+			 void RenderRectUPR(const Rect& rect, const Color& col, const int alpha = 255);
+
+			 void RenderRectEXUPR(const Rect& rect, const Color& col, const float rotation, const int alpha = 255);
+
+			 void RenderCopyUPR(const Rect& rect, const Texture* texture);
+
+			 void RenderCopyPartUPR(const Rect& rect, const Rect& source, const Texture* texture);
+
+			 void RenderCopyEXUPR(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
+
+			 void RenderCopyPartEXUPR(const Rect& rect, const Rect& source, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
+
+			 void RenderCopyCircleUPR(const Rect& rect, const Texture* texture, const float radius = 0.5f);
+
+			 void RenderCircleUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f);
+
+			 void RenderRoundedRectUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255);
+
+			 void RenderCopyRoundedRectUPR(const Rect& rect, const Texture* texture);
+
+			 void RenderCopyFilteredUPR(const Rect& rect, const Texture* texture, const Color& filter);
+
+			 void RenderCopyPartFilteredUPR(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
+			 //UPR
 
 			 void Present(bool switchContext = true);
 
