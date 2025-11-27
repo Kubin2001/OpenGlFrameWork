@@ -105,7 +105,7 @@ namespace MT {
 			 unsigned int renderRoundedSize = 6;
 			 unsigned int renderCopyRoundedSize = 5;
 			 unsigned int renderFilteredSize = 8;
-			 unsigned int renderUPRSize = 9;
+			 unsigned int renderUPRSize = 8; // 9 is historical base size
 
 			 std::vector<float> globalVertices;
 
@@ -203,4 +203,3 @@ namespace MT {
 			 void ResetClipSize();
 	};
 }
-

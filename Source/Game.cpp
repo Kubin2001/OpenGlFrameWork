@@ -62,45 +62,17 @@ void Game::Start() {
 			back.SetTexture(TexMan::GetTex("RetryIcon"));
 		}
 	}
-	Button *btn = ui->CreateButtonF("test", 100, 100, 200, 100, nullptr,"arial20px","Some text");
-	btn->SetColor(30, 30, 30);
-	btn->SetBorder(5, 40, 40, 240);
-	btn->SetFontColor(255, 0, 0);
-	btn->SetRenderTextType(2);
-
-	btn = ui->CreateButtonF("test2", 300, 100, 200, 100, TexMan::GetTex("MenuIcon"), "arial20px", "Some text");
-	btn->SetColor(30, 30, 30);
-	btn->SetBorder(5, 40, 40, 240);
-	btn->SetFontColor(255, 0, 0);
-	btn->SetRenderTextType(2);
-
-	btn = ui->CreateButtonF("test3", 500, 100, 200, 100, TexMan::GetTex("MenuIcon"), "arial20px", "Some text");
-	btn->SetColor(30, 30, 30);
-	btn->SetBorder(5, 40, 40, 240);
-	btn->SetFontColor(255, 0, 0);
-	btn->SetRenderTextType(2);
-
-	btn = ui->CreateButtonF("test4", 700, 100, 200, 100, nullptr, "arial20px", "Some text");
-	btn->SetColor(30, 30, 30);
-	btn->SetBorder(5, 40, 40, 240);
-	btn->SetFontColor(255, 0, 0);
-	btn->SetRenderTextType(2);
 }
-
 
 void Game::LogicUpdate() {
 	Global::frameCounter++;
 }
-
 
 void Game::FrameUpdate() {
 	Input();
 	ui->FrameUpdate();
 	Render();
 }
-
-
-
 
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
@@ -110,27 +82,36 @@ void Game::Input() {
 	Global::inputDelay++;
 }
 
-
-
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0],Global::defaultDrawColor[1],Global::defaultDrawColor[2]);
 	auto start = std::chrono::high_resolution_clock::now();
-	//for (auto& ob : Objects) {
-	//	renderer->RenderCopyFilteredUPR(ob.GetRectangle(), ob.GetTexture(), {255,0,0});
-	//	MT::Rect rect = ob.GetRectangle();
-	//	rect.y += 100;
-	//	renderer->RenderCopyPartFilteredUPR(rect, { 0,0,200,200 }, ob.GetTexture(), {0,255,0});
-	//}
-	ui->Render();
+	for (auto& ob : Objects) {
+		renderer->RenderRoundedRectUPR(ob.GetRectangle(),{0,0,255});
+		MT::Rect rect = ob.GetRectangle();
+		rect.y+= 100;
+		renderer->RenderRectEXUPR(rect, { 0,255,0 }, (float)Global::frameCounter);
+		rect.y += 100;
+		renderer->RenderCopyCircleUPR(rect, ob.GetTexture());
+		rect.y += 100;
+		renderer->RenderCopyRoundedRectUPR(rect, ob.GetTexture());
+		rect.y += 100;
+		renderer->RenderCopyFilteredUPR(rect, ob.GetTexture(), { 0,255, 0});
+		rect.y += 100;
+		renderer->RenderCopyPartFilteredUPR(rect, {0,0,40,60}, ob.GetTexture(), { 0,0, 255 });
+		rect.y += 100;
+	}
+	//ui->Render();
+	renderer->Present();
+
 	auto end = std::chrono::high_resolution_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 	totalTIme += elapsed;
 	if(Global::frameCounter % 200 == 0) {
-		std::cout << "Render time: " << totalTIme << " microseconds\n";
+		std::cout << "Render time: " << totalTIme/1000 << " ms\n";
 		totalTIme = 0;
 	}
 
-	renderer->Present();
+
 }
 
 
@@ -142,7 +123,6 @@ void Game::Exit() {
 		Global::status = false;
 	}
 }
-
 
 Game::~Game() {
 	TexMan::Clear();
