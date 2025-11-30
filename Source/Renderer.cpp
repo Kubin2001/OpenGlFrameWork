@@ -7,7 +7,7 @@
 #include "Colision.h"
 #include "TextureManager.h"
 
-SDL_Surface* FlipSurfaceVertical(SDL_Surface* surface) {
+SDL_Surface * FlipSurfaceVertical(SDL_Surface * surface) {
     SDL_Surface* flipped = SDL_CreateRGBSurfaceWithFormat(0, surface->w, surface->h,
         surface->format->BitsPerPixel,
         surface->format->format);
@@ -1457,7 +1457,7 @@ void MT::Renderer::RenderCopyPartFiltered(const Rect& rect, const Rect& source, 
 }
 
 void MT::Renderer::RenderRectUPR(const Rect& rect, const Color& col, const int alpha) {
-    if (!vievPort.IsColliding(rect)) {return;}
+    if (!vievPort.IsColliding(rect)) { return; }
 
     if (currentProgram != uprId) {
         Present(false);
@@ -1496,7 +1496,7 @@ void MT::Renderer::RenderRectUPR(const Rect& rect, const Color& col, const int a
 }
 
 void MT::Renderer::RenderRectEXUPR(const Rect& rect, const Color& col, const float rotation, const int alpha) {
-    if (!vievPort.IsColliding(rect)) {return; }
+    if (!vievPort.IsColliding(rect)) { return; }
 
     if (currentProgram != uprId) {
         Present(false);
@@ -1546,7 +1546,7 @@ void MT::Renderer::RenderRectEXUPR(const Rect& rect, const Color& col, const flo
 
 void MT::Renderer::RenderCopyUPR(const Rect& rect, const Texture* texture) {
     if (!texture) { return; }
-    if (!vievPort.IsColliding(rect)) {return;}
+    if (!vievPort.IsColliding(rect)) { return; }
 
     const float x = (rect.x / static_cast<float>(W)) * 2.0f - 1.0f;
     const float y = 1.0f - (rect.y / static_cast<float>(H)) * 2.0f;
@@ -1564,7 +1564,7 @@ void MT::Renderer::RenderCopyUPR(const Rect& rect, const Texture* texture) {
         currentProgram = uprId;
         glUseProgram(currentProgram);
     }
-    currentSize = uprId;
+    currentSize = renderUPRSize;
 
     //    // pos.x, pos.y tex.u, tex.v
     const float verticles[] = {
@@ -1666,6 +1666,8 @@ void MT::Renderer::RenderCopyEXUPR(const Rect& rect, const Texture* texture, con
     const glm::vec2 p5 = RotateNdc(halfW, -halfH, centerPx, cosA, sinA, W, H);
 
     constexpr int N = 48;
+    const size_t old = globalVertices.size();
+    globalVertices.resize(old + N);
     if (flip) {
         const float vertex[] = {
             p0.x, p0.y, 1.0f, 0.0f, texture->alpha, 0.0f, 0.0f, 2.0f,
@@ -1675,9 +1677,6 @@ void MT::Renderer::RenderCopyEXUPR(const Rect& rect, const Texture* texture, con
             p4.x, p4.y, 0.0f, 1.0f, texture->alpha, 0.0f, 0.0f, 2.0f,
             p5.x, p5.y, 0.0f, 0.0f, texture->alpha, 0.0f, 0.0f, 2.0f
         };
-        
-        const size_t old = globalVertices.size();
-        globalVertices.resize(old + N);
         std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
     }
     else {
@@ -1689,8 +1688,6 @@ void MT::Renderer::RenderCopyEXUPR(const Rect& rect, const Texture* texture, con
             p4.x, p4.y, 1.0f, 1.0f,texture->alpha, 0.0f, 0.0f, 2.0f,
             p5.x, p5.y, 1.0f, 0.0f,texture->alpha, 0.0f, 0.0f, 2.0f
         };
-        const size_t old = globalVertices.size();
-        globalVertices.resize(old + N);
         std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
     }
 }
@@ -1738,6 +1735,8 @@ void MT::Renderer::RenderCopyPartEXUPR(const Rect& rect, const Rect& source, con
     const float v0 = v1 - static_cast<float>(source.h) / texH;
 
     constexpr int N = 48;
+    const size_t old = globalVertices.size();
+    globalVertices.resize(old + N);
     if (flip) {
         const float vertex[] = {
             p0.x, p0.y, u1, v0,texture->alpha, 0.0f, 0.0f, 2.0f,
@@ -1747,8 +1746,6 @@ void MT::Renderer::RenderCopyPartEXUPR(const Rect& rect, const Rect& source, con
             p4.x, p4.y, u0, v1,texture->alpha, 0.0f, 0.0f, 2.0f,
             p5.x, p5.y, u0, v0,texture->alpha, 0.0f, 0.0f, 2.0f
         };
-        const size_t old = globalVertices.size();
-        globalVertices.resize(old + N);
         std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
     }
     else {
@@ -1760,15 +1757,13 @@ void MT::Renderer::RenderCopyPartEXUPR(const Rect& rect, const Rect& source, con
             p4.x, p4.y, u1, v1,texture->alpha, 0.0f, 0.0f, 2.0f,
             p5.x, p5.y, u1, v0,texture->alpha, 0.0f, 0.0f, 2.0f
         };
-        const size_t old = globalVertices.size();
-        globalVertices.resize(old + N);
         std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
     }
 }
 
 void MT::Renderer::RenderCopyCircleUPR(const Rect& rect, const Texture* texture, const float radius) {
     if (!texture) { return; }
-    if (!vievPort.IsColliding(rect)) {return;}
+    if (!vievPort.IsColliding(rect)) { return; }
 
     const float x = (rect.x / static_cast<float>(W)) * 2.0f - 1.0f;
     const float y = 1.0f - (rect.y / static_cast<float>(H)) * 2.0f;
@@ -1805,7 +1800,7 @@ void MT::Renderer::RenderCopyCircleUPR(const Rect& rect, const Texture* texture,
 }
 
 void MT::Renderer::RenderCircleUPR(const Rect& rect, const Color& col, const unsigned char alpha, const float radius) {
-    if (!vievPort.IsColliding(rect)) {return;}
+    if (!vievPort.IsColliding(rect)) { return; }
     if (currentProgram != uprId) {
         Present(false);
         currentProgram = uprId;
@@ -1845,7 +1840,7 @@ void MT::Renderer::RenderCircleUPR(const Rect& rect, const Color& col, const uns
 }
 
 void MT::Renderer::RenderRoundedRectUPR(const Rect& rect, const Color& col, const unsigned char alpha) {
-    if (!vievPort.IsColliding(rect)) {return;}
+    if (!vievPort.IsColliding(rect)) { return; }
 
     const glm::vec2 rectPixelSize = { (float)rect.w,(float)rect.h };
 
@@ -1890,7 +1885,7 @@ void MT::Renderer::RenderRoundedRectUPR(const Rect& rect, const Color& col, cons
 }
 
 void MT::Renderer::RenderCopyRoundedRectUPR(const MT::Rect& rect, const MT::Texture* texture) {
-    if (!vievPort.IsColliding(rect)) {return;}
+    if (!vievPort.IsColliding(rect)) { return; }
 
     if (currentProgram != uprId) {
         Present(false);
@@ -1929,7 +1924,7 @@ void MT::Renderer::RenderCopyRoundedRectUPR(const MT::Rect& rect, const MT::Text
 
 void MT::Renderer::RenderCopyFilteredUPR(const Rect& rect, const Texture* texture, const Color& filter) {
     if (!texture) { return; }
-    if (!vievPort.IsColliding(rect)) {return;}
+    if (!vievPort.IsColliding(rect)) { return; }
 
     const float x = (rect.x / static_cast<float>(W)) * 2.0f - 1.0f;
     const float y = 1.0f - (rect.y / static_cast<float>(H)) * 2.0f;
@@ -1973,7 +1968,7 @@ void MT::Renderer::RenderCopyFilteredUPR(const Rect& rect, const Texture* textur
 
 void MT::Renderer::RenderCopyPartFilteredUPR(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter) {
     if (!texture) { return; }
-    if (!vievPort.IsColliding(rect)) {return;}
+    if (!vievPort.IsColliding(rect)) { return; }
 
     const float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
     const float y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
@@ -2112,7 +2107,7 @@ void MT::Renderer::AgressiveRenderCopyPresent(bool clearVectors) {
     const unsigned int prevProgram = currentProgram;
     const unsigned int prevTexture = currentTexture;
     glUseProgram(renderBaseId);
-   
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     for (auto& entry : agresiveRenderMap) {
         auto& vec = entry.second;

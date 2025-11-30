@@ -99,6 +99,8 @@ void Game::Render() {
 		rect.y += 100;
 		renderer->RenderCopyPartFilteredUPR(rect, {0,0,40,60}, ob.GetTexture(), { 0,0, 255 });
 		rect.y += 100;
+		renderer->RenderCopyPartEXUPR(rect, { 0,0,200,200 }, ob.GetTexture(), true, (float)Global::frameCounter);
+		rect.y += 100;
 	}
 	//ui->Render();
 	renderer->Present();

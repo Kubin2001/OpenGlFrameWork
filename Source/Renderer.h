@@ -47,10 +47,10 @@ namespace MT {
 
 	Texture* LoadTexture(const char* path);
 
-	void DeleteTexture(Texture *tex);
+	void DeleteTexture(Texture* tex);
 
-	Texture* LoadTextureFromSurface(SDL_Surface *surf);
-	
+	Texture* LoadTextureFromSurface(SDL_Surface* surf);
+
 	struct ConstextGuard {
 		SDL_Window* window;
 		SDL_GLContext context;
@@ -68,138 +68,138 @@ namespace MT {
 	class Renderer {
 
 		private:
-			 SDL_Window* window = nullptr;
-			 Rect vievPort;
-			 unsigned int VAO, VBO;
-			 ShaderLoader loader;
-			 //Shaders IDs
-			 unsigned int currentProgram;
-			 
-			 unsigned int renderBaseId;
-			 unsigned int renderCopyId;
-			 unsigned int renderRectId;
-			 unsigned int renderCopyCircleId;
-			 unsigned int renderCircleId;
-			 unsigned int renderCopyFilterId;
-			 unsigned int renderRoundedRectId;
-			 unsigned int renderCopyRoundedRectId;
-			 unsigned int uprId;
+		SDL_Window* window = nullptr;
+		Rect vievPort;
+		unsigned int VAO, VBO;
+		ShaderLoader loader;
+		//Shaders IDs
+		unsigned int currentProgram;
 
-			 //Uniforms Ids
-			 unsigned int currentTexture;
-			 unsigned int roundRectRadius;
-			 unsigned int roundRectCopyRadius;
+		unsigned int renderBaseId;
+		unsigned int renderCopyId;
+		unsigned int renderRectId;
+		unsigned int renderCopyCircleId;
+		unsigned int renderCircleId;
+		unsigned int renderCopyFilterId;
+		unsigned int renderRoundedRectId;
+		unsigned int renderCopyRoundedRectId;
+		unsigned int uprId;
 
-			 //Uniforms Values
-			 glm::vec2 roundRectRadiusVal = { 0.0f,0.0f };
-			 glm::vec2 roundRectCopyRadiusVal = { 0.0f,0.0f };
+		//Uniforms Ids
+		unsigned int currentTexture;
+		unsigned int roundRectRadius;
+		unsigned int roundRectCopyRadius;
+
+		//Uniforms Values
+		glm::vec2 roundRectRadiusVal = { 0.0f,0.0f };
+		glm::vec2 roundRectCopyRadiusVal = { 0.0f,0.0f };
 
 
-			 //Veretex Sizes
-			 unsigned int currentSize = 0;
-			 unsigned int renderRectSize = 6; // Wszystkie renderowania bez tesktur
-			 unsigned int renderCopySize = 5; // Wszystkie renderowania tekstur
-			 unsigned int renderCopyBaseSize = 3;
-			 unsigned int renderCircleSize = 7;
-			 unsigned int renderCopyCircleSize = 6;
-			 unsigned int renderRoundedSize = 6;
-			 unsigned int renderCopyRoundedSize = 5;
-			 unsigned int renderFilteredSize = 8;
-			 unsigned int renderUPRSize = 8; // 9 is historical base size
+		//Veretex Sizes
+		unsigned int currentSize = 0;
+		unsigned int renderRectSize = 6; // Wszystkie renderowania bez tesktur
+		unsigned int renderCopySize = 5; // Wszystkie renderowania tekstur
+		unsigned int renderCopyBaseSize = 3;
+		unsigned int renderCircleSize = 7;
+		unsigned int renderCopyCircleSize = 6;
+		unsigned int renderRoundedSize = 6;
+		unsigned int renderCopyRoundedSize = 5;
+		unsigned int renderFilteredSize = 8;
+		unsigned int renderUPRSize = 8; // 9 is historical base size
 
-			 std::vector<float> globalVertices;
+		std::vector<float> globalVertices;
 
-			 //Agressive Batching Rendering
-			 std::unordered_map<int,std::vector<float>> agresiveRenderMap = {};
+		//Agressive Batching Rendering
+		std::unordered_map<int, std::vector<float>> agresiveRenderMap = {};
 
-			 void LoadShaders();
+		void LoadShaders();
 
 		public:
-			 int W, H;
-			 SDL_GLContext context;
+		int W, H;
+		SDL_GLContext context;
 
-			 bool Start(SDL_Window* window, SDL_GLContext context);
+		bool Start(SDL_Window* window, SDL_GLContext context);
 
-			 void ClearFrame(const unsigned char R, const unsigned char G, const unsigned char B);
+		void ClearFrame(const unsigned char R, const unsigned char G, const unsigned char B);
 
-			 void RenderRect(const Rect& rect, const Color& col, const int alpha = 255);
+		void RenderRect(const Rect& rect, const Color& col, const int alpha = 255);
 
-			 void RenderRectEX(const Rect& rect, const Color& col, const float rotation, const int alpha = 255);
+		void RenderRectEX(const Rect& rect, const Color& col, const float rotation, const int alpha = 255);
 
-			 void DrawLine(const int x1, const int y1, const int x2, const int y2, const int thickness,
-				 const Color& col, const unsigned char alpha = 255);
+		void DrawLine(const int x1, const int y1, const int x2, const int y2, const int thickness,
+			const Color& col, const unsigned char alpha = 255);
 
-			 // Same as render copy but it uses faster shader but is extreamly slow when switching betweeen any other renderCopy functions
-			 void RenderCopyAS(const Rect& rect, const Texture* texture);
+		// Same as render copy but it uses faster shader but is extreamly slow when switching betweeen any other renderCopy functions
+		void RenderCopyAS(const Rect& rect, const Texture* texture);
 
-			 void RenderCopy(const Rect& rect, const Texture* texture);
+		void RenderCopy(const Rect& rect, const Texture* texture);
 
-			 void RenderCopyPart(const Rect& rect, const Rect& source, const Texture* texture);
+		void RenderCopyPart(const Rect& rect, const Rect& source, const Texture* texture);
 
-			 void RenderCopyEX(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
+		void RenderCopyEX(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
 
-			 void RenderCopyPartEX(const Rect& rect, const Rect& source, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
+		void RenderCopyPartEX(const Rect& rect, const Rect& source, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
 
-			 void RenderCopyCircle(const Rect& rect, const Texture* texture, const float radius = 0.5f);
+		void RenderCopyCircle(const Rect& rect, const Texture* texture, const float radius = 0.5f);
 
-			 void RenderCircle(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f);
+		void RenderCircle(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f);
 
-			 void RenderRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha = 255);
+		void RenderRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha = 255);
 
-			 void RenderCopyRoundedRect(const Rect& rect, const Texture* texture);
+		void RenderCopyRoundedRect(const Rect& rect, const Texture* texture);
 
-			 void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter);
+		void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter);
 
-			 void RenderCopyPartFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
+		void RenderCopyPartFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
 
-			 //UPR Universal Pipeline Render does not change shader ever so it is much faster in shader switch rendering but slower overall
-			 void RenderRectUPR(const Rect& rect, const Color& col, const int alpha = 255);
+		//UPR Universal Pipeline Render does not change shader ever so it is much faster in shader switch rendering but slower overall
+		void RenderRectUPR(const Rect& rect, const Color& col, const int alpha = 255);
 
-			 void RenderRectEXUPR(const Rect& rect, const Color& col, const float rotation, const int alpha = 255);
+		void RenderRectEXUPR(const Rect& rect, const Color& col, const float rotation, const int alpha = 255);
 
-			 void RenderCopyUPR(const Rect& rect, const Texture* texture);
+		void RenderCopyUPR(const Rect& rect, const Texture* texture);
 
-			 void RenderCopyPartUPR(const Rect& rect, const Rect& source, const Texture* texture);
+		void RenderCopyPartUPR(const Rect& rect, const Rect& source, const Texture* texture);
 
-			 void RenderCopyEXUPR(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
+		void RenderCopyEXUPR(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
 
-			 void RenderCopyPartEXUPR(const Rect& rect, const Rect& source, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
+		void RenderCopyPartEXUPR(const Rect& rect, const Rect& source, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
 
-			 void RenderCopyCircleUPR(const Rect& rect, const Texture* texture, const float radius = 0.5f);
+		void RenderCopyCircleUPR(const Rect& rect, const Texture* texture, const float radius = 0.5f);
 
-			 void RenderCircleUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f);
+		void RenderCircleUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f);
 
-			 void RenderRoundedRectUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255);
+		void RenderRoundedRectUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255);
 
-			 void RenderCopyRoundedRectUPR(const Rect& rect, const Texture* texture);
+		void RenderCopyRoundedRectUPR(const Rect& rect, const Texture* texture);
 
-			 void RenderCopyFilteredUPR(const Rect& rect, const Texture* texture, const Color& filter);
+		void RenderCopyFilteredUPR(const Rect& rect, const Texture* texture, const Color& filter);
 
-			 void RenderCopyPartFilteredUPR(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
-			 //UPR
+		void RenderCopyPartFilteredUPR(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
+		//UPR
 
-			 void Present(bool switchContext = true);
+		void Present(bool switchContext = true);
 
-			 void Clear();
+		void Clear();
 
-			 void Resize(const unsigned int w, const unsigned int h);
+		void Resize(const unsigned int w, const unsigned int h);
 
-			 //
-			 //
-			 // Experimental
-			 // Agressive Batching Rendering good for multiple texture tile rendering but does
-			 // not rememeber deepth so new texture can be obscured by an old one 
-			 // Might break or crash not recomemnded in fincisched product
+		//
+		//
+		// Experimental
+		// Agressive Batching Rendering good for multiple texture tile rendering but does
+		// not rememeber deepth so new texture can be obscured by an old one 
+		// Might break or crash not recomemnded in fincisched product
 
-			 //Neds to be called at least once after texture load and after every texture quantity change
-			 void AgresiveRenderCopySetUp();
+		//Neds to be called at least once after texture load and after every texture quantity change
+		void AgresiveRenderCopySetUp();
 
-			 void AgressiveRenderCopy(const Rect& rect, const Texture* texture);
+		void AgressiveRenderCopy(const Rect& rect, const Texture* texture);
 
-			 void AgressiveRenderCopyPresent(bool clearVectors = true);
+		void AgressiveRenderCopyPresent(bool clearVectors = true);
 
-			 void SetClipSize(const Rect& rect);
+		void SetClipSize(const Rect& rect);
 
-			 void ResetClipSize();
+		void ResetClipSize();
 	};
 }
