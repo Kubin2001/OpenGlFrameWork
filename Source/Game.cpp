@@ -62,6 +62,19 @@ void Game::Start() {
 			back.SetTexture(TexMan::GetTex("RetryIcon"));
 		}
 	}
+	Button *btn = ui->CreateButton("test1", 500, 100, 200, 100,nullptr,nullptr,"Some text");
+	btn->SetColor(30, 30, 30);
+	btn->SetFont(ui->GetFont("arial20px"));
+	btn->SetRenderTextType(2);
+	btn->SetBorder(4, 0, 100, 200);
+	btn->SetHoverFilter(true, 255, 255, 255, 120);
+	btn = ui->CreateButton("test2", 500, 300, 200, 100, nullptr, nullptr, "Some text");
+	btn->SetColor(30, 30, 30);
+	btn->SetFont(ui->GetFont("arial12px"));
+	btn->SetRenderTextType(2);
+	btn->SetRenderType(2);
+	btn->SetBorder(4, 0, 100, 200);
+	btn->SetHoverFilter(true, 255, 255, 255, 120);
 }
 
 void Game::LogicUpdate() {
@@ -85,35 +98,33 @@ void Game::Input() {
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0],Global::defaultDrawColor[1],Global::defaultDrawColor[2]);
 	auto start = std::chrono::high_resolution_clock::now();
-	for (auto& ob : Objects) {
-		renderer->RenderRoundedRectUPR(ob.GetRectangle(),{0,0,255});
-		MT::Rect rect = ob.GetRectangle();
-		rect.y+= 100;
-		renderer->RenderRectEXUPR(rect, { 0,255,0 }, (float)Global::frameCounter);
-		rect.y += 100;
-		renderer->RenderCopyCircleUPR(rect, ob.GetTexture());
-		rect.y += 100;
-		renderer->RenderCopyRoundedRectUPR(rect, ob.GetTexture());
-		rect.y += 100;
-		renderer->RenderCopyFilteredUPR(rect, ob.GetTexture(), { 0,255, 0});
-		rect.y += 100;
-		renderer->RenderCopyPartFilteredUPR(rect, {0,0,40,60}, ob.GetTexture(), { 0,0, 255 });
-		rect.y += 100;
-		renderer->RenderCopyPartEXUPR(rect, { 0,0,200,200 }, ob.GetTexture(), true, (float)Global::frameCounter);
-		rect.y += 100;
-	}
-	//ui->Render();
+	//for (auto& ob : Objects) {
+	//	renderer->RenderRoundedRectUPR(ob.GetRectangle(),{0,0,255});
+	//	MT::Rect rect = ob.GetRectangle();
+	//	rect.y+= 100;
+	//	renderer->RenderRectEXUPR(rect, { 0,255,0 }, (float)Global::frameCounter);
+	//	rect.y += 100;
+	//	renderer->RenderCopyCircleUPR(rect, ob.GetTexture());
+	//	rect.y += 100;
+	//	renderer->RenderCopyRoundedRectUPR(rect, ob.GetTexture());
+	//	rect.y += 100;
+	//	renderer->RenderCopyFilteredUPR(rect, ob.GetTexture(), { 0,255, 0});
+	//	rect.y += 100;
+	//	renderer->RenderCopyPartFilteredUPR(rect, {0,0,40,60}, ob.GetTexture(), { 0,0, 255 });
+	//	rect.y += 100;
+	//	renderer->RenderCopyPartEXUPR(rect, { 0,0,200,200 }, ob.GetTexture(), true, (float)Global::frameCounter);
+	//	rect.y += 100;
+	//}
+	ui->Render();
 	renderer->Present();
 
 	auto end = std::chrono::high_resolution_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 	totalTIme += elapsed;
 	if(Global::frameCounter % 200 == 0) {
-		std::cout << "Render time: " << totalTIme/1000 << " ms\n";
+		std::cout << "Render time: " << totalTIme << " microseconds\n";
 		totalTIme = 0;
 	}
-
-
 }
 
 

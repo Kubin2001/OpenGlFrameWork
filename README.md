@@ -85,3 +85,4 @@ Required CPP version at least 23
 - Added New Set of universal rendering functions they are slower than normal ones but never change shader
 	what makes them much faster when someting is rendered using different functions
 - Upr is now about 10 % faster
+- UI and font now use upr for rendering

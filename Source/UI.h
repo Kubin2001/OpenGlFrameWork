@@ -58,8 +58,6 @@ protected:
 
 	void RenderItslelfRounded(MT::Renderer* renderer);
 
-	void RenderBorder(MT::Renderer* renderer);
-
 	void RenderText(MT::Renderer* renderer);
 
 public:

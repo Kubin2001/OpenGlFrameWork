@@ -112,15 +112,23 @@ void UIElemBase::Render(UIElemBase* elem, MT::Renderer* renderer) {
 			elem->RenderItslelf(renderer);
 		}
 		else {
-			renderer->RenderCopy(elem->rectangle, elem->texture);
-			if (elem->hovered && elem->hoverable) {
-				renderer->RenderRect(elem->rectangle,
-					{ elem->hooverFilter[0], elem->hooverFilter[1], elem->hooverFilter[2] }, elem->hooverFilter[3]);
+			renderer->RenderCopyUPR(elem->rectangle, elem->texture);
+			if (elem->GetBorder()) {
+				MT::Rect& rect = elem->rectangle;
+				MT::Rect leftLine{ rect.x, rect.y, elem->borderThickness, rect.h };
+				MT::Rect upperLine{ rect.x, rect.y, rect.w, elem->borderThickness };
+				MT::Rect rightLine{ (rect.x + rect.w - elem->borderThickness), rect.y, elem->borderThickness, rect.h };
+				MT::Rect downLine{ rect.x, (rect.y + rect.h - elem->borderThickness), rect.w, elem->borderThickness };
+
+				renderer->RenderRectUPR(leftLine, { elem->borderRGB.R, elem->borderRGB.G, elem->borderRGB.B });
+				renderer->RenderRectUPR(upperLine, { elem->borderRGB.R, elem->borderRGB.G, elem->borderRGB.B });
+				renderer->RenderRectUPR(rightLine, { elem->borderRGB.R, elem->borderRGB.G, elem->borderRGB.B });
+				renderer->RenderRectUPR(downLine, { elem->borderRGB.R, elem->borderRGB.G, elem->borderRGB.B });
 			}
 		}
-
-		if (elem->GetBorder()) {
-			elem->RenderBorder(renderer);
+		if (elem->hovered && elem->hoverable) {
+			renderer->RenderRectUPR(elem->rectangle,
+				{ elem->hooverFilter[0], elem->hooverFilter[1], elem->hooverFilter[2] }, elem->hooverFilter[3]);
 		}
 		elem->RenderText(renderer);
 	}
@@ -128,33 +136,18 @@ void UIElemBase::Render(UIElemBase* elem, MT::Renderer* renderer) {
 
 void UIElemBase::RenderRounded(UIElemBase* elem, MT::Renderer* renderer) {
 	if (!elem->hidden) {
-		if (elem->GetTexture() == nullptr) {
-			elem->RenderItslelfRounded(renderer);
-		}
-		else {
-			renderer->RenderCopyRoundedRect(elem->rectangle, elem->texture);
-			if (elem->hovered && elem->hoverable) {
-				renderer->RenderRoundedRect(elem->rectangle,
-					{ elem->hooverFilter[0], elem->hooverFilter[1], elem->hooverFilter[2] }, elem->hooverFilter[3]);
-			}
+		elem->RenderItslelfRounded(renderer);
+		if (elem->hovered && elem->hoverable) {
+			renderer->RenderRoundedRectUPR(elem->rectangle,
+				{ elem->hooverFilter[0], elem->hooverFilter[1], elem->hooverFilter[2] }, elem->hooverFilter[3]);
 		}
 		elem->RenderText(renderer);
 	}
 }
 
 void UIElemBase::RenderItslelf(MT::Renderer* renderer) {
-	if (hovered && hoverable) {
-		renderer->RenderRect(rectangle, { buttonColor.R, buttonColor.G, buttonColor.B}, buttonColor.A);
-		renderer->RenderRect(rectangle, { hooverFilter[0], hooverFilter[1], hooverFilter[2] }, hooverFilter[3]);
-	}
-	else{
-		renderer->RenderRect(rectangle, { buttonColor.R, buttonColor.G, buttonColor.B }, buttonColor.A);
-	}
-}
-
-void UIElemBase::RenderItslelfRounded(MT::Renderer* renderer) {
 	if (!border) {
-		renderer->RenderRoundedRect(rectangle, { buttonColor.R, buttonColor.G, buttonColor.B }, buttonColor.A);
+		renderer->RenderRectUPR(rectangle, { buttonColor.R, buttonColor.G, buttonColor.B }, buttonColor.A);
 	}
 	else {
 		MT::Rect newBtnRect = rectangle;
@@ -167,28 +160,59 @@ void UIElemBase::RenderItslelfRounded(MT::Renderer* renderer) {
 		}
 		newBtnRect.x += borderThickness;
 		newBtnRect.y += borderThickness;
-		newBtnRect.w -= borderThickness *2;
-		newBtnRect.h -= borderThickness *2;
-		renderer->RenderRoundedRect(rectangle, { borderRGB.R, borderRGB.G, borderRGB.B }, 255);
-		renderer->RenderRoundedRect(newBtnRect, { buttonColor.R, buttonColor.G, buttonColor.B }, buttonColor.A);
+		newBtnRect.w -= borderThickness * 2;
+		newBtnRect.h -= borderThickness * 2;
+		renderer->RenderRectUPR(rectangle, { borderRGB.R, borderRGB.G, borderRGB.B }, 255);
+		renderer->RenderRectUPR(newBtnRect, { buttonColor.R, buttonColor.G, buttonColor.B }, buttonColor.A);
 	}
-	if (hovered && hoverable) {
-		renderer->RenderRoundedRect(rectangle, { hooverFilter[0], hooverFilter[1], hooverFilter[2] }, hooverFilter[3]);
+}
+
+void UIElemBase::RenderItslelfRounded(MT::Renderer* renderer) {
+	if (texture == nullptr) {
+		if (!border) {
+			renderer->RenderRoundedRectUPR(rectangle, { buttonColor.R, buttonColor.G, buttonColor.B }, buttonColor.A);
+		}
+		else {
+			MT::Rect newBtnRect = rectangle;
+			int width = 0;
+			if (borderThickness % 2 == 0) {
+				width = borderThickness / 2;
+			}
+			else {
+				width = (borderThickness / 2) + 1;
+			}
+			newBtnRect.x += borderThickness;
+			newBtnRect.y += borderThickness;
+			newBtnRect.w -= borderThickness * 2;
+			newBtnRect.h -= borderThickness * 2;
+			renderer->RenderRoundedRectUPR(rectangle, { borderRGB.R, borderRGB.G, borderRGB.B }, 255);
+			renderer->RenderRoundedRectUPR(newBtnRect, { buttonColor.R, buttonColor.G, buttonColor.B }, buttonColor.A);
+		}
+	}
+	else {
+		if (!border) {
+			renderer->RenderCopyRoundedRectUPR(rectangle, texture);
+		}
+		else {
+			MT::Rect newBtnRect = rectangle;
+			int width = 0;
+			if (borderThickness % 2 == 0) {
+				width = borderThickness / 2;
+			}
+			else {
+				width = (borderThickness / 2) + 1;
+			}
+			newBtnRect.x += borderThickness;
+			newBtnRect.y += borderThickness;
+			newBtnRect.w -= borderThickness * 2;
+			newBtnRect.h -= borderThickness * 2;
+			renderer->RenderRoundedRectUPR(rectangle, { borderRGB.R, borderRGB.G, borderRGB.B }, 255);
+			renderer->RenderCopyRoundedRectUPR(newBtnRect, texture);
+		}
 	}
 
 }
 
-void UIElemBase::RenderBorder(MT::Renderer* renderer) {
-	MT::Rect leftLine{ rectangle.x, rectangle.y, borderThickness, rectangle.h };
-	MT::Rect upperLine{ rectangle.x, rectangle.y, rectangle.w, borderThickness };
-	MT::Rect rightLine{ (rectangle.x + rectangle.w - borderThickness), rectangle.y, borderThickness, rectangle.h };
-	MT::Rect downLine{ rectangle.x, (rectangle.y + rectangle.h - borderThickness), rectangle.w, borderThickness };
-
-	renderer->RenderRect(leftLine, { borderRGB.R, borderRGB.G, borderRGB.B });
-	renderer->RenderRect(upperLine, { borderRGB.R, borderRGB.G, borderRGB.B });
-	renderer->RenderRect(rightLine, { borderRGB.R, borderRGB.G, borderRGB.B });
-	renderer->RenderRect(downLine, { borderRGB.R, borderRGB.G, borderRGB.B });
-}
 
 void UIElemBase::RenderText(MT::Renderer* renderer) {
 	if (font != nullptr) {
