@@ -3,9 +3,6 @@
 #include "SoundManager.h"
 #include <filesystem>
 
-std::unordered_map<std::string, Mix_Chunk*> SoundMan::Sounds;
-
-
 void SoundMan::Innit() {
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
 		std::cerr << "Failed to sound manager (sdl_mixer error): " << Mix_GetError() << "\n";
@@ -101,6 +98,10 @@ Mix_Chunk *SoundMan::GetSound(const std::string& name) {
 	}
 	std::cout << "Sound not found: "<<name<<"\n";
 	return nullptr;
+}
+
+std::unordered_map<std::string, Mix_Chunk*> &SoundMan::GetSounds() {
+	return SoundMan::Sounds;
 }
 
 void SoundMan::SetVolume(const std::string& soundKey, unsigned char volume) {

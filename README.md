@@ -86,3 +86,7 @@ Required CPP version at least 23
 	what makes them much faster when someting is rendered using different functions
 - Upr is now about 10 % faster
 - UI and font now use upr for rendering
+- Small UI Speed Improvements
+- Sound man can now return full sounds list
+- UI can now dump elements to json
+- Ui can now load elements from json

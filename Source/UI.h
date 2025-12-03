@@ -8,6 +8,7 @@
 #include "SoundManager.h"
 #include "Renderer.h"
 #include "Basics.h"
+#include "json.hpp"
 
 // Basic non interactive button
 class UIElemBase :public GameObject {
@@ -36,17 +37,15 @@ protected:
 
 	unsigned short textRenderType = 1;
 
-	Point predefinedSize;
-
 	bool hidden = false;
 
 	bool hovered = false; // Is button in collidion with mouse
 
 	bool hoverable = false; // Is hover filter aplied with mouse collisojn
 
-	unsigned char hooverFilter[4] = { 0,0,0,0 };
+	MT::ColorA hoverFilter{ 0,0,0,0 };
 
-	std::string hooverSound = "";
+	Mix_Chunk* hoverSound = nullptr;
 
 	int zLayer = 0; // Bazowo zawsze 0 
 
@@ -63,10 +62,10 @@ protected:
 public:
 	std::string& GetName();
 
-	void SetName(const std::string value);
+	void SetName(const std::string &value);
 
 	std::string& GetText();
-	void SetText(std::string temptext);
+	void SetText(const std::string &temptext);
 
 	float GetTextScale();
 	void SetTextScale(float temp);
@@ -121,7 +120,7 @@ public:
 
 	void SetHoverFilter(const bool filter, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A, const std::string& sound = "");
 
-	std::string& GetHooverSound();
+	Mix_Chunk* GetHooverSound();
 
 	int GetZLayer();
 
@@ -256,8 +255,17 @@ class UI{
 			}
 		}
 
+		void DumpButton(nlohmann::ordered_json& json, UIElemBase* elem, int type);
+
+		void DumpClickBox(nlohmann::ordered_json& json, ClickBox *cb);
+
+		void DumpTextBox(nlohmann::ordered_json& json, TextBox* tb);
+
+		void DumpPopUpBox(nlohmann::ordered_json& json, PopUpBox* pb);
 
 	public:
+		bool useLayersInRendering = false;
+
 		template<typename T>
 		friend class UIList;
 		UI(MT::Renderer* renderer);
@@ -406,9 +414,11 @@ class UI{
 			unsigned char fR, unsigned char fG, unsigned char fB, unsigned char bR, unsigned char bG, unsigned char bB, Point size,
 			const std::string& outputPath);
 
-		void ClearAll(bool clearLists = true);
+		void DumpToJson(const std::string& fileName, const std::vector<UIElemBase*>& elements);
 
-		bool useLayersInRendering = false;
+		void LoadFromJson(const std::string& fileName);
+
+		void ClearAll(bool clearLists = true);
 
 		~UI();
 };

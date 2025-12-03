@@ -10,8 +10,6 @@ private:
 	MT::Renderer *renderer = nullptr;
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui = nullptr;
-	std::vector<GameObject> Objects;
-	long long totalTIme = 0;
 public:
 	Game();
 

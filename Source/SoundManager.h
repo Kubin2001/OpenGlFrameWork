@@ -8,7 +8,7 @@
 class SoundMan
 {
 	private:
-		static std::unordered_map<std::string, Mix_Chunk*> Sounds;
+		inline static std::unordered_map<std::string, Mix_Chunk*> Sounds;
 	public:
 		static void Innit();
 
@@ -29,6 +29,8 @@ class SoundMan
 		static void PlayRawSoundStereo(Mix_Chunk* sound, uint8_t left, uint8_t right);
 
 		static Mix_Chunk* GetSound(const std::string& name);
+
+		static std::unordered_map<std::string, Mix_Chunk*> &GetSounds();
 
 		static void SetVolume(const std::string& soundKey, unsigned char volume);
 

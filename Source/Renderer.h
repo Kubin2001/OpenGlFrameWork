@@ -75,20 +75,20 @@ namespace MT {
 		//Shaders IDs
 		unsigned int currentProgram;
 
-		unsigned int renderBaseId;
-		unsigned int renderCopyId;
-		unsigned int renderRectId;
-		unsigned int renderCopyCircleId;
-		unsigned int renderCircleId;
-		unsigned int renderCopyFilterId;
-		unsigned int renderRoundedRectId;
-		unsigned int renderCopyRoundedRectId;
-		unsigned int uprId;
+		unsigned int renderBaseId = 0;
+		unsigned int renderCopyId = 0;
+		unsigned int renderRectId = 0;
+		unsigned int renderCopyCircleId = 0;
+		unsigned int renderCircleId = 0;
+		unsigned int renderCopyFilterId = 0;
+		unsigned int renderRoundedRectId = 0;
+		unsigned int renderCopyRoundedRectId = 0;
+		unsigned int uprId = 0;
 
 		//Uniforms Ids
-		unsigned int currentTexture;
-		unsigned int roundRectRadius;
-		unsigned int roundRectCopyRadius;
+		unsigned int currentTexture = 0;
+		unsigned int roundRectRadius = 0;
+		unsigned int roundRectCopyRadius = 0;
 
 		//Uniforms Values
 		glm::vec2 roundRectRadiusVal = { 0.0f,0.0f };
@@ -107,7 +107,7 @@ namespace MT {
 		unsigned int renderFilteredSize = 8;
 		unsigned int renderUPRSize = 8; // 9 is historical base size
 
-		std::vector<float> globalVertices;
+		std::vector<float> globalVertices = {};
 
 		//Agressive Batching Rendering
 		std::unordered_map<int, std::vector<float>> agresiveRenderMap = {};
