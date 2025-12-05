@@ -86,9 +86,11 @@ void Game::Input() {
 }
 
 void Game::Render() {
+	MT::Timer::Tic();
 	renderer->ClearFrame(Global::defaultDrawColor[0],Global::defaultDrawColor[1],Global::defaultDrawColor[2]);
 	ui->Render();
 	renderer->Present();
+	std::println("{}",MT::Timer::Tac<std::chrono::microseconds>());
 }
 
 

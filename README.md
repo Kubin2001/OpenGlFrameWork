@@ -90,3 +90,4 @@ Required CPP version at least 23
 - Sound man can now return full sounds list
 - UI can now dump elements to json
 - Ui can now load elements from json
+- Added light wrapper for std::chrono in addons

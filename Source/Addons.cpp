@@ -1,9 +1,12 @@
 #include "Addons.h"
 
+
 #include <SDL_mouse.h>
+#include <chrono>
+#include <print>
 
 void MethaneVersion() {
-	std::cout << "Using Methane SDL OpenGL Framework v1.08\n";
+	std::println("Using Methane SDL OpenGL Framework v1.08");
 }
 
 MapPos::MapPos() {
@@ -102,19 +105,19 @@ void MapPos::RecalculateFromAbs() {
 
 bool MapPos::CorrectnessRegionTile() {
 	if(rowsTile >= MapPos::tilesPerRegion){
-		std::cerr << "MapPos Incorrect tile rows too big\n";
+		std::println("MapPos Incorrect tile rows too big");
 		return false;
 	}
 	if (rowsTile < 0) {
-		std::cerr << "MapPos Incorrect tile rows too small\n";
+		std::println("MapPos Incorrect tile rows too small");
 		return false;
 	}
 	if (columnTile >= MapPos::tilesPerRegion) {
-		std::cerr << "MapPos Incorrect tile columns too big\n";
+		std::println("MapPos Incorrect tile columns too big");
 		return false;
 	}
 	if (columnTile < 0) {
-		std::cerr << "MapPos Incorrect tile columns too small\n";
+		std::println("MapPos Incorrect tile columns too small");
 		return false;
 	}
 	return true;
@@ -122,19 +125,19 @@ bool MapPos::CorrectnessRegionTile() {
 
 bool MapPos::CorrectnessRegion() {
 	if (rows > MapPos::regionsCountHeight -1) {
-		std::cerr << "MapPos Incorrect rows too big\n";
+		std::println("MapPos Incorrect rows too big");
 		return false;
 	}
 	if (rows < 0) {
-		std::cerr << "MapPos Incorrect rows too small\n";
+		std::println("MapPos Incorrect rows too small");
 		return false;
 	}
 	if (column > MapPos::regionsCountWidth -1) {
-		std::cerr << "MapPos Incorrect columns too big\n";
+		std::println("MapPos Incorrect columns too big");
 		return false;
 	}
 	if (column < 0) {
-		std::cerr << "MapPos Incorrect columns too small\n";
+		std::println("MapPos Incorrect columns too small");
 		return false;
 	}
 	return true;
@@ -144,19 +147,19 @@ bool MapPos::CorrectnessAbsTile() {
 	int countWidth = MapPos::regionsCountWidth * MapPos::tilesPerRegion;
 	int countHeight = MapPos::regionsCountHeight * MapPos::tilesPerRegion;
 	if (absTileRows >= countHeight) {
-		std::cerr << "MapPos Incorrect abs tile rows too big\n";
+		std::println("MapPos Incorrect abs tile rows too big");
 		return false;
 	}
 	if (absTileRows < 0) {
-		std::cerr << "MapPos Incorrect abs tile rows too small\n";
+		std::println("MapPos Incorrect abs tile rows too small");
 		return false;
 	}
 	if (absTileColumn >= countWidth) {
-		std::cerr << "MapPos Incorrect abs tile columns too big\n";
+		std::println("MapPos Incorrect abs tile columns too big");
 		return false;
 	}
 	if (absTileColumn < 0) {
-		std::cerr << "MapPos Incorrect abs tile columns too small\n";
+		std::println("MapPos Incorrect abs tile columns too small");
 		return false;
 	}
 	return true;
@@ -165,11 +168,11 @@ bool MapPos::CorrectnessAbsTile() {
 bool MapPos::CorrectnesAbsCol() {
 	int countWidth = MapPos::regionsCountWidth * MapPos::tilesPerRegion;
 	if (absTileColumn >= countWidth) {
-		std::cerr << "MapPos Incorrect abs tile columns too big\n";
+		std::println("MapPos Incorrect abs tile columns too big");
 		return false;
 	}
 	if (absTileColumn < 0) {
-		std::cerr << "MapPos Incorrect abs tile columns too small\n";
+		std::println("MapPos Incorrect abs tile columns too small");
 		return false;
 	}
 	return true;
@@ -178,11 +181,11 @@ bool MapPos::CorrectnesAbsCol() {
 bool MapPos::CorrectnesAbsRow() {
 	int countHeight = MapPos::regionsCountHeight * MapPos::tilesPerRegion;
 	if (absTileRows >= countHeight) {
-		std::cerr << "MapPos Incorrect abs tile rows too big\n";
+		std::println("MapPos Incorrect abs tile rows too big");
 		return false;
 	}
 	if (absTileRows < 0) {
-		std::cerr << "MapPos Incorrect abs tile rows too small\n";
+		std::println("MapPos Incorrect abs tile rows too small");
 		return false;
 	}
 	return true;

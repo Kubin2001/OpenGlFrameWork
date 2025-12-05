@@ -1,8 +1,10 @@
 #pragma once
-#include <iostream>
+#include <print>
+#include <chrono>
 #include <vector>
 #include "GlobalVariables.h"
 #include "Rectangle.h"
+
 
 void MethaneVersion();
 
@@ -114,7 +116,7 @@ template <typename T>
 T& AnyData::Get() {
 	auto temp = static_cast<AnyContatiner<T>*>(this); // Can be static not dynamic cause only one class is using inheritance
 	if (!temp) {
-		std::cerr << "Error: Wrong cast in AnyDataGet deafault value returned\n";
+		std::println("Error: Wrong cast in AnyDataGet deafault value returned");
 	}
 	return temp->data;
 }
@@ -124,7 +126,7 @@ template <typename T>
 void AnyData::Set(T tempData) {
 	auto temp = static_cast<AnyContatiner<T>*>(this); // Can be static not dynamic cause only one class is using inheritance
 	if (!temp) {
-		std::cerr << "Error: Data set uncorrectly in any data\n";
+		std::println("Error: Data set uncorrectly in any data");
 		return;
 	}
 	temp->data = tempData;
@@ -138,6 +140,31 @@ std::vector<std::string> SplitString(const std::string &str, const char seperato
 int RandInt(int min, int max);
 
 Point GetMousePos();
+
+namespace MT {
+	class Timer {
+		inline static std::chrono::steady_clock::time_point start{};
+
+		inline static std::chrono::steady_clock::time_point end{};
+
+
+	public:
+		static void Tic() {
+			start = std::chrono::steady_clock::now();
+		}
+
+		template<typename T>
+		static long long Tac() {
+			static_assert(std::is_same_v<T,std::chrono::hours> || std::is_same_v<T, std::chrono::minutes> ||
+				std::is_same_v<T, std::chrono::seconds> || std::is_same_v<T, std::chrono::milliseconds> ||
+				std::is_same_v<T, std::chrono::microseconds> || std::is_same_v<T, std::chrono::nanoseconds>,
+				"Incorect template argument accepts chrono::hours - chrono::nanoseconds");
+
+			end = std::chrono::steady_clock::now();
+			return std::chrono::duration_cast<T>(end - start).count();
+		}
+	};
+}
 
 // They work you can uncomment them if you wish but for some reason they sometimes break Intelli Sense
 
