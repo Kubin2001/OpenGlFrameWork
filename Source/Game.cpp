@@ -8,6 +8,7 @@
 #include "SoundManager.h"
 #include "SceneManager.h"
 #include "Addons.h"
+#include "Files.h"
 
 #include <chrono>
 
@@ -64,6 +65,9 @@ void Game::Start() {
 
 	//ui->DumpToJson("test", elem);
 	//ui->LoadFromJson("test");
+
+	//FileExplorer fe(4, {".md", ".png"});
+	//std::cout << fe.Open()<<"\n";
 
 }
 

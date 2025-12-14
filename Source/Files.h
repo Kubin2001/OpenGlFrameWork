@@ -17,6 +17,9 @@ class FileExplorer {
 		std::string retPath = "";
 		bool finished = false;
 		int absoluteY = 0;
+		int scroolSpeed = 20;
+
+		std::vector<std::string> extensionFilter = {};
 
 		UI* ui = nullptr;
 
@@ -37,8 +40,10 @@ class FileExplorer {
 
 		void CreateElement(int x, int y, const std::string& dirPath, const std::string& dirName, const std::string& texture);
 
+		bool ExtensionAllowed(const std::string &ext);
+
 	public:
-		FileExplorer() = default;
+		FileExplorer(int scroolSpeed = 20, const std::vector<std::string> extensionFilter = {});
 
 		std::string Open(const std::string& path = "");
 

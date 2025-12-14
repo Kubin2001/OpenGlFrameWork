@@ -37,6 +37,11 @@ std::vector<std::vector<std::string>> ReadCsv(const std::string& path, const cha
 	return csvVec;
 }
 
+FileExplorer::FileExplorer(int scroolSpeed, const std::vector<std::string> extensionFilter) {
+	this->scroolSpeed = scroolSpeed;
+	this->extensionFilter = extensionFilter;
+}
+
 void FileExplorer::CreateElement(int x, int y, const std::string& dirPath, const std::string& dirName, const std::string& texture) {
 	folderElements.emplace_back(ui->CreateClickBox(dirPath, x, y, 20, 20,
 		texMan.GetTex(texture), ui->GetFont("arial12px")
@@ -71,25 +76,13 @@ std::string FileExplorer::Open(const std::string& path) {
 	ui = new UI(renderer);
 	ui->CreateFont("arial12px", texMan.GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
 
-	int x = 50;
-	int y = 10;
-
-	for (auto &dir: std::filesystem::directory_iterator(currentPath)) {
-		if (dir.is_directory()) {
-			CreateElement(x, y, dir.path().string(), dir.path().filename().string(), "FeFolderIcon");
-		}
-		else {
-			CreateElement(x, y, dir.path().string(), dir.path().filename().string(), "FeFileIcon");
-		}
-		y += 35;	
-	}
-
 	ui->CreateClickBox("ArrowLeft", 10, 10, 30, 20, nullptr, ui->GetFont("arial12px"), "<-");
 	ui->GetClickBox("ArrowLeft")->SetColor(60, 60, 60);
 
 	selectedBox = ui->CreateButton("selectionButton", 50, 100, 300, 20, nullptr);
 	selectedBox->SetColor(135, 206, 250, 150);
-	selectedBox->Hide();
+
+	Update();
 	return Maintain();
 }
 
@@ -118,25 +111,25 @@ void FileExplorer::Input() {
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_MOUSEWHEEL) {
 			if (event.wheel.y > 0 && absoluteY < 50) { // up
-				absoluteY += 10;
+				absoluteY += scroolSpeed;
 				for (auto &it:folderElements) {
-					it->GetRectangle().y+=10;
+					it->GetRectangle().y+= scroolSpeed;
 				}
 				for (auto& it : folderElementsNames) {
-					it->GetRectangle().y += 10;
+					it->GetRectangle().y += scroolSpeed;
 				}
-				selectedBox->GetRectangle().y += 10;
+				selectedBox->GetRectangle().y += scroolSpeed;
 			}
 			else if (event.wheel.y < 0 && std::abs(absoluteY) < (folderElements.back()->GetRectangle().y +
 				folderElements.back()->GetRectangle().h)) { //down
-				absoluteY -= 10;
+				absoluteY -= scroolSpeed;
 				for (auto& it : folderElements) {
-					it->GetRectangle().y-=10;	
+					it->GetRectangle().y-= scroolSpeed;
 				}
 				for (auto& it : folderElementsNames) {
-					it->GetRectangle().y -= 10;
+					it->GetRectangle().y -= scroolSpeed;
 				}
-				selectedBox->GetRectangle().y -= 10;
+				selectedBox->GetRectangle().y -= scroolSpeed;
 			}
 		}
 		if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE) {
@@ -185,6 +178,18 @@ void FileExplorer::Input() {
 	}
 }
 
+bool FileExplorer::ExtensionAllowed(const std::string& ext) {
+	if (extensionFilter.empty()) {
+		return true;
+	}
+	for (auto& extension : extensionFilter) {
+		if (ext == extension) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void FileExplorer::Update() {
 	for (auto& elem : folderElements) {
 		ui->DeleteClickBox(elem->GetName());
@@ -202,7 +207,12 @@ void FileExplorer::Update() {
 			CreateElement(x, y, dir.path().string(), dir.path().filename().string(), "FeFolderIcon");
 		}
 		else {
-			CreateElement(x, y, dir.path().string(), dir.path().filename().string(), "FeFileIcon");
+			if (ExtensionAllowed(dir.path().extension().string())) {
+				CreateElement(x, y, dir.path().string(), dir.path().filename().string(), "FeFileIcon");
+			}
+			else {
+				continue;
+			}
 		}
 		folderElements.back()->SetHoverFilter(1, 255, 255, 255,70);
 		y += 35;

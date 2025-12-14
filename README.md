@@ -91,3 +91,7 @@ Required CPP version at least 23
 - UI can now dump elements to json
 - Ui can now load elements from json
 - Added light wrapper for std::chrono in addons
+
+1.09
+- File Explorer srolling speed is now adjustable and base is now 2 times faster
+- File Explorer can accept vector of supported formats as parameter
