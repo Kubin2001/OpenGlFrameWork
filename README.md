@@ -97,3 +97,4 @@ Required CPP version at least 23
 - File Explorer can accept vector of supported formats as parameter
 - UI section now supports PopUpBoxes
 - Loading json now return UI Section so you can easly get reference to what was loaded
+- About 15 % faster render Rectangle

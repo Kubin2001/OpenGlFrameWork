@@ -97,7 +97,7 @@ namespace MT {
 
 		//Veretex Sizes
 		unsigned int currentSize = 0;
-		unsigned int renderRectSize = 6; // Wszystkie renderowania bez tesktur
+		unsigned int renderRectSize = 4; // Wszystkie renderowania bez tesktur
 		unsigned int renderCopySize = 5; // Wszystkie renderowania tekstur
 		unsigned int renderCopyBaseSize = 3;
 		unsigned int renderCircleSize = 7;
