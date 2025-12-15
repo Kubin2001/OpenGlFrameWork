@@ -95,3 +95,5 @@ Required CPP version at least 23
 1.09
 - File Explorer srolling speed is now adjustable and base is now 2 times faster
 - File Explorer can accept vector of supported formats as parameter
+- UI section now supports PopUpBoxes
+- Loading json now return UI Section so you can easly get reference to what was loaded

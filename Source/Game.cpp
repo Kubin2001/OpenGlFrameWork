@@ -46,29 +46,6 @@ void Game::Start() {
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
 
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
-	//std::vector<UIElemBase*> elem;
-	//Button *btn = ui->CreateButton("test1", 500, 100, 200, 100,nullptr,nullptr,"Some text");
-	//btn->SetColor(30, 30, 30);
-	//btn->SetFont(ui->GetFont("arial20px"));
-	//btn->SetRenderTextType(2);
-	//btn->SetBorder(4, 0, 100, 200);
-	//btn->SetHoverFilter(true, 255, 255, 255, 120);
-	//elem.push_back(btn);
-	//btn = ui->CreateButton("test2", 500, 300, 200, 100, nullptr, nullptr, "Some text");
-	//btn->SetColor(30, 30, 30);
-	//btn->SetFont(ui->GetFont("arial12px"));
-	//btn->SetRenderTextType(2);
-	//btn->SetRenderType(2);
-	//btn->SetBorder(4, 0, 100, 200);
-	//btn->SetHoverFilter(true, 255, 255, 255, 120, "medKit");
-	//elem.push_back(btn);
-
-	//ui->DumpToJson("test", elem);
-	//ui->LoadFromJson("test");
-
-	//FileExplorer fe(4, {".md", ".png"});
-	//std::cout << fe.Open()<<"\n";
-
 }
 
 void Game::LogicUpdate() {
@@ -90,11 +67,9 @@ void Game::Input() {
 }
 
 void Game::Render() {
-	MT::Timer::Tic();
 	renderer->ClearFrame(Global::defaultDrawColor[0],Global::defaultDrawColor[1],Global::defaultDrawColor[2]);
 	ui->Render();
 	renderer->Present();
-	std::println("{}",MT::Timer::Tac<std::chrono::microseconds>());
 }
 
 

@@ -1062,17 +1062,18 @@ void UI::DumpToJson(const std::string &fileName, const std::vector<UIElemBase*>&
 	file << jsonFile;
 }
 
-void UI::LoadFromJson(const std::string& fileName) {
+UISection UI::LoadFromJson(const std::string& fileName) {
+	UISection loadedElements(this);
 	std::ifstream file(fileName + ".json");
 	if (!file.is_open()) {
-		return;
+		return loadedElements;
 	}
 	nlohmann::json jsonFile;
 	try {
 		file >> jsonFile;
 	}
 	catch (const std::exception&) {
-		return;
+		return loadedElements;
 	}
 
 	for (auto& [key, val] : jsonFile.items()) {
@@ -1146,24 +1147,29 @@ void UI::LoadFromJson(const std::string& fileName) {
 		if (type == 1) {
 			Button* btn = CreateButton(key, 0, 0, 0, 0);
 			*btn = *dynamic_cast<Button*>(elem.get());
+			loadedElements.Add(btn);
 		}
 		else if (type == 2) {
 			ClickBox* cb = CreateClickBox(key, 0, 0, 0, 0);
 			*cb = *dynamic_cast<ClickBox*>(elem.get());
 			cb->turnedOn = val["TurnedOn"];
 			cb->clickSound = val["ClickSound"];
+			loadedElements.Add(cb);
 		}
 		else if (type == 3) {
 			TextBox* tb = CreateTextBox(key, 0, 0, 0, 0);
 			*tb = *dynamic_cast<TextBox*>(elem.get());
 			tb->turnedOn = val["TurnedOn"];
+			loadedElements.Add(tb);
 		}
 		else if (type == 4) {
 			PopUpBox* pb = CreatePopUpBox(key, 0, 0, 0, 0, 0);
 			*pb = *dynamic_cast<PopUpBox*>(elem.get());
 			pb->lifeTime = val["LifeTime"];
+			loadedElements.Add(pb);
 		}
 	}
+	return loadedElements;
 }
 
 void UI::ClearAll(bool clearLists) {

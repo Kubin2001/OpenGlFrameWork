@@ -204,6 +204,8 @@ class RenderingLayer {
 template<typename T>
 class UIList;
 
+class UISection;
+
 // To propelly start the UI you need to place manage input function in event loop and render in rendering loop
 class UI{
 	private:
@@ -416,7 +418,7 @@ class UI{
 
 		void DumpToJson(const std::string& fileName, const std::vector<UIElemBase*>& elements);
 
-		void LoadFromJson(const std::string& fileName);
+		UISection LoadFromJson(const std::string& fileName);
 
 		void ClearAll(bool clearLists = true);
 
@@ -556,9 +558,17 @@ class UISection {
 
 		std::vector<ClickBox*> clickBoxes = {};
 
+		std::vector<PopUpBox*> popUpBoxes = {};
+
 		UI* ui = nullptr;
 
 	public:
+		UISection() = default;
+
+		UISection(UI* ui) {
+			this->ui = ui;
+		}
+
 		void Init(UI *ui) {
 			this->ui = ui;		
 		}
@@ -581,6 +591,12 @@ class UISection {
 			}
 			clickBoxes.emplace_back(clickBox);
 		}
+		void Add(PopUpBox* popUpBox) {
+			if (ui == nullptr) {
+				throw std::runtime_error("UI is nullptr section is not inicialized");
+			}
+			popUpBoxes.emplace_back(popUpBox);
+		}
 
 		void Clear() {
 			for (auto& elem: buttons) {
@@ -592,12 +608,17 @@ class UISection {
 			for (auto& elem : textBoxes) {
 				ui->DeleteTextBox(elem->GetName());
 			}
+			for (auto& elem : popUpBoxes) {
+				ui->DeleteTextBox(elem->GetName());
+			}
 			buttons.clear();
 			textBoxes.clear();
 			clickBoxes.clear();
+			popUpBoxes.clear();
 		}	
 
 		std::vector<Button*>& GetButtons() { return buttons; }
 		std::vector<TextBox*>& GetTextBoxes() { return textBoxes; }
 		std::vector<ClickBox*>& GetClickBoxes() { return clickBoxes; }
+		std::vector<PopUpBox*>& GetPopUpBoxes() { return popUpBoxes; }
 };
