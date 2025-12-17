@@ -60,25 +60,39 @@ void Game::FrameUpdate() {
 
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
-		if (event.type == SDL_MOUSEBUTTONDOWN) {
-			if (event.button.button == SDL_BUTTON_LEFT) {
-				//SoundMan::PlaySound("glock",120);
-				SoundMan::PlaySoundStereo("glock",100,100, 120);
-
-			}
-			if (event.button.button == SDL_BUTTON_RIGHT) {
-				//SoundMan::PlaySound("glock",40);
-				SoundMan::PlaySoundStereo("glock", 100, 20, 120);
-			}
-		}
 		ui->ManageInput(event);
 		Exit();
+
+		if (event.type == SDL_KEYUP) {
+			if (event.key.keysym.scancode == SDL_SCANCODE_R) {
+				MT::Timer::Tic();
+				TexMan::RefreshTextures("Textures",true);
+				std::println("Textures Refreshed in {} mickroSec", MT::Timer::Tac<std::chrono::microseconds>());
+			}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_L) {
+				TexMan::DeepLoad("Textures");
+			}
+			if (event.key.keysym.scancode == SDL_SCANCODE_C) {
+				TexMan::Clear();
+			}
+		}
 	}
 	Global::inputDelay++;
 }
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0],Global::defaultDrawColor[1],Global::defaultDrawColor[2]);
+	MT::Rect rect1{ 10,10,50,50 };
+	MT::Rect rect2{ 10,70,50,50 };
+	MT::Rect rect3{ 10,130,50,50 };
+
+	renderer->RenderCopy(rect1, TexMan::GetTex("tex1"));
+
+	renderer->RenderCopy(rect2, TexMan::GetTex("tex2"));
+
+	renderer->RenderCopy(rect3, TexMan::GetTex("tex3"));
+
 	ui->Render();
 	renderer->Present();
 }

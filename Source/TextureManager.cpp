@@ -8,7 +8,6 @@
 #include <string>
 
 
-
 std::unordered_map<std::string, MT::Texture*> TexMan::Textures;
 std::vector<std::string> TexMan::SupportedFormats;
 MT::Renderer* TexMan::renderer = nullptr;
@@ -111,19 +110,65 @@ MT::Texture* TexMan::GetTex(const std::string& name) {
 	if (it != Textures.end()) {
 		return it->second;
 	}
-	std::cerr << "Texture not found: " << name << "\n";
+	//std::cerr << "Texture not found: " << name << "\n";
 	return nullptr;
 }
 
 bool TexMan::DeleteTexture(const std::string& name) {
 	auto it = Textures.find(name);
 	if (it != Textures.end()) {
-		delete it->second;
+		MT::DeleteTexture(it->second);
 		Textures.erase(it);
 		return true;
 	}
-	else{
-		return false;
+	else{return false;}
+}
+
+void TexMan::RefreshTexturesInFolder(const std::string& directory, bool removeInvalid, std::unordered_set<std::string>&namesCollector) {
+	namespace fs = std::filesystem;
+	for (fs::directory_entry entry : fs::directory_iterator(directory)) {
+		if (entry.is_directory()) {
+			RefreshTexturesInFolder(entry.path().string(),removeInvalid,namesCollector);
+		}
+		else {
+			std::string stem = entry.path().stem().string();
+			if (Textures.find(stem) == Textures.end()) {
+				LoadSingle(entry.path().string().c_str(), stem);
+				if (removeInvalid) {
+					namesCollector.emplace(stem);
+				}
+			}
+			else if (removeInvalid) {
+				namesCollector.emplace(stem);
+			}
+		}
+	}
+}
+
+void TexMan::RefreshTextures(const std::string& directory, bool removeInvalid) {
+	namespace fs  = std::filesystem;
+	if (!fs::exists(directory)) {
+		std::println("TexMan::RefreshTextures incorrect start directory");
+		return;
+	}
+	std::unordered_set<std::string> namesCollector;
+	if (removeInvalid) {
+		namesCollector.reserve(Textures.size());
+	}
+
+	RefreshTexturesInFolder(directory,removeInvalid,namesCollector);
+
+	if (removeInvalid) {
+		std::vector<std::string> texturesToErase;
+		for (auto &[key,tex] : Textures) {
+			if (!namesCollector.contains(key)) {
+				texturesToErase.emplace_back(key);
+			}
+		}
+		for (auto& it : texturesToErase) {
+			MT::DeleteTexture(Textures[it]);
+			Textures.erase(it);
+		}
 	}
 }
 

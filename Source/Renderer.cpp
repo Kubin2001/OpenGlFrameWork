@@ -65,23 +65,26 @@ MT::Texture* MT::LoadTexture(const char* path) {
         SDL_Surface* formatted = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_RGBA32, 0); // Aby się nie crashowało jak jest zły format
         SDL_FreeSurface(surf);
         surf = formatted;
-        surf = FlipSurfaceVertical(surf);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surf->w, surf->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surf->pixels); // RGBA dla png
-        metTex->w = surf->w;
-        metTex->h = surf->h;
+        SDL_Surface *flipped = FlipSurfaceVertical(surf);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, flipped->w, flipped->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, flipped->pixels); // RGBA dla png
+        metTex->w = flipped->w;
+        metTex->h = flipped->h;
         glGenerateMipmap(GL_TEXTURE_2D);
+        SDL_FreeSurface(flipped);
     }
     SDL_FreeSurface(surf);
 
     return metTex;
 }
 
-void MT::DeleteTexture(Texture* tex) {
-    glDeleteTextures(1, &tex->texture);
-    tex->texture = 0;
-    tex->w = 0;
-    tex->h = 0;
-}
+void MT::DeleteTexture(Texture*& tex) { 
+    if (tex == nullptr) { return; } 
+    glDeleteTextures(1, &tex->texture); 
+    tex->texture = 0; 
+    tex->w = 0; 
+    tex->h = 0; 
+    delete tex; 
+    tex = nullptr; }
 
 MT::Texture* MT::LoadTextureFromSurface(SDL_Surface* surf) {
     unsigned int texture;

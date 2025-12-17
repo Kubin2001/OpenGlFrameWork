@@ -47,7 +47,7 @@ namespace MT {
 
 	Texture* LoadTexture(const char* path);
 
-	void DeleteTexture(Texture* tex);
+	void DeleteTexture(Texture*& tex);
 
 	Texture* LoadTextureFromSurface(SDL_Surface* surf);
 

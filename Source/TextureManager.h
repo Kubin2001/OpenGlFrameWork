@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "Addons.h"
 #include "Renderer.h"
@@ -14,6 +15,8 @@ class TexMan {
 		static std::vector<std::string> SupportedFormats;
 		static MT::Renderer* renderer;
 		static bool isInnit;
+
+		static void RefreshTexturesInFolder(const std::string& directory, bool removeInvalid, std::unordered_set<std::string>& namesCollector);
 
 	public:
 
@@ -41,6 +44,10 @@ class TexMan {
 		static MT::Texture* GetTex(const std::string& name);
 
 		static bool DeleteTexture(const std::string& name);
+
+		// Loads new previously unloaded textures in slected folder and all recursive folders
+		// removeInvalid flag will remove textures that no longer exist WARNING this will break exsting pointers
+		static void RefreshTextures(const std::string& directory, bool removeInvalid = false);
 
 		static Point GetTextureSize(const std::string& name);
 
