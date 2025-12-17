@@ -1,37 +1,32 @@
-#include <iostream>
+#include <print>
 
 #include "SoundManager.h"
 #include <filesystem>
 
 void SoundMan::Innit() {
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-		std::cerr << "Failed to sound manager (sdl_mixer error): " << Mix_GetError() << "\n";
+		std::println("Failed to sound manager (sdl_mixer error): {}", Mix_GetError());
 	}
+	Mix_AllocateChannels(32);
 }
 
 void SoundMan::Print() {
-	std::cout << "------------------------\n";
-	std::cout << "Loaded Sounds Names: \n";
-	std::cout << "------------------------\n";
-	for (auto it = Sounds.begin(); it != Sounds.end(); ++it) {
-		std::cout << it->first << "\n";
+	std::println("------------------------");
+	std::println("Loaded Sounds Names");
+	std::println("------------------------");
+	for (auto& sound : Sounds) {
+		std::println("{}", sound.first);
 	}
-	std::cout << "------------------------\n";
+	std::println("------------------------");
 }
 
 void SoundMan::LoadSound(const char* filePath, const std::string& name) {
-	if (Sounds.find(name) != Sounds.end()) {
-		std::cout << "Sound already loaded: " << name << "\n";
+	auto sound = Sounds.find(name);
+	if (sound != Sounds.end()) {
+		std::println("Sound already loaded {} ", name);
 		return;
 	}
-	else
-	{
-		Sounds.insert(std::make_pair(name, Mix_LoadWAV(filePath)));
-	}
-	auto it = Sounds.find(name);
-	if (it->second == nullptr) {
-		std::cout << "Failed to load sound from: " << filePath <<" loaded as nullptr"<< "\n";
-	}
+	Sounds[name] = Mix_LoadWAV(filePath);
 }
 
 void SoundMan::LoadSounds(const std::string& directory) {
@@ -46,7 +41,7 @@ void SoundMan::LoadSounds(const std::string& directory) {
 		}
 	}
 	catch (std::exception& e) {
-		std::cerr << " SoundMan::LoadSounds Error loading directory: " << directory << " " << e.what() << "\n";
+		std::println(" SoundMan::LoadSounds Error loading directory: {}    {}", directory, e.what());
 	}
 
 }
@@ -61,34 +56,44 @@ void SoundMan::DeppLoad(const std::string& directory) {
 	}
 }
 
-void SoundMan::PlaySound(const std::string& name) {
+void SoundMan::PlaySound(const std::string& name, int volume) {
 	auto it = Sounds.find(name);
 	if (it != Sounds.end()) {
-		Mix_PlayChannel(-1, it->second, 0);
+		PlayRawSound(it->second,volume);
 		return;
 	}
-	std::cout << "Sound not found: " << name << "\n";
-	return ;
+	std::println("Sound not found: {}", name);
 }
 
-void SoundMan::PlayRawSound(Mix_Chunk* sound) {
-	Mix_PlayChannel(-1, sound, 0);
+void SoundMan::PlayRawSound(Mix_Chunk* sound, int volume) {
+	if (volume < 1) { return; } // Good for conserving cpu when sound is to far in some map
+	int channel = Mix_PlayChannel(-1, sound, 0);
+	if (channel == -1) { return; }
+	int SDL_Volume = (volume * MIX_MAX_VOLUME) / 100;
+
+	Mix_Volume(channel, SDL_Volume);
 }
 
-void SoundMan::PlaySoundStereo(const std::string& name, uint8_t left, uint8_t right) {
-	auto it = Sounds.find(name);
-	if (it != Sounds.end()) {
-		int channel = Mix_PlayChannel(-1, it->second, 0);
-		Mix_SetPanning(channel, left, right);
+void SoundMan::PlaySoundStereo(const std::string& name, int left, int right, int volume) {
+	auto sound = Sounds.find(name);
+	if (sound == Sounds.end()) {
+		std::println("Sound not found: {}", name);
 		return;
 	}
-	std::cout << "Sound not found: " << name << "\n";
+	PlayRawSoundStereo(sound->second, left, right,volume);
 	return;
 }
 
-void SoundMan::PlayRawSoundStereo(Mix_Chunk* sound, uint8_t left, uint8_t right) {
+void SoundMan::PlayRawSoundStereo(Mix_Chunk* sound, int left, int right, int volume) {
+	if (volume < 1) { return; }
 	int channel = Mix_PlayChannel(-1, sound, 0);
-	Mix_SetPanning(channel, left, right);
+	if (channel == -1) { return; }
+	int SDL_Volume = (volume * MIX_MAX_VOLUME) / 100;
+	int SDL_Left = (left * 255) / 100;
+	int SDL_Right = (right * 255) / 100;
+	Mix_SetPanning(channel, SDL_Left, SDL_Right);
+
+	Mix_Volume(channel, SDL_Volume);
 }
 
 Mix_Chunk *SoundMan::GetSound(const std::string& name) {
@@ -96,7 +101,7 @@ Mix_Chunk *SoundMan::GetSound(const std::string& name) {
 	if (it != Sounds.end()) {
 		return it->second;
 	}
-	std::cout << "Sound not found: "<<name<<"\n";
+	std::println("Sound not found: {}", name);
 	return nullptr;
 }
 
@@ -105,16 +110,15 @@ std::unordered_map<std::string, Mix_Chunk*> &SoundMan::GetSounds() {
 }
 
 void SoundMan::SetVolume(const std::string& soundKey, unsigned char volume) {
-	if (Sounds.find(soundKey) != Sounds.end()) {
-		unsigned char newVolume = (volume * MIX_MAX_VOLUME) / 100;
-		if (newVolume > MIX_MAX_VOLUME) { newVolume = MIX_MAX_VOLUME; }
-		else if (newVolume < 0) { newVolume = 0; }
-		Mix_VolumeChunk(Sounds[soundKey], newVolume);
+	auto sound = Sounds.find(soundKey);
+	if (sound == Sounds.end()) {
+		std::println("Wrong sound key in SoundMan::SetVolume function: {}",soundKey);
+		return;
 	}
-	else{
-		std::cout << "Wrong sound key in SoundMan::SetVolume function: "<<soundKey<<"\n";
-	}
-
+	unsigned char newVolume = (volume * MIX_MAX_VOLUME) / 100;
+	if (newVolume > MIX_MAX_VOLUME) { newVolume = MIX_MAX_VOLUME; }
+	else if (newVolume < 0) { newVolume = 0; }
+	Mix_VolumeChunk(Sounds[soundKey], newVolume);
 }
 
 bool SoundMan::DeleteSound(const std::string& name) {
@@ -124,7 +128,7 @@ bool SoundMan::DeleteSound(const std::string& name) {
 		Sounds.erase(it);
 		return true;
 	}
-	std::cout << "Sound not found: " << name << "\n";
+	std::println("Sound not found: {}", name);
 	return false;
 }
 
@@ -134,5 +138,3 @@ void SoundMan::Clear() {
 	}
 	Sounds.clear();
 }
-
-

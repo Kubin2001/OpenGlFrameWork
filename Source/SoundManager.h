@@ -20,13 +20,13 @@ class SoundMan
 
 		static void DeppLoad(const std::string& directory);
 
-		static void PlaySound(const std::string& name);
+		static void PlaySound(const std::string& name, int volume = 100);
 
-		static void PlayRawSound(Mix_Chunk* sound);
+		static void PlayRawSound(Mix_Chunk* sound, int volume = 100);
 
-		static void PlaySoundStereo(const std::string& name, uint8_t left, uint8_t right);
+		static void PlaySoundStereo(const std::string& name, int left, int right, int volume = 100);
 
-		static void PlayRawSoundStereo(Mix_Chunk* sound, uint8_t left, uint8_t right);
+		static void PlayRawSoundStereo(Mix_Chunk* sound, int left, int right, int volume = 100);
 
 		static Mix_Chunk* GetSound(const std::string& name);
 

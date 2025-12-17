@@ -98,3 +98,4 @@ Required CPP version at least 23
 - UI section now supports PopUpBoxes
 - Loading json now return UI Section so you can easly get reference to what was loaded
 - About 15 % faster render Rectangle
+- Sound man code is cleaner and allows setting volumes for individual plays

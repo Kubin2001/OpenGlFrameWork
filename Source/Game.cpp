@@ -46,28 +46,6 @@ void Game::Start() {
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
 
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
-
-	for (size_t i = 0; i < 10'000; i++) {
-		int random = RandInt(1, 3);
-		MT::Color color;
-		MT::Rect rectangle;
-
-		switch (random) {
-			case 1:
-				color = { 255,0,0 };
-				rectangle = { 10,10,50,50 };
-				break;
-			case 2:
-				color = { 0,255,0 };
-				rectangle = { 70,10,50,50 };
-				break;
-			case 3:
-				color = { 0,0,255 };
-				rectangle = { 130,10,50,50 };
-				break;
-		}
-		vecToRender.emplace_back(rectangle, color);
-	}
 }
 
 void Game::LogicUpdate() {
@@ -82,6 +60,17 @@ void Game::FrameUpdate() {
 
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
+		if (event.type == SDL_MOUSEBUTTONDOWN) {
+			if (event.button.button == SDL_BUTTON_LEFT) {
+				//SoundMan::PlaySound("glock",120);
+				SoundMan::PlaySoundStereo("glock",100,100, 120);
+
+			}
+			if (event.button.button == SDL_BUTTON_RIGHT) {
+				//SoundMan::PlaySound("glock",40);
+				SoundMan::PlaySoundStereo("glock", 100, 20, 120);
+			}
+		}
 		ui->ManageInput(event);
 		Exit();
 	}
@@ -90,18 +79,7 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0],Global::defaultDrawColor[1],Global::defaultDrawColor[2]);
-	//ui->Render();
-
-
-	MT::Timer::Tic();
-	for (auto& it : vecToRender) {
-		renderer->RenderRect(it.rect, it.color);
-	}
-	totalTime += MT::Timer::Tac<std::chrono::microseconds>();
-
-
-	std::println("{} milisec",totalTime);
-	totalTime = 0;
+	ui->Render();
 	renderer->Present();
 }
 
