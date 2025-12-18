@@ -47,10 +47,6 @@ void Game::Start() {
 
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
 
-	ClickBox *cb = ui->CreateClickBoxF("CB1", 100, 100, 100, 100, nullptr,"arial20px","Click 1");
-	cb->SetColor(30, 30, 30);
-	cb = ui->CreateClickBoxF("CB2", 300, 100, 100, 100, nullptr, "arial20px", "Click 2");
-	cb->SetColor(30, 30, 30);
 }
 
 void Game::LogicUpdate() {
@@ -59,25 +55,6 @@ void Game::LogicUpdate() {
 
 void Game::FrameUpdate() {
 	Input();
-	//if (ui->GetClickBox("CB1")->ConsumeStatus()) {
-	//	std::println("clickbox 1");
-	//}
-	//if (ui->GetClickBox("CB2")->ConsumeStatus()) {
-	//	std::println("clickbox 2");
-	//}
-	//if (ui->GetClickBox("CB3")->ConsumeStatus()) {
-	//	std::println("clickbox 3");
-	//}
-	if (ui->ConsumeIfExist("CB1")) {
-		std::println("clickbox 1");
-	}
-	if (ui->ConsumeIfExist("CB2")) {
-		std::println("clickbox 2");
-	}
-	if (ui->ConsumeIfExist("CB3")) {
-		std::println("clickbox 3");
-	}
-
 	ui->FrameUpdate();
 	Render();
 }

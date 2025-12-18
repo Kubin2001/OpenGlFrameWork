@@ -12,9 +12,9 @@ std::string& UIElemBase::GetName() {
 	return name;
 }
 
-void UIElemBase::SetName(const std::string &value) {
-	name = value;
-}
+//void UIElemBase::SetName(const std::string &value) {
+//	name = value;
+//}
 
 void UIElemBase::SetText(const std::string &temptext) {
 	text = temptext;
@@ -454,13 +454,13 @@ Button* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT
 	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
 
 	if (GetButton(name) != nullptr) {
-		std::cout << "Warning name collision button with name: " << name << " already exists addition abborted\n";
+		std::cout << "Warning name collision Button with name: " << name << " already exists addition abborted\n";
 		return nullptr;
 	}
 
 	Buttons.emplace_back(new Button());
 	Button* btn = Buttons.back();
-	btn->SetName(name);
+	btn->name = name;
 	btn->GetRectangle().Set(x, y, w, h);
 	btn->SetRenderType(1);
 
@@ -489,13 +489,13 @@ TextBox* UI::CreateTextBox(const std::string& name, int x, int y, int w, int h, 
 	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
 
 	if (GetTextBox(name) != nullptr) {
-		std::cout << "Warning name collision massage box with name: " << name << " already exists addition abborted\n";
+		std::cout << "Warning name collision TextBox with name: " << name << " already exists addition abborted\n";
 		return nullptr;
 	}
 
 	TextBoxes.emplace_back(new TextBox());
 	TextBox* tb = TextBoxes.back();
-	tb->SetName(name);
+	tb->name = name;
 	tb->GetRectangle().Set(x, y, w, h);
 	tb->SetRenderType(1);
 
@@ -532,7 +532,7 @@ ClickBox* UI::CreateClickBox(const std::string& name, int x, int y, int w, int h
 
 	ClickBoxes.emplace_back(new ClickBox());
 	ClickBox* cb = ClickBoxes.back();
-	cb->SetName(name);
+	cb->name = name;
 	cb->GetRectangle().Set(x, y, w, h);
 	cb->SetRenderType(1);
 
@@ -561,13 +561,13 @@ ClickBox* UI::CreateClickBox(const std::string& name, int x, int y, int w, int h
 PopUpBox* UI::CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
 	if (GetPopUpBox(name) != nullptr) {
-		std::cout << "Warning name collision interaction box with name: " << name << " already exists addition abborted\n";
+		std::cout << "Warning name collision PopUpBox with name: " << name << " already exists addition abborted\n";
 		return nullptr;
 	}
 
 	PopUpBoxes.emplace_back(new PopUpBox());
 	PopUpBox* pb = PopUpBoxes.back();
-	pb->SetName(name);
+	pb->name = name;
 	pb->SetLifeTime(lifeSpan);
 	pb->GetRectangle().Set(x, y, w, h);
 	pb->SetRenderType(1);
@@ -612,6 +612,18 @@ ClickBox* UI::CreateClickBoxF(const std::string& name, int x, int y, int w, int 
 PopUpBox* UI::CreatePopUpBoxF(const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture, const std::string& fontSt,
 	const std::string& text, float textScale, int textStartX, int textStartY, int borderThickness) {
 	return CreatePopUpBox(name, lifeSpan, x, y, w, h, texture, GetFont(fontSt), text, textScale, textStartX, textStartY, borderThickness);
+}
+
+bool UI::RenameElem(const std::string& name, const std::string& newName) {
+	auto elem = UIElemMap.find(name);
+
+	if (elem == UIElemMap.end()) {
+		return false;
+	}
+	UIElemBase* elemPtr = elem->second;
+	UIElemMap.erase(name);
+	UIElemMap[newName] = elemPtr;
+	return true;
 }
 
 void UI::CheckHover() {

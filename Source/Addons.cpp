@@ -263,10 +263,28 @@ bool MapPos::CorrectnesAbsRowS() {
 	}
 	return true;
 }
-double CalculateEuclidean(int x1,int x2,int y1,int y2) {
-	double x = std::pow(x2 - x1, 2);
-	double y = std::pow(y2 - y1, 2);;
+float CalculateEuclidean(int x1,int x2,int y1,int y2) noexcept{
+	const float x = ((float)x2 - (float)x1) * ((float)x2 - (float)x1);
+	const float y = ((float)y2 - (float)y1) * ((float)y2 - (float)y1);
 	return std::sqrt(x+y);
+}
+
+float CalculateEuclidean(const Point& target, const Point& dest) noexcept {
+	const float x = ((float)dest.x - (float)target.x) * ((float)dest.x - (float)target.x);
+	const float y = ((float)dest.y - (float)target.y) * ((float)dest.y - (float)target.y);
+	return std::sqrt(x + y);
+}
+
+float FastEuclidean(int x1, int x2, int y1, int y2) noexcept {
+	const float x = ((float)x2 - (float)x1) * ((float)x2 - (float)x1);
+	const float y = ((float)y2 - (float)y1) * ((float)y2 - (float)y1);
+	return x + y;
+}
+
+float FastEuclidean(const Point& target, const Point& dest) noexcept {
+	const float x = ((float)dest.x - (float)target.x) * ((float)dest.x - (float)target.x);
+	const float y = ((float)dest.y - (float)target.y) * ((float)dest.y - (float)target.y);
+	return x + y;
 }
 
 Point GetRectangleCenter(const MT::Rect rect) {

@@ -103,3 +103,5 @@ Required CPP version at least 23
 - Texture Manager allows for refreshing textures (it does not change existing ones if png has changed) only if it 
 was removed or the new one was added to folder
 - New UI function ConsumeIFExist(name) that finally allows for safe status retrieval
+- Button->setName() has been removed since it was unsafe now you need to use safe ui->renameElem()
+- Faster euclideanDistance calculation

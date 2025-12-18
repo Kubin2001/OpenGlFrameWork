@@ -62,7 +62,8 @@ protected:
 public:
 	std::string& GetName();
 
-	void SetName(const std::string &value);
+	// Unused breaks hash use ui->Rename()
+	//void SetName(const std::string &value);
 
 	std::string& GetText();
 	void SetText(const std::string &temptext);
@@ -296,6 +297,9 @@ class UI{
 
 		PopUpBox* CreatePopUpBoxF(const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string& fontStr= "",
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+
+		// Renaming and rehasing element
+		bool RenameElem(const std::string& name, const std::string& newName);
 
 		void CheckHover();
 

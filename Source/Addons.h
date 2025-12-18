@@ -74,7 +74,13 @@ struct MapPos {
 
 };
 
-double CalculateEuclidean(int x1, int x2, int y1, int y2);
+float CalculateEuclidean(int x1, int x2, int y1, int y2)  noexcept;
+
+float CalculateEuclidean(const Point &target, const Point &dest)  noexcept;
+
+float FastEuclidean(int x1, int x2, int y1, int y2)  noexcept;
+
+float FastEuclidean(const Point& target, const Point& dest)  noexcept;
 
 Point GetRectangleCenter(const MT::Rect rect);
 
