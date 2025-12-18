@@ -35,13 +35,17 @@ namespace MT {
 	};
 
 	class Texture {
+		private:
+		unsigned int batchIndex = 0;
 		public:
 		unsigned int w, h, texture;
 		float alpha = 1.0f;
 
+
 		void SetAlphaBending(const unsigned char A) {
 			alpha = float(A) / 255;
 		}
+		friend class Renderer;
 	};
 
 
@@ -64,6 +68,16 @@ namespace MT {
 		}
 	};
 
+
+	struct FlatRenderLayer {
+		unsigned int textureID = 0;
+
+		std::vector<float> vertices = {};
+
+		FlatRenderLayer(int texID) {
+			this->textureID = texID;
+		}
+	};
 
 	class Renderer {
 
@@ -110,7 +124,7 @@ namespace MT {
 		std::vector<float> globalVertices = {};
 
 		//Agressive Batching Rendering
-		std::unordered_map<int, std::vector<float>> agresiveRenderMap = {};
+		std::vector<FlatRenderLayer> flatRenderVec = {};
 
 		void LoadShaders();
 
@@ -188,15 +202,16 @@ namespace MT {
 		//
 		// Experimental
 		// Agressive Batching Rendering good for multiple texture tile rendering but does
-		// not rememeber deepth so new texture can be obscured by an old one 
-		// Might break or crash not recomemnded in fincisched product
+		// not rememeber depth so new texture can be obscured by an old one 
 
 		//Neds to be called at least once after texture load and after every texture quantity change
-		void AgresiveRenderCopySetUp();
+		void FLatRenderCopySetUp();
 
-		void AgressiveRenderCopy(const Rect& rect, const Texture* texture);
+		void FLatRenderCopy(const Rect& rect, const Texture* texture);
 
-		void AgressiveRenderCopyPresent(bool clearVectors = true);
+		// Needs to be called after all flat operations are finisched 
+		// NORMAL RENDER PRESENT WILL NOT DRAW ANYTHING !!!
+		void FLatRenderCopyPresent(bool clearVectors = true);
 
 		void SetClipSize(const Rect& rect);
 

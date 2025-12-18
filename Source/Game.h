@@ -4,14 +4,15 @@
 
 #include "UI.h"
 
-struct Ob {
-	MT::Rect rect;
-	MT::Color color;
 
-	Ob(MT::Rect rect, MT::Color color) {
+struct Ob{
+	MT::Rect rect;
+	MT::Texture *tex;
+	Ob(MT::Rect rect, MT::Texture* tex) {
 		this->rect = rect;
-		this->color = color;
+		this->tex = tex;
 	}
+
 };
 
 class Game {
@@ -20,6 +21,9 @@ private:
 	MT::Renderer *renderer = nullptr;
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui = nullptr;
+	std::vector<Ob> objects;
+
+
 public:
 	Game();
 

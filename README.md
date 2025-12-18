@@ -105,3 +105,5 @@ was removed or the new one was added to folder
 - New UI function ConsumeIFExist(name) that finally allows for safe status retrieval
 - Button->setName() has been removed since it was unsafe now you need to use safe ui->renameElem()
 - Faster euclideanDistance calculation
+- Agressive render copy is now about 30 % faster
+- Agressive rnder copy renamed to FlatRenderCopy and is no longer marked as unstable and experimental

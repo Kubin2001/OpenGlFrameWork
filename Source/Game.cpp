@@ -45,8 +45,23 @@ void Game::Start() {
 	ui->CreateFont("arial20px", TexMan::GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
 
-	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
+	renderer->FLatRenderCopySetUp();
 
+	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
+	for (size_t i = 0; i < 1000; i++) {
+		int random = RandInt(1, 3);
+		switch (random) {
+			case 1:
+				objects.emplace_back(MT::Rect{ 10,10,60,60 }, TexMan::GetTex("granite"));
+				break;
+			case 2:
+				objects.emplace_back(MT::Rect{ 10,110,60,60 }, TexMan::GetTex("tree2"));
+				break;
+			case 3:
+				objects.emplace_back(MT::Rect{ 10,210,60,60 }, TexMan::GetTex("grass"));
+				break;
+		}
+	}
 }
 
 void Game::LogicUpdate() {
@@ -63,31 +78,24 @@ void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
 		Exit();
-
-		if (event.type == SDL_KEYUP) {
-			if (event.key.keysym.scancode == SDL_SCANCODE_R) {
-				MT::Timer::Tic();
-				TexMan::RefreshTextures("Textures",true);
-				std::println("Textures Refreshed in {} mickroSec", MT::Timer::Tac<std::chrono::microseconds>());
-			}
-
-			if (event.key.keysym.scancode == SDL_SCANCODE_L) {
-				TexMan::DeepLoad("Textures");
-			}
-			if (event.key.keysym.scancode == SDL_SCANCODE_C) {
-				TexMan::Clear();
-			}
-		}
 	}
 	Global::inputDelay++;
 }
 
 void Game::Render() {
-	renderer->ClearFrame(Global::defaultDrawColor[0],Global::defaultDrawColor[1],Global::defaultDrawColor[2]);
 
+	if (Global::frameCounter % 60 == 0) {
+		renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
+		MT::Timer::Tic();
+		for (auto& it : objects) {
+			renderer->FLatRenderCopy(it.rect, it.tex);
+		}
+		renderer->FLatRenderCopyPresent();
+		std::println("Time : {} mikrosec", MT::Timer::Tac<std::chrono::microseconds>());
+		//ui->Render();
+		renderer->Present();
 
-	ui->Render();
-	renderer->Present();
+	}
 }
 
 

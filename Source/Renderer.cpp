@@ -3,6 +3,7 @@
 #include "glad/glad.h"
 #include <SDL_image.h>
 #include <chrono>
+#include <algorithm>
 
 #include "Colision.h"
 #include "TextureManager.h"
@@ -2077,6 +2078,7 @@ void MT::Renderer::Clear() {
 
     globalVertices.clear();
     globalVertices.shrink_to_fit();
+    flatRenderVec.clear();
 
     SDL_GL_DeleteContext(context);
 }
@@ -2090,14 +2092,16 @@ void MT::Renderer::Resize(const unsigned int w, const unsigned int h) {
     glViewport(0, 0, W, H);
 }
 
-void MT::Renderer::AgresiveRenderCopySetUp() {
-    agresiveRenderMap.clear();
+void MT::Renderer::FLatRenderCopySetUp() {
+    flatRenderVec.clear();
+    int i = 0;
     for (auto& tex : TexMan::GetAllTex()) {
-        agresiveRenderMap.emplace(std::make_pair(tex.second->texture, std::vector<float>()));
+        tex.second->batchIndex = i++;
+        flatRenderVec.emplace_back(tex.second->texture);
     }
 }
 
-void MT::Renderer::AgressiveRenderCopy(const Rect& rect, const Texture* texture) {
+void MT::Renderer::FLatRenderCopy(const Rect& rect, const Texture* texture) {
     if (!texture) { return; }
     if (!vievPort.IsColliding(rect)) {
         return;
@@ -2118,22 +2122,22 @@ void MT::Renderer::AgressiveRenderCopy(const Rect& rect, const Texture* texture)
     };
 
     constexpr int N = 18;
-    std::vector<float>& vec = agresiveRenderMap[texture->texture];
+    std::vector<float>& vec = flatRenderVec[texture->batchIndex].vertices;
     const size_t old = vec.size();
     vec.resize(old + N);
     std::memcpy(vec.data() + old, verticles, N * sizeof(float));
 }
 
-void MT::Renderer::AgressiveRenderCopyPresent(bool clearVectors) {
+void MT::Renderer::FLatRenderCopyPresent(bool clearVectors) {
     const unsigned int prevProgram = currentProgram;
     const unsigned int prevTexture = currentTexture;
     glUseProgram(renderBaseId);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    for (auto& entry : agresiveRenderMap) {
-        auto& vec = entry.second;
+    for (auto& entry : flatRenderVec) {
+        auto& vec = entry.vertices;
         if (vec.empty()) { continue; }
-        glBindTexture(GL_TEXTURE_2D, entry.first);
+        glBindTexture(GL_TEXTURE_2D, entry.textureID);
         glBufferData(GL_ARRAY_BUFFER, vec.size() * sizeof(float), vec.data(), GL_DYNAMIC_DRAW);
         glDrawArrays(GL_TRIANGLES, 0, vec.size() / renderCopyBaseSize);
         vec.clear();
