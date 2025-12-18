@@ -102,3 +102,4 @@ Required CPP version at least 23
 - Removed memory leak when loading textures
 - Texture Manager allows for refreshing textures (it does not change existing ones if png has changed) only if it 
 was removed or the new one was added to folder
+- New UI function ConsumeIFExist(name) that finally allows for safe status retrieval

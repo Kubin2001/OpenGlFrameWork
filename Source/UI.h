@@ -326,6 +326,9 @@ class UI{
 		ClickBox* GetClickBox(const std::string& name);
 		PopUpBox* GetPopUpBox(const std::string& name);
 
+		// Consumes click box status if click box exist safe and recomended to ui->getClickBox->ConsumeStatus()
+		bool ConsumeIfExist(const std::string& name);
+
 		void SetElementColor(const std::string& name, const unsigned char R, unsigned char G, unsigned char B);
 
 		void SetElementBorderColor(const std::string& name, const unsigned char R, const unsigned char G, const unsigned char B);

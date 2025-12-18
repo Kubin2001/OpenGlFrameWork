@@ -46,6 +46,11 @@ void Game::Start() {
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
 
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
+
+	ClickBox *cb = ui->CreateClickBoxF("CB1", 100, 100, 100, 100, nullptr,"arial20px","Click 1");
+	cb->SetColor(30, 30, 30);
+	cb = ui->CreateClickBoxF("CB2", 300, 100, 100, 100, nullptr, "arial20px", "Click 2");
+	cb->SetColor(30, 30, 30);
 }
 
 void Game::LogicUpdate() {
@@ -54,6 +59,25 @@ void Game::LogicUpdate() {
 
 void Game::FrameUpdate() {
 	Input();
+	//if (ui->GetClickBox("CB1")->ConsumeStatus()) {
+	//	std::println("clickbox 1");
+	//}
+	//if (ui->GetClickBox("CB2")->ConsumeStatus()) {
+	//	std::println("clickbox 2");
+	//}
+	//if (ui->GetClickBox("CB3")->ConsumeStatus()) {
+	//	std::println("clickbox 3");
+	//}
+	if (ui->ConsumeIfExist("CB1")) {
+		std::println("clickbox 1");
+	}
+	if (ui->ConsumeIfExist("CB2")) {
+		std::println("clickbox 2");
+	}
+	if (ui->ConsumeIfExist("CB3")) {
+		std::println("clickbox 3");
+	}
+
 	ui->FrameUpdate();
 	Render();
 }
@@ -83,15 +107,7 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0],Global::defaultDrawColor[1],Global::defaultDrawColor[2]);
-	MT::Rect rect1{ 10,10,50,50 };
-	MT::Rect rect2{ 10,70,50,50 };
-	MT::Rect rect3{ 10,130,50,50 };
 
-	renderer->RenderCopy(rect1, TexMan::GetTex("tex1"));
-
-	renderer->RenderCopy(rect2, TexMan::GetTex("tex2"));
-
-	renderer->RenderCopy(rect3, TexMan::GetTex("tex3"));
 
 	ui->Render();
 	renderer->Present();

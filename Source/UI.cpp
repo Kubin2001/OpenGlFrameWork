@@ -709,6 +709,12 @@ PopUpBox* UI::GetPopUpBox(const std::string& name) {
 	return UIGetElem<PopUpBox>(name);
 }
 
+bool UI::ConsumeIfExist(const std::string& name) {
+	ClickBox* cb = UIGetElem<ClickBox>(name);
+	if (cb == nullptr) { return false; }
+	return cb->ConsumeStatus();
+}
+
 void UI::SetElementColor(const std::string& name, const unsigned char R, const unsigned char G, const unsigned char B) {
 	Button* button = GetButton(name);
 	if (button != nullptr) {
