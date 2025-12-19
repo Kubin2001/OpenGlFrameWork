@@ -91,6 +91,7 @@ namespace MT {
 
 		unsigned int renderBaseId = 0;
 		unsigned int renderCopyId = 0;
+		unsigned int flatRenderCopyId = 0;
 		unsigned int renderRectId = 0;
 		unsigned int renderCopyCircleId = 0;
 		unsigned int renderCircleId = 0;
@@ -113,6 +114,7 @@ namespace MT {
 		unsigned int currentSize = 0;
 		unsigned int renderRectSize = 4; // Wszystkie renderowania bez tesktur
 		unsigned int renderCopySize = 5; // Wszystkie renderowania tekstur
+		unsigned int flatRenderCopySize = 2;
 		unsigned int renderCopyBaseSize = 3;
 		unsigned int renderCircleSize = 7;
 		unsigned int renderCopyCircleSize = 6;

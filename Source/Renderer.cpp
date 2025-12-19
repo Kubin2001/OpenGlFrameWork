@@ -156,6 +156,8 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     //Rectangle
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); // powierzchnie + RGBA RenderRectangle
 
+    //Flat Copy
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0); // tylko powerzchnia
     //Render Copy Base
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // powierzchnie + aplha bez tekstur
 
@@ -184,6 +186,7 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
 
 
     glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     glEnableVertexAttribArray(3);
     glEnableVertexAttribArray(4);
@@ -206,6 +209,7 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     renderCopyId = loader.GetProgram("RenderCopy");
     renderBaseId = loader.GetProgram("RenderCopyBase");
+    flatRenderCopyId = loader.GetProgram("FlatCopyBase");
     renderRectId = loader.GetProgram("RenderRect");
     renderCopyCircleId = loader.GetProgram("RenderCopyCircle");
     renderCircleId = loader.GetProgram("RenderCircle");
@@ -259,6 +263,45 @@ void MT::Renderer::LoadShaders() {
         )glsl";
 
         loader.CreateProgramStr("RenderRect", vertexStr, fragmentStr);
+    }
+
+    if (!loader.IsProgram("FlatCopyBase")) {
+        constexpr const char* vertexStr = R"glsl(
+        #version 330 core
+        layout (location = 1) in vec2 aPos;
+
+        vec2 uvFromVertexID(int id) {
+            if      (id == 0) return vec2(0.0, 0.0);
+            else if (id == 1) return vec2(0.0, 1.0);
+            else if (id == 2) return vec2(1.0, 0.0);
+            else if (id == 3) return vec2(0.0, 1.0);
+            else if (id == 4) return vec2(1.0, 1.0);
+            else              return vec2(1.0, 0.0);
+        }
+        out vec2 vUV;
+
+        void main(){
+	        gl_Position = vec4(aPos.xy, 0.0 ,1.0);
+            vUV = uvFromVertexID(gl_VertexID % 6);
+        }
+        )glsl";
+
+        constexpr const char* fragmentStr = R"glsl(
+        #version 330 core
+
+        out vec4 FragColor;
+
+        in vec2 vUV;
+
+        uniform sampler2D texture1;
+
+        void main(){
+	        vec4 texcolor = texture(texture1,vUV);
+	        FragColor = texcolor;
+        }
+        )glsl";
+
+        loader.CreateProgramStr("FlatCopyBase", vertexStr, fragmentStr);
     }
 
     if (!loader.IsProgram("RenderCopyBase")) {
@@ -2111,17 +2154,17 @@ void MT::Renderer::FLatRenderCopy(const Rect& rect, const Texture* texture) {
     const float w = (rect.w / static_cast<float>(W)) * 2.0f;
     const float h = (rect.h / static_cast<float>(H)) * 2.0f;
 
-    //    // pos.x, pos.y tex.u, tex.v
+    // pos.x, pos.y
     const float verticles[] = {
-        x,     y - h ,texture->alpha,
-        x,     y     ,texture->alpha,
-        x + w, y - h ,texture->alpha,
-        x,     y     ,texture->alpha,
-        x + w, y     ,texture->alpha,
-        x + w, y - h ,texture->alpha
+        x,     y - h ,
+        x,     y     ,
+        x + w, y - h ,
+        x,     y     ,
+        x + w, y     ,
+        x + w, y - h
     };
 
-    constexpr int N = 18;
+    constexpr int N = 12;
     std::vector<float>& vec = flatRenderVec[texture->batchIndex].vertices;
     const size_t old = vec.size();
     vec.resize(old + N);
@@ -2131,7 +2174,7 @@ void MT::Renderer::FLatRenderCopy(const Rect& rect, const Texture* texture) {
 void MT::Renderer::FLatRenderCopyPresent(bool clearVectors) {
     const unsigned int prevProgram = currentProgram;
     const unsigned int prevTexture = currentTexture;
-    glUseProgram(renderBaseId);
+    glUseProgram(flatRenderCopyId);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     for (auto& entry : flatRenderVec) {
@@ -2139,7 +2182,7 @@ void MT::Renderer::FLatRenderCopyPresent(bool clearVectors) {
         if (vec.empty()) { continue; }
         glBindTexture(GL_TEXTURE_2D, entry.textureID);
         glBufferData(GL_ARRAY_BUFFER, vec.size() * sizeof(float), vec.data(), GL_DYNAMIC_DRAW);
-        glDrawArrays(GL_TRIANGLES, 0, vec.size() / renderCopyBaseSize);
+        glDrawArrays(GL_TRIANGLES, 0, vec.size() / flatRenderCopySize);
         vec.clear();
     }
     glBindTexture(GL_TEXTURE_2D, currentTexture);
