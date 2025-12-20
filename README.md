@@ -1,110 +1,70 @@
-# OpenGlFrameWork
+<div align="center">
+#🎮OpenGLFrameWork v1.09
+![Version](https://img.shields.io/badge/version-1.0.9-blue)
+![C++](https://img.shields.io/badge/C++-23-orange)
 
-A simple framework to simplyfy making basic games/ apps for begginers 
+A simple and efficient framework to jumpstart 2D games and apps development for beginners.
 
-Required Libs SDL2 SDL2_Image SDL2_Mixer SDL2_TTF Glad Glm
-Required CPP version at least 23
+</div>
 
-# Provides:
+---
 
-- UI creation
-- Text rendering
-- Texture Manager
-- Sound Manager
-- Scene System
-- Collision Detection
-- Basic Objects
-- Objects to simplyfy 2d grid managment
-- PreBuild basic game class and game loop
-- Distances Calculation for 2d grid 
-- Custom rendering in some cases 17 times faster than pure sdl2
 
-1.0 
-- Same posiblilities as pure sdl2 version
+## Overview
 
-1.01
-- File explorer improvements
-- Better text rendering from right
-- Better hovering of selected element in file explorer
-- More object orientet set of rectangles
-- Faster and simpler alpha rendering
+**OpenGLFrameWork** is a lightweight C++23 abstraction layer built on top of SDL2 and OpenGL. 
+It is specifically designed for beginners and hobbyists who want to create 2D games or 
+tools without getting lost in the boilerplate code of window management, texture loading, 
+or complex rendering pipelines.
 
-1.02
-- Texture nullability check when rendering
-- Experimental agressive rendering about 3 times faster for render copy
-- Camera focus function
+---
 
-1.03
-- New font loading option allowing to load any ttf into png and json
-- Simpler and about 20 % faster circle rendering
-- New clipping options (useful in some interface rendering)
-- Camera enable/disable functions
-- Draw Line Renderer Function
-- Cleaner ClickBoxList
-- Flipping in Ex functions
+## 🚀 Key Features
 
-1.04
-- 4 Times faster rendering in debug
-- About 15 % faster rendering in realse
-- Options for centered text rendering only on X or Y axis
-- Improved and much faster experimental flat rendering (still unstable)
-- Experimental function for creating temporary font directly from ttf
-- Option to Set Base Font for UI
-- Function to get all textures and fonts from Texture Manager and UI
-- New function for easier mouse pos retrieval
+	### 🎨 Customizable UI System
+	Create buttons, text boxes, and click boxes with full control over layout, appearance,
+	and behavior. UI layouts can be serialized to and loaded from JSON, enabling dynamic
+	interface creation and rapid iteration.
 
-1.05
-- Animations are simpler to make and faster and no longer use keys just pointers
-- Option to render raw text with UI class
-- Z layer rendering for ui (toogle)
-- More friendly ui elements managment
-- Faster any button removal
-- Faster ui element creation
-- Altreantive element creation
-- ClickBoxList Rework it is now UIList and can store also Button or TextBox
-- Faster Compilation
+	### ⚡ Multiple Rendering Paths
+	Supports several rendering modes, each optimized for different use cases:
+	- **Standard Rendering** – general-purpose rendering pipeline
+	- **Flat Rendering** – simplified rendering for UI and 2D elements
+	- **UberShader Rendering** – flexible shader-based pipeline for advanced effects
 
-1.06
-- New renderer function for rendering modern curved ui elements
-- UI now only use scancode
-- UI can now create rounded buttons
-- SoundMan now can load sound with depp load recursive function
-- SoundMan can now play stereo sound and raw sounds
-- Simple class UI Section for better big ui managment
+	### 📁 Built-in File Explorer
+	A fully functional file browser with adjustable scrolling, directory navigation,
+	and file format filtering, suitable for tools and editors.
 
-1.07
-- Simpler Scene Manager Interface
-- Experimental Render Copy Should should be safe in all OpenGL versions
-- Any RenderEx function render is much better quaility
-- Rounded buttons now support border rendering (also rounded)
-- Agresive Render Copy is about 20 percent faster
-- Render Copy AS function same as rendercopy but uses diffrent shader
-- UI now uses build in MT::Color and MT::ColorA
+	### 🖼️ Texture Manager
+	Load entire directories of PNG textures with a single call.
+	Supports dynamic texture reloading during runtime.
 
-1.08
-- Added New Set of universal rendering functions they are slower than normal ones but never change shader
-	what makes them much faster when someting is rendered using different functions
-- Upr is now about 10 % faster
-- UI and font now use upr for rendering
-- Small UI Speed Improvements
-- Sound man can now return full sounds list
-- UI can now dump elements to json
-- Ui can now load elements from json
-- Added light wrapper for std::chrono in addons
+	### 🔊 Sound Manager
+	Stereo audio playback with support for raw sounds and recursive directory loading.
+	Designed for simple integration without complex audio setup.
 
-1.09
-- File Explorer srolling speed is now adjustable and base is now 2 times faster
-- File Explorer can accept vector of supported formats as parameter
-- UI section now supports PopUpBoxes
-- Loading json now return UI Section so you can easly get reference to what was loaded
-- About 15 % faster render Rectangle
-- Sound man code is cleaner and allows setting volumes for individual plays
-- Removed memory leak when loading textures
-- Texture Manager allows for refreshing textures (it does not change existing ones if png has changed) only if it 
-was removed or the new one was added to folder
-- New UI function ConsumeIFExist(name) that finally allows for safe status retrieval
-- Button->setName() has been removed since it was unsafe now you need to use safe ui->renameElem()
-- Faster euclideanDistance calculation
-- Agressive render copy is now about 30 % faster
-- Agressive rnder copy renamed to FlatRenderCopy and is no longer marked as unstable and experimental
-- Flat renderCopy is now even faster aby out 15 %
+	### 🗺️ Grid & Logic Utilities
+	Built-in tools for working with 2D grids, including collision detection,
+	Euclidean distance calculations, and spatial logic helpers.
+
+	### 🎬 Scene Management
+	Simple scene system for switching between application states such as
+	menus, gameplay, editors, or settings.
+
+## 🛠️ Requirements
+
+| Category        | Requirement                           |
+|-----------------|---------------------------------------|
+| Language        | C++23 or newer                        |
+| Graphics        | OpenGL, GLAD, GLM                     |
+| Window / Input  | SDL2, SDL2_image                      |
+| Audio / Fonts   | SDL2_mixer, SDL2_ttf                  |
+
+
+## 📌 Status
+
+The framework is under active development and intended primarily for:
+- learning projects
+- hobby games
+- internal tools and editors
