@@ -1082,7 +1082,7 @@ void UI::DumpToJson(const std::string &fileName, const std::vector<UIElemBase*>&
 
 std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 	std::vector<UIElemBase*> loadedElements;
-	std::ifstream file(fileName + ".json");
+	std::ifstream file(fileName);
 	if (!file.is_open()) {
 		return loadedElements;
 	}
