@@ -425,7 +425,7 @@ class UI{
 
 		void DumpToJson(const std::string& fileName, const std::vector<UIElemBase*>& elements);
 
-		UISection LoadFromJson(const std::string& fileName);
+		std::vector<UIElemBase*> LoadFromJson(const std::string& fileName);
 
 		void ClearAll(bool clearLists = true);
 
