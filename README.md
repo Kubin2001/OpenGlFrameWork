@@ -1,14 +1,15 @@
 <div align="center">
-#🎮OpenGLFrameWork v1.09
+
+# 🎮 OpenGLFramework v1.0.9
+
 ![Version](https://img.shields.io/badge/version-1.0.9-blue)
 ![C++](https://img.shields.io/badge/C++-23-orange)
 
-A simple and efficient framework to jumpstart 2D games and apps development for beginners.
+A lightweight C++ framework for building 2D games and tools with SDL2 and OpenGL.
 
 </div>
 
 ---
-
 
 ## Overview
 
