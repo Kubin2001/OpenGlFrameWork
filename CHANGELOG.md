@@ -87,3 +87,4 @@ was removed or the new one was added to folder
 - Agressive render copy is now about 30 % faster
 - Agressive rnder copy renamed to FlatRenderCopy and is no longer marked as unstable and experimental
 - Flat renderCopy is now even faster aby out 15 %
+- SoundMan can refresh sounds just like Texture Manager

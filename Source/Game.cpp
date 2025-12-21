@@ -76,6 +76,23 @@ void Game::FrameUpdate() {
 
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
+		if (event.type == SDL_KEYUP) {
+			if (event.key.keysym.scancode == SDL_SCANCODE_0) {
+				SoundMan::PlaySound("click");
+			}
+			if (event.key.keysym.scancode == SDL_SCANCODE_1) {
+				SoundMan::PlaySound("coin");
+			}
+			if (event.key.keysym.scancode == SDL_SCANCODE_2) {
+				SoundMan::PlaySound("glock");
+			}
+			if (event.key.keysym.scancode == SDL_SCANCODE_R) {
+				SoundMan::RefreshSounds("Sounds", true);
+			}
+			if (event.key.keysym.scancode == SDL_SCANCODE_S) {
+				SoundMan::RefreshSounds("Sounds", false);
+			}
+		}
 		ui->ManageInput(event);
 		Exit();
 	}
@@ -83,19 +100,10 @@ void Game::Input() {
 }
 
 void Game::Render() {
+	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
+	ui->Render();
+	renderer->Present();
 
-	if (Global::frameCounter % 60 == 0) {
-		renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-		MT::Timer::Tic();
-		for (auto& it : objects) {
-			renderer->FLatRenderCopy(it.rect, it.tex);
-		}
-		renderer->FLatRenderCopyPresent();
-		std::println("Time : {} mikrosec", MT::Timer::Tac<std::chrono::microseconds>());
-		//ui->Render();
-		renderer->Present();
-
-	}
 }
 
 

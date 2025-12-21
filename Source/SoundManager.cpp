@@ -121,6 +121,53 @@ void SoundMan::SetVolume(const std::string& soundKey, unsigned char volume) {
 	Mix_VolumeChunk(Sounds[soundKey], newVolume);
 }
 
+void SoundMan::RefreshSoundsInFolder(const std::string& directory, bool removeInvalid, std::unordered_set<std::string>& namesCollector) {
+	namespace fs = std::filesystem;
+	for (fs::directory_entry entry : fs::directory_iterator(directory)) {
+		if (entry.is_directory()) {
+			RefreshSoundsInFolder(entry.path().string(), removeInvalid, namesCollector);
+		}
+		else {
+			std::string stem = entry.path().stem().string();
+			if (Sounds.find(stem) == Sounds.end()) {
+				LoadSound(entry.path().string().c_str(), stem);
+				if (removeInvalid) {
+					namesCollector.emplace(stem);
+				}
+			}
+			else if (removeInvalid) {
+				namesCollector.emplace(stem);
+			}
+		}
+	}
+}
+
+void SoundMan::RefreshSounds(const std::string& directory, bool removeInvalid) {
+	namespace fs = std::filesystem;
+	if (!fs::exists(directory)) {
+		std::println("SoundMan::RefreshSounds incorrect start directory");
+		return;
+	}
+	std::unordered_set<std::string> namesCollector;
+	if (removeInvalid) {
+		namesCollector.reserve(Sounds.size());
+	}
+
+	RefreshSoundsInFolder(directory, removeInvalid, namesCollector);
+
+	if (removeInvalid) {
+		std::vector<std::string> texturesToErase;
+		for (auto& [key, tex] : Sounds) {
+			if (!namesCollector.contains(key)) {
+				texturesToErase.emplace_back(key);
+			}
+		}
+		for (auto& it : texturesToErase) {
+			DeleteSound(it);
+		}
+	}
+}
+
 bool SoundMan::DeleteSound(const std::string& name) {
 	auto it = Sounds.find(name);
 	if (it != Sounds.end()) {
