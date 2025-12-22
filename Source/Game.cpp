@@ -10,6 +10,8 @@
 #include "Addons.h"
 #include "Files.h"
 
+#include "PathMaker.h"
+
 #include <chrono>
 
 
@@ -47,21 +49,10 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
+	PathMaker pm;
+	pm.Open(500,500);
+
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
-	for (size_t i = 0; i < 1000; i++) {
-		int random = RandInt(1, 3);
-		switch (random) {
-			case 1:
-				objects.emplace_back(MT::Rect{ 10,10,60,60 }, TexMan::GetTex("granite"));
-				break;
-			case 2:
-				objects.emplace_back(MT::Rect{ 10,110,60,60 }, TexMan::GetTex("tree2"));
-				break;
-			case 3:
-				objects.emplace_back(MT::Rect{ 10,210,60,60 }, TexMan::GetTex("grass"));
-				break;
-		}
-	}
 }
 
 void Game::LogicUpdate() {
@@ -76,23 +67,6 @@ void Game::FrameUpdate() {
 
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
-		if (event.type == SDL_KEYUP) {
-			if (event.key.keysym.scancode == SDL_SCANCODE_0) {
-				SoundMan::PlaySound("click");
-			}
-			if (event.key.keysym.scancode == SDL_SCANCODE_1) {
-				SoundMan::PlaySound("coin");
-			}
-			if (event.key.keysym.scancode == SDL_SCANCODE_2) {
-				SoundMan::PlaySound("glock");
-			}
-			if (event.key.keysym.scancode == SDL_SCANCODE_R) {
-				SoundMan::RefreshSounds("Sounds", true);
-			}
-			if (event.key.keysym.scancode == SDL_SCANCODE_S) {
-				SoundMan::RefreshSounds("Sounds", false);
-			}
-		}
 		ui->ManageInput(event);
 		Exit();
 	}
