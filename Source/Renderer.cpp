@@ -514,11 +514,19 @@ void MT::Renderer::LoadShaders() {
     if (!loader.IsProgram("RenderRoundedRectangle")) {
         constexpr const char* vertexStr = R"glsl(
         #version 330 core
-        layout(location = 0) in vec2 aPos;
-        layout(location = 1) in vec4 aColor;
+        layout(location = 0) in vec4 aPosColor;
 
         out vec4 ourColor;
         out vec2 uv;
+
+        vec2 unpackHalfColor(float packedColor){
+	        int col = int(packedColor);
+	        float r  = float((col >> 8) & 255); // in RG it would be R
+	        float g = float(col & 255); // This would be B
+	        r /=255.0;
+	        g /=255.0;
+	        return vec2(r, g);
+        }
 
         vec2 uvFromVertexID(int id) {
             if      (id == 0) return vec2(0.0, 0.0);
@@ -530,8 +538,9 @@ void MT::Renderer::LoadShaders() {
         }
 
         void main() {
-            gl_Position = vec4(aPos, 0.0, 1.0);
-            ourColor = aColor;
+            gl_Position = vec4(aPosColor.xy, 0.0, 1.0);
+            ourColor.xy = unpackHalfColor(aPosColor.z);
+            ourColor.zw = unpackHalfColor(aPosColor.w);
             uv = uvFromVertexID(gl_VertexID % 6);
         }
         )glsl";
@@ -1359,23 +1368,27 @@ void MT::Renderer::RenderRoundedRect(const Rect& rect, const Color& col, const u
     const float w = (static_cast<float>(rect.w) / W) * 2.0f;
     const float h = (static_cast<float>(rect.h) / H) * 2.0f;
 
-    const float fR = float(col.R) / 255;
-    const float fG = float(col.G) / 255;
-    const float fB = float(col.B) / 255;
-    const float fA = float(alpha) / 255;
+    uint16_t iRG = col.R;
+    iRG <<= 8;
+    iRG += col.G;
+    uint16_t iBA = col.B;
+    iBA <<= 8;
+    iBA += alpha;
+    const float fRG = iRG;
+    const float fBA = iBA;
 
 
     // pos.x, pos.y, pos.z,radius  col.r, col.g, col.b col.a
     const float vertex[] = {
-        x,     y - h, fR, fG, fB, fA,
-        x,     y    , fR, fG, fB, fA,
-        x + w, y - h, fR, fG, fB, fA,
-        x,     y    , fR, fG, fB, fA,
-        x + w, y    , fR, fG, fB, fA,
-        x + w, y - h, fR, fG, fB, fA
+        x,     y - h, fRG, fBA,
+        x,     y    , fRG, fBA,
+        x + w, y - h, fRG, fBA,
+        x,     y    , fRG, fBA,
+        x + w, y    , fRG, fBA,
+        x + w, y - h, fRG, fBA
     };
 
-    constexpr int N = 36;
+    constexpr int N = 24;
     const size_t old = globalVertices.size();
     globalVertices.resize(old + N);
     std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));

@@ -49,8 +49,8 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
-	PathMaker pm;
-	pm.Open(500,500);
+	//PathMaker pm;
+	//pm.Open(500,500);
 
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
 }
@@ -75,6 +75,8 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
+	renderer->RenderRoundedRect({ 100,100,100,100 }, { 255,0,0 });
+	renderer->RenderRoundedRectUPR({ 400,100,100,100 }, { 255,0,0 });
 	ui->Render();
 	renderer->Present();
 

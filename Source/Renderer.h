@@ -118,7 +118,7 @@ namespace MT {
 		unsigned int renderCopyBaseSize = 3;
 		unsigned int renderCircleSize = 7;
 		unsigned int renderCopyCircleSize = 6;
-		unsigned int renderRoundedSize = 6;
+		unsigned int renderRoundedSize = 4;
 		unsigned int renderCopyRoundedSize = 5;
 		unsigned int renderFilteredSize = 8;
 		unsigned int renderUPRSize = 8; // 9 is historical base size
