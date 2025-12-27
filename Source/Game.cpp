@@ -46,13 +46,9 @@ void Game::Start() {
 	ui->CreateFont("arial40px", TexMan::GetTex("arial40px"), "Textures/Interface/Fonts/arial40px.json");
 	ui->CreateFont("arial20px", TexMan::GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
+	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
 
 	renderer->FLatRenderCopySetUp();
-
-	//PathMaker pm;
-	//pm.Open(500,500);
-
-	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
 }
 
 void Game::LogicUpdate() {
@@ -75,8 +71,6 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-	renderer->RenderRoundedRect({ 100,100,100,100 }, { 255,0,0 });
-	renderer->RenderRoundedRectUPR({ 400,100,100,100 }, { 255,0,0 });
 	ui->Render();
 	renderer->Present();
 

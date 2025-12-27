@@ -1,5 +1,223 @@
 #include "PathMaker.h"
-#include "UI.h"
+
+#include <fstream>
+
+#include "Files.h"
+
+static void CreateErrorBox(UI* ui, const std::string& text) {
+	PopUpBox *pb =  ui->CreatePopUpBoxF("erroxBox" + std::to_string(RandInt(0, 1000)), 120, 200, 5, 100, 40,nullptr,"arial12px");
+	pb->SetColor(120, 120, 120);
+	pb->SetText(text);
+	pb->SetRenderTextType(2);
+}
+
+static void CreateInfoBox(UI* ui, const std::string& text) {
+	PopUpBox* pb = ui->CreatePopUpBoxF("erroxBox" + std::to_string(RandInt(0, 1000)), 120, 200, 5, 100, 40, nullptr, "arial12px");
+	pb->SetColor(120, 120, 120);
+	pb->SetText(text);
+	pb->SetRenderTextType(2);
+}
+
+
+
+void PathMaker::CreateSaveMenu() {
+	if (!saveSection.GetClickBoxes().empty()) { return; }
+	Button* btn = ui->CreateButtonF("saveBack", 50, 50, 190, 200, nullptr, "arial20px", "Saving", 1.0f, 0, 10);
+	btn->SetRenderTextType(4); 
+	btn->SetRenderType(2); 
+	btn->SetColor(40, 40, 40, 255); 
+	btn->SetBorder(2, 70, 160, 255); 
+	btn->SetFontColor(40, 255, 255);
+	saveSection.Add(btn);
+
+	ClickBox* cb = ui->CreateClickBoxF("saveTxt", 60, 100, 40, 40, nullptr, "arial12px", "Txt", 1.0f, 0, -12);
+	cb->SetRenderTextType(4);
+	cb->SetRenderType(2);
+	cb->SetColor(0, 255, 0, 255);
+	cb->SetBorder(2, 70, 160, 255);
+	cb->SetFontColor(40, 255, 255);
+	saveSection.Add(cb);
+
+	cb = ui->CreateClickBoxF("saveCsv", 125, 100, 40, 40, nullptr, "arial12px", "Csv", 1.0f, 0, -12);
+	cb->SetRenderTextType(4);
+	cb->SetRenderType(2);
+	cb->SetColor(40, 40, 40, 255);
+	cb->SetBorder(2, 70, 160, 255);
+	cb->SetFontColor(40, 255, 255);
+	saveSection.Add(cb);
+
+	cb = ui->CreateClickBoxF("saveBin", 190, 100, 40, 40, nullptr, "arial12px", "Bin", 1.0f, 0, -12);
+	cb->SetRenderTextType(4);
+	cb->SetRenderType(2);
+	cb->SetColor(40, 40, 40, 255);
+	cb->SetBorder(2, 70, 160, 255);
+	cb->SetFontColor(40, 255, 255);
+	saveSection.Add(cb);
+
+	TextBox* tb = ui->CreateTextBoxF("saveName", 90, 150, 110, 40, nullptr, "arial20px", "Name"); 
+	tb->SetRenderTextType(2);
+	tb->SetRenderType(2);
+	tb->SetColor(70, 70, 70, 255);
+	tb->SetBorder(2, 70, 160, 255);
+	saveSection.Add(tb);
+
+	cb = ui->CreateClickBoxF("saveConf", 125, 200, 40, 30, nullptr, "arial12px", "Save");
+	cb->SetRenderTextType(2);
+	cb->SetRenderType(2);
+	cb->SetColor(40, 40, 40, 255);
+	cb->SetBorder(2, 70, 160, 255);
+	cb->SetFontColor(40, 255, 255);
+	cb->SetHoverFilter(true, 255, 255, 255, 120);
+	saveSection.Add(cb);
+}
+
+void PathMaker::InputSaveMenu() {
+	if (ui->ConsumeIfExist("saveTxt")) {
+		ui->GetClickBox("saveTxt")->SetColor(0, 255, 0);
+		ui->GetClickBox("saveCsv")->SetColor(40, 40, 40);
+		ui->GetClickBox("saveBin")->SetColor(40, 40, 40);
+		saveState = 0;
+	}
+	if (ui->ConsumeIfExist("saveCsv")) {
+		ui->GetClickBox("saveTxt")->SetColor(40, 40, 40);
+		ui->GetClickBox("saveCsv")->SetColor(0, 255, 0);
+		ui->GetClickBox("saveBin")->SetColor(40, 40, 40);
+		saveState = 1;
+	}
+	if (ui->ConsumeIfExist("saveBin")) {
+		ui->GetClickBox("saveTxt")->SetColor(40, 40, 40);
+		ui->GetClickBox("saveCsv")->SetColor(40, 40, 40);
+		ui->GetClickBox("saveBin")->SetColor(0, 255, 0);
+		saveState = 2;
+	}
+	if (ui->ConsumeIfExist("saveConf")) {
+		switch (saveState) {
+			case 0: //txt
+				SaveTxt();
+				break;
+			case 1: //csv
+				SaveCsv();
+				break;
+			case 2: //bin
+				SaveBin();
+				break;
+		}
+	}
+}
+
+void PathMaker::SaveTxt() {
+	std::ofstream file(ui->GetTextBox("saveName")->GetText() + ".txt");
+	if (!file.is_open()) {
+		CreateErrorBox(ui, "Cannot save to txt");
+		return;
+	}
+	for (auto& point : path) {
+		file << std::to_string(point.x)<<"\n";
+		file << std::to_string(point.y)<<"\n";
+	}
+	CreateInfoBox(ui, "Saved to txt");
+}
+
+void PathMaker::SaveCsv() {
+	std::ofstream file(ui->GetTextBox("saveName")->GetText() + ".csv");
+	if (!file.is_open()) {
+		CreateErrorBox(ui, "Cannot save to csv");
+		return;
+	}
+	for (auto& point : path) {
+		file << std::to_string(point.x) << ","<< std::to_string(point.y) << "\n";
+	}
+	CreateInfoBox(ui, "Saved to csv");
+}
+
+void PathMaker::SaveBin() {
+	std::ofstream file(
+		ui->GetTextBox("saveName")->GetText() + ".bin",
+		std::ios::binary
+	);
+
+	if (!file.is_open()) {
+		CreateErrorBox(ui, "Cannot save to bin");
+		return;
+	}
+	size_t count = path.size();
+	file.write(reinterpret_cast<char*>(&count), sizeof(count));
+
+	file.write(
+		reinterpret_cast<char*>(path.data()),
+		sizeof(Point) * count
+	);
+	CreateInfoBox(ui, "Saved to bin");
+}
+
+std::vector<Point> PathMaker::LoadTxt(const std::string& path){
+	std::ifstream file(path);
+	if (!file.is_open()) {
+		throw std::runtime_error("PathMaker::LoadTxt Cannot open file: " + path);
+	}
+
+	std::vector<Point> retPath;
+	std::string line;
+	while (std::getline(file, line)) {
+		try {
+			retPath.emplace_back();
+			retPath.back().x = std::stoi(line);
+			std::getline(file, line);
+			retPath.back().y = std::stoi(line);
+		}
+		catch (const std::exception& e) {
+			std::println("Cannot convert this file to path vector {}", path);
+			return{};
+		}
+	}
+	return retPath;
+}
+
+
+std::vector<Point> PathMaker::LoadCsv(const std::string& path) {
+	std::vector<std::vector<std::string>> csv = ReadCsv(path, ',');
+	std::vector<Point> retPath;
+
+	try {
+		for (auto& line : csv) {
+			retPath.emplace_back();
+			retPath.back().x = std::stoi(line.at(0));
+			retPath.back().y = std::stoi(line.at(1));
+		}
+	}
+	catch (const std::exception&) {
+		std::println("Cannot convert this file to path vector {}", path);
+		return{};
+	}
+	return retPath;
+}
+
+
+std::vector<Point> PathMaker::LoadBin(const std::string& path) {
+	std::ifstream file(path, std::ios::binary);
+	if (!file.is_open()) {
+		throw std::runtime_error("PathMaker::LoadBin Cannot open file: " + path);
+	}
+
+	size_t count = 0;
+	file.read(reinterpret_cast<char*>(&count), sizeof(count));
+
+	if (!file || count == 0) {
+		return {};
+	}
+
+	std::vector<Point> retPath;
+	retPath.resize(count);
+
+	file.read(reinterpret_cast<char*>(retPath.data()),sizeof(Point) * count);
+
+	if (!file) {
+		std::println("Cannot convert this file to path vector {}", path);
+		return {};
+	}
+
+	return retPath;
+}
 
 void PathMaker::Input() {
 	while (SDL_PollEvent(&event)) {
@@ -9,37 +227,106 @@ void PathMaker::Input() {
 				finished = true;
 			}
 		}
+		ui->ManageInput(event);
 		if (event.type == SDL_KEYUP) {
-			if (event.key.keysym.scancode == SDL_SCANCODE_R) {
-				switch (programState) {
-					case 0:
+
+			switch (programState) {
+				case 0:
+					if (event.key.keysym.scancode == SDL_SCANCODE_R) {
 						programState = 1;
+						startPoint = GetMousePos();
+						currentPoint = GetMousePos();
 						statusText = "Drawing press R to stop";
-						break;
-					case 1:
+					}
+
+					break;
+				case 1:
+					if (event.key.keysym.scancode == SDL_SCANCODE_R) {
 						programState = 2;
-						statusText = "Saving";
-						break;
-					case 2:
+						statusText = "Press R to cancel or S to save";
+						std::println("Created points");
+						//for (auto point : path) {
+						//	std::println("X: {} Y: {}", point.x, point.y);
+						//}
+					}
+
+
+					break;
+				case 2:
+					if (event.key.keysym.scancode == SDL_SCANCODE_R) {
+						statusText = "Press R to draw";
+						path.clear();
 						programState = 0;
-						break;
-				}
+						saveSection.Clear();
+					}
+					if (event.key.keysym.scancode == SDL_SCANCODE_S) {
+						CreateSaveMenu();
+					}
+					break;
 			}
 		}
 	}
 }
 
+void PathMaker::FrameUpdate() {
+	ui->FrameUpdate();
+	switch (programState) {
+		case 0: // waiting
+
+			break;
+		case 1: { // drawing
+			Point prev = currentPoint;
+			currentPoint = GetMousePos();
+			path.emplace_back(currentPoint.x - prev.x, currentPoint.y - prev.y);
+			break;
+		}
+		case 2: // saving
+
+			break;
+	}
+	InputSaveMenu();
+}
+
 void PathMaker::Render() {
 	ren->ClearFrame(30, 30, 30);
+	switch (programState) {
+		case 0: // waiting
+
+			break;
+		case 1: { // drawing
+			Point curPoint = startPoint;
+			for (size_t i = 0; i < path.size(); i++) {
+
+				if (i + 1 < path.size() - 1) {
+					ren->DrawLine(curPoint.x, curPoint.y, curPoint.x + path[i + 1].x, curPoint.y + path[i + 1].y, 3, { 100,255,100 });
+					curPoint.x += path[i + 1].x;
+					curPoint.y += path[i + 1].y;
+				}
+			}
+			break;
+		}
+		case 2: // saving
+			Point curPoint = startPoint;
+			for (size_t i = 0; i < path.size(); i++) {
+
+				if (i + 1 < path.size() - 1) {
+					ren->DrawLine(curPoint.x, curPoint.y, curPoint.x + path[i + 1].x, curPoint.y + path[i + 1].y, 3, { 100,255,100 });
+					curPoint.x += path[i + 1].x;
+					curPoint.y += path[i + 1].y;
+				}
+			}
+			break;
+	}
 	ui->FrameUpdate();
-	ui->Render();
 	ui->RenderRawText(ui->GetFont("arial12px"), 10, 10, statusText, 0, 230, 230, 230);
+	ui->Render();
 	ren->Present();
 }
 
 void PathMaker::Maintain() {
 	while(!finished){
 		Input();
+		FrameUpdate();
 		Render();
 	}
 }
@@ -55,7 +342,9 @@ void PathMaker::Open(int windowW, int windowH) {
 	texMan.LoadMultiple("Textures/FileExplorer");
 	ui = new UI(ren);
 	ui->CreateFont("arial12px", texMan.GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
+	ui->CreateFont("arial20px", texMan.GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
 	statusText = "Press R to start";
+	saveSection.Init(ui);
 
 	Maintain();
 

@@ -88,3 +88,6 @@ was removed or the new one was added to folder
 - Agressive rnder copy renamed to FlatRenderCopy and is no longer marked as unstable and experimental
 - Flat renderCopy is now even faster aby out 15 %
 - SoundMan can refresh sounds just like Texture Manager
+
+1.10
+- New tool Path Maker make for simple and fast custom path creation
