@@ -50,21 +50,39 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
-	ui->CreateButton("btn", 20, 20, 20, 20);
+	tagSec.Init(ui.get());
+
+	tagSec.Add( "TagBtnOne", ui->CreateButton("btn1", 20, 20, 20, 20));
+	tagSec.Add("TagBtnOne", ui->CreateButton("btn2", 20, 20, 20, 20));
+	tagSec.Add("TagBtnOne", ui->CreateButton("btn3", 20, 20, 20, 20));
+	tagSec.Add("TagBtnOne", ui->CreateButton("btn4", 20, 20, 20, 20));
+
+	tagSec.Add("ClickBoxes", ui->CreateClickBox("cb1", 20, 20, 20, 20));
+	tagSec.Add("ClickBoxes", ui->CreateClickBox("cb2", 20, 20, 20, 20));
+	tagSec.Add("ClickBoxes", ui->CreateClickBox("cb3", 20, 20, 20, 20));
+	tagSec.Add("ClickBoxes", ui->CreateClickBox("cb4", 20, 20, 20, 20));
+
+	std::vector<UIElemBase*> vec =  tagSec.GetTag("TagBtnOne");
+
+	std::vector<UIElemBase*> vec2 = tagSec.GetTag("ClickBoxes");
+
+	for (auto& elem : vec) {
+		std::println("{}", elem->GetName());
+	}
+
+	for (auto& elem : vec2) {
+		ClickBox *cb = static_cast<ClickBox*>(elem);
+		if (cb->ConsumeStatus()) {
+			std::println("{}", elem->GetName());
+		}
+	}
+	tagSec.DeleteAll();
+
 }
 
 void Game::LogicUpdate() {
 	Global::frameCounter++;
 
-	if (Global::frameCounter % 100 == 0) {
-		int totalTime = 0;
-		for (size_t i = 0; i < 1000; i++) {
-			MT::Timer::Tic();
-			ui->GetButton("btn");
-			totalTime += MT::Timer::Tac<std::chrono::nanoseconds>();
-		}
-		std::println("Time:  {}  mikrosec", totalTime);
-	}
 }
 
 void Game::FrameUpdate() {

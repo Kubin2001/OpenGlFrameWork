@@ -565,3 +565,96 @@ class UISection {
 		std::vector<ClickBox*>& GetClickBoxes() { return clickBoxes; }
 		std::vector<PopUpBox*>& GetPopUpBoxes() { return popUpBoxes; }
 };
+
+// Designed for managing large interfaces WARING it is up to you to cast to corret type one tag should has only one type for safety
+class TagUISection {
+	private:
+		std::unordered_map<std::string, std::vector<UIElemBase*>> TagMap;
+
+		UI* ui = nullptr;
+
+	public:
+		TagUISection() = default;
+
+		TagUISection(UI* ui) {
+			this->ui = ui;
+		}
+
+		void Init(UI* ui) {
+			this->ui = ui;
+		}
+
+		void Add(const std::string &tag, UIElemBase *elem) {
+			if (ui == nullptr) {
+				throw std::runtime_error("UI is nullptr tag section is not inicialized");
+			}
+			TagMap[tag].emplace_back(elem);
+		}
+
+		void ClearTag(const std::string& tag) {
+			if (ui == nullptr) {
+				throw std::runtime_error("UI is nullptr tag section is not inicialized");
+			}
+			auto iter = TagMap.find(tag);
+			if (iter != TagMap.end()) {
+				TagMap.erase(iter);
+			}
+		}
+
+		void DeleteTag(const std::string& tag) {
+			if (ui == nullptr) {
+				throw std::runtime_error("UI is nullptr tag section is not inicialized");
+			}
+			auto iter = TagMap.find(tag);
+			if (iter != TagMap.end()) {
+				for (auto& elem : iter->second) {
+					ui->DeleteElement(elem->GetName());
+				}
+				TagMap.erase(iter);
+			}
+		}
+
+		void ClearAll() {
+			TagMap.clear();
+		}
+
+		void DeleteAll() {
+			if (ui == nullptr) {
+				throw std::runtime_error("UI is nullptr tag section is not inicialized");
+			}
+			for (auto& tag : TagMap) {
+				for (auto& elem : tag.second) {
+					ui->DeleteElement(elem->GetName());
+				}
+			}
+			TagMap.clear();
+		}
+
+		std::vector<UIElemBase*>& GetTag(const std::string& tag) {
+			if (ui == nullptr) {
+				throw std::runtime_error("UI is nullptr tag section is not inicialized");
+			}
+			auto iter = TagMap.find(tag);
+			if (iter == TagMap.end()) {
+				throw std::runtime_error("This tag does not exist");
+			}
+			return iter->second;
+		}
+
+		UIElemBase* GetElem(const std::string& tag, const std::string &name) {
+			if (ui == nullptr) {
+				throw std::runtime_error("UI is nullptr tag section is not inicialized");
+			}
+			auto iter = TagMap.find(tag);
+
+			if (iter == TagMap.end()) {
+				throw std::runtime_error("This tag does not exist");
+			}
+			for (auto& elem : iter->second) {
+				if (elem->GetName() == name) {
+					return elem;
+				}
+			}
+			return nullptr;
+		}
+};
