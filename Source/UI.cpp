@@ -5,9 +5,15 @@
 #include "json.hpp"
 #include "Colision.h"
 #include "GlobalVariables.h"
+enum class CastType {
+	Button,
+	ClickBox,
+	TextBox,
+	PopUpBox
+};
+
 
 //UIElemBase
-
 std::string& UIElemBase::GetName() {
 	return name;
 }
@@ -460,6 +466,7 @@ Button* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT
 
 	Buttons.emplace_back(new Button());
 	Button* btn = Buttons.back();
+	btn->castType = (int)CastType::Button;
 	btn->name = name;
 	btn->GetRectangle().Set(x, y, w, h);
 	btn->SetRenderType(1);
@@ -495,6 +502,7 @@ TextBox* UI::CreateTextBox(const std::string& name, int x, int y, int w, int h, 
 
 	TextBoxes.emplace_back(new TextBox());
 	TextBox* tb = TextBoxes.back();
+	tb->castType = (int)CastType::TextBox;
 	tb->name = name;
 	tb->GetRectangle().Set(x, y, w, h);
 	tb->SetRenderType(1);
@@ -532,6 +540,7 @@ ClickBox* UI::CreateClickBox(const std::string& name, int x, int y, int w, int h
 
 	ClickBoxes.emplace_back(new ClickBox());
 	ClickBox* cb = ClickBoxes.back();
+	cb->castType = (int)CastType::ClickBox;
 	cb->name = name;
 	cb->GetRectangle().Set(x, y, w, h);
 	cb->SetRenderType(1);
@@ -567,6 +576,7 @@ PopUpBox* UI::CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y
 
 	PopUpBoxes.emplace_back(new PopUpBox());
 	PopUpBox* pb = PopUpBoxes.back();
+	pb->castType = (int)CastType::PopUpBox;
 	pb->name = name;
 	pb->SetLifeTime(lifeSpan);
 	pb->GetRectangle().Set(x, y, w, h);
@@ -705,108 +715,87 @@ void UI::CheckClickBoxes(SDL_Event& event) {
 	}
 }
 
-
-
 Button* UI::GetButton(const std::string& name) {
-	return UIGetElem<Button>(name);
+	auto iter = UIElemMap.find(name);
+	if (iter == UIElemMap.end()) {
+		return nullptr;
+	}
+	UIElemBase* elem = iter->second;
+	if (elem->castType == (int)CastType::Button) {
+		return static_cast<Button*>(elem);
+	}
+	return nullptr;
 }
 TextBox* UI::GetTextBox(const std::string& name) {
-	return UIGetElem<TextBox>(name);
+	auto iter = UIElemMap.find(name);
+	if (iter == UIElemMap.end()) {
+		return nullptr;
+	}
+	UIElemBase* elem = iter->second;
+	if (elem->castType == (int)CastType::TextBox) {
+		return static_cast<TextBox*>(elem);
+	}
+	return nullptr;
 }
 ClickBox* UI::GetClickBox(const std::string& name) {
-	return UIGetElem<ClickBox>(name);
+	auto iter = UIElemMap.find(name);
+	if (iter == UIElemMap.end()) {
+		return nullptr;
+	}
+	UIElemBase* elem = iter->second;
+	if (elem->castType == (int)CastType::ClickBox) {
+		return static_cast<ClickBox*>(elem);
+	}
+	return nullptr;
 }
 
 PopUpBox* UI::GetPopUpBox(const std::string& name) {
-	return UIGetElem<PopUpBox>(name);
+	auto iter = UIElemMap.find(name);
+	if (iter == UIElemMap.end()) {
+		return nullptr;
+	}
+	UIElemBase* elem = iter->second;
+	if (elem->castType == (int)CastType::PopUpBox) {
+		return static_cast<PopUpBox*>(elem);
+	}
+	return nullptr;
 }
 
 bool UI::ConsumeIfExist(const std::string& name) {
-	ClickBox* cb = UIGetElem<ClickBox>(name);
+	ClickBox* cb = GetClickBox(name);
 	if (cb == nullptr) { return false; }
 	return cb->ConsumeStatus();
 }
 
 void UI::SetElementColor(const std::string& name, const unsigned char R, const unsigned char G, const unsigned char B) {
-	Button* button = GetButton(name);
-	if (button != nullptr) {
-		button->SetColor(R, G, B);
+	auto iter = UIElemMap.find(name);
+	if (iter == UIElemMap.end()) {
 		return;
 	}
-
-	TextBox* textBox = GetTextBox(name);
-	if (textBox != nullptr) {
-		textBox->SetColor(R, G, B);
-		return;
-	}
-
-	ClickBox* clickBox = GetClickBox(name);
-	if (clickBox != nullptr) {
-		clickBox->SetColor(R, G, B);
-		return;
-	}
-	PopUpBox* popUpBox = GetPopUpBox(name);
-	if (popUpBox != nullptr) {
-		popUpBox->SetColor(R, G, B);
-		return;
-	}
+	iter->second->SetColor(R, G, B);
 }
 
 void UI::SetElementBorderColor(const std::string& name, const unsigned char R, const unsigned char G, const unsigned char B) {
-	Button* button = GetButton(name);
-	if (button != nullptr) {
-		button->SetBorderRGB(R, G, B);
+	auto iter = UIElemMap.find(name);
+	if (iter == UIElemMap.end()) {
 		return;
 	}
-
-	TextBox* textBox = GetTextBox(name);
-	if (textBox != nullptr) {
-		textBox->SetBorderRGB(R, G, B);
-		return;
-	}
-
-	ClickBox* clickBox = GetClickBox(name);
-	if (clickBox != nullptr) {
-		clickBox->SetBorderRGB(R, G, B);
-		return;
-	}
-	PopUpBox* popUpBox = GetPopUpBox(name);
-	if (popUpBox != nullptr) {
-		popUpBox->SetBorderRGB(R, G, B);
-		return;
-	}
+	iter->second->SetBorderRGB(R, G, B);
 }
 
 void UI::SetElementFontColor(const std::string& name, const unsigned char R, const unsigned char G, const unsigned char B) {
-	Button* button = GetButton(name);
-	if (button != nullptr) {
-		button->SetFontColor(R, G, B);
+	auto iter = UIElemMap.find(name);
+	if (iter == UIElemMap.end()) {
 		return;
 	}
-
-	TextBox* textBox = GetTextBox(name);
-	if (textBox != nullptr) {
-		textBox->SetFontColor(R, G, B);
-		return;
-	}
-
-	ClickBox* clickBox = GetClickBox(name);
-	if (clickBox != nullptr) {
-		clickBox->SetFontColor(R, G, B);
-		return;
-	}
-	PopUpBox* popUpBox = GetPopUpBox(name);
-	if (popUpBox != nullptr) {
-		popUpBox->SetFontColor(R, G, B);
-		return;
-	}
+	iter->second->SetFontColor(R, G, B);
 }
 
 void UI::FrameUpdate() {
 	for (auto it = PopUpBoxes.begin(); it != PopUpBoxes.end();) {
 		(*it)->lifeTime--;
 		if ((*it)->lifeTime < 1) {
-			DeletePopUpBox((*it)->name);
+			DeleteElement((*it)->name);
 			return;
 		}
 		else {
@@ -828,75 +817,63 @@ void UI::ManageInput(SDL_Event& event) {
 }
 
 
-bool UI::DeleteButton(const std::string& name) {
+bool UI::DeleteElement(const std::string& name) {
+	auto elemIter = UIElemMap.find(name);
+	if (elemIter == UIElemMap.end()) { return false; }
 
-	UIElemMap.erase(name);
-	for (size_t i = 0; i < Buttons.size(); i++){
-		if (Buttons[i]->GetName() == name) {
-			delete Buttons[i];
-			Buttons.erase(Buttons.begin() + i);
-			return true;
-		}
+	switch (elemIter->second->castType) {
+		case (int)CastType::Button:
+			if (!DeleteButton(static_cast<Button*>(elemIter->second))) {return false;}
+			break;
+		case (int)CastType::ClickBox:
+			if (!DeleteClickBox(static_cast<ClickBox*>(elemIter->second))) { return false; }
+			break;
+		case (int)CastType::TextBox:
+			if (!DeleteTextBox(static_cast<TextBox*>(elemIter->second))) { return false; }
+			break;
+		case (int)CastType::PopUpBox:
+			if (!DeletePopUpBox(static_cast<PopUpBox*>(elemIter->second))) { return false; }
+			break;
 	}
-	return false;
+	UIElemMap.erase(elemIter);
+	return true;
 }
 
-bool UI::DeleteTextBox(const std::string& name) {
-	UIElemMap.erase(name);
-	for (size_t i = 0; i < TextBoxes.size(); i++){
-		if (TextBoxes[i]->GetName() == name) {
-			delete TextBoxes[i];
-			TextBoxes.erase(TextBoxes.begin() + i);
-			return true;
-		}
-	}
-	return false;
-}
-
-bool UI::DeleteClickBox(const std::string& name) {
-	UIElemMap.erase(name);
-	for (size_t i = 0; i < ClickBoxes.size(); i++){
-		if (ClickBoxes[i]->GetName() == name) {
-			delete ClickBoxes[i];
-			ClickBoxes.erase(ClickBoxes.begin() + i);
-			return true;
-		}
-	}
-	return false;
-}
-
-bool UI::DeletePopUpBox(const std::string& name) {
-	UIElemMap.erase(name);
-	for (size_t i = 0; i < PopUpBoxes.size(); i++) {
-		if (PopUpBoxes[i]->GetName() == name) {
-			delete PopUpBoxes[i];
-			PopUpBoxes.erase(PopUpBoxes.begin() + i);
-			return true;
-		}
-	}
-	return false;
-}
-
-bool UI::DeleteAnyElem(const std::string& name) {
-	auto elemMap = UIElemMap.find(name);
-	if (elemMap == UIElemMap.end()) {
-		return false;
-	}
-	UIElemBase* uiElemBase = elemMap->second;
-	if (dynamic_cast<Button*>(uiElemBase) != nullptr) {
-		DeleteButton(name);
+bool UI::DeleteButton(Button* btn) {
+	auto vecIter = std::find(Buttons.begin(), Buttons.end(),btn);
+	if (vecIter != Buttons.end()) {
+		delete *vecIter;
+		Buttons.erase(vecIter);
 		return true;
 	}
-	if (dynamic_cast<TextBox*>(uiElemBase) != nullptr) {
-		DeleteTextBox(name);
+	return false;
+}
+
+bool UI::DeleteTextBox(TextBox* tb) {
+	auto vecIter = std::find(TextBoxes.begin(), TextBoxes.end(), tb);
+	if (vecIter != TextBoxes.end()) {
+		delete* vecIter;
+		TextBoxes.erase(vecIter);
 		return true;
 	}
-	if (dynamic_cast<ClickBox*>(uiElemBase) != nullptr) {
-		DeleteClickBox(name);
+	return false;
+}
+
+bool UI::DeleteClickBox(ClickBox* cb) {
+	auto vecIter = std::find(ClickBoxes.begin(), ClickBoxes.end(), cb);
+	if (vecIter != ClickBoxes.end()) {
+		delete* vecIter;
+		ClickBoxes.erase(vecIter);
 		return true;
 	}
-	if (dynamic_cast<PopUpBox*>(uiElemBase) != nullptr) {
-		DeletePopUpBox(name);
+	return false;
+}
+
+bool UI::DeletePopUpBox(PopUpBox* pb) {
+	auto vecIter = std::find(PopUpBoxes.begin(), PopUpBoxes.end(), pb);
+	if (vecIter != PopUpBoxes.end()) {
+		delete* vecIter;
+		PopUpBoxes.erase(vecIter);
 		return true;
 	}
 	return false;

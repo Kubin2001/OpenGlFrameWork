@@ -49,10 +49,22 @@ void Game::Start() {
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
 
 	renderer->FLatRenderCopySetUp();
+
+	ui->CreateButton("btn", 20, 20, 20, 20);
 }
 
 void Game::LogicUpdate() {
 	Global::frameCounter++;
+
+	if (Global::frameCounter % 100 == 0) {
+		int totalTime = 0;
+		for (size_t i = 0; i < 1000; i++) {
+			MT::Timer::Tic();
+			ui->GetButton("btn");
+			totalTime += MT::Timer::Tac<std::chrono::nanoseconds>();
+		}
+		std::println("Time:  {}  mikrosec", totalTime);
+	}
 }
 
 void Game::FrameUpdate() {

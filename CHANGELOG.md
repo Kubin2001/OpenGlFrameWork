@@ -91,3 +91,5 @@ was removed or the new one was added to folder
 
 1.10
 - New tool Path Maker make for simple and fast custom path creation
+- Retiveing elemnts from UI is 2 times faster
+- Removing ui elements is safer and no longer requires element type

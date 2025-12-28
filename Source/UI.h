@@ -14,6 +14,8 @@
 class UIElemBase :public GameObject {
 protected:
 	std::string name = "";
+	int castType = 0; // enum
+
 	std::string text = "";
 	float textScale = 1.0f;
 	int interLine = 20;
@@ -266,6 +268,12 @@ class UI{
 
 		void DumpPopUpBox(nlohmann::ordered_json& json, PopUpBox* pb);
 
+		bool DeleteButton(Button *btn);
+		bool DeleteTextBox(TextBox *tb);
+		bool DeleteClickBox(ClickBox *cb);
+		bool DeletePopUpBox(PopUpBox *pb);
+
+
 	public:
 		bool useLayersInRendering = false;
 
@@ -309,22 +317,6 @@ class UI{
 
 		void CheckClickBoxes(SDL_Event& event);
 
-		template<typename T>
-		T* UIGetElem(const std::string& name) {
-			auto elemFind = UIElemMap.find(name);
-			if (elemFind == UIElemMap.end()) {
-				return nullptr;
-			}
-
-			T* elem = dynamic_cast<T*>(elemFind->second);
-		//#ifdef _DEBUG
-		//	if (elem == nullptr) {
-		//		throw std::runtime_error("UI::GetElem wrong cast for " + name);
-		//	}
-		//#endif // DEBUG
-			return elem;
-		}
-
 		Button* GetButton(const std::string& name);
 		TextBox* GetTextBox(const std::string& name);
 		ClickBox* GetClickBox(const std::string& name);
@@ -341,51 +333,8 @@ class UI{
 		void FrameUpdate();
 
 		void ManageInput(SDL_Event& event);
-
-
-		template<typename T>
-		bool EraseVec(std::vector<T*>& vec, const std::string &name) {
-			for (unsigned int i = 0; i < vec.size(); i++) {
-				if (vec[i]->GetName() == name) {
-					delete vec[i];
-					vec.erase(vec.begin() + i);
-					return true;
-				}
-			}
-			return false;
-		}
-
-		template<typename T>
-		bool DeleteElem(const std::string& name) {
-			static_assert(
-					std::is_same_v<T,Button> ||
-					std::is_same_v<T, ClickBox> ||
-					std::is_same_v<T, TextBox> ||
-					std::is_same_v<T, PopUpBox>, "Wrong type allowed : Button, ClickBox, TextBox, PopUpBox"
-				);
-			UIElemMap.erase(name);
-
-			if constexpr (std::is_same_v<T, Button>) {
-				return EraseVec(Buttons,name);
-			}
-			else if constexpr (std::is_same_v<T, ClickBox>) {
-				return EraseVec(ClickBoxes, name);
-			}
-			else if constexpr (std::is_same_v<T, TextBox>) {
-				return EraseVec(TextBoxes, name);
-			}
-			else if constexpr (std::is_same_v<T, PopUpBox>) {
-				return EraseVec(PopUpBoxes, name);
-			}
-			return false;
-		}
-
-		bool DeleteButton(const std::string& name);
-		bool DeleteTextBox(const std::string& name);
-		bool DeleteClickBox(const std::string& name);
-		bool DeletePopUpBox(const std::string& name);
-
-		bool DeleteAnyElem(const std::string& name);
+			
+		bool DeleteElement(const std::string& name);
 
 		void Render();
 
@@ -522,25 +471,12 @@ public:
 
 	void Clear() {
 		if (!initalized) { return; }
-		if constexpr (std::is_same_v<T, Button>) {
-			for (const auto& it : Elements) {
-				ui->DeleteButton(it->GetName());
-			}
-		}
-		else if constexpr (std::is_same_v<T, TextBox>) {
-			for (const auto& it : Elements) {
-				ui->DeleteTextBox(it->GetName());
-			}
-
-		}
-		else if constexpr (std::is_same_v<T, ClickBox>) {
-			for (const auto& it : Elements) {
-				ui->DeleteClickBox(it->GetName());
-			}
+		for (const auto& it : Elements) {
+			ui->DeleteElement(it->GetName());
 		}
 		Elements.clear();
 		if (mainElement != nullptr) {
-			ui->DeleteClickBox(mainElement->GetName());
+			ui->DeleteElement(mainElement->GetName());
 		}
 		mainElement = nullptr;
 		ui->RemoveListRef(this);
@@ -607,16 +543,16 @@ class UISection {
 
 		void Clear() {
 			for (auto& elem: buttons) {
-				ui->DeleteButton(elem->GetName());
+				ui->DeleteElement(elem->GetName());
 			}
 			for (auto& elem : clickBoxes) {
-				ui->DeleteClickBox(elem->GetName());
+				ui->DeleteElement(elem->GetName());
 			}
 			for (auto& elem : textBoxes) {
-				ui->DeleteTextBox(elem->GetName());
+				ui->DeleteElement(elem->GetName());
 			}
 			for (auto& elem : popUpBoxes) {
-				ui->DeleteTextBox(elem->GetName());
+				ui->DeleteElement(elem->GetName());
 			}
 			buttons.clear();
 			textBoxes.clear();

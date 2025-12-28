@@ -192,10 +192,10 @@ bool FileExplorer::ExtensionAllowed(const std::string& ext) {
 
 void FileExplorer::Update() {
 	for (auto& elem : folderElements) {
-		ui->DeleteClickBox(elem->GetName());
+		ui->DeleteElement(elem->GetName());
 	}
 	for (auto& elem : folderElementsNames) {
-		ui->DeleteClickBox(elem->GetName());
+		ui->DeleteElement(elem->GetName());
 	}
 	folderElements.clear();
 	folderElementsNames.clear();
