@@ -52,37 +52,24 @@ void Game::Start() {
 
 	tagSec.Init(ui.get());
 
-	tagSec.Add( "TagBtnOne", ui->CreateButton("btn1", 20, 20, 20, 20));
-	tagSec.Add("TagBtnOne", ui->CreateButton("btn2", 20, 20, 20, 20));
-	tagSec.Add("TagBtnOne", ui->CreateButton("btn3", 20, 20, 20, 20));
-	tagSec.Add("TagBtnOne", ui->CreateButton("btn4", 20, 20, 20, 20));
-
-	tagSec.Add("ClickBoxes", ui->CreateClickBox("cb1", 20, 20, 20, 20));
-	tagSec.Add("ClickBoxes", ui->CreateClickBox("cb2", 20, 20, 20, 20));
-	tagSec.Add("ClickBoxes", ui->CreateClickBox("cb3", 20, 20, 20, 20));
-	tagSec.Add("ClickBoxes", ui->CreateClickBox("cb4", 20, 20, 20, 20));
-
-	std::vector<UIElemBase*> vec =  tagSec.GetTag("TagBtnOne");
-
-	std::vector<UIElemBase*> vec2 = tagSec.GetTag("ClickBoxes");
-
-	for (auto& elem : vec) {
-		std::println("{}", elem->GetName());
-	}
-
-	for (auto& elem : vec2) {
-		ClickBox *cb = static_cast<ClickBox*>(elem);
-		if (cb->ConsumeStatus()) {
-			std::println("{}", elem->GetName());
-		}
-	}
-	tagSec.DeleteAll();
-
+	Button *btn = ui->CreateButtonF("test2", 100, 100, 100, 100, TexMan::GetTex("water"), "arial12px", "");
+	btn = ui->CreateButtonF("test3", 300, 100, 100, 100, nullptr, "arial12px", "sdfafads");
+	btn->SetColor(30, 30, 30);
+	btn->SetBorder(4, 100, 100, 100);
+	btn->SetRenderType(2);
+	btn = ui->CreateButtonF("test4", 500, 100, 100, 100, nullptr, "arial12px", "dfsa");
+	btn->SetColor(255, 0, 0);
+	btn->SetBorder(4, 100, 100, 100);
+	btn = ui->CreateButtonF("test5", 700, 100, 100, 100, nullptr, "arial12px", "fsda");
+	btn->SetColor(0, 255, 0);
+	btn->SetBorder(4, 100, 100, 100);
+	btn = ui->CreateButtonF("test6", 900, 100, 100, 100, nullptr, "arial12px", "dsaffa");
+	btn->SetColor(0, 0, 255);
+	btn->SetBorder(4, 100, 100, 100);
 }
 
 void Game::LogicUpdate() {
 	Global::frameCounter++;
-
 }
 
 void Game::FrameUpdate() {
@@ -101,8 +88,20 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
+	MT::Timer::Tic();
 	ui->Render();
 	renderer->Present();
+	std::println("Total time: {}", MT::Timer::Tac<std::chrono::nanoseconds>());
+
+
+	//renderer->RenderRoundedBorder({ 400,400,100,300 }, { 255,0,0 }, 4);
+
+	//renderer->RenderBorder({ 600,400,100,300 }, { 0,0,255 }, 4);
+
+	//renderer->RenderRoundedBorderUPR({ 800,400,100,300 }, { 255,0,0 }, 4);
+
+	//renderer->RenderBorderUPR({ 1000,400,100,300 }, { 0,0,255 }, 4);
+	//renderer->Present();
 
 }
 

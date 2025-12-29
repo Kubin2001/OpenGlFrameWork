@@ -98,16 +98,22 @@ namespace MT {
 		unsigned int renderCopyFilterId = 0;
 		unsigned int renderRoundedRectId = 0;
 		unsigned int renderCopyRoundedRectId = 0;
+		unsigned int renderBorderId = 0;
+		unsigned int renderRoundedBorderId = 0;
 		unsigned int uprId = 0;
 
 		//Uniforms Ids
 		unsigned int currentTexture = 0;
 		unsigned int roundRectRadius = 0;
 		unsigned int roundRectCopyRadius = 0;
+		unsigned int roundBorderRadius = 0;
+		unsigned int roundRoundedBorderRadius = 0;
 
 		//Uniforms Values
 		glm::vec2 roundRectRadiusVal = { 0.0f,0.0f };
 		glm::vec2 roundRectCopyRadiusVal = { 0.0f,0.0f };
+		glm::vec2 roundBorderRadiusVal = { 0.0f,0.0f };
+		glm::vec2 roundRoundedBorderRadiusVal = { 0.0f,0.0f };
 
 
 		//Veretex Sizes
@@ -121,7 +127,8 @@ namespace MT {
 		unsigned int renderRoundedSize = 4;
 		unsigned int renderCopyRoundedSize = 5;
 		unsigned int renderFilteredSize = 8;
-		unsigned int renderUPRSize = 8; // 9 is historical base size
+		unsigned int renderUPRSize = 8; 
+		unsigned int renderBorderSize = 5; // Same for rounded border
 
 		std::vector<float> globalVertices = {};
 
@@ -129,6 +136,8 @@ namespace MT {
 		std::vector<FlatRenderLayer> flatRenderVec = {};
 
 		void LoadShaders();
+
+		void ExpandUpr(float* vertices);
 
 		public:
 		int W, H;
@@ -162,11 +171,15 @@ namespace MT {
 
 		void RenderRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha = 255);
 
-		void RenderCopyRoundedRect(const Rect& rect, const Texture* texture);
+		void RenderCopyRounded(const Rect& rect, const Texture* texture);
 
 		void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter);
 
 		void RenderCopyPartFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
+
+		void RenderBorder(const Rect& rect, const Color& col, const int width);
+
+		void RenderRoundedBorder(const Rect& rect, const Color& col, const int width);
 
 		//UPR Universal Pipeline Render does not change shader ever so it is much faster in shader switch rendering but slower overall
 		void RenderRectUPR(const Rect& rect, const Color& col, const int alpha = 255);
@@ -187,11 +200,16 @@ namespace MT {
 
 		void RenderRoundedRectUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255);
 
-		void RenderCopyRoundedRectUPR(const Rect& rect, const Texture* texture);
+		void RenderCopyRoundedUPR(const Rect& rect, const Texture* texture);
 
 		void RenderCopyFilteredUPR(const Rect& rect, const Texture* texture, const Color& filter);
 
 		void RenderCopyPartFilteredUPR(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
+
+		void RenderBorderUPR(const Rect& rect, const Color& col, const int width);
+
+		void RenderRoundedBorderUPR(const Rect& rect, const Color& col, const int width);
+
 		//UPR
 
 		void Present(bool switchContext = true);

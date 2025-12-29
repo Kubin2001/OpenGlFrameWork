@@ -55,10 +55,6 @@ protected:
 
 	void SetBorder(bool temp);
 
-	void RenderItslelf(MT::Renderer* renderer);
-
-	void RenderItslelfRounded(MT::Renderer* renderer);
-
 	void RenderText(MT::Renderer* renderer);
 
 public:

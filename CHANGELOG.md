@@ -94,3 +94,8 @@ was removed or the new one was added to folder
 - Retiveing elemnts from UI is 2 times faster
 - Removing ui elements is safer and no longer requires element type
 - New UI Helper container TagUISection designed to vastly simplyfy managing large interfaces
+- UPR shader is a bit simpler
+- New functions for renering borders in one go without (hopefully) any bugs
+- UPR versions or that functions
+- Rendring border in UI is no longer breaks with full 0 alpha button color
+- RenderCopyRoundedRect renamed to RenderCopyRounded

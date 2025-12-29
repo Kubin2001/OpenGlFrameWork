@@ -116,22 +116,13 @@ void UIElemBase::SetFontColor(const unsigned char R, const unsigned char G, cons
 void UIElemBase::Render(UIElemBase* elem, MT::Renderer* renderer) {
 	if (!elem->hidden) {
 		if (elem->GetTexture() == nullptr) {
-			elem->RenderItslelf(renderer);
+			renderer->RenderRectUPR(elem->rectangle, { elem->buttonColor.R, elem->buttonColor.G, elem->buttonColor.B }, elem->buttonColor.A);
 		}
 		else {
 			renderer->RenderCopyUPR(elem->rectangle, elem->texture);
-			if (elem->GetBorder()) {
-				MT::Rect& rect = elem->rectangle;
-				MT::Rect leftLine{ rect.x, rect.y, elem->borderThickness, rect.h };
-				MT::Rect upperLine{ rect.x, rect.y, rect.w, elem->borderThickness };
-				MT::Rect rightLine{ (rect.x + rect.w - elem->borderThickness), rect.y, elem->borderThickness, rect.h };
-				MT::Rect downLine{ rect.x, (rect.y + rect.h - elem->borderThickness), rect.w, elem->borderThickness };
-
-				renderer->RenderRectUPR(leftLine, { elem->borderRGB.R, elem->borderRGB.G, elem->borderRGB.B });
-				renderer->RenderRectUPR(upperLine, { elem->borderRGB.R, elem->borderRGB.G, elem->borderRGB.B });
-				renderer->RenderRectUPR(rightLine, { elem->borderRGB.R, elem->borderRGB.G, elem->borderRGB.B });
-				renderer->RenderRectUPR(downLine, { elem->borderRGB.R, elem->borderRGB.G, elem->borderRGB.B });
-			}
+		}
+		if (elem->GetBorder()) {
+			renderer->RenderBorderUPR(elem->rectangle, { elem->borderRGB.R, elem->borderRGB.G, elem->borderRGB.B },elem->borderThickness);
 		}
 		if (elem->hovered && elem->hoverable) {
 			renderer->RenderRectUPR(elem->rectangle,
@@ -143,7 +134,15 @@ void UIElemBase::Render(UIElemBase* elem, MT::Renderer* renderer) {
 
 void UIElemBase::RenderRounded(UIElemBase* elem, MT::Renderer* renderer) {
 	if (!elem->hidden) {
-		elem->RenderItslelfRounded(renderer);
+		if (elem->GetTexture() == nullptr) {
+			renderer->RenderRoundedRectUPR(elem->rectangle, { elem->buttonColor.R, elem->buttonColor.G, elem->buttonColor.B }, elem->buttonColor.A);
+		}
+		else {
+			renderer->RenderCopyRoundedUPR(elem->rectangle, elem->texture);
+		}
+		if (elem->GetBorder()) {
+			renderer->RenderRoundedBorderUPR(elem->rectangle, { elem->borderRGB.R, elem->borderRGB.G, elem->borderRGB.B }, elem->borderThickness);
+		}
 		if (elem->hovered && elem->hoverable) {
 			renderer->RenderRoundedRectUPR(elem->rectangle,
 				{ elem->hoverFilter.R, elem->hoverFilter.G, elem->hoverFilter.B }, elem->hoverFilter.A);
@@ -152,99 +151,30 @@ void UIElemBase::RenderRounded(UIElemBase* elem, MT::Renderer* renderer) {
 	}
 }
 
-void UIElemBase::RenderItslelf(MT::Renderer* renderer) {
-	if (!border) {
-		renderer->RenderRectUPR(rectangle, { buttonColor.R, buttonColor.G, buttonColor.B }, buttonColor.A);
-	}
-	else {
-		MT::Rect newBtnRect = rectangle;
-		int width = 0;
-		if (borderThickness % 2 == 0) {
-			width = borderThickness / 2;
-		}
-		else {
-			width = (borderThickness / 2) + 1;
-		}
-		newBtnRect.x += borderThickness;
-		newBtnRect.y += borderThickness;
-		newBtnRect.w -= borderThickness * 2;
-		newBtnRect.h -= borderThickness * 2;
-		renderer->RenderRectUPR(rectangle, { borderRGB.R, borderRGB.G, borderRGB.B }, 255);
-		renderer->RenderRectUPR(newBtnRect, { buttonColor.R, buttonColor.G, buttonColor.B }, buttonColor.A);
-	}
-}
-
-void UIElemBase::RenderItslelfRounded(MT::Renderer* renderer) {
-	if (texture == nullptr) {
-		if (!border) {
-			renderer->RenderRoundedRectUPR(rectangle, { buttonColor.R, buttonColor.G, buttonColor.B }, buttonColor.A);
-		}
-		else {
-			MT::Rect newBtnRect = rectangle;
-			int width = 0;
-			if (borderThickness % 2 == 0) {
-				width = borderThickness / 2;
-			}
-			else {
-				width = (borderThickness / 2) + 1;
-			}
-			newBtnRect.x += borderThickness;
-			newBtnRect.y += borderThickness;
-			newBtnRect.w -= borderThickness * 2;
-			newBtnRect.h -= borderThickness * 2;
-			renderer->RenderRoundedRectUPR(rectangle, { borderRGB.R, borderRGB.G, borderRGB.B }, 255);
-			renderer->RenderRoundedRectUPR(newBtnRect, { buttonColor.R, buttonColor.G, buttonColor.B }, buttonColor.A);
-		}
-	}
-	else {
-		if (!border) {
-			renderer->RenderCopyRoundedRectUPR(rectangle, texture);
-		}
-		else {
-			MT::Rect newBtnRect = rectangle;
-			int width = 0;
-			if (borderThickness % 2 == 0) {
-				width = borderThickness / 2;
-			}
-			else {
-				width = (borderThickness / 2) + 1;
-			}
-			newBtnRect.x += borderThickness;
-			newBtnRect.y += borderThickness;
-			newBtnRect.w -= borderThickness * 2;
-			newBtnRect.h -= borderThickness * 2;
-			renderer->RenderRoundedRectUPR(rectangle, { borderRGB.R, borderRGB.G, borderRGB.B }, 255);
-			renderer->RenderCopyRoundedRectUPR(newBtnRect, texture);
-		}
-	}
-
-}
-
 
 void UIElemBase::RenderText(MT::Renderer* renderer) {
-	if (font != nullptr) {
-		if (text.empty()) { return; }
-		font->SetFilter(fontRGB.R, fontRGB.G, fontRGB.B);
-		switch (textRenderType) {
-			case 1:
-				font->RenderText(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
-				break;
-			case 2:
-				font->RenderTextCenter(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
-				break;
-			case 3:
-				font->RenderTextFromRight(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
-				break;
-			case 4:
-				font->RenderTextCenterX(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
-				break;
-			case 5:
-				font->RenderTextCenterY(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
-				break;
-			default: // Standardowa opcja
-				font->RenderText(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
-				break;
-		}
+	if (font == nullptr || text.empty()) { return; }
+
+	font->SetFilter(fontRGB.R, fontRGB.G, fontRGB.B);
+	switch (textRenderType) {
+		case 1:
+			font->RenderText(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
+			break;
+		case 2:
+			font->RenderTextCenter(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
+			break;
+		case 3:
+			font->RenderTextFromRight(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
+			break;
+		case 4:
+			font->RenderTextCenterX(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
+			break;
+		case 5:
+			font->RenderTextCenterY(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
+			break;
+		default: // Standardowa opcja
+			font->RenderText(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
+			break;
 	}
 }
 

@@ -156,6 +156,7 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     //Rectangle
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); // powierzchnie + RGBA RenderRectangle
 
+    //WARNING flatCopy and renderCOpyBase is also used in render border shaders to conserve atributes
     //Flat Copy
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0); // tylko powerzchnia
     //Render Copy Base
@@ -164,7 +165,6 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     //Render Copy
     glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // powierzchnie
     glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float))); // tekstury + alpha
-
 
     // Koło
     glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); // powierzchnie + radius
@@ -180,9 +180,8 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     glVertexAttribPointer(12, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); // uv + alpha
 
     //URP Shader
-    glVertexAttribPointer(13, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // Nie zdefiniowane ale raczej pozycje + coś
-    glVertexAttribPointer(14, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // Texture lub kolory
-    glVertexAttribPointer(15, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); // Bonus jakis
+    glVertexAttribPointer(13, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // Nie zdefiniowane ale raczej pozycje + coś
+    glVertexAttribPointer(14, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(4 * sizeof(float))); // Texture lub kolory + shader id na końcu
 
 
     glEnableVertexAttribArray(0);
@@ -200,13 +199,13 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
 
     glEnableVertexAttribArray(13);
     glEnableVertexAttribArray(14);
-    glEnableVertexAttribArray(15);
 
 
     LoadShaders();
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     renderCopyId = loader.GetProgram("RenderCopy");
     renderBaseId = loader.GetProgram("RenderCopyBase");
     flatRenderCopyId = loader.GetProgram("FlatCopyBase");
@@ -216,10 +215,14 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     renderCopyFilterId = loader.GetProgram("RenderCopyFilter");
     renderRoundedRectId = loader.GetProgram("RenderRoundedRectangle");
     renderCopyRoundedRectId = loader.GetProgram("RenderCopyRoundedRectangle");
+    renderBorderId = loader.GetProgram("RenderBorder");
+    renderRoundedBorderId = loader.GetProgram("RenderRoundedBorder");
     uprId = loader.GetProgram("RenderUPR");
 
     roundRectRadius = glGetUniformLocation(renderRoundedRectId, "uPixelSize");
     roundRectCopyRadius = glGetUniformLocation(renderCopyRoundedRectId, "uPixelSize");
+    roundBorderRadius = glGetUniformLocation(renderBorderId, "uPixelSize");
+    roundRoundedBorderRadius = glGetUniformLocation(renderRoundedBorderId, "uPixelSize");
     return true;
 }
 
@@ -630,43 +633,166 @@ void MT::Renderer::LoadShaders() {
         loader.CreateProgramStr("RenderCopyRoundedRectangle", vertexStr, fragmentStr);
     }
 
+    if (!loader.IsProgram("RenderBorder")) {
+        constexpr const char* vertexStr = R"glsl(
+        #version 330 core
+        layout(location = 3) in vec2 aPos;
+        layout(location = 4) in vec3 rGBAwidth; 
+
+        const vec2 uvs[6] = vec2[6](
+            vec2(0.0, 0.0), // 0
+            vec2(0.0, 1.0), // 1
+            vec2(1.0, 0.0), // 2
+            vec2(0.0, 1.0), // 3
+            vec2(1.0, 1.0), // 4
+            vec2(1.0, 0.0)  // 5
+        );
+
+
+        out vec4 ourColor;
+        out vec3 uvw;
+
+        vec2 unpackHalfColor(float packedColor){
+	        int col = int(packedColor);
+	        float r  = float((col >> 8) & 255); // in RG it would be R
+	        float g = float(col & 255); // This would be B
+	        r /=255.0;
+	        g /=255.0;
+	        return vec2(r, g);
+        }
+
+        void main() {
+            gl_Position = vec4(aPos, 0.0, 1.0);
+            ourColor.xy = unpackHalfColor(rGBAwidth.x);
+            ourColor.zw = unpackHalfColor(rGBAwidth.y);
+            uvw.xy = uvs[gl_VertexID % 6];
+            uvw.z = rGBAwidth.z;
+        }
+        )glsl";
+
+        constexpr const char* fragmentStr = R"glsl(
+        #version 330 core
+
+        in vec4 ourColor; 
+        in vec3 uvw;
+        out vec4 FragColor;
+
+        uniform vec2 uPixelSize; // W and H
+
+        float boxSDF(vec2 p, vec2 size) {
+            vec2 d = abs(p - size * 0.5) - (size * 0.5);
+            return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
+        }
+
+        void main(){
+            vec2 p_px = uvw.xy * uPixelSize;
+            float borderThickness = uvw.z;
+    
+            float d = boxSDF(p_px, uPixelSize);
+
+            float finalAlpha = smoothstep(-borderThickness - 1.0, -borderThickness, d);
+
+            if (finalAlpha <= 0.001) discard;
+
+            FragColor = vec4(ourColor.rgb, ourColor.a * finalAlpha);
+        }
+        )glsl";
+
+        loader.CreateProgramStr("RenderBorder", vertexStr, fragmentStr);
+    }
+
+    if (!loader.IsProgram("RenderRoundedBorder")) {
+        constexpr const char* vertexStr = R"glsl(
+        #version 330 core
+        layout(location = 3) in vec2 aPos;
+        layout(location = 4) in vec3 rGBAwidth; 
+
+        const vec2 uvs[6] = vec2[6](
+            vec2(0.0, 0.0), // 0
+            vec2(0.0, 1.0), // 1
+            vec2(1.0, 0.0), // 2
+            vec2(0.0, 1.0), // 3
+            vec2(1.0, 1.0), // 4
+            vec2(1.0, 0.0)  // 5
+        );
+
+
+        out vec4 ourColor;
+        out vec3 uvw;
+
+        vec2 unpackHalfColor(float packedColor){
+	        int col = int(packedColor);
+	        float r  = float((col >> 8) & 255); // in RG it would be R
+	        float g = float(col & 255); // This would be B
+	        r /=255.0;
+	        g /=255.0;
+	        return vec2(r, g);
+        }
+
+        void main() {
+            gl_Position = vec4(aPos, 0.0, 1.0);
+            ourColor.xy = unpackHalfColor(rGBAwidth.x);
+            ourColor.zw = unpackHalfColor(rGBAwidth.y);
+            uvw.xy = uvs[gl_VertexID % 6];
+            uvw.z = rGBAwidth.z;
+        }
+        )glsl";
+
+        constexpr const char* fragmentStr = R"glsl(
+        #version 330 core
+
+        in vec4 ourColor; 
+        in vec3 uvw;
+        out vec4 FragColor;
+
+        uniform vec2 uPixelSize; // W and H
+
+        float roundedBoxSDF(vec2 p, vec2 size, float r){
+            vec2 d = abs(p - size * 0.5) - (size * 0.5 - vec2(r));
+            return length(max(d, 0.0)) - r;
+        }
+
+        void main(){
+            vec2 p_px = uvw.xy * uPixelSize;
+            float borderThickness = uvw.z;
+            float d = roundedBoxSDF(p_px, uPixelSize, 8.0); // 8.0 is the size of a curve if nedded the change uniform is requied
+
+            float alphaOuter = 1.0 - smoothstep(0.0, 1.0, d);
+
+            float alphaInner = 1.0 - smoothstep(0.0, 1.0, d + borderThickness);
+
+            float finalAlpha = alphaOuter - alphaInner;
+
+            finalAlpha = clamp(finalAlpha, 0.0, 1.0);
+
+            if (finalAlpha <= 0.001) discard;
+
+            FragColor = vec4(ourColor.rgb, ourColor.a * finalAlpha);
+        }
+        )glsl";
+
+        loader.CreateProgramStr("RenderRoundedBorder", vertexStr, fragmentStr);
+    }
+
     if (!loader.IsProgram("RenderUPR")) {
         constexpr const char* vertexStr = R"glsl(
         #version 330 core
 
-        layout(location = 13) in vec3 vVecOne;
-        layout(location = 14) in vec3 vVecTwo;
-        layout(location = 15) in vec2 vVecThree; // vVecThree.y is always shader id
+        layout(location = 13) in vec4 vVecOne;
+        layout(location = 14) in vec4 vVecTwo; // vVecTwo.w is always shader id
 
         out vec4 oOutVec;
         out vec4 oOutVecTwo;
         flat out int oShaderId;
 
-        vec2 uvFromVertexID(int id) {
-	        switch(id){
-		        case 0: 
-			        return vec2(0.0, 0.0);
-			        break;
-		        case 1: 
-			        return vec2(0.0, 1.0);
-			        break;
-		        case 2: 
-			        return vec2(1.0, 0.0);
-			        break;
-		        case 3: 
-			        return vec2(0.0, 1.0);
-			        break;
-		        case 4: 
-			        return vec2(1.0, 1.0);
-			        break;
-		        case 5: 
-			        return vec2(1.0, 0.0);
-			        break;
-		        default:
-			        return vec2(1.0, 0.0);
-			        break;
-	        }
-        }
+        const vec2 uvs[6] = vec2[6](
+            vec2(0.0, 0.0), // 0
+            vec2(0.0, 1.0), // 1
+            vec2(1.0, 0.0), // 2
+            vec2(0.0, 1.0), // 3
+            vec2(1.0, 1.0), // 4
+            vec2(1.0, 0.0)  // 5
+        );
 
         vec2 unpackHalfColor(float packedColor){
 	        int col = int(packedColor);
@@ -678,65 +804,80 @@ void MT::Renderer::LoadShaders() {
         }
 
         void main(){
-	        int vShaderId = int(vVecThree.y);
+	        int vShaderId = int(vVecTwo.w);
+	        float x = vVecOne.x;
+	        float y = vVecOne.y;
+	        float atr3 = vVecOne.z;
+	        float atr4 = vVecOne.w;
+	        float atr5 = vVecTwo.x;
+	        float atr6 = vVecTwo.y;
+	        float atr7 = vVecTwo.z;
+
+	        gl_Position = vec4(x, y, 0.0, 1.0);
 	        switch(vShaderId){
 		        case 1:{ // Render Rect
-			        gl_Position = vec4(vVecOne.x, vVecOne.y, 0.0, 1.0);
-			        vec2 rg = unpackHalfColor(vVecOne.z);
-			        vec2 ba = unpackHalfColor(vVecTwo.x);
+			        vec2 rg = unpackHalfColor(atr3);
+			        vec2 ba = unpackHalfColor(atr4);
 			        oOutVec = vec4(rg.x, rg.y , ba.x, ba.y);
 			        break;
 			        }
 		        case 2: // Render Copy
-			        gl_Position = vec4(vVecOne.x, vVecOne.y,0.0 ,1.0);
-			        oOutVec = vec4(vVecOne.z,vVecTwo.xy, 0.0);
+			        oOutVec = vec4(atr3,atr4,atr5, 0.0);
 			        break;
 		        case 3: // Render Copy Circle
-			        gl_Position = vec4(vVecOne.xy, 0.0, 1.0);
-			        oOutVec = vec4(vVecOne.z, vVecTwo); // Two .xy = texCord // z vecTwo = alpha //z VecOne = radius 
+			        oOutVec = vec4(atr3,atr4,atr5,atr6); // atr3 = radius atr4 = u atr5 = v atr6 = alpha
 			        break;
 		        case 4:{ // Render Circle
-                    gl_Position = vec4(vVecOne.xy, 0.0, 1.0);
-			        vec2 rg = unpackHalfColor(vVecTwo.x);
-			        vec2 ba = unpackHalfColor(vVecTwo.y);
+			        vec2 rg = unpackHalfColor(atr4);
+			        vec2 ba = unpackHalfColor(atr5);
 			        oOutVec.rg = rg;
 			        oOutVec.ba = ba;
-                    oOutVecTwo.xy = uvFromVertexID(gl_VertexID % 6);
-                    oOutVecTwo.z = vVecOne.z;
+			        oOutVecTwo.xy = uvs[gl_VertexID % 6];
+			        oOutVecTwo.z = atr3;
 			        break;
 			        }
 		        case 5:{ // RenderRoundedRectangle
-			        gl_Position = vec4(vVecOne.xy, 0.0, 1.0);
-			        vec2 rg = unpackHalfColor(vVecOne.z);
-			        vec2 ba = unpackHalfColor(vVecTwo.x);
-                    oOutVec.rg = rg;
+			        vec2 rg = unpackHalfColor(atr3);
+			        vec2 ba = unpackHalfColor(atr4);
+			        oOutVec.rg = rg;
 			        oOutVec.ba = ba;
-                    oOutVecTwo.xy = uvFromVertexID(gl_VertexID % 6);
-			        oOutVecTwo.zw = vVecTwo.yz;
+			        oOutVecTwo.xy = uvs[gl_VertexID % 6];
+			        oOutVecTwo.zw = vec2(atr5,atr6);
 			        break;
 			        }
 		        case 6:  // RenderCopyRoundedRectangle
-			        gl_Position = vec4(vVecOne.xy, 0.0, 1.0);
-			        oOutVec.x = vVecOne.z;      // UV.x
-			        oOutVec.yz = vVecTwo.xy;    // UV.y, Alpha
-			        oOutVecTwo.x = vVecTwo.z;   // Width
-			        oOutVecTwo.y = vVecThree.x; // Height
+			        oOutVec.x = atr3;      // UV.x
+			        oOutVec.yz = vec2(atr4,atr5);    // UV.y, Alpha
+			        oOutVecTwo.xy = vec2(atr6,atr7);   // Width Height
 			        break;
 		        case 7:{ // Render Copy Filter
-	                gl_Position = vec4(vVecOne.xy, 0.0 ,1.0);
-			        oOutVec.x = vVecOne.z; // u
-			        oOutVec.y = vVecTwo.x; // v
-			        vec2 rg = unpackHalfColor(vVecTwo.y);
+			        oOutVec.xy = vec2(atr3,atr4); // u,v
+			        vec2 rg = unpackHalfColor(atr5);
 			        oOutVec.z = rg.r; //r
 			        oOutVecTwo.x = rg.g; //g
-			        oOutVecTwo.y = vVecTwo.z; //b
-			        oOutVecTwo.z = vVecThree.x; //a
+			        oOutVecTwo.yz = vec2(atr6,atr7); //b,a
+			        break;
+		        }
+		        case 8:{ // Render Border
+			        oOutVec.x = atr3; //RG
+			        oOutVec.y = atr4; //BA
+			        oOutVec.zw = uvs[gl_VertexID % 6]; //UV
+			        oOutVecTwo.x = atr5; // Width
+			        oOutVecTwo.yz = vec2(atr6,atr7); // Rect.w , Rect.h
+
+			        break;
+		        }
+		        case 9:{ // Render Rounded Border
+			        oOutVec.x = atr3; //RG
+			        oOutVec.y = atr4; //BA
+			        oOutVec.zw = uvs[gl_VertexID % 6]; //UV
+			        oOutVecTwo.x = atr5; // Width
+			        oOutVecTwo.yz = vec2(atr6,atr7); // Rect.w , Rect.h
 			        break;
 		        }
 	        }
 	        oShaderId = vShaderId;
         }
-
         )glsl";
 
         constexpr const char* fragmentStr = R"glsl(
@@ -753,6 +894,20 @@ void MT::Renderer::LoadShaders() {
         float roundedBoxSDF(vec2 p, vec2 size, float r){
             vec2 d = abs(p - size * 0.5) - (size * 0.5 - vec2(r));
             return length(max(d, 0.0)) - r;
+        }
+
+        float boxSDF(vec2 p, vec2 size) {
+            vec2 d = abs(p - size * 0.5) - (size * 0.5);
+            return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
+        }
+
+        vec2 unpackHalfColor(float packedColor){
+	        int col = int(packedColor);
+	        float r  = float((col >> 8) & 255); // in RG it would be R
+	        float g = float(col & 255); // This would be B
+	        r /=255.0;
+	        g /=255.0;
+	        return vec2(r, g);
         }
 
         void main(){
@@ -820,6 +975,42 @@ void MT::Renderer::LoadShaders() {
 	                texcolor.a *= oOutVecTwo.z; 
 	                FragColor = texcolor;
 			        break;
+                    }
+                case 8:{ // Render Border
+                    vec2 size = oOutVec.zw * oOutVecTwo.yz; // uv * (rect.w ,rect.h)
+                    float borderThickness = oOutVecTwo.x;
+    
+                    float d = boxSDF(size, oOutVecTwo.yz);
+
+                    float finalAlpha = smoothstep(-borderThickness - 1.0, -borderThickness, d);
+
+                    if (finalAlpha <= 0.001) discard;
+                    vec4 vColor;
+                    vColor.xy = unpackHalfColor(oOutVec.x);
+                    vColor.zw = unpackHalfColor(oOutVec.y);
+                    FragColor = vec4(vColor.rgb, vColor.a * finalAlpha);
+                    break;
+                    }
+
+                case 9:{ // Render Rounded Border
+                    vec2 size = oOutVec.zw * oOutVecTwo.yz; // uv * (rect.w ,rect.h)
+                    float borderThickness = oOutVecTwo.x;
+                    float d = roundedBoxSDF(size, oOutVecTwo.yz, 8.0); // 8.0 is the size of a curve if nedded the change uniform is requied
+
+                    float alphaOuter = 1.0 - smoothstep(0.0, 1.0, d);
+
+                    float alphaInner = 1.0 - smoothstep(0.0, 1.0, d + borderThickness);
+
+                    float finalAlpha = alphaOuter - alphaInner;
+
+                    finalAlpha = clamp(finalAlpha, 0.0, 1.0); // Optional test if this can be removed
+
+                    if (finalAlpha <= 0.001) discard;
+                    vec4 vColor;
+                    vColor.xy = unpackHalfColor(oOutVec.x);
+                    vColor.zw = unpackHalfColor(oOutVec.y);
+                    FragColor = vec4(vColor.rgb, vColor.a * finalAlpha);
+                    break;
                     }
 	        }
         }
@@ -1394,7 +1585,7 @@ void MT::Renderer::RenderRoundedRect(const Rect& rect, const Color& col, const u
     std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
 }
 
-void MT::Renderer::RenderCopyRoundedRect(const MT::Rect& rect, const MT::Texture* texture) {
+void MT::Renderer::RenderCopyRounded(const MT::Rect& rect, const MT::Texture* texture) {
     if (!vievPort.IsColliding(rect)) {
         return;
     }
@@ -1534,6 +1725,109 @@ void MT::Renderer::RenderCopyPartFiltered(const Rect& rect, const Rect& source, 
     std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
 }
 
+void MT::Renderer::RenderBorder(const Rect& rect, const Color& col, const int width) {
+    if (!vievPort.IsColliding(rect)) { return; }
+
+    if (currentProgram != renderBorderId) {
+        Present(false);
+        currentProgram = renderBorderId;
+        glUseProgram(currentProgram);
+    }
+
+    glm::vec2 rectPixelSize = { (float)rect.w,(float)rect.h };
+
+    if (roundBorderRadiusVal != rectPixelSize) {
+        Present(false);
+        roundBorderRadiusVal = rectPixelSize;
+        glUniform2f(roundBorderRadius, rectPixelSize.x, rectPixelSize.y);
+    }
+    currentSize = renderBorderSize;
+    const float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
+    const float y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
+    const float w = (static_cast<float>(rect.w) / W) * 2.0f;
+    const float h = (static_cast<float>(rect.h) / H) * 2.0f;
+
+    uint16_t iRG = col.R;
+    iRG <<= 8;
+    iRG += col.G;
+    uint16_t iBA = col.B;
+    iBA <<= 8;
+    iBA += 255;
+    const float fRG = iRG;
+    const float fBA = iBA;
+
+    const float fWidth = (float)width;
+
+    // pos.x, pos.y, col.rg col.ba, width
+    const float vertices[] = {
+        x,     y - h, fRG, fBA, fWidth,
+        x,     y,     fRG, fBA, fWidth,
+        x + w, y - h, fRG, fBA, fWidth,
+        x,     y,     fRG, fBA, fWidth,
+        x + w, y,     fRG, fBA, fWidth,
+        x + w, y - h, fRG, fBA, fWidth
+    };
+    constexpr int N = 30;
+    const size_t old = globalVertices.size();
+    globalVertices.resize(old + N);
+    std::memcpy(globalVertices.data() + old, vertices, N * sizeof(float));
+}
+
+void MT::Renderer::RenderRoundedBorder(const Rect& rect, const Color& col, const int width) {
+    if (!vievPort.IsColliding(rect)) {return;}
+
+    if (currentProgram != renderRoundedBorderId) {
+        Present(false);
+        currentProgram = renderRoundedBorderId;
+        glUseProgram(currentProgram);
+    }
+
+    glm::vec2 rectPixelSize = { (float)rect.w,(float)rect.h };
+
+    if (roundRoundedBorderRadiusVal != rectPixelSize) {
+        Present(false);
+        roundRoundedBorderRadiusVal = rectPixelSize;
+        glUniform2f(roundRoundedBorderRadius, rectPixelSize.x, rectPixelSize.y);
+    }
+    currentSize = renderBorderSize;
+    const float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
+    const float y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
+    const float w = (static_cast<float>(rect.w) / W) * 2.0f;
+    const float h = (static_cast<float>(rect.h) / H) * 2.0f;
+
+    uint16_t iRG = col.R;
+    iRG <<= 8;
+    iRG += col.G;
+    uint16_t iBA = col.B;
+    iBA <<= 8;
+    iBA += 255;
+    const float fRG = iRG;
+    const float fBA = iBA;
+
+    const float fWidth = (float)width;
+
+    // pos.x, pos.y, col.rg col.ba, width
+    const float vertices[] = {
+        x,     y - h, fRG, fBA, fWidth,
+        x,     y,     fRG, fBA, fWidth,
+        x + w, y - h, fRG, fBA, fWidth,
+        x,     y,     fRG, fBA, fWidth,
+        x + w, y,     fRG, fBA, fWidth,
+        x + w, y - h, fRG, fBA, fWidth
+    };
+    constexpr int N = 30;
+    const size_t old = globalVertices.size();
+    globalVertices.resize(old + N);
+    std::memcpy(globalVertices.data() + old, vertices, N * sizeof(float));
+}
+
+void MT::Renderer::ExpandUpr(float *vertices) {
+    constexpr int N = 48;
+    const size_t old = globalVertices.size();
+    globalVertices.resize(old + N);
+    std::memcpy(globalVertices.data() + old, vertices, N * sizeof(float));
+}
+
 void MT::Renderer::RenderRectUPR(const Rect& rect, const Color& col, const int alpha) {
     if (!vievPort.IsColliding(rect)) { return; }
 
@@ -1558,7 +1852,7 @@ void MT::Renderer::RenderRectUPR(const Rect& rect, const Color& col, const int a
     const float fBA = iBA;
 
     // pos.x, pos.y, col.r, col.g, col.b col.a trashVal1 trashVal2 shaderID
-    const float vertices[] = {
+    float vertices[] = {
         x,     y - h, fRG, fBA, 0.0f, 0.0f, 0.0f, 1.0f,
         x,     y,     fRG, fBA, 0.0f, 0.0f, 0.0f, 1.0f,
         x + w, y - h, fRG, fBA, 0.0f, 0.0f, 0.0f, 1.0f,
@@ -1567,10 +1861,7 @@ void MT::Renderer::RenderRectUPR(const Rect& rect, const Color& col, const int a
         x + w, y - h, fRG, fBA, 0.0f, 0.0f, 0.0f, 1.0f,
     };
 
-    constexpr int N = 48;
-    const size_t old = globalVertices.size();
-    globalVertices.resize(old + N);
-    std::memcpy(globalVertices.data() + old, vertices, N * sizeof(float));
+    ExpandUpr(vertices);
 }
 
 void MT::Renderer::RenderRectEXUPR(const Rect& rect, const Color& col, const float rotation, const int alpha) {
@@ -1608,7 +1899,7 @@ void MT::Renderer::RenderRectEXUPR(const Rect& rect, const Color& col, const flo
     const glm::vec2 p4 = RotateNdc(halfW, halfH, centerPx, cosA, sinA, W, H);
     const glm::vec2 p5 = RotateNdc(halfW, -halfH, centerPx, cosA, sinA, W, H);
 
-    const float vertices[] = {
+    float vertices[] = {
         p0.x, p0.y, fRG, fBA, 0.0f, 0.0f, 0.0f, 1.0f,
         p1.x, p1.y, fRG, fBA, 0.0f, 0.0f, 0.0f, 1.0f,
         p2.x, p2.y, fRG, fBA, 0.0f, 0.0f, 0.0f, 1.0f,
@@ -1616,10 +1907,7 @@ void MT::Renderer::RenderRectEXUPR(const Rect& rect, const Color& col, const flo
         p4.x, p4.y, fRG, fBA, 0.0f, 0.0f, 0.0f, 1.0f,
         p5.x, p5.y, fRG, fBA, 0.0f, 0.0f, 0.0f, 1.0f,
     };
-    constexpr int N = 48;
-    const size_t old = globalVertices.size();
-    globalVertices.resize(old + N);
-    std::memcpy(globalVertices.data() + old, vertices, N * sizeof(float));
+    ExpandUpr(vertices);
 }
 
 void MT::Renderer::RenderCopyUPR(const Rect& rect, const Texture* texture) {
@@ -1645,7 +1933,7 @@ void MT::Renderer::RenderCopyUPR(const Rect& rect, const Texture* texture) {
     currentSize = renderUPRSize;
 
     //    // pos.x, pos.y tex.u, tex.v
-    const float verticles[] = {
+    float vertices[] = {
         x,     y - h, 0.0f, 0.0f,texture->alpha, 0.0f, 0.0f, 2.0f,
         x,     y,     0.0f, 1.0f,texture->alpha, 0.0f, 0.0f, 2.0f,
         x + w, y - h, 1.0f, 0.0f,texture->alpha, 0.0f, 0.0f, 2.0f,
@@ -1654,10 +1942,7 @@ void MT::Renderer::RenderCopyUPR(const Rect& rect, const Texture* texture) {
         x + w, y - h, 1.0f, 0.0f,texture->alpha, 0.0f, 0.0f, 2.0f
     };
 
-    constexpr int N = 48;
-    const size_t old = globalVertices.size();
-    globalVertices.resize(old + N);
-    std::memcpy(globalVertices.data() + old, verticles, N * sizeof(float));
+    ExpandUpr(vertices);
 }
 
 void MT::Renderer::RenderCopyPartUPR(const Rect& rect, const Rect& source, const Texture* texture) {
@@ -1698,7 +1983,7 @@ void MT::Renderer::RenderCopyPartUPR(const Rect& rect, const Rect& source, const
 
 
     // pos.x pos.y tex.u, tex.v
-    float verticles[] = {
+    float vertices[] = {
         x,     y - h, u0, v0,texture->alpha, 0.0f, 0.0f, 2.0f,
         x,     y,     u0, v1,texture->alpha, 0.0f, 0.0f, 2.0f,
         x + w, y - h, u1, v0,texture->alpha, 0.0f, 0.0f, 2.0f,
@@ -1706,10 +1991,7 @@ void MT::Renderer::RenderCopyPartUPR(const Rect& rect, const Rect& source, const
         x + w, y,     u1, v1,texture->alpha, 0.0f, 0.0f, 2.0f,
         x + w, y - h, u1, v0,texture->alpha, 0.0f, 0.0f, 2.0f
     };
-    constexpr int N = 48;
-    const size_t old = globalVertices.size();
-    globalVertices.resize(old + N);
-    std::memcpy(globalVertices.data() + old, verticles, N * sizeof(float));
+    ExpandUpr(vertices);
 }
 
 void MT::Renderer::RenderCopyEXUPR(const Rect& rect, const Texture* texture, const bool flip, const float rotation) {
@@ -1743,11 +2025,8 @@ void MT::Renderer::RenderCopyEXUPR(const Rect& rect, const Texture* texture, con
     const glm::vec2 p4 = RotateNdc(halfW, halfH, centerPx, cosA, sinA, W, H);
     const glm::vec2 p5 = RotateNdc(halfW, -halfH, centerPx, cosA, sinA, W, H);
 
-    constexpr int N = 48;
-    const size_t old = globalVertices.size();
-    globalVertices.resize(old + N);
     if (flip) {
-        const float vertex[] = {
+        float vertices[] = {
             p0.x, p0.y, 1.0f, 0.0f, texture->alpha, 0.0f, 0.0f, 2.0f,
             p1.x, p1.y, 1.0f, 1.0f, texture->alpha, 0.0f, 0.0f, 2.0f,
             p2.x, p2.y, 0.0f, 1.0f, texture->alpha, 0.0f, 0.0f, 2.0f,
@@ -1755,10 +2034,10 @@ void MT::Renderer::RenderCopyEXUPR(const Rect& rect, const Texture* texture, con
             p4.x, p4.y, 0.0f, 1.0f, texture->alpha, 0.0f, 0.0f, 2.0f,
             p5.x, p5.y, 0.0f, 0.0f, texture->alpha, 0.0f, 0.0f, 2.0f
         };
-        std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
+        ExpandUpr(vertices);
     }
     else {
-        const float vertex[] = {
+        float vertices[] = {
             p0.x, p0.y, 0.0f, 0.0f,texture->alpha, 0.0f, 0.0f, 2.0f,
             p1.x, p1.y, 0.0f, 1.0f,texture->alpha, 0.0f, 0.0f, 2.0f,
             p2.x, p2.y, 1.0f, 1.0f,texture->alpha, 0.0f, 0.0f, 2.0f,
@@ -1766,7 +2045,7 @@ void MT::Renderer::RenderCopyEXUPR(const Rect& rect, const Texture* texture, con
             p4.x, p4.y, 1.0f, 1.0f,texture->alpha, 0.0f, 0.0f, 2.0f,
             p5.x, p5.y, 1.0f, 0.0f,texture->alpha, 0.0f, 0.0f, 2.0f
         };
-        std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
+        ExpandUpr(vertices);
     }
 }
 
@@ -1812,11 +2091,8 @@ void MT::Renderer::RenderCopyPartEXUPR(const Rect& rect, const Rect& source, con
     const float v1 = 1.0f - static_cast<float>(source.y) / texH;
     const float v0 = v1 - static_cast<float>(source.h) / texH;
 
-    constexpr int N = 48;
-    const size_t old = globalVertices.size();
-    globalVertices.resize(old + N);
     if (flip) {
-        const float vertex[] = {
+        float vertices[] = {
             p0.x, p0.y, u1, v0,texture->alpha, 0.0f, 0.0f, 2.0f,
             p1.x, p1.y, u1, v1,texture->alpha, 0.0f, 0.0f, 2.0f,
             p2.x, p2.y, u0, v1,texture->alpha, 0.0f, 0.0f, 2.0f,
@@ -1824,10 +2100,10 @@ void MT::Renderer::RenderCopyPartEXUPR(const Rect& rect, const Rect& source, con
             p4.x, p4.y, u0, v1,texture->alpha, 0.0f, 0.0f, 2.0f,
             p5.x, p5.y, u0, v0,texture->alpha, 0.0f, 0.0f, 2.0f
         };
-        std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
+        ExpandUpr(vertices);
     }
     else {
-        const float vertex[] = {
+        float vertices[] = {
             p0.x, p0.y, u0, v0,texture->alpha, 0.0f, 0.0f, 2.0f,
             p1.x, p1.y, u0, v1,texture->alpha, 0.0f, 0.0f, 2.0f,
             p2.x, p2.y, u1, v1,texture->alpha, 0.0f, 0.0f, 2.0f,
@@ -1835,7 +2111,7 @@ void MT::Renderer::RenderCopyPartEXUPR(const Rect& rect, const Rect& source, con
             p4.x, p4.y, u1, v1,texture->alpha, 0.0f, 0.0f, 2.0f,
             p5.x, p5.y, u1, v0,texture->alpha, 0.0f, 0.0f, 2.0f
         };
-        std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
+        ExpandUpr(vertices);
     }
 }
 
@@ -1862,7 +2138,7 @@ void MT::Renderer::RenderCopyCircleUPR(const Rect& rect, const Texture* texture,
     currentSize = renderUPRSize;
 
     // pos.x, pos.y,radius tex.u, tex.v, alpha
-    float vertex[] = {
+    float vertices[] = {
         x,     y - h,radius, 0.0f, 0.0f, texture->alpha, 0.0f, 3.0f,
         x,     y,    radius, 0.0f, 1.0f, texture->alpha, 0.0f, 3.0f,
         x + w, y - h,radius, 1.0f, 0.0f, texture->alpha, 0.0f, 3.0f,
@@ -1871,10 +2147,7 @@ void MT::Renderer::RenderCopyCircleUPR(const Rect& rect, const Texture* texture,
         x + w, y - h,radius, 1.0f, 0.0f, texture->alpha, 0.0f, 3.0f
     };
 
-    constexpr int N = 48;
-    const size_t old = globalVertices.size();
-    globalVertices.resize(old + N);
-    std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
+    ExpandUpr(vertices);
 }
 
 void MT::Renderer::RenderCircleUPR(const Rect& rect, const Color& col, const unsigned char alpha, const float radius) {
@@ -1902,7 +2175,7 @@ void MT::Renderer::RenderCircleUPR(const Rect& rect, const Color& col, const uns
 
 
     // pos.x, pos.y, pos.z,radius  col.r, col.g, col.b col.a
-    const float vertex[] = {
+    float vertices[] = {
         x,     y - h, radius, fRG, fBA, 0.0f, 0.0f, 4.0f,
         x,     y    , radius, fRG, fBA, 0.0f, 0.0f, 4.0f,
         x + w, y - h, radius, fRG, fBA, 0.0f, 0.0f, 4.0f,
@@ -1911,10 +2184,7 @@ void MT::Renderer::RenderCircleUPR(const Rect& rect, const Color& col, const uns
         x + w, y - h, radius, fRG, fBA, 0.0f, 0.0f, 4.0f
     };
 
-    constexpr int N = 48;
-    const size_t old = globalVertices.size();
-    globalVertices.resize(old + N);
-    std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
+    ExpandUpr(vertices);
 }
 
 void MT::Renderer::RenderRoundedRectUPR(const Rect& rect, const Color& col, const unsigned char alpha) {
@@ -1947,7 +2217,7 @@ void MT::Renderer::RenderRoundedRectUPR(const Rect& rect, const Color& col, cons
     const float fH = (float)rect.h;
 
     // pos.x, pos.y, pos.z,radius  col.r, col.g, col.b col.a
-    const float vertex[] = {
+    float vertices[] = {
         x,     y - h, fRG, fBA, fW, fH, 0.0f,  5.0f,
         x,     y    , fRG, fBA, fW, fH, 0.0f,  5.0f,
         x + w, y - h, fRG, fBA, fW, fH, 0.0f,  5.0f,
@@ -1956,13 +2226,10 @@ void MT::Renderer::RenderRoundedRectUPR(const Rect& rect, const Color& col, cons
         x + w, y - h, fRG, fBA, fW, fH, 0.0f,  5.0f
     };
 
-    constexpr int N = 48;
-    const size_t old = globalVertices.size();
-    globalVertices.resize(old + N);
-    std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
+    ExpandUpr(vertices);
 }
 
-void MT::Renderer::RenderCopyRoundedRectUPR(const MT::Rect& rect, const MT::Texture* texture) {
+void MT::Renderer::RenderCopyRoundedUPR(const MT::Rect& rect, const MT::Texture* texture) {
     if (!vievPort.IsColliding(rect)) { return; }
 
     if (currentProgram != uprId) {
@@ -1985,7 +2252,7 @@ void MT::Renderer::RenderCopyRoundedRectUPR(const MT::Rect& rect, const MT::Text
     const float fW = (float)rect.w;
     const float fH = (float)rect.h;
 
-    const float vertex[] = {
+    float vertices[] = {
         x,     y - h, 0.0f, 0.0f,texture->alpha, fW, fH, 6.0f,
         x,     y,     0.0f, 1.0f,texture->alpha, fW, fH, 6.0f,
         x + w, y - h, 1.0f, 0.0f,texture->alpha, fW, fH, 6.0f,
@@ -1994,10 +2261,7 @@ void MT::Renderer::RenderCopyRoundedRectUPR(const MT::Rect& rect, const MT::Text
         x + w, y - h, 1.0f, 0.0f,texture->alpha, fW, fH, 6.0f,
     };
 
-    constexpr int N = 48;
-    const size_t old = globalVertices.size();
-    globalVertices.resize(old + N);
-    std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
+    ExpandUpr(vertices);
 }
 
 void MT::Renderer::RenderCopyFilteredUPR(const Rect& rect, const Texture* texture, const Color& filter) {
@@ -2029,7 +2293,7 @@ void MT::Renderer::RenderCopyFilteredUPR(const Rect& rect, const Texture* textur
     const float fB = float(filter.B) / 255;
 
     // pos.x, pos.y, tex.u, tex.v col.r,col.g,col.b
-    const float vertex[] = {
+    float vertices[] = {
         x,     y - h, 0.0f, 0.0f, fRG, fB, texture->alpha, 7.0f,
         x,     y,     0.0f, 1.0f, fRG, fB, texture->alpha, 7.0f,
         x + w, y - h, 1.0f, 0.0f, fRG, fB, texture->alpha, 7.0f,
@@ -2038,10 +2302,7 @@ void MT::Renderer::RenderCopyFilteredUPR(const Rect& rect, const Texture* textur
         x + w, y - h, 1.0f, 0.0f, fRG, fB, texture->alpha, 7.0f,
     };
 
-    constexpr int N = 48;
-    const size_t old = globalVertices.size();
-    globalVertices.resize(old + N);
-    std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
+    ExpandUpr(vertices);
 }
 
 void MT::Renderer::RenderCopyPartFilteredUPR(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter) {
@@ -2082,7 +2343,7 @@ void MT::Renderer::RenderCopyPartFilteredUPR(const Rect& rect, const Rect& sourc
     const float v0 = v1 - tempSourceH;
 
     // pos.x, pos.y, tex.u, tex.v col.r,col.g,col.b
-    const float vertex[] = {
+    float vertices[] = {
         x,     y - h, u0, v0, fRG, fB, texture->alpha, 7.0f,
         x,     y,     u0, v1, fRG, fB, texture->alpha, 7.0f,
         x + w, y - h, u1, v0, fRG, fB, texture->alpha, 7.0f,
@@ -2090,10 +2351,90 @@ void MT::Renderer::RenderCopyPartFilteredUPR(const Rect& rect, const Rect& sourc
         x + w, y,     u1, v1, fRG, fB, texture->alpha, 7.0f,
         x + w, y - h, u1, v0, fRG, fB, texture->alpha, 7.0f
     };
-    constexpr int N = 48;
-    const size_t old = globalVertices.size();
-    globalVertices.resize(old + N);
-    std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
+
+    ExpandUpr(vertices);
+}
+
+void MT::Renderer::RenderBorderUPR(const Rect& rect, const Color& col, const int width) {
+    if (!vievPort.IsColliding(rect)) { return; }
+
+    if (currentProgram != uprId) {
+        Present(false);
+        currentProgram = uprId;
+        glUseProgram(currentProgram);
+    }
+
+    currentSize = renderUPRSize;
+    const float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
+    const float y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
+    const float w = (static_cast<float>(rect.w) / W) * 2.0f;
+    const float h = (static_cast<float>(rect.h) / H) * 2.0f;
+
+    uint16_t iRG = col.R;
+    iRG <<= 8;
+    iRG += col.G;
+    uint16_t iBA = col.B;
+    iBA <<= 8;
+    iBA += 255;
+    const float fRG = iRG;
+    const float fBA = iBA;
+
+    const float fWidth = (float)width;
+    const float fRectW = (float)rect.w;
+    const float fRectH = (float)rect.h;
+
+    // pos.x, pos.y, col.rg col.ba, width
+    float vertices[] = {
+        x,     y - h, fRG, fBA, fWidth, fRectW, fRectH, 8.0f,
+        x,     y,     fRG, fBA, fWidth, fRectW, fRectH, 8.0f,
+        x + w, y - h, fRG, fBA, fWidth, fRectW, fRectH, 8.0f,
+        x,     y,     fRG, fBA, fWidth, fRectW, fRectH, 8.0f,
+        x + w, y,     fRG, fBA, fWidth, fRectW, fRectH, 8.0f,
+        x + w, y - h, fRG, fBA, fWidth, fRectW, fRectH, 8.0f
+    };
+
+    ExpandUpr(vertices);
+}
+
+void MT::Renderer::RenderRoundedBorderUPR(const Rect& rect, const Color& col, const int width) {
+    if (!vievPort.IsColliding(rect)) { return; }
+
+    if (currentProgram != uprId) {
+        Present(false);
+        currentProgram = uprId;
+        glUseProgram(currentProgram);
+    }
+
+    currentSize = renderUPRSize;
+    const float x = (static_cast<float>(rect.x) / W) * 2.0f - 1.0f;
+    const float y = 1.0f - (static_cast<float>(rect.y) / H) * 2.0f;
+    const float w = (static_cast<float>(rect.w) / W) * 2.0f;
+    const float h = (static_cast<float>(rect.h) / H) * 2.0f;
+
+    uint16_t iRG = col.R;
+    iRG <<= 8;
+    iRG += col.G;
+    uint16_t iBA = col.B;
+    iBA <<= 8;
+    iBA += 255;
+    const float fRG = iRG;
+    const float fBA = iBA;
+
+    const float fWidth = (float)width;
+    const float fRectW = (float)rect.w;
+    const float fRectH = (float)rect.h;
+
+    // pos.x, pos.y, col.rg col.ba, width
+    float vertices[] = {
+        x,     y - h, fRG, fBA, fWidth, fRectW, fRectH, 9.0f,
+        x,     y,     fRG, fBA, fWidth, fRectW, fRectH, 9.0f,
+        x + w, y - h, fRG, fBA, fWidth, fRectW, fRectH, 9.0f,
+        x,     y,     fRG, fBA, fWidth, fRectW, fRectH, 9.0f,
+        x + w, y,     fRG, fBA, fWidth, fRectW, fRectH, 9.0f,
+        x + w, y - h, fRG, fBA, fWidth, fRectW, fRectH, 9.0f
+    };
+
+    ExpandUpr(vertices);
 }
 
 void MT::Renderer::Present(bool switchContext) {
