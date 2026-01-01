@@ -29,9 +29,9 @@ protected:
 
 	MT::ColorA buttonColor{ 255,255,255,255 };
 
-	MT::Color borderRGB{ 255,255,255 };
+	MT::ColorA borderRGB{ 255,255,255,255 };
 
-	MT::Color fontRGB{ 255,255,255 };
+	MT::ColorA fontRGB{ 255,255,255,255 };
 
 	Font* font = nullptr;
 
@@ -53,8 +53,6 @@ protected:
 
 	bool GetBorder();
 
-	void SetBorder(bool temp);
-
 	void RenderText(MT::Renderer* renderer);
 
 public:
@@ -75,7 +73,7 @@ public:
 
 	void SetBorderThickness(const int temp);
 
-	void SetBorder(const int width, const unsigned char R, const unsigned char G, const unsigned char B);
+	void SetBorder(const int width, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255);
 
 	int GetTextStartX();
 	void SetTextStartX(int temp);
@@ -88,9 +86,9 @@ public:
 
 	void SetColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255);
 
-	void SetBorderRGB(const unsigned char R, const unsigned char G, const unsigned char B);
+	void SetBorderColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255);
 
-	void SetFontColor(const unsigned char R, const unsigned char G, const unsigned char B);
+	void SetFontColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255);
 
 	static void Render(UIElemBase *elem, MT::Renderer* renderer);
 
@@ -278,29 +276,29 @@ class UI{
 		UI(MT::Renderer* renderer);
 
 		Button* CreateButton(const std::string &name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
-			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		TextBox* CreateTextBox(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
-			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		ClickBox* CreateClickBox(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
-			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		PopUpBox* CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
-			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 
 		Button* CreateButtonF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string &fontStr = "",
-			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		TextBox* CreateTextBoxF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string& fontStr ="",
-			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		ClickBox* CreateClickBoxF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string& fontStr = "",
-			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		PopUpBox* CreatePopUpBoxF(const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string& fontStr= "",
-			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0, int borderThickness = 0);
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		// Renaming and rehasing element
 		bool RenameElem(const std::string& name, const std::string& newName);

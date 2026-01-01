@@ -177,9 +177,9 @@ namespace MT {
 
 		void RenderCopyPartFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
 
-		void RenderBorder(const Rect& rect, const Color& col, const int width);
+		void RenderBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
 
-		void RenderRoundedBorder(const Rect& rect, const Color& col, const int width);
+		void RenderRoundedBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
 
 		//UPR Universal Pipeline Render does not change shader ever so it is much faster in shader switch rendering but slower overall
 		void RenderRectUPR(const Rect& rect, const Color& col, const int alpha = 255);
@@ -206,9 +206,9 @@ namespace MT {
 
 		void RenderCopyPartFilteredUPR(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
 
-		void RenderBorderUPR(const Rect& rect, const Color& col, const int width);
+		void RenderBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
 
-		void RenderRoundedBorderUPR(const Rect& rect, const Color& col, const int width);
+		void RenderRoundedBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
 
 		//UPR
 

@@ -12,8 +12,6 @@ private:
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui = nullptr;
 
-	TagUISection tagSec;
-
 public:
 	Game();
 

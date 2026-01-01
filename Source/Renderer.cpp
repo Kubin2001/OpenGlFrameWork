@@ -1725,7 +1725,7 @@ void MT::Renderer::RenderCopyPartFiltered(const Rect& rect, const Rect& source, 
     std::memcpy(globalVertices.data() + old, vertex, N * sizeof(float));
 }
 
-void MT::Renderer::RenderBorder(const Rect& rect, const Color& col, const int width) {
+void MT::Renderer::RenderBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha) {
     if (!vievPort.IsColliding(rect)) { return; }
 
     if (currentProgram != renderBorderId) {
@@ -1752,7 +1752,7 @@ void MT::Renderer::RenderBorder(const Rect& rect, const Color& col, const int wi
     iRG += col.G;
     uint16_t iBA = col.B;
     iBA <<= 8;
-    iBA += 255;
+    iBA += alpha;
     const float fRG = iRG;
     const float fBA = iBA;
 
@@ -1773,7 +1773,7 @@ void MT::Renderer::RenderBorder(const Rect& rect, const Color& col, const int wi
     std::memcpy(globalVertices.data() + old, vertices, N * sizeof(float));
 }
 
-void MT::Renderer::RenderRoundedBorder(const Rect& rect, const Color& col, const int width) {
+void MT::Renderer::RenderRoundedBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha) {
     if (!vievPort.IsColliding(rect)) {return;}
 
     if (currentProgram != renderRoundedBorderId) {
@@ -1800,7 +1800,7 @@ void MT::Renderer::RenderRoundedBorder(const Rect& rect, const Color& col, const
     iRG += col.G;
     uint16_t iBA = col.B;
     iBA <<= 8;
-    iBA += 255;
+    iBA += alpha;
     const float fRG = iRG;
     const float fBA = iBA;
 
@@ -2355,7 +2355,7 @@ void MT::Renderer::RenderCopyPartFilteredUPR(const Rect& rect, const Rect& sourc
     ExpandUpr(vertices);
 }
 
-void MT::Renderer::RenderBorderUPR(const Rect& rect, const Color& col, const int width) {
+void MT::Renderer::RenderBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha) {
     if (!vievPort.IsColliding(rect)) { return; }
 
     if (currentProgram != uprId) {
@@ -2375,7 +2375,7 @@ void MT::Renderer::RenderBorderUPR(const Rect& rect, const Color& col, const int
     iRG += col.G;
     uint16_t iBA = col.B;
     iBA <<= 8;
-    iBA += 255;
+    iBA += alpha;
     const float fRG = iRG;
     const float fBA = iBA;
 
@@ -2396,7 +2396,7 @@ void MT::Renderer::RenderBorderUPR(const Rect& rect, const Color& col, const int
     ExpandUpr(vertices);
 }
 
-void MT::Renderer::RenderRoundedBorderUPR(const Rect& rect, const Color& col, const int width) {
+void MT::Renderer::RenderRoundedBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha) {
     if (!vievPort.IsColliding(rect)) { return; }
 
     if (currentProgram != uprId) {
@@ -2416,7 +2416,7 @@ void MT::Renderer::RenderRoundedBorderUPR(const Rect& rect, const Color& col, co
     iRG += col.G;
     uint16_t iBA = col.B;
     iBA <<= 8;
-    iBA += 255;
+    iBA += alpha;
     const float fRG = iRG;
     const float fBA = iBA;
 
