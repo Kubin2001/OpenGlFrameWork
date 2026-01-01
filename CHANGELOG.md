@@ -99,3 +99,6 @@ was removed or the new one was added to folder
 - UPR versions or that functions
 - Rendring border in UI is no longer breaks with full 0 alpha button color
 - RenderCopyRoundedRect renamed to RenderCopyRounded
+- SetBorderRGB renamed to SetBorderColor
+- Border Rendering now supports alpha chanel
+- UI Elements font and border now supports alpha
