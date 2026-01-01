@@ -5,13 +5,6 @@
 #include "json.hpp"
 #include "Colision.h"
 #include "GlobalVariables.h"
-enum class CastType {
-	Button,
-	ClickBox,
-	TextBox,
-	PopUpBox
-};
-
 
 //UIElemBase
 std::string& UIElemBase::GetName() {

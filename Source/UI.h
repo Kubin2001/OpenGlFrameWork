@@ -10,6 +10,13 @@
 #include "Basics.h"
 #include "json.hpp"
 
+enum class CastType {
+	Button,
+	ClickBox,
+	TextBox,
+	PopUpBox
+};
+
 // Basic non interactive button
 class UIElemBase :public GameObject {
 protected:
