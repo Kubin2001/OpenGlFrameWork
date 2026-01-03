@@ -49,6 +49,7 @@ void Game::Start() {
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
 
 	renderer->FLatRenderCopySetUp();
+
 }
 
 void Game::LogicUpdate() {
