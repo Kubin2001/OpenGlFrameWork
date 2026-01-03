@@ -330,7 +330,7 @@ UI::UI(MT::Renderer* renderer) {
 
 
 void UI::Render() {
-	if (!useLayersInRendering) {
+	if (!settings.useLayersInRendering) {
 		for (const auto& it : Buttons) {
 			it->renderFunction(it,renderer);
 		}
@@ -542,9 +542,9 @@ bool UI::RenameElem(const std::string& name, const std::string& newName) {
 }
 
 void UI::CheckHover() {
-	int x, y;
-	SDL_GetMouseState(&x, &y);
-	MT::Rect rect{ x,y,1,1 };
+	//TODO When all elemnt are in future in one vec optimize this
+	Point p = GetMousePos();
+	MT::Rect rect{ p.x,p.y,1,1 };
 	for (auto& it : Buttons) {
 		if (SimpleCollision(it->GetRectangle(), rect)) {
 			it->SetHover(true);
@@ -605,17 +605,27 @@ void UI::ManageTextBoxTextInput(SDL_Event& event) {
 }
 
 void UI::CheckClickBoxes(SDL_Event& event) {
-	if (event.type == SDL_MOUSEBUTTONUP) {
-		for (size_t i = 0; i < ClickBoxes.size(); i++) {
-			if (ClickBoxes[i]->IsOn()) {
-				MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
-				if (SimpleCollision(ClickBoxes[i]->GetRectangle(), temprect)) {
-					ClickBoxes[i]->SetStatus(true);
-					if (ClickBoxes[i]->GetClickSound() != "") {
-						SoundMan::PlaySound(ClickBoxes[i]->GetClickSound());
-					}
-				}
+	int eventType = SDL_MOUSEBUTTONUP;
+	if (settings.clickBoxStartAtDown) {
+		eventType = SDL_MOUSEBUTTONDOWN;
+	}
+
+	if (event.type == eventType) {
+		// Checks from newest to oldest it does not really have diffence on overall order
+		// since status is called when you want but if you use stopCheckAtFirst setting it will not call
+		// click box behing the first even if it still colides with mouse 
+		for (auto cbIt = ClickBoxes.rbegin(); cbIt != ClickBoxes.rend(); cbIt++) { 
+			ClickBox* cb = *cbIt;
+			if (!cb->IsOn()) { continue; }
+
+			MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
+			if (!SimpleCollision(cb->GetRectangle(), temprect)) { continue; }
+			cb->SetStatus(true);
+
+			if (cb->GetClickSound() != "") { 
+				SoundMan::PlaySound(cb->GetClickSound());
 			}
+			if (settings.stopCheckAtFirst) { break; }
 		}
 	}
 }

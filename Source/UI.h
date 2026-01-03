@@ -274,9 +274,20 @@ class UI{
 		bool DeleteClickBox(ClickBox *cb);
 		bool DeletePopUpBox(PopUpBox *pb);
 
+		struct Settings {
+			// Render elements based on their z layer not based on which was created last
+			bool useLayersInRendering = false;
+			// If the newest ClickBox is clicked older ones that are also clicked will not call its status
+			// it might not work well with layers in rendering tuned on 
+			bool stopCheckAtFirst = false;
+			// Click boxes status will be checked at MOUSEBUTTONUP not like default MOUSEBUTTONDOWN
+			bool clickBoxStartAtDown = false;
+		};
 
 	public:
-		bool useLayersInRendering = false;
+
+		Settings settings;
+		
 
 		template<typename T>
 		friend class UIList;
@@ -293,7 +304,6 @@ class UI{
 
 		PopUpBox* CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
-
 
 		Button* CreateButtonF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string &fontStr = "",
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);

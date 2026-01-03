@@ -103,3 +103,9 @@ was removed or the new one was added to folder
 - Border Rendering now supports alpha chanel
 - UI Elements font and border now supports alpha
 - Pathmaker now allows for compressing first empty point , last empty point or all empty points
+
+1.11
+- Click boxes checking reworked they are now checked from the last one to the first one (The same way they are rendered)
+- UI now has setting section you can decide if
+	- Click boxes checking will be stopped at the newest one
+	- Click boxes will be activated at putting the mouse button down or up (Before it was only up)
