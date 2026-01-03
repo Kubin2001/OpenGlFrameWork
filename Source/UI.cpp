@@ -537,7 +537,8 @@ bool UI::RenameElem(const std::string& name, const std::string& newName) {
 	}
 	UIElemBase* elemPtr = elem->second;
 	UIElemMap.erase(name);
-	UIElemMap[newName] = elemPtr;
+	elemPtr->name = newName;
+	UIElemMap[elemPtr->name] = elemPtr;
 	return true;
 }
 
