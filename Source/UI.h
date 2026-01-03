@@ -261,7 +261,7 @@ class UI{
 			}
 		}
 
-		void DumpButton(nlohmann::ordered_json& json, UIElemBase* elem, int type);
+		void DumpButton(nlohmann::ordered_json& json, UIElemBase* elem);
 
 		void DumpClickBox(nlohmann::ordered_json& json, ClickBox *cb);
 

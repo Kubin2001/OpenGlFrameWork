@@ -47,19 +47,26 @@ void Game::Start() {
 	ui->CreateFont("arial20px", TexMan::GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
 	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
-	ui->settings.stopCheckAtFirst = true;
-	ui->settings.clickBoxStartAtDown = true;
+
 	renderer->FLatRenderCopySetUp();
 
-	ClickBox* cb = ui->CreateClickBoxF("first", 100, 100, 300, 300,nullptr,"arial40px","First Elem");
-	cb->SetRenderTextType(2);
-	cb->SetColor(30, 30, 30);
-	cb->SetHoverFilter(true, 255, 255, 255, 100);
+	//std::vector<UIElemBase*> elements;
 
-	cb = ui->CreateClickBoxF("second", 200, 200, 300, 300, nullptr, "arial40px", "Second Elem");
-	cb->SetRenderTextType(2);
-	cb->SetColor(255, 30, 30);
-	cb->SetHoverFilter(true, 255, 255, 255, 100);
+	//ClickBox* cb = ui->CreateClickBoxF("first", 100, 100, 300, 300,nullptr,"arial40px","First Elem");
+	//cb->SetRenderTextType(2);
+	//cb->SetColor(30, 30, 30);
+	//cb->SetHoverFilter(true, 255, 255, 255, 100);
+	//cb->SetClickSound("click");
+	//elements.emplace_back(cb);
+
+	//Button *btn = ui->CreateButtonF("second", 200, 200, 300, 300, nullptr, "arial40px", "Second Elem");
+	//btn->SetRenderTextType(2);
+	//btn->SetColor(255, 30, 30);
+	//btn->SetHoverFilter(true, 255, 255, 255, 100);
+
+	//elements.emplace_back(btn);
+	//ui->DumpToJson("Json dump", elements);
+	ui->LoadFromJson("Json dump.json");
 
 }
 
@@ -68,13 +75,6 @@ void Game::LogicUpdate() {
 }
 
 void Game::FrameUpdate() {
-	if (ui->ConsumeIfExist("first")) {
-		std::println("First clicked");
-	}
-	if (ui->ConsumeIfExist("second")) {
-		std::println("Second clicked");
-	}
-
 	Input();
 	ui->FrameUpdate();
 	Render();

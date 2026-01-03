@@ -843,10 +843,10 @@ void UI::ScanFont(const std::string& texturePath, const std::string& charactersD
 
 
 
-void UI::DumpButton(nlohmann::ordered_json& json, UIElemBase* elem, int type) {
+void UI::DumpButton(nlohmann::ordered_json& json, UIElemBase* elem) {
 	auto& jsonElem = json[elem->GetName()];
 
-	jsonElem["Type"] = type;
+	jsonElem["Type"] = elem->castType;
 	jsonElem["X"] = elem->GetRectangle().x;
 	jsonElem["Y"] = elem->GetRectangle().y;
 	jsonElem["W"] = elem->GetRectangle().w;
@@ -946,28 +946,22 @@ void UI::DumpToJson(const std::string &fileName, const std::vector<UIElemBase*>&
 	
 	nlohmann::ordered_json jsonFile;
 	for (auto& elem : elements) {
-		Button* btn = nullptr;
-		ClickBox* cb = nullptr;
-		TextBox* tb = nullptr;
-		PopUpBox* pb = nullptr;
-		btn = dynamic_cast<Button*>(elem);
-		if (btn != nullptr) {
-			DumpButton(jsonFile, elem,1);
-		}
-		cb = dynamic_cast<ClickBox*>(elem);
-		if (cb != nullptr) {
-			DumpButton(jsonFile, elem, 2);
-			DumpClickBox(jsonFile, cb);
-		}
-		tb = dynamic_cast<TextBox*>(elem);
-		if (tb != nullptr) {
-			DumpButton(jsonFile, elem, 3);
-			DumpTextBox(jsonFile, tb);
-		}
-		pb = dynamic_cast<PopUpBox*>(elem);
-		if (pb != nullptr) {
-			DumpButton(jsonFile, elem, 4);
-			DumpPopUpBox(jsonFile, pb);
+		switch (elem->castType) {
+			case (int)CastType::Button:
+				DumpButton(jsonFile, elem);
+				break;
+			case (int)CastType::ClickBox:
+				DumpButton(jsonFile, elem);
+				DumpClickBox(jsonFile, static_cast<ClickBox*>(elem));
+				break;
+			case (int)CastType::TextBox:
+				DumpButton(jsonFile, elem);
+				DumpTextBox(jsonFile, static_cast<TextBox*>(elem));
+				break;
+			case (int)CastType::PopUpBox:
+				DumpButton(jsonFile, elem);
+				DumpPopUpBox(jsonFile, static_cast<PopUpBox*>(elem));
+				break;
 		}
 	}
 	file << jsonFile;
@@ -995,16 +989,16 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 
 		std::unique_ptr<UIElemBase> elem = nullptr;
 
-		if (type == 1) {
+		if (type == (int)CastType::Button) {
 			elem = std::make_unique<Button>();
 		}
-		else if (type == 2) {
+		else if (type == (int)CastType::ClickBox) {
 			elem = std::make_unique<ClickBox>();
 		}
-		else if (type == 3) {
+		else if (type == (int)CastType::TextBox) {
 			elem = std::make_unique<TextBox>();
 		}
-		else if (type == 4) {
+		else if (type == (int)CastType::PopUpBox) {
 			elem = std::make_unique<PopUpBox>();
 		}
 
@@ -1055,27 +1049,27 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		elem->zLayer = val["Zlayer"];
 
 
-		if (type == 1) {
+		if (type == (int)CastType::Button) {
 			Button* btn = CreateButton(key, 0, 0, 0, 0);
-			*btn = *dynamic_cast<Button*>(elem.get());
+			*btn = *static_cast<Button*>(elem.get());
 			loadedElements.emplace_back(btn);
 		}
-		else if (type == 2) {
+		else if (type == (int)CastType::ClickBox) {
 			ClickBox* cb = CreateClickBox(key, 0, 0, 0, 0);
-			*cb = *dynamic_cast<ClickBox*>(elem.get());
+			*cb = *static_cast<ClickBox*>(elem.get());
 			cb->turnedOn = val["TurnedOn"];
 			cb->clickSound = val["ClickSound"];
 			loadedElements.emplace_back(cb);
 		}
-		else if (type == 3) {
+		else if (type == (int)CastType::TextBox) {
 			TextBox* tb = CreateTextBox(key, 0, 0, 0, 0);
-			*tb = *dynamic_cast<TextBox*>(elem.get());
+			*tb = *static_cast<TextBox*>(elem.get());
 			tb->turnedOn = val["TurnedOn"];
 			loadedElements.emplace_back(tb);;
 		}
-		else if (type == 4) {
+		else if (type == (int)CastType::PopUpBox) {
 			PopUpBox* pb = CreatePopUpBox(key, 0, 0, 0, 0, 0);
-			*pb = *dynamic_cast<PopUpBox*>(elem.get());
+			*pb = *static_cast<PopUpBox*>(elem.get());
 			pb->lifeTime = val["LifeTime"];
 			loadedElements.emplace_back(pb);
 		}
