@@ -102,3 +102,4 @@ was removed or the new one was added to folder
 - SetBorderRGB renamed to SetBorderColor
 - Border Rendering now supports alpha chanel
 - UI Elements font and border now supports alpha
+- Pathmaker now allows for compressing first empty point , last empty point or all empty points

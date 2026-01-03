@@ -4,7 +4,8 @@
 #include "TextureManager.h"
 #include "UI.h"
 
-
+// Graphical tool for creating custom path when they are impossible or to hard to create with math
+// It does not store full position only their shifts
 class PathMaker {
 private:
 	SDL_Window* window = nullptr;
@@ -27,6 +28,12 @@ private:
 	int programState = 0; // 0 nothing happends default state 1 creating path
 	int saveState = 0; // 0 txt 1 csv 2 bin
 
+	//Setting
+	bool compressStart = false;
+	bool compressEnd = false;
+	bool compressZeros = false;
+	//Setting
+
 	void CreateSaveMenu();
 
 	void InputSaveMenu();
@@ -46,7 +53,10 @@ private:
 	void Maintain();
 
 public:
-	void Open(int windowW = 500 , int windowH = 500);
+	// compressStart will remove all empty points create before mouse was first moved
+	// compressEnd will remove all empty points after last mouse move
+	// compressZeros will remove every existing empty point
+	void Open(bool compressStart = false, bool compressEnd = false, bool compressZeros = false, int windowW = 500 , int windowH = 500);
 
 	std::vector<Point> LoadTxt(const std::string &path);
 

@@ -49,26 +49,6 @@ void Game::Start() {
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
 
 	renderer->FLatRenderCopySetUp();
-
-	Button *btn = ui->CreateButtonF("test2", 100, 100, 100, 100, TexMan::GetTex("water"), "arial12px", "");
-	btn = ui->CreateButtonF("test3", 300, 100, 100, 100, nullptr, "arial12px", "sdfafads");
-	btn->SetColor(30, 30, 30);
-	btn->SetFontColor(255, 255, 255, 100);
-	btn->SetBorder(4, 100, 100, 100,100);
-	btn->SetRenderType(2);
-	btn->SetRenderTextType(2);
-	btn = ui->CreateButtonF("test4", 500, 100, 100, 100, nullptr, "arial12px", "dfsa");
-	btn->SetColor(255, 0, 0);
-	btn->SetBorder(4, 100, 100, 100);
-	btn->SetRenderTextType(2);
-	btn = ui->CreateButtonF("test5", 700, 100, 100, 100, nullptr, "arial12px", "fsda");
-	btn->SetColor(0, 255, 0);
-	btn->SetBorder(4, 100, 100, 100);
-	btn->SetRenderTextType(2);
-	btn = ui->CreateButtonF("test6", 900, 100, 100, 100, nullptr, "arial12px", "dsaffa");
-	btn->SetColor(0, 0, 255);
-	btn->SetBorder(4, 100, 100, 100);
-	btn->SetRenderTextType(2);
 }
 
 void Game::LogicUpdate() {
@@ -91,15 +71,6 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-
-	renderer->RenderRoundedBorder({ 400,400,100,300 }, { 255,0,0 }, 4,100);
-
-	renderer->RenderBorder({ 600,400,100,300 }, { 255,0,0 }, 4);
-
-	renderer->RenderRoundedBorderUPR({ 800,400,100,300 }, { 255,0,0 }, 4,100);
-
-    renderer->RenderBorderUPR({ 1000,400,100,300 }, { 255,0,0 }, 4);
-
 	ui->Render();
 	renderer->Present();
 

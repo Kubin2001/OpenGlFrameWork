@@ -4,6 +4,8 @@
 
 #include "Files.h"
 
+#include <thread>
+
 static void CreateErrorBox(UI* ui, const std::string& text) {
 	PopUpBox *pb =  ui->CreatePopUpBoxF("erroxBox" + std::to_string(RandInt(0, 1000)), 120, 200, 5, 100, 40,nullptr,"arial12px");
 	pb->SetColor(120, 120, 120);
@@ -244,10 +246,16 @@ void PathMaker::Input() {
 					if (event.key.keysym.scancode == SDL_SCANCODE_R) {
 						programState = 2;
 						statusText = "Press R to cancel or S to save";
-						std::println("Created points");
-						//for (auto point : path) {
-						//	std::println("X: {} Y: {}", point.x, point.y);
-						//}
+						if (compressEnd) {
+							while (!path.empty()) {
+								if (path.back().x == 0 && path.back().y == 0) {
+									path.pop_back();
+								}
+								else {
+									break;
+								}
+							}
+						}
 					}
 
 
@@ -277,7 +285,16 @@ void PathMaker::FrameUpdate() {
 		case 1: { // drawing
 			Point prev = currentPoint;
 			currentPoint = GetMousePos();
-			path.emplace_back(currentPoint.x - prev.x, currentPoint.y - prev.y);
+			Point newPoint{ currentPoint.x - prev.x, currentPoint.y - prev.y };
+			if (compressStart) {
+				if (startPoint == currentPoint) { break; }
+			}
+			if (compressZeros) {
+				if (newPoint.x == 0 && newPoint.y == 0) {
+					break;
+				}
+			}
+			path.emplace_back(newPoint);
 			break;
 		}
 		case 2: // saving
@@ -317,7 +334,6 @@ void PathMaker::Render() {
 			}
 			break;
 	}
-	ui->FrameUpdate();
 	ui->RenderRawText(ui->GetFont("arial12px"), 10, 10, statusText, 0, 230, 230, 230);
 	ui->Render();
 	ren->Present();
@@ -328,10 +344,11 @@ void PathMaker::Maintain() {
 		Input();
 		FrameUpdate();
 		Render();
+		std::this_thread::sleep_for(std::chrono::milliseconds(16)); // 60 frames
 	}
 }
 
-void PathMaker::Open(int windowW, int windowH) {
+void PathMaker::Open(bool compressStart, bool compressEnd, bool compressZeros, int windowW, int windowH) {
 	MT::ConstextGuard cg;
 	window = SDL_CreateWindow("Path Maker", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		windowW, windowH, SDL_WINDOW_SHOWN | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_OPENGL);
@@ -345,6 +362,10 @@ void PathMaker::Open(int windowW, int windowH) {
 	ui->CreateFont("arial20px", texMan.GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
 	statusText = "Press R to start";
 	saveSection.Init(ui);
+
+	this->compressStart = compressStart;
+	this->compressEnd = compressEnd;
+	this->compressZeros = compressZeros;
 
 	Maintain();
 
