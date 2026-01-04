@@ -110,3 +110,4 @@ was removed or the new one was added to folder
 	- Click boxes checking will be stopped at the newest one
 	- Click boxes will be activated at putting the mouse button down or up (Before it was only up)
 - Fixed ui json dumping and loading
+- Small TextBox Rework it can now show if it is the one in focus and max length of text can be set up

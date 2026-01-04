@@ -238,41 +238,71 @@ void UIElemBase::SetZLayer(const int temp) {
 }
 
 //BUTTON
-//MassageBox
+//TextBox
+bool TextBox::IsUsed() {
+	return this->isUsed;
+}
+
+void TextBox::TurnOn() {
+	turnedOn = true;
+}
+
+void TextBox::TurnOff() {
+	turnedOn = false;
+	isUsed = false;
+}
+
+bool TextBox::IsOn() {
+	return turnedOn;
+}
+
+void TextBox::SetTextLength(unsigned int val) {
+	if (val > 1'000'000) {
+		this->maxTextLength = 1'000'000;
+	}
+	else {
+		this->maxTextLength = val;
+	}
+}
+
+unsigned int TextBox::GetTextLength() {
+	return this->maxTextLength;
+}
+
 void TextBox::CheckInteraction(SDL_Event& event) {
-	if (event.button.button == SDL_BUTTON_LEFT) {
+	if (!turnedOn) { return; }
+	if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
 		MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
 		if (SimpleCollision(GetRectangle(), temprect)) {
-			turnedOn = true;
+			isUsed = true;
 		}
-		else if (!SimpleCollision(GetRectangle(), temprect) && turnedOn) {
-			turnedOn = false;
+		else{
+			isUsed = false;
 		}
 	}
 }
 
 void TextBox::ManageTextInput(SDL_Event& event) {
-	if (turnedOn) {
-		SDL_StartTextInput();
+	if (!isUsed) { return; }
 
-		if (event.type == SDL_TEXTINPUT) {
-			GetText() += event.text.text;
-		}
-		if (event.type == SDL_KEYDOWN) {
-			if (event.key.keysym.scancode == SDL_SCANCODE_RETURN) {
-				GetText() += '\n';
-			}
-			if (event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE && !text.empty()) {
-				GetText().pop_back();
-			}
-		}
+	SDL_StartTextInput();
 
+	if (event.type == SDL_TEXTINPUT) {
+		if (text.length() >= maxTextLength) { return; }
+		text += event.text.text;
 	}
-
+	if (event.type == SDL_KEYDOWN) {
+		if (event.key.keysym.scancode == SDL_SCANCODE_RETURN) { // Enter
+			if (text.length() >= maxTextLength) { return; }
+			text += '\n';
+		}
+		else if (event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE && !text.empty()) {
+			text.pop_back();
+		}
+	}
 }
 
-//MassageBox
-//InteractionBox
+//ClickBox
 bool ClickBox::GetStatus() {
 	return status;
 }
@@ -308,7 +338,7 @@ void ClickBox::SetClickSound(const std::string& temp) {
 std::string& ClickBox::GetClickSound() {
 	return clickSound;
 }
-//InteractionBox
+//ClickBox
 //Pop Up Box
 
 int PopUpBox::GetLifeTime() {
@@ -931,6 +961,7 @@ void UI::DumpClickBox(nlohmann::ordered_json& json, ClickBox* cb) {
 void UI::DumpTextBox(nlohmann::ordered_json& json, TextBox* tb) {
 	auto& jsonElem = json[tb->GetName()];
 	jsonElem["TurnedOn"] = tb->turnedOn;
+	jsonElem["MaxTextLength"] = tb->maxTextLength;
 }
 
 void UI::DumpPopUpBox(nlohmann::ordered_json& json, PopUpBox* pb) {
@@ -1065,6 +1096,7 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 			TextBox* tb = CreateTextBox(key, 0, 0, 0, 0);
 			*tb = *static_cast<TextBox*>(elem.get());
 			tb->turnedOn = val["TurnedOn"];
+			tb->maxTextLength = val["MaxTextLength"];
 			loadedElements.emplace_back(tb);;
 		}
 		else if (type == (int)CastType::PopUpBox) {

@@ -173,8 +173,22 @@ public:
 // Button that can accept text input
 class TextBox : public UIElemBase {
 private:
-	bool turnedOn = false;
+	bool isUsed = false;
+	bool turnedOn = true;
+	unsigned int maxTextLength = 1'000'000;
 public:
+	bool IsUsed();
+
+	void TurnOn();
+
+	void TurnOff();
+
+	bool IsOn();
+
+	void SetTextLength(unsigned int val);
+
+	unsigned int GetTextLength();
+
 	void CheckInteraction(SDL_Event& event);
 
 	void ManageTextInput(SDL_Event& event);

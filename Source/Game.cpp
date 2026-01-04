@@ -50,23 +50,25 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
-	//std::vector<UIElemBase*> elements;
 
-	//ClickBox* cb = ui->CreateClickBoxF("first", 100, 100, 300, 300,nullptr,"arial40px","First Elem");
-	//cb->SetRenderTextType(2);
-	//cb->SetColor(30, 30, 30);
-	//cb->SetHoverFilter(true, 255, 255, 255, 100);
-	//cb->SetClickSound("click");
-	//elements.emplace_back(cb);
+	ClickBox* cb = ui->CreateClickBoxF("first", 100, 100, 300, 300,nullptr,"arial40px","First Elem");
+	cb->SetRenderTextType(2);
+	cb->SetColor(30, 30, 30);
+	cb->SetHoverFilter(true, 255, 255, 255, 100);
+	cb->SetClickSound("click");
 
-	//Button *btn = ui->CreateButtonF("second", 200, 200, 300, 300, nullptr, "arial40px", "Second Elem");
-	//btn->SetRenderTextType(2);
-	//btn->SetColor(255, 30, 30);
-	//btn->SetHoverFilter(true, 255, 255, 255, 100);
+	TextBox *tb = ui->CreateTextBoxF("second", 200, 200, 300, 300, nullptr, "arial40px", "Sec");
+	tb->SetRenderTextType(2);
+	tb->SetColor(255, 30, 30);
+	tb->SetHoverFilter(true, 255, 255, 255, 100);
+	tb->TurnOff();
 
-	//elements.emplace_back(btn);
-	//ui->DumpToJson("Json dump", elements);
-	ui->LoadFromJson("Json dump.json");
+	tb = ui->CreateTextBoxF("third", 600, 200, 300, 300, nullptr, "arial40px", "Third");
+	tb->SetRenderTextType(2);
+	tb->SetColor(30, 30, 255);
+	tb->SetHoverFilter(true, 255, 255, 255, 100);
+	tb->SetTextLength(10);
+
 
 }
 

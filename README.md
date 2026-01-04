@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎮 OpenGLFramework v1.1.0
+# 🎮 OpenGLFramework v1.1.1
 
 ![Version](https://img.shields.io/badge/version-1.1.0-blue)
 ![C++](https://img.shields.io/badge/C++-23-orange)
