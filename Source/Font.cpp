@@ -569,8 +569,6 @@ void FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 	int x = 0;
 	int y = 0;
 
-
-
 	for (auto& it : strCharset) {
 		SDL_Surface* surf = TTF_RenderGlyph32_Blended(font, it, { 255,255,255,255 });
 		if (!surf) continue;
@@ -590,19 +588,15 @@ void FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 
 	int w = 0;
 	int maxH = 0;
-
 	for (auto& it : sourceRectangles) {
 		w += it.w + 1;
-		if (it.h > maxH) {
+		if (it.h >= maxH) {
 			maxH = it.h;
 		}
 	}
 
 	SDL_Surface* atlas = SDL_CreateRGBSurfaceWithFormat(0, w, maxH, 32, SDL_PIXELFORMAT_RGBA32);
 	SDL_FillRect(atlas, nullptr, SDL_MapRGBA(atlas->format, 0, 0, 0, 0));
-
-
-
 
 	for (size_t i = 0; i < sourceRectangles.size(); i++) {
 		SDL_Rect tempRect = sourceRectangles[i].ToSDLRect();
@@ -623,6 +617,7 @@ void FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 		}
 	}
 	fonts.emplace_back(new Font(name, tex, strCharset, sourceRectangles));
+	fonts.back()->SetStandardInterline(maxH); // Without this text rendering will not be propelly centered
 
 
 	//Clean Up

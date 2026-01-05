@@ -43,10 +43,26 @@ void Game::Start() {
 
 	ui = std::make_unique<UI>(renderer);
 
-	ui->CreateFont("arial40px", TexMan::GetTex("arial40px"), "Textures/Interface/Fonts/arial40px.json");
-	ui->CreateFont("arial20px", TexMan::GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
-	ui->CreateFont("arial12px", TexMan::GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
-	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
+
+	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial12");
+	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
+	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
+
+	std::println("Temp font  {} ms", MT::Timer::Tac<std::chrono::milliseconds>());
+
+	Button* btn;
+	btn = ui->CreateButtonF("button4", 50, 350, 200, 200, nullptr, "arial12", "SomeText");
+	btn->SetColor(30, 30, 30);
+	btn->SetRenderTextType(2);
+	btn->SetFontColor(255, 0, 0);
+	btn = ui->CreateButtonF("button5", 350, 350, 200, 200, nullptr, "arial20", "SomeText");
+	btn->SetColor(30, 30, 30);
+	btn->SetRenderTextType(3);
+	btn->SetFontColor(255, 0, 0);
+	btn = ui->CreateButtonF("button6", 650, 350, 200, 200, nullptr, "arial40", "SomeText");
+	btn->SetColor(30, 30, 30);
+	btn->SetRenderTextType(4);
+	btn->SetFontColor(255, 0, 0);
 
 	renderer->FLatRenderCopySetUp();
 }
@@ -71,11 +87,6 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-	renderer->RenderRect({ 50,100,50,50 }, (ColorType::Black));
-	renderer->RenderRect({ 50,200,50,50 }, (ColorType::Red));
-	renderer->RenderRect({ 50,300,50,50 }, (ColorType::Green));
-	renderer->RenderRect({ 50,400,50,50 }, (ColorType::Blue));
-	renderer->RenderRect({ 50,500,50,50 }, (ColorType::LightGray));
 	ui->Render();
 	renderer->Present();
 }

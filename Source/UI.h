@@ -361,8 +361,10 @@ class UI{
 
 
 		// You need to provide not name (made up by you) texture (needs to be already loaded by texture manager) path to pregenerated json file
+		// Strongly recomended to use  CrateTempFontFromTTF if you do not have any custom strange fonts
 		void CreateFont(const std::string& name, MT::Texture* texture, const std::string& jsonPath);
 
+		//Generates font directly form TTF file you can find this files for example in system32/Fonts
 		void CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name);
 
 		Font* GetFont(const std::string& name);
