@@ -124,7 +124,7 @@ public:
 
 	void SetHoverFilter(const bool filter, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A, const std::string& sound = "");
 
-	Mix_Chunk* GetHooverSound();
+	Mix_Chunk* GetHoverSound();
 
 	int GetZLayer();
 
@@ -189,9 +189,6 @@ public:
 
 	unsigned int GetTextLength();
 
-	void CheckInteraction(SDL_Event& event);
-
-	void ManageTextInput(SDL_Event& event);
 	friend class UI;
 };
 
@@ -213,10 +210,7 @@ class RenderingLayer {
 	public:
 		friend class UI;
 	private:
-		std::vector<Button*> Buttons;
-		std::vector<TextBox*> TextBoxes;
-		std::vector<ClickBox*> ClickBoxes;
-		std::vector<PopUpBox*> PopUpBoxes;
+		std::vector<UIElemBase*> Elements;
 };
 
 template<typename T>
@@ -230,10 +224,7 @@ class UI{
 		MT::Renderer* renderer;
 		LocalTexMan* localTexMan = nullptr;
 
-		std::vector<Button*> Buttons;
-		std::vector<TextBox*> TextBoxes;
-		std::vector<ClickBox*> ClickBoxes;
-		std::vector<PopUpBox*> PopUpBoxes;
+		std::vector<UIElemBase*> UiElemVec;
 
 		std::unordered_map<std::string, UIElemBase*> UIElemMap;
 
@@ -245,7 +236,8 @@ class UI{
 
 		FontManager* fontManager;
 
-		Point lastMousePos;
+		int popupBoxesCount = 0;
+		MT::Rect lastMousePos;
 
 		Font* baseFont = nullptr;
 
@@ -283,10 +275,8 @@ class UI{
 
 		void DumpPopUpBox(nlohmann::ordered_json& json, PopUpBox* pb);
 
-		bool DeleteButton(Button *btn);
-		bool DeleteTextBox(TextBox *tb);
-		bool DeleteClickBox(ClickBox *cb);
-		bool DeletePopUpBox(PopUpBox *pb);
+		void FillElem(UIElemBase* elem, const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		struct Settings {
 			// Render elements based on their z layer not based on which was created last
@@ -294,6 +284,9 @@ class UI{
 			// If the newest ClickBox is clicked older ones that are also clicked will not call its status
 			// it might not work well with layers in rendering tuned on 
 			bool stopCheckAtFirst = false;
+			// If the newest Element hovered all hover checks will stop
+			// it might not work well with layers in rendering tuned on 
+			bool stopHoverAtFirst = false;
 			// Click boxes status will be checked at MOUSEBUTTONUP not like default MOUSEBUTTONDOWN
 			bool clickBoxStartAtDown = false;
 		};
@@ -334,13 +327,13 @@ class UI{
 		// Renaming and rehasing element
 		bool RenameElem(const std::string& name, const std::string& newName);
 
-		void CheckHover();
+		void CheckHover(UIElemBase* elem, bool &hoverStop);
 
-		void CheckTextBoxInteraction(SDL_Event& event);
+		void CheckTextBoxInteraction(TextBox* tb, SDL_Event& event);
 
-		void ManageTextBoxTextInput(SDL_Event& event);
+		void ManageTextBoxTextInput(TextBox* tb, SDL_Event& event);
 
-		void CheckClickBoxes(SDL_Event& event);
+		void CheckClickBoxes(ClickBox* cb, int eventType, bool& forceStop, SDL_Event& event);
 
 		Button* GetButton(const std::string& name);
 		TextBox* GetTextBox(const std::string& name);
@@ -366,12 +359,6 @@ class UI{
 		void RenderRawText(Font* font, const int x, const int y, const std::string& text,const int interline,
 			const unsigned char R, const unsigned char G, const unsigned char B);
 
-		std::vector<Button*>& GetButtons();
-
-		std::vector<TextBox*>& GetTextBoxes();
-
-		std::vector<ClickBox*>& GetClickBoxes();
-		std::vector<PopUpBox*>& GetPopUpBoxes();
 
 		// You need to provide not name (made up by you) texture (needs to be already loaded by texture manager) path to pregenerated json file
 		void CreateFont(const std::string& name, MT::Texture* texture, const std::string& jsonPath);

@@ -225,7 +225,7 @@ void UIElemBase::SetHoverFilter(const bool filter, const unsigned char R, const 
 	}
 }
 
-Mix_Chunk* UIElemBase::GetHooverSound() {
+Mix_Chunk* UIElemBase::GetHoverSound() {
 	return hoverSound;
 }
 
@@ -269,38 +269,6 @@ unsigned int TextBox::GetTextLength() {
 	return this->maxTextLength;
 }
 
-void TextBox::CheckInteraction(SDL_Event& event) {
-	if (!turnedOn) { return; }
-	if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
-		MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
-		if (SimpleCollision(GetRectangle(), temprect)) {
-			isUsed = true;
-		}
-		else{
-			isUsed = false;
-		}
-	}
-}
-
-void TextBox::ManageTextInput(SDL_Event& event) {
-	if (!isUsed) { return; }
-
-	SDL_StartTextInput();
-
-	if (event.type == SDL_TEXTINPUT) {
-		if (text.length() >= maxTextLength) { return; }
-		text += event.text.text;
-	}
-	if (event.type == SDL_KEYDOWN) {
-		if (event.key.keysym.scancode == SDL_SCANCODE_RETURN) { // Enter
-			if (text.length() >= maxTextLength) { return; }
-			text += '\n';
-		}
-		else if (event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE && !text.empty()) {
-			text.pop_back();
-		}
-	}
-}
 
 //ClickBox
 bool ClickBox::GetStatus() {
@@ -360,48 +328,22 @@ UI::UI(MT::Renderer* renderer) {
 
 
 void UI::Render() {
-	if (!settings.useLayersInRendering) {
-		for (const auto& it : Buttons) {
-			it->renderFunction(it,renderer);
-		}
-		for (const auto& it : TextBoxes) {
-			it->renderFunction(it, renderer);
-		}
-		for (const auto& it : ClickBoxes) {
-			it->renderFunction(it, renderer);
-		}
-		for (const auto& it : PopUpBoxes) {
-			it->renderFunction(it, renderer);
-		}
-	}
-	else {
-		for (const auto& it : Buttons) {
-			Zlayers[it->zLayer].Buttons.emplace_back(it);
-		}
-		for (const auto& it : TextBoxes) {
-			Zlayers[it->zLayer].TextBoxes.emplace_back(it);
-		}
-		for (const auto& it : ClickBoxes) {
-			Zlayers[it->zLayer].ClickBoxes.emplace_back(it);
-		}
-		for (const auto& it : PopUpBoxes) {
-			Zlayers[it->zLayer].PopUpBoxes.emplace_back(it);
+	if (settings.useLayersInRendering) {
+		for (const auto& elem : UiElemVec) {
+			Zlayers[elem->zLayer].Elements.emplace_back(elem);
 		}
 		for (auto& it : Zlayers) {
 			auto& layer = it.second;
-			for (auto& btn : layer.Buttons) {
-				btn->renderFunction(btn, renderer);
-			}
-			for (auto& btn : layer.ClickBoxes) {
-				btn->renderFunction(btn, renderer);
-			}
-			for (auto& btn : layer.TextBoxes) {
-				btn->renderFunction(btn, renderer);
-			}
-			for (auto& btn : layer.PopUpBoxes) {
-				btn->renderFunction(btn, renderer);
+			for (auto& elem : layer.Elements) {
+				elem->renderFunction(elem, renderer);
 			}
 		}
+	}
+	else {
+		for (const auto& elem : UiElemVec) {
+			elem->renderFunction(elem, renderer);
+		}
+
 		Zlayers.clear();
 	}
 }
@@ -411,35 +353,39 @@ void UI::RenderRawText(Font* font, const int x, const int y, const std::string& 
 		const unsigned char R, const unsigned char G, const unsigned char B) {
 	font->RenderRawText(renderer, x, y, text, interline, R, G, B);
 }
+void UI::FillElem(UIElemBase *elem ,const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+	const std::string& text, float textScale, int textStartX, int textStartY) {
+
+	elem->name = name;
+	elem->GetRectangle().Set(x, y, w, h);
+	elem->SetRenderType(1);
+
+	elem->SetTexture(texture);
+
+	elem->SetText(text);
+	elem->SetTextScale(textScale);
+	elem->SetFont(font);
+	if (font != nullptr) {
+		elem->SetInterLine(font->GetStandardInterline());
+	}
+	elem->SetTextStartX(textStartX);
+	elem->SetTextStartY(textStartY);
+}
 
 Button* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	if (GetButton(name) != nullptr) {
-		std::cout << "Warning name collision Button with name: " << name << " already exists addition abborted\n";
+		std::println("Warning name collision Button with name: {} already exists addition abborted",name);
 		return nullptr;
 	}
 
-	Buttons.emplace_back(new Button());
-	Button* btn = Buttons.back();
+	UiElemVec.emplace_back(new Button());
+	Button* btn = static_cast<Button*>(UiElemVec.back());
 	btn->castType = (int)CastType::Button;
-	btn->name = name;
-	btn->GetRectangle().Set(x, y, w, h);
-	btn->SetRenderType(1);
+	FillElem(btn,name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
-	btn->SetTexture(texture);
-
-	btn->SetText(text);
-	btn->SetTextScale(textScale);
-	btn->SetFont(font);
-	if (font != nullptr) {
-		btn->SetInterLine(font->GetStandardInterline());
-	}
-
-	btn->SetTextStartX(textStartX);
-	btn->SetTextStartY(textStartY);
-
-	UIElemMap.emplace(btn->GetName(), btn);
+	UIElemMap.emplace(btn->name, btn);
 	return btn;
 }
 
@@ -447,31 +393,16 @@ TextBox* UI::CreateTextBox(const std::string& name, int x, int y, int w, int h, 
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	if (GetTextBox(name) != nullptr) {
-		std::cout << "Warning name collision TextBox with name: " << name << " already exists addition abborted\n";
+		std::println("Warning name collision TextBox with name: {} already exists addition abborted", name);
 		return nullptr;
 	}
 
-	TextBoxes.emplace_back(new TextBox());
-	TextBox* tb = TextBoxes.back();
+	UiElemVec.emplace_back(new TextBox());
+	TextBox* tb = static_cast<TextBox*>(UiElemVec.back());
 	tb->castType = (int)CastType::TextBox;
-	tb->name = name;
-	tb->GetRectangle().Set(x, y, w, h);
-	tb->SetRenderType(1);
+	FillElem(tb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
-	tb->SetTexture(texture);
-
-	tb->SetText(text);
-
-	tb->SetTextScale(textScale);
-	tb->SetFont(font);
-	if (font != nullptr) {
-		tb->SetInterLine(font->GetStandardInterline());
-	}
-
-	tb->SetTextStartX(textStartX);
-	tb->SetTextStartY(textStartY);
-
-	UIElemMap.emplace(tb->GetName(), tb);
+	UIElemMap.emplace(tb->name, tb);
 	return tb;
 }
 
@@ -479,31 +410,16 @@ ClickBox* UI::CreateClickBox(const std::string& name, int x, int y, int w, int h
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	if (GetClickBox(name) != nullptr) {
-		std::cout << "Warning name collision click box with name: " << name << " already exists addition abborted\n";
+		std::println("Warning name collision Click Box with name: {} already exists addition abborted", name);
 		return nullptr;
 	}
 
-	ClickBoxes.emplace_back(new ClickBox());
-	ClickBox* cb = ClickBoxes.back();
+	UiElemVec.emplace_back(new ClickBox());
+	ClickBox* cb = static_cast<ClickBox*>(UiElemVec.back());
 	cb->castType = (int)CastType::ClickBox;
-	cb->name = name;
-	cb->GetRectangle().Set(x, y, w, h);
-	cb->SetRenderType(1);
+	FillElem(cb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
-	cb->SetTexture(texture);
-
-	cb->SetText(text);
-
-	cb->SetTextScale(textScale);
-	cb->SetFont(font);
-	if (font != nullptr) {
-		cb->SetInterLine(font->GetStandardInterline());
-	}
-
-	cb->SetTextStartX(textStartX);
-	cb->SetTextStartY(textStartY);
-
-	UIElemMap.emplace(cb->GetName(), cb);
+	UIElemMap.emplace(cb->name, cb);
 	return cb;
 }
 
@@ -514,28 +430,14 @@ PopUpBox* UI::CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y
 		return nullptr;
 	}
 
-	PopUpBoxes.emplace_back(new PopUpBox());
-	PopUpBox* pb = PopUpBoxes.back();
+	UiElemVec.emplace_back(new PopUpBox());
+	PopUpBox* pb = static_cast<PopUpBox*>(UiElemVec.back());
 	pb->castType = (int)CastType::PopUpBox;
-	pb->name = name;
-	pb->SetLifeTime(lifeSpan);
-	pb->GetRectangle().Set(x, y, w, h);
-	pb->SetRenderType(1);
+	pb->lifeTime = lifeSpan;
+	FillElem(pb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
-	pb->SetTexture(texture);
-
-	pb->SetText(text);
-
-	pb->SetTextScale(textScale);
-	pb->SetFont(font);
-	if (font != nullptr) {
-		pb->SetInterLine(font->GetStandardInterline());
-	}
-
-	pb->SetTextStartX(textStartX);
-	pb->SetTextStartY(textStartY);
-
-	UIElemMap.emplace(pb->GetName(), pb);
+	UIElemMap.emplace(pb->name, pb);
+	popupBoxesCount++;
 	return pb;
 }
 
@@ -572,93 +474,108 @@ bool UI::RenameElem(const std::string& name, const std::string& newName) {
 	return true;
 }
 
-void UI::CheckHover() {
+void UI::CheckHover(UIElemBase *elem, bool &hoverStop) {
 	//TODO When all elemnt are in future in one vec optimize this
+	if (hoverStop) {
+		elem->hovered = false;
+		return;
+	}
 	Point p = GetMousePos();
 	MT::Rect rect{ p.x,p.y,1,1 };
-	for (auto& it : Buttons) {
-		if (SimpleCollision(it->GetRectangle(), rect)) {
-			it->SetHover(true);
-			// patrzenie czy mo¿e byæ wydany dŸwiêk tylko wtedy zadzia³a gdy mysz pierwszy raz jest na przycisku
-			if (it->GetHooverSound() != nullptr) { 
-				MT::Rect prevMousePos{ lastMousePos.x,lastMousePos.y,1,1 };
-				if (!SimpleCollision(prevMousePos, it->GetRectangle())) {
-					SoundMan::PlayRawSound(it->GetHooverSound());
-				}
-			}
-		}
-		else{
-			it->SetHover(false);
-		}
+	if (!SimpleCollision(elem->GetRectangle(), rect)) {
+		elem->hovered = false;
+		return;
 	}
-	for (auto& it : TextBoxes) {
-		if (SimpleCollision(it->GetRectangle(), rect)) {
-			it->SetHover(true);
-			// patrzenie czy mo¿e byæ wydany dŸwiêk tylko wtedy zadzia³a gdy mysz pierwszy raz jest na przycisku
-			if (it->GetHooverSound() != nullptr) {
-				MT::Rect prevMousePos{ lastMousePos.x,lastMousePos.y,1,1 };
-				if (!SimpleCollision(prevMousePos, it->GetRectangle())) {
-					SoundMan::PlayRawSound(it->GetHooverSound());
-				}
-			}
-		}
-		else{
-			it->SetHover(false);
-		}
+
+	elem->hovered = true;
+	if (settings.stopHoverAtFirst) {
+		hoverStop = true;
 	}
-	for (auto& it : ClickBoxes) {
-		if (SimpleCollision(it->GetRectangle(), rect)) {
-			it->SetHover(true);
-			// patrzenie czy mo¿e byæ wydany dŸwiêk tylko wtedy zadzia³a gdy mysz pierwszy raz jest na przycisku
-			if (it->GetHooverSound() != nullptr) {
-				MT::Rect prevMousePos{ lastMousePos.x,lastMousePos.y,1,1 };
-				if (!SimpleCollision(prevMousePos, it->GetRectangle())) {
-					SoundMan::PlayRawSound(it->GetHooverSound());
-				}
-			}
+
+	// patrzenie czy mo¿e byæ wydany dŸwiêk tylko wtedy zadzia³a gdy mysz pierwszy raz jest na przycisku
+	if (elem->GetHoverSound() == nullptr) { return; }
+
+	if (!SimpleCollision(lastMousePos, elem->GetRectangle())) {
+		SoundMan::PlayRawSound(elem->GetHoverSound());
+	}
+}
+
+void  UI::CheckTextBoxInteraction(TextBox *tb, SDL_Event& event) {
+	if (!tb->turnedOn) { return; }
+	if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+		MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
+		if (SimpleCollision(tb->GetRectangle(), temprect)) {
+			tb->isUsed = true;
 		}
-		else{
-			it->SetHover(false);
+		else {
+			tb->isUsed = false;
 		}
 	}
 }
 
-void  UI::CheckTextBoxInteraction(SDL_Event& event) {
-	for (auto& it : TextBoxes) {
-		it->CheckInteraction(event);
+void UI::ManageTextBoxTextInput(TextBox *tb, SDL_Event& event) {
+	if (!tb->isUsed) { return; }
+	SDL_StartTextInput();
+
+	if (event.type == SDL_TEXTINPUT) {
+		if (tb->text.length() >= tb->maxTextLength) { return; }
+		tb->text += event.text.text;
+	}
+	if (event.type == SDL_KEYDOWN) {
+		if (event.key.keysym.scancode == SDL_SCANCODE_RETURN) { // Enter
+			if (tb->text.length() >= tb->maxTextLength) { return; }
+			tb->text += '\n';
+		}
+		else if (event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE && !tb->text.empty()) {
+			tb->text.pop_back();
+		}
 	}
 }
 
-void UI::ManageTextBoxTextInput(SDL_Event& event) {
-	for (auto& it : TextBoxes) {
-		it->ManageTextInput(event);
-	}
-}
-
-void UI::CheckClickBoxes(SDL_Event& event) {
-	int eventType = SDL_MOUSEBUTTONUP;
-	if (settings.clickBoxStartAtDown) {
-		eventType = SDL_MOUSEBUTTONDOWN;
-	}
-
+void UI::CheckClickBoxes(ClickBox *cb, int eventType, bool &forceStop, SDL_Event& event) {
 	if (event.type == eventType) {
 		// Checks from newest to oldest it does not really have diffence on overall order
 		// since status is called when you want but if you use stopCheckAtFirst setting it will not call
 		// click box behing the first even if it still colides with mouse 
-		for (auto cbIt = ClickBoxes.rbegin(); cbIt != ClickBoxes.rend(); cbIt++) { 
-			ClickBox* cb = *cbIt;
-			if (!cb->IsOn()) { continue; }
+		if (!cb->IsOn()) { return; }
 
-			MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
-			if (!SimpleCollision(cb->GetRectangle(), temprect)) { continue; }
-			cb->SetStatus(true);
+		MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
+		if (!SimpleCollision(cb->GetRectangle(), temprect)) { return; }
+		cb->SetStatus(true);
 
-			if (cb->GetClickSound() != "") { 
-				SoundMan::PlaySound(cb->GetClickSound());
-			}
-			if (settings.stopCheckAtFirst) { break; }
+		if (cb->GetClickSound() != "") { 
+			SoundMan::PlaySound(cb->GetClickSound());
 		}
+		if (settings.stopCheckAtFirst) { forceStop = true; }
 	}
+}
+
+void UI::ManageInput(SDL_Event& event) {
+
+	int eventType = SDL_MOUSEBUTTONUP;
+	if (settings.clickBoxStartAtDown) {
+		eventType = SDL_MOUSEBUTTONDOWN;
+	}
+	bool clickBoxesStopped = false;
+	bool hoverStopped = false;
+
+	for (auto elemIter = UiElemVec.rbegin(); elemIter != UiElemVec.rend(); elemIter++) {
+		UIElemBase* elem = *elemIter;
+		CheckHover(elem, hoverStopped);
+
+		if (elem->castType == (int)CastType::ClickBox) {
+			if (clickBoxesStopped) { return; }
+			ClickBox* cb = static_cast<ClickBox*>(elem);
+			CheckClickBoxes(cb, eventType, clickBoxesStopped, event);
+		}
+		else if (elem->castType == (int)CastType::TextBox) {
+			TextBox* tb = static_cast<TextBox*>(elem);
+			CheckTextBoxInteraction(tb,event);
+			ManageTextBoxTextInput(tb,event);
+		}	
+	}
+
+	SDL_GetMouseState(&lastMousePos.x, &lastMousePos.y);
 }
 
 Button* UI::GetButton(const std::string& name) {
@@ -738,28 +655,22 @@ void UI::SetElementFontColor(const std::string& name, const unsigned char R, con
 }
 
 void UI::FrameUpdate() {
-	for (auto it = PopUpBoxes.begin(); it != PopUpBoxes.end();) {
-		(*it)->lifeTime--;
-		if ((*it)->lifeTime < 1) {
-			DeleteElement((*it)->name);
+	if (popupBoxesCount < 1) { return; }
+	for (auto elemIt = UiElemVec.rbegin(); elemIt != UiElemVec.rend();) {
+		if ((*elemIt)->castType != (int)CastType::PopUpBox) { 
+			++elemIt;
+			continue; 
+		}
+		PopUpBox* pb = static_cast<PopUpBox*>(*elemIt);
+		pb->lifeTime--;
+		if (pb->lifeTime < 1) {
+			DeleteElement(pb->name);
 			return;
 		}
 		else {
-			++it;
+			++elemIt;
 		}
 	}
-}
-
-void UI::ManageInput(SDL_Event& event) {
-	CheckHover();
-
-	CheckTextBoxInteraction(event);
-
-	ManageTextBoxTextInput(event);
-
-	CheckClickBoxes(event);
-
-	SDL_GetMouseState(&lastMousePos.x, &lastMousePos.y);
 }
 
 
@@ -767,78 +678,19 @@ bool UI::DeleteElement(const std::string& name) {
 	auto elemIter = UIElemMap.find(name);
 	if (elemIter == UIElemMap.end()) { return false; }
 
-	switch (elemIter->second->castType) {
-		case (int)CastType::Button:
-			if (!DeleteButton(static_cast<Button*>(elemIter->second))) {return false;}
-			break;
-		case (int)CastType::ClickBox:
-			if (!DeleteClickBox(static_cast<ClickBox*>(elemIter->second))) { return false; }
-			break;
-		case (int)CastType::TextBox:
-			if (!DeleteTextBox(static_cast<TextBox*>(elemIter->second))) { return false; }
-			break;
-		case (int)CastType::PopUpBox:
-			if (!DeletePopUpBox(static_cast<PopUpBox*>(elemIter->second))) { return false; }
-			break;
-	}
-	UIElemMap.erase(elemIter);
-	return true;
-}
-
-bool UI::DeleteButton(Button* btn) {
-	auto vecIter = std::find(Buttons.begin(), Buttons.end(),btn);
-	if (vecIter != Buttons.end()) {
-		delete *vecIter;
-		Buttons.erase(vecIter);
-		return true;
-	}
-	return false;
-}
-
-bool UI::DeleteTextBox(TextBox* tb) {
-	auto vecIter = std::find(TextBoxes.begin(), TextBoxes.end(), tb);
-	if (vecIter != TextBoxes.end()) {
+	auto vecIter = std::find(UiElemVec.rbegin(), UiElemVec.rend(), elemIter->second);
+	if (vecIter != UiElemVec.rend()) {
+		if (elemIter->second->castType == (int)CastType::PopUpBox) {
+			popupBoxesCount--;
+		}
 		delete* vecIter;
-		TextBoxes.erase(vecIter);
+		// It needs to be movedby one to base since reverse iter is not working for vectors by base
+		UiElemVec.erase(std::next(vecIter).base());
+
+		UIElemMap.erase(elemIter);
 		return true;
 	}
 	return false;
-}
-
-bool UI::DeleteClickBox(ClickBox* cb) {
-	auto vecIter = std::find(ClickBoxes.begin(), ClickBoxes.end(), cb);
-	if (vecIter != ClickBoxes.end()) {
-		delete* vecIter;
-		ClickBoxes.erase(vecIter);
-		return true;
-	}
-	return false;
-}
-
-bool UI::DeletePopUpBox(PopUpBox* pb) {
-	auto vecIter = std::find(PopUpBoxes.begin(), PopUpBoxes.end(), pb);
-	if (vecIter != PopUpBoxes.end()) {
-		delete* vecIter;
-		PopUpBoxes.erase(vecIter);
-		return true;
-	}
-	return false;
-}
-
-std::vector<Button*>& UI::GetButtons() {
-	return Buttons;
-}
-
-std::vector<TextBox*>& UI::GetTextBoxes() {
-	return TextBoxes;
-}
-
-std::vector<ClickBox*>& UI::GetClickBoxes() {
-	return ClickBoxes;
-}
-
-std::vector<PopUpBox*>& UI::GetPopUpBoxes() {
-	return PopUpBoxes;
 }
 
 void UI::CreateFont(const std::string& name, MT::Texture* texture, const std::string& jsonPath) {
@@ -939,15 +791,15 @@ void UI::DumpButton(nlohmann::ordered_json& json, UIElemBase* elem) {
 	jsonElem["HoverFilterB"] = elem->hoverFilter.B;
 	jsonElem["HoverFilterA"] = elem->hoverFilter.A;
 
-	std::string hooverSoundStr = "";
+	std::string hoverSoundStr = "";
 	for (auto& sound : SoundMan::GetSounds()) {
 		if (elem->hoverSound == sound.second) {
-			hooverSoundStr = sound.first;
+			hoverSoundStr = sound.first;
 			break;
 		}
 	}
-	if (!hooverSoundStr.empty()) {
-		jsonElem["HoverSound"] = hooverSoundStr;
+	if (!hoverSoundStr.empty()) {
+		jsonElem["HoverSound"] = hoverSoundStr;
 	}
 	jsonElem["Zlayer"] = elem->zLayer;
 }
@@ -1127,24 +979,12 @@ void UI::ClearAll(bool clearLists) {
 		ListCbRef.clear();
 	}
 
-	for (auto& it : Buttons) {
-		delete it;
+	for (auto& elem : UiElemVec) {
+		delete elem;
 	}
-	for (auto& it : TextBoxes) {
-		delete it;
-	}
-	for (auto& it : ClickBoxes) {
-		delete it;
-	}
-	for (auto& it : PopUpBoxes) {
-		delete it;
-	}
-	Buttons.clear();
-	TextBoxes.clear();
-	ClickBoxes.clear();
-	PopUpBoxes.clear();
-
+	UiElemVec.clear();
 	UIElemMap.clear();
+	popupBoxesCount = 0;
 }
 
 

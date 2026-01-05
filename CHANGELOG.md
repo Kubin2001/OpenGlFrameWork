@@ -111,3 +111,5 @@ was removed or the new one was added to folder
 	- Click boxes will be activated at putting the mouse button down or up (Before it was only up)
 - Fixed ui json dumping and loading
 - Small TextBox Rework it can now show if it is the one in focus and max length of text can be set up
+- Ui stores all elements in one container this guarantess that all elements are rendered in correct order for example clickBoxes are no longer always above buttons
+- UI can now be set up to hover only top most element

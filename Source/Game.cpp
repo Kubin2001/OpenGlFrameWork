@@ -50,18 +50,22 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
+	ui->settings.stopCheckAtFirst = true;
+	ui->settings.stopHoverAtFirst = true;
 
-	ClickBox* cb = ui->CreateClickBoxF("first", 100, 100, 300, 300,nullptr,"arial40px","First Elem");
+	ClickBox* cb = nullptr;
+
+	cb = ui->CreateClickBoxF("first", 100, 100, 300, 300, nullptr, "arial40px", "First Elem");
 	cb->SetRenderTextType(2);
 	cb->SetColor(30, 30, 30);
-	cb->SetHoverFilter(true, 255, 255, 255, 100);
+	cb->SetHoverFilter(true, 255, 255, 255, 100, "coin");
 	cb->SetClickSound("click");
 
 	TextBox *tb = ui->CreateTextBoxF("second", 200, 200, 300, 300, nullptr, "arial40px", "Sec");
 	tb->SetRenderTextType(2);
 	tb->SetColor(255, 30, 30);
 	tb->SetHoverFilter(true, 255, 255, 255, 100);
-	tb->TurnOff();
+	//tb->TurnOff();
 
 	tb = ui->CreateTextBoxF("third", 600, 200, 300, 300, nullptr, "arial40px", "Third");
 	tb->SetRenderTextType(2);
@@ -69,7 +73,11 @@ void Game::Start() {
 	tb->SetHoverFilter(true, 255, 255, 255, 100);
 	tb->SetTextLength(10);
 
-
+	cb = ui->CreateClickBoxF("fourth", 100, 20, 200, 200, nullptr, "arial20px", "Fourth");
+	cb->SetRenderTextType(2);
+	cb->SetColor(0, 0, 255);
+	cb->SetHoverFilter(true, 255, 255, 255, 100, "coin");
+	cb->SetClickSound("click");
 }
 
 void Game::LogicUpdate() {
