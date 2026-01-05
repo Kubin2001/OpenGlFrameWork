@@ -64,12 +64,6 @@ void Game::FrameUpdate() {
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
-		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_R) {
-			MT::Timer::Tic();
-			TexMan::RefreshTextures("Textures",true);
-			std::println("Took {}ms", MT::Timer::Tac<std::chrono::microseconds>());
-
-		}
 		Exit();
 	}
 	Global::inputDelay++;
@@ -77,11 +71,11 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-	renderer->RenderCopy({ 50,100,50,50 }, TexMan::GetTex("water"));
-	renderer->RenderCopy({ 50,200,50,50 }, TexMan::GetTex("granite"));
-	renderer->RenderCopy({ 50,300,50,50 }, TexMan::GetTex("grass"));
-	renderer->RenderCopy({ 50,400,50,50 }, TexMan::GetTex("stone"));
-	renderer->RenderCopy({ 50,500,50,50 }, TexMan::GetTex("tree1"));
+	renderer->RenderRect({ 50,100,50,50 }, (ColorType::Black));
+	renderer->RenderRect({ 50,200,50,50 }, (ColorType::Red));
+	renderer->RenderRect({ 50,300,50,50 }, (ColorType::Green));
+	renderer->RenderRect({ 50,400,50,50 }, (ColorType::Blue));
+	renderer->RenderRect({ 50,500,50,50 }, (ColorType::LightGray));
 	ui->Render();
 	renderer->Present();
 }

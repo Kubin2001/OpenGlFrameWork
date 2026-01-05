@@ -7,33 +7,84 @@
 #include "ShaderLoader.h"
 #include "Rectangle.h"
 
+enum class ColorType {     
+	White,      
+	Black,     
+	Red,       
+	Green,     
+	Blue,       
+	Yellow,     
+	Cyan,      
+	Magenta,    
+	Orange,     
+	Purple,     
+	Gray,       
+	LightGray, 
+	DarkGray    
+};
+
 namespace MT {
 
 	SDL_GLContext Innit(SDL_Window* window);
 
 	struct Color {
-		unsigned char R, G, B;
+		unsigned char R = 0, G = 0, B = 0;
 
-		Color() : R(0), G(0), B(0) {}
+		Color() = default;
 
 		Color(const unsigned char R, const unsigned char G, const unsigned char B) : R(R), G(G), B(B) {}
+
+		Color(ColorType type);
 	};
 
 	struct ColorA {
-		unsigned char R, G, B, A;
+		unsigned char R = 0, G = 0, B = 0, A = 255;
 
-		ColorA() : R(0), G(0), B(0), A(0) {}
+		ColorA() = default;
 
 		ColorA(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A) : R(R), G(G), B(B), A(A) {}
+
+		ColorA(ColorType type);
 	};
 
 	struct ColorF {
-		float R, G, B;
+		float R = 0.0f, G = 0.0f, B = 0.0f;
 
-		ColorF() : R(0), G(0), B(0) {}
+		ColorF() = default;
 
 		ColorF(const float R, const float G, float B) : R(R), G(G), B(B) {}
 	};
+
+	inline Color SetColor(ColorType type) {
+		switch (type) {
+		case ColorType::White:     return { 255, 255, 255 };
+		case ColorType::Black:     return { 0,   0,   0 };
+		case ColorType::Red:       return { 255,   0,   0 };
+		case ColorType::Green:     return { 0, 255,   0 };
+		case ColorType::Blue:      return { 0,   0, 255 };
+		case ColorType::Yellow:    return { 255, 255,   0 };
+		case ColorType::Cyan:      return { 0, 255, 255 };
+		case ColorType::Magenta:   return { 255,   0, 255 };
+		case ColorType::Orange:    return { 255, 165,   0 };
+		case ColorType::Purple:    return { 128,   0, 128 };
+		case ColorType::Gray:      return { 128, 128, 128 };
+		case ColorType::LightGray: return { 211, 211, 211 };
+		case ColorType::DarkGray:  return { 169, 169, 169 };
+		default:                   return { 0,   0,   0 };
+		}
+	}
+
+	// Linker goes crazy without inline
+	inline Color::Color(ColorType type) {
+		*this = SetColor(type);
+	}
+
+	inline ColorA::ColorA(ColorType type) {
+		Color col = SetColor(type);
+		R = col.R;
+		G = col.G;
+		B = col.B;
+	}
 
 	class Texture {
 		private:

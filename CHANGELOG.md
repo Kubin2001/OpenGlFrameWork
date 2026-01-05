@@ -115,3 +115,4 @@ was removed or the new one was added to folder
 - UI can now be set up to hover only top most element
 - Textures now store they last write date
 - Reloading textures in Texture Manager now also puts them to they newset state on PC
+- Colors can be initialized with enum
