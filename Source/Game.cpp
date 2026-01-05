@@ -49,35 +49,6 @@ void Game::Start() {
 	//ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial30px");
 
 	renderer->FLatRenderCopySetUp();
-
-	ui->settings.stopCheckAtFirst = true;
-	ui->settings.stopHoverAtFirst = true;
-
-	ClickBox* cb = nullptr;
-
-	cb = ui->CreateClickBoxF("first", 100, 100, 300, 300, nullptr, "arial40px", "First Elem");
-	cb->SetRenderTextType(2);
-	cb->SetColor(30, 30, 30);
-	cb->SetHoverFilter(true, 255, 255, 255, 100, "coin");
-	cb->SetClickSound("click");
-
-	TextBox *tb = ui->CreateTextBoxF("second", 200, 200, 300, 300, nullptr, "arial40px", "Sec");
-	tb->SetRenderTextType(2);
-	tb->SetColor(255, 30, 30);
-	tb->SetHoverFilter(true, 255, 255, 255, 100);
-	//tb->TurnOff();
-
-	tb = ui->CreateTextBoxF("third", 600, 200, 300, 300, nullptr, "arial40px", "Third");
-	tb->SetRenderTextType(2);
-	tb->SetColor(30, 30, 255);
-	tb->SetHoverFilter(true, 255, 255, 255, 100);
-	tb->SetTextLength(10);
-
-	cb = ui->CreateClickBoxF("fourth", 100, 20, 200, 200, nullptr, "arial20px", "Fourth");
-	cb->SetRenderTextType(2);
-	cb->SetColor(0, 0, 255);
-	cb->SetHoverFilter(true, 255, 255, 255, 100, "coin");
-	cb->SetClickSound("click");
 }
 
 void Game::LogicUpdate() {
@@ -93,6 +64,12 @@ void Game::FrameUpdate() {
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
+		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_R) {
+			MT::Timer::Tic();
+			TexMan::RefreshTextures("Textures",true);
+			std::println("Took {}ms", MT::Timer::Tac<std::chrono::microseconds>());
+
+		}
 		Exit();
 	}
 	Global::inputDelay++;
@@ -100,9 +77,13 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
+	renderer->RenderCopy({ 50,100,50,50 }, TexMan::GetTex("water"));
+	renderer->RenderCopy({ 50,200,50,50 }, TexMan::GetTex("granite"));
+	renderer->RenderCopy({ 50,300,50,50 }, TexMan::GetTex("grass"));
+	renderer->RenderCopy({ 50,400,50,50 }, TexMan::GetTex("stone"));
+	renderer->RenderCopy({ 50,500,50,50 }, TexMan::GetTex("tree1"));
 	ui->Render();
 	renderer->Present();
-
 }
 
 

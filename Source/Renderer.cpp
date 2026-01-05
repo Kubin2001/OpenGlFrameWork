@@ -70,6 +70,7 @@ MT::Texture* MT::LoadTexture(const char* path) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, flipped->w, flipped->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, flipped->pixels); // RGBA dla png
         metTex->w = flipped->w;
         metTex->h = flipped->h;
+        metTex->writeTime = std::filesystem::last_write_time(path);
         glGenerateMipmap(GL_TEXTURE_2D);
         SDL_FreeSurface(flipped);
     }

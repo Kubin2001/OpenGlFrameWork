@@ -132,13 +132,20 @@ void TexMan::RefreshTexturesInFolder(const std::string& directory, bool removeIn
 		}
 		else {
 			std::string stem = entry.path().stem().string();
-			if (Textures.find(stem) == Textures.end()) {
-				LoadSingle(entry.path().string().c_str(), stem);
-				if (removeInvalid) {
-					namesCollector.emplace(stem);
+			std::string path = entry.path().string();
+			auto textureIter = Textures.find(stem);
+			if (textureIter == Textures.end()) { // If texture is not loaded load it
+				LoadSingle(path.c_str(), stem);
+			}
+			else{ // Check if it needs to be refreshed
+				MT::Texture* tex = textureIter->second;
+				if (tex->writeTime != std::filesystem::last_write_time(path)) { //Refresh texture
+					MT::DeleteTexture(tex);
+					tex = MT::LoadTexture(path.c_str());
+					textureIter->second = tex;
 				}
 			}
-			else if (removeInvalid) {
+			if (removeInvalid) { // Add to later check if it is missing in textures
 				namesCollector.emplace(stem);
 			}
 		}

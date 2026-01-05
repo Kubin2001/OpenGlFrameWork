@@ -3,6 +3,7 @@
 #include "glm.hpp"
 #include <SDL.h>
 #include <unordered_map>
+#include <filesystem>
 #include "ShaderLoader.h"
 #include "Rectangle.h"
 
@@ -37,10 +38,10 @@ namespace MT {
 	class Texture {
 		private:
 		unsigned int batchIndex = 0;
+		float alpha = 1.0f;
 		public:
 		unsigned int w, h, texture;
-		float alpha = 1.0f;
-
+		std::filesystem::file_time_type writeTime;
 
 		void SetAlphaBending(const unsigned char A) {
 			alpha = float(A) / 255;

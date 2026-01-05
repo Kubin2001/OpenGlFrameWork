@@ -113,3 +113,5 @@ was removed or the new one was added to folder
 - Small TextBox Rework it can now show if it is the one in focus and max length of text can be set up
 - Ui stores all elements in one container this guarantess that all elements are rendered in correct order for example clickBoxes are no longer always above buttons
 - UI can now be set up to hover only top most element
+- Textures now store they last write date
+- Reloading textures in Texture Manager now also puts them to they newset state on PC
