@@ -234,6 +234,9 @@ int UIElemBase::GetZLayer() {
 }
 
 void UIElemBase::SetZLayer(const int temp) {
+	int layer = temp;
+	if (layer < 0) { layer = 0; }
+	else if (layer > 100) { layer = 100; }
 	zLayer = temp;
 }
 
@@ -323,18 +326,18 @@ UI::UI(MT::Renderer* renderer) {
 	this->renderer = renderer;
 	lastMousePos.x = -10000000;
 	lastMousePos.y = -10000000;
+	ZElemVec.resize(101); // 100 leayers (101 in theory if you count 0)
+	for (auto& elem : UiElemVec) {
+		ZElemVec[elem->zLayer].emplace_back(elem);
+	}
 }
 
 
 
 void UI::Render() {
 	if (settings.useLayersInRendering) {
-		for (const auto& elem : UiElemVec) {
-			Zlayers[elem->zLayer].Elements.emplace_back(elem);
-		}
-		for (auto& it : Zlayers) {
-			auto& layer = it.second;
-			for (auto& elem : layer.Elements) {
+		for (auto& layer : ZElemVec) {
+			for (auto& elem : layer) {
 				elem->renderFunction(elem, renderer);
 			}
 		}
@@ -343,8 +346,6 @@ void UI::Render() {
 		for (const auto& elem : UiElemVec) {
 			elem->renderFunction(elem, renderer);
 		}
-
-		Zlayers.clear();
 	}
 }
 
@@ -353,6 +354,36 @@ void UI::RenderRawText(Font* font, const int x, const int y, const std::string& 
 		const unsigned char R, const unsigned char G, const unsigned char B) {
 	font->RenderRawText(renderer, x, y, text, interline, R, G, B);
 }
+
+void UI::UseLayerInRendering(bool use) {
+	if (use) {
+		if (settings.useLayersInRendering) {
+			return;
+		}
+		else {
+			for (auto& elem : UiElemVec) {
+				ZElemVec[elem->zLayer].emplace_back(elem);
+			}
+			UiElemVec.clear();
+			settings.useLayersInRendering = true;
+		}
+	}
+	else {
+		if (!settings.useLayersInRendering) {
+			return;
+		}
+		else {
+			for (auto& layer : ZElemVec) {
+				for (auto& elem : layer) {
+					UiElemVec.emplace_back();
+				}
+				layer.clear();
+			}
+			settings.useLayersInRendering = false;
+		}
+	}
+}
+
 void UI::FillElem(UIElemBase *elem ,const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
@@ -372,6 +403,108 @@ void UI::FillElem(UIElemBase *elem ,const std::string& name, int x, int y, int w
 	elem->SetTextStartY(textStartY);
 }
 
+Button* UI::CreateLayeredButton(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+	const std::string& text, float textScale, int textStartX, int textStartY) {
+
+	if (!settings.useLayersInRendering) {
+		throw std::exception("This should not be used without layer in rendering set on");
+	}
+
+	if (GetButton(name) != nullptr) {
+		std::println("Warning name collision Button with name: {} already exists addition abborted", name);
+		return nullptr;
+	}
+
+	if (layer < 0) { layer = 0; }
+	if (layer > 100) { layer = 100; }
+	ZElemVec[layer].emplace_back(new Button());
+	Button* btn = static_cast<Button*>(ZElemVec[layer].back());
+	btn->zLayer = layer;;
+
+	btn->castType = (int)CastType::Button;
+	FillElem(btn, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
+
+	UIElemMap.emplace(btn->name, btn);
+	return btn;
+}
+
+TextBox* UI::CreateLayeredTextBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+	const std::string& text, float textScale, int textStartX, int textStartY) {
+
+	if (!settings.useLayersInRendering) {
+		throw std::exception("This should not be used without layer in rendering set on");
+	}
+
+	if (GetTextBox(name) != nullptr) {
+		std::println("Warning name collision TextBox with name: {} already exists addition abborted", name);
+		return nullptr;
+	}
+
+	if (layer < 0) { layer = 0; }
+	if (layer > 100) { layer = 100; }
+	ZElemVec[layer].emplace_back(new TextBox());
+	TextBox* tb = static_cast<TextBox*>(ZElemVec[layer].back());
+	tb->zLayer = layer;
+
+	tb->castType = (int)CastType::TextBox;
+	FillElem(tb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
+
+	UIElemMap.emplace(tb->name, tb);
+	return tb;
+}
+
+ClickBox* UI::CreateLayeredClickBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+	const std::string& text, float textScale, int textStartX, int textStartY) {
+
+	if (!settings.useLayersInRendering) {
+		throw std::exception("This should not be used without layer in rendering set on");
+	}
+
+	if (GetClickBox(name) != nullptr) {
+		std::println("Warning name collision Click Box with name: {} already exists addition abborted", name);
+		return nullptr;
+	}
+
+	if (layer < 0) { layer = 0; }
+	if (layer > 100) { layer = 100; }
+	ZElemVec[layer].emplace_back(new ClickBox());
+	ClickBox* cb = static_cast<ClickBox*>(ZElemVec[layer].back());
+	cb->zLayer = layer;
+
+	cb->castType = (int)CastType::ClickBox;
+	FillElem(cb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
+
+	UIElemMap.emplace(cb->name, cb);
+	return cb;
+}
+
+PopUpBox* UI::CreateLayeredPopUpBox(int layer, const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+	const std::string& text, float textScale, int textStartX, int textStartY) {
+
+	if (!settings.useLayersInRendering) {
+		throw std::exception("This should not be used without layer in rendering set on");
+	}
+
+	if (GetPopUpBox(name) != nullptr) {
+		std::cout << "Warning name collision PopUpBox with name: " << name << " already exists addition abborted\n";
+		return nullptr;
+	}
+
+	if (layer < 0) { layer = 0; }
+	if (layer > 100) { layer = 100; }
+	ZElemVec[layer].emplace_back(new PopUpBox());
+	PopUpBox* pb = static_cast<PopUpBox*>(ZElemVec[layer].back());
+	pb->zLayer = layer;
+
+	pb->castType = (int)CastType::PopUpBox;
+	pb->lifeTime = lifeSpan;
+	FillElem(pb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
+
+	UIElemMap.emplace(pb->name, pb);
+	popupBoxesCount++;
+	return pb;
+}
+
 Button* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
@@ -380,8 +513,17 @@ Button* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT
 		return nullptr;
 	}
 
-	UiElemVec.emplace_back(new Button());
-	Button* btn = static_cast<Button*>(UiElemVec.back());
+	Button* btn = nullptr;
+	if (settings.useLayersInRendering) {
+		ZElemVec[0].emplace_back(new Button());
+		btn = static_cast<Button*>(ZElemVec[0].back());
+	}
+	else {
+		UiElemVec.emplace_back(new Button());
+		btn = static_cast<Button*>(UiElemVec.back());
+
+	}
+
 	btn->castType = (int)CastType::Button;
 	FillElem(btn,name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
@@ -397,8 +539,16 @@ TextBox* UI::CreateTextBox(const std::string& name, int x, int y, int w, int h, 
 		return nullptr;
 	}
 
-	UiElemVec.emplace_back(new TextBox());
-	TextBox* tb = static_cast<TextBox*>(UiElemVec.back());
+	TextBox* tb = nullptr;
+	if (settings.useLayersInRendering) {
+		ZElemVec[0].emplace_back(new TextBox());
+		tb = static_cast<TextBox*>(ZElemVec[0].back());
+	}
+	else {
+		UiElemVec.emplace_back(new TextBox());
+		tb = static_cast<TextBox*>(UiElemVec.back());
+	}
+
 	tb->castType = (int)CastType::TextBox;
 	FillElem(tb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
@@ -414,8 +564,16 @@ ClickBox* UI::CreateClickBox(const std::string& name, int x, int y, int w, int h
 		return nullptr;
 	}
 
-	UiElemVec.emplace_back(new ClickBox());
-	ClickBox* cb = static_cast<ClickBox*>(UiElemVec.back());
+	ClickBox* cb = nullptr;
+	if (settings.useLayersInRendering) {
+		ZElemVec[0].emplace_back(new ClickBox());
+		cb = static_cast<ClickBox*>(ZElemVec[0].back());
+	}
+	else {
+		UiElemVec.emplace_back(new ClickBox());
+		cb = static_cast<ClickBox*>(UiElemVec.back());
+	}
+
 	cb->castType = (int)CastType::ClickBox;
 	FillElem(cb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
@@ -430,8 +588,16 @@ PopUpBox* UI::CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y
 		return nullptr;
 	}
 
-	UiElemVec.emplace_back(new PopUpBox());
-	PopUpBox* pb = static_cast<PopUpBox*>(UiElemVec.back());
+	PopUpBox* pb = nullptr;
+	if (settings.useLayersInRendering) {
+		ZElemVec[0].emplace_back(new PopUpBox());
+		pb = static_cast<PopUpBox*>(ZElemVec[0].back());
+	}
+	else {
+		UiElemVec.emplace_back(new PopUpBox());
+		pb = static_cast<PopUpBox*>(UiElemVec.back());
+	}
+
 	pb->castType = (int)CastType::PopUpBox;
 	pb->lifeTime = lifeSpan;
 	FillElem(pb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
@@ -500,7 +666,7 @@ void UI::CheckHover(UIElemBase *elem, bool &hoverStop) {
 	}
 }
 
-void  UI::CheckTextBoxInteraction(TextBox *tb, SDL_Event& event) {
+void UI::CheckTextBoxInteraction(TextBox *tb, SDL_Event& event) {
 	if (!tb->turnedOn) { return; }
 	if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
 		MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
@@ -558,22 +724,45 @@ void UI::ManageInput(SDL_Event& event) {
 	}
 	bool clickBoxesStopped = false;
 	bool hoverStopped = false;
+	
+	if (settings.useLayersInRendering) {
+		for (auto layerIter = ZElemVec.rbegin(); layerIter != ZElemVec.rend(); layerIter++) {
+			for (auto elemIter = layerIter->rbegin(); elemIter != layerIter->rend(); elemIter++) {
+				UIElemBase* elem = *elemIter;
+				CheckHover(elem, hoverStopped);
 
-	for (auto elemIter = UiElemVec.rbegin(); elemIter != UiElemVec.rend(); elemIter++) {
-		UIElemBase* elem = *elemIter;
-		CheckHover(elem, hoverStopped);
-
-		if (elem->castType == (int)CastType::ClickBox) {
-			if (clickBoxesStopped) { return; }
-			ClickBox* cb = static_cast<ClickBox*>(elem);
-			CheckClickBoxes(cb, eventType, clickBoxesStopped, event);
+				if (elem->castType == (int)CastType::ClickBox) {
+					if (clickBoxesStopped) { return; }
+					ClickBox* cb = static_cast<ClickBox*>(elem);
+					CheckClickBoxes(cb, eventType, clickBoxesStopped, event);
+				}
+				else if (elem->castType == (int)CastType::TextBox) {
+					TextBox* tb = static_cast<TextBox*>(elem);
+					CheckTextBoxInteraction(tb, event);
+					ManageTextBoxTextInput(tb, event);
+				}
+			}
 		}
-		else if (elem->castType == (int)CastType::TextBox) {
-			TextBox* tb = static_cast<TextBox*>(elem);
-			CheckTextBoxInteraction(tb,event);
-			ManageTextBoxTextInput(tb,event);
-		}	
 	}
+	else {
+		for (auto elemIter = UiElemVec.rbegin(); elemIter != UiElemVec.rend(); elemIter++) {
+			UIElemBase* elem = *elemIter;
+			CheckHover(elem, hoverStopped);
+
+			if (elem->castType == (int)CastType::ClickBox) {
+				if (clickBoxesStopped) { return; }
+				ClickBox* cb = static_cast<ClickBox*>(elem);
+				CheckClickBoxes(cb, eventType, clickBoxesStopped, event);
+			}
+			else if (elem->castType == (int)CastType::TextBox) {
+				TextBox* tb = static_cast<TextBox*>(elem);
+				CheckTextBoxInteraction(tb, event);
+				ManageTextBoxTextInput(tb, event);
+			}
+		}
+	}
+
+
 
 	SDL_GetMouseState(&lastMousePos.x, &lastMousePos.y);
 }
@@ -654,21 +843,60 @@ void UI::SetElementFontColor(const std::string& name, const unsigned char R, con
 	iter->second->SetFontColor(R, G, B);
 }
 
+void UI::SetElementZLayer(const std::string& name, int zlayer) {
+	auto iter = UIElemMap.find(name);
+	if (iter == UIElemMap.end()) {
+		return;
+	}
+	UIElemBase* elem = iter->second;
+	int prevLayer = elem->zLayer;
+	elem->SetZLayer(zlayer);
+	if (settings.useLayersInRendering) {
+		auto elemIter = std::find_if(ZElemVec[prevLayer].begin(), ZElemVec[prevLayer].end(), 
+			[&](UIElemBase* itElem) {return elem == itElem; });
+		if (elemIter != ZElemVec[prevLayer].end()) { // If it is the end guess we are fucked
+			ZElemVec[prevLayer].erase(elemIter);
+		}
+		ZElemVec[elem->zLayer].emplace_back(elem);
+	}
+}
+
 void UI::FrameUpdate() {
 	if (popupBoxesCount < 1) { return; }
-	for (auto elemIt = UiElemVec.rbegin(); elemIt != UiElemVec.rend();) {
-		if ((*elemIt)->castType != (int)CastType::PopUpBox) { 
-			++elemIt;
-			continue; 
+	if (settings.useLayersInRendering) {
+		for (auto layerIter = ZElemVec.rbegin(); layerIter != ZElemVec.rend(); layerIter++) {
+			for (auto elemIt = layerIter->rbegin(); elemIt != layerIter->rend(); elemIt++) {
+				if ((*elemIt)->castType != (int)CastType::PopUpBox) {
+					++elemIt;
+					continue;
+				}
+				PopUpBox* pb = static_cast<PopUpBox*>(*elemIt);
+				pb->lifeTime--;
+				if (pb->lifeTime < 1) {
+					DeleteElement(pb->name);
+					return;
+				}
+				else {
+					++elemIt;
+				}
+			}
 		}
-		PopUpBox* pb = static_cast<PopUpBox*>(*elemIt);
-		pb->lifeTime--;
-		if (pb->lifeTime < 1) {
-			DeleteElement(pb->name);
-			return;
-		}
-		else {
-			++elemIt;
+	}
+	else {
+		for (auto elemIt = UiElemVec.rbegin(); elemIt != UiElemVec.rend();) {
+			if ((*elemIt)->castType != (int)CastType::PopUpBox) {
+				++elemIt;
+				continue;
+			}
+			PopUpBox* pb = static_cast<PopUpBox*>(*elemIt);
+			pb->lifeTime--;
+			if (pb->lifeTime < 1) {
+				DeleteElement(pb->name);
+				return;
+			}
+			else {
+				++elemIt;
+			}
 		}
 	}
 }
@@ -677,19 +905,36 @@ void UI::FrameUpdate() {
 bool UI::DeleteElement(const std::string& name) {
 	auto elemIter = UIElemMap.find(name);
 	if (elemIter == UIElemMap.end()) { return false; }
+	if (settings.useLayersInRendering) {
+		std::vector<UIElemBase*>& layer = ZElemVec[elemIter->second->zLayer];
+		auto vecIter = std::find(layer.rbegin(), layer.rend(), elemIter->second);
+		if (vecIter != layer.rend()) {
+			if (elemIter->second->castType == (int)CastType::PopUpBox) {
+				popupBoxesCount--;
+			}
+			delete* vecIter;
+			// It needs to be movedby one to base since reverse iter is not working for vectors by base
+			layer.erase(std::next(vecIter).base());
 
-	auto vecIter = std::find(UiElemVec.rbegin(), UiElemVec.rend(), elemIter->second);
-	if (vecIter != UiElemVec.rend()) {
-		if (elemIter->second->castType == (int)CastType::PopUpBox) {
-			popupBoxesCount--;
+			UIElemMap.erase(elemIter);
+			return true;
 		}
-		delete* vecIter;
-		// It needs to be movedby one to base since reverse iter is not working for vectors by base
-		UiElemVec.erase(std::next(vecIter).base());
-
-		UIElemMap.erase(elemIter);
-		return true;
 	}
+	else {
+		auto vecIter = std::find(UiElemVec.rbegin(), UiElemVec.rend(), elemIter->second);
+		if (vecIter != UiElemVec.rend()) {
+			if (elemIter->second->castType == (int)CastType::PopUpBox) {
+				popupBoxesCount--;
+			}
+			delete* vecIter;
+			// It needs to be movedby one to base since reverse iter is not working for vectors by base
+			UiElemVec.erase(std::next(vecIter).base());
+
+			UIElemMap.erase(elemIter);
+			return true;
+		}
+	}
+
 	return false;
 }
 
@@ -933,27 +1178,59 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 
 
 		if (type == (int)CastType::Button) {
-			Button* btn = CreateButton(key, 0, 0, 0, 0);
+			Button* btn = nullptr;
+			if (settings.useLayersInRendering) {
+				btn = CreateLayeredButton(elem->zLayer,key, 0, 0, 0, 0);
+			}
+			else {
+				btn = CreateButton(key, 0, 0, 0, 0);
+			}
+			int prevLayer = btn->zLayer;
 			*btn = *static_cast<Button*>(elem.get());
+			btn->zLayer = prevLayer;
 			loadedElements.emplace_back(btn);
 		}
 		else if (type == (int)CastType::ClickBox) {
-			ClickBox* cb = CreateClickBox(key, 0, 0, 0, 0);
+			ClickBox* cb = nullptr;
+			if (settings.useLayersInRendering) {
+				cb = CreateLayeredClickBox(elem->zLayer, key, 0, 0, 0, 0);
+			}
+			else {
+				cb = CreateClickBox(key, 0, 0, 0, 0);
+			}
+			int prevLayer = cb->zLayer;
 			*cb = *static_cast<ClickBox*>(elem.get());
+			cb->zLayer = prevLayer;
 			cb->turnedOn = val["TurnedOn"];
 			cb->clickSound = val["ClickSound"];
 			loadedElements.emplace_back(cb);
 		}
 		else if (type == (int)CastType::TextBox) {
-			TextBox* tb = CreateTextBox(key, 0, 0, 0, 0);
+			TextBox* tb = nullptr;
+			if (settings.useLayersInRendering) {
+				tb = CreateLayeredTextBox(elem->zLayer, key, 0, 0, 0, 0);
+			}
+			else {
+				tb = CreateTextBox(key, 0, 0, 0, 0);
+			}
+			int prevLayer = tb->zLayer;
 			*tb = *static_cast<TextBox*>(elem.get());
+			tb->zLayer = prevLayer;
 			tb->turnedOn = val["TurnedOn"];
 			tb->maxTextLength = val["MaxTextLength"];
 			loadedElements.emplace_back(tb);;
 		}
 		else if (type == (int)CastType::PopUpBox) {
-			PopUpBox* pb = CreatePopUpBox(key, 0, 0, 0, 0, 0);
+			PopUpBox* pb = nullptr;
+			if (settings.useLayersInRendering) {
+				pb = CreateLayeredPopUpBox(elem->zLayer, key, 120, 0, 0, 0, 0);
+			}
+			else {
+				pb = CreatePopUpBox(key,120, 0, 0, 0, 0);
+			}
+			int prevLayer = pb->zLayer;
 			*pb = *static_cast<PopUpBox*>(elem.get());
+			pb->zLayer = prevLayer;
 			pb->lifeTime = val["LifeTime"];
 			loadedElements.emplace_back(pb);
 		}
@@ -978,10 +1255,20 @@ void UI::ClearAll(bool clearLists) {
 		ListTbRef.clear();
 		ListCbRef.clear();
 	}
-
-	for (auto& elem : UiElemVec) {
-		delete elem;
+	if (settings.useLayersInRendering) {
+		for (auto& layer : ZElemVec) {
+			for (auto& elem : layer) {
+				delete elem;
+			}
+			layer.clear();
+		}
 	}
+	else {
+		for (auto& elem : UiElemVec) {
+			delete elem;
+		}
+	}
+
 	UiElemVec.clear();
 	UIElemMap.clear();
 	popupBoxesCount = 0;

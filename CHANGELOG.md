@@ -120,3 +120,4 @@ was removed or the new one was added to folder
 - HasTag function for TagUiSection
 - File explorer and Path Maker also use ttf fonts
 - TTFFont creation supports LocalTexMan
+- UI now provides full support for layers

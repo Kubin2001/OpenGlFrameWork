@@ -62,6 +62,8 @@ protected:
 
 	void RenderText(MT::Renderer* renderer);
 
+	void SetZLayer(const int temp);
+
 public:
 	std::string& GetName();
 
@@ -127,8 +129,6 @@ public:
 	Mix_Chunk* GetHoverSound();
 
 	int GetZLayer();
-
-	void SetZLayer(const int temp);
 
 	virtual ~UIElemBase() = default;
 
@@ -206,13 +206,6 @@ class PopUpBox : public UIElemBase {
 };
 
 
-class RenderingLayer {
-	public:
-		friend class UI;
-	private:
-		std::vector<UIElemBase*> Elements;
-};
-
 template<typename T>
 class UIList;
 
@@ -225,10 +218,9 @@ class UI{
 		LocalTexMan* localTexMan = nullptr;
 
 		std::vector<UIElemBase*> UiElemVec;
+		std::vector<std::vector<UIElemBase*>> ZElemVec;
 
 		std::unordered_map<std::string, UIElemBase*> UIElemMap;
-
-		std::map<int, RenderingLayer> Zlayers;
 
 		std::vector<UIList<Button>*> ListBtnRef;
 		std::vector<UIList<TextBox>*> ListTbRef;
@@ -279,8 +271,10 @@ class UI{
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		struct Settings {
+		private:
 			// Render elements based on their z layer not based on which was created last
 			bool useLayersInRendering = false;
+		public:
 			// If the newest ClickBox is clicked older ones that are also clicked will not call its status
 			// it might not work well with layers in rendering tuned on 
 			bool stopCheckAtFirst = false;
@@ -289,6 +283,8 @@ class UI{
 			bool stopHoverAtFirst = false;
 			// Click boxes status will be checked at MOUSEBUTTONUP not like default MOUSEBUTTONDOWN
 			bool clickBoxStartAtDown = false;
+
+			friend class UI;
 		};
 
 	public:
@@ -299,6 +295,20 @@ class UI{
 		template<typename T>
 		friend class UIList;
 		UI(MT::Renderer* renderer);
+
+		Button* CreateLayeredButton(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture =nullptr, 
+			Font* font = nullptr,const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
+
+		TextBox* CreateLayeredTextBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr,
+			Font* font = nullptr,
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
+
+		ClickBox* CreateLayeredClickBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr,
+			Font* font = nullptr,
+			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
+
+		PopUpBox* CreateLayeredPopUpBox(int layer, const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr,
+			Font* font = nullptr, const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		Button* CreateButton(const std::string &name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
@@ -344,9 +354,10 @@ class UI{
 		bool ConsumeIfExist(const std::string& name);
 
 		void SetElementColor(const std::string& name, const unsigned char R, unsigned char G, unsigned char B);
-
 		void SetElementBorderColor(const std::string& name, const unsigned char R, const unsigned char G, const unsigned char B);
 		void SetElementFontColor(const std::string& name, const unsigned char R, const unsigned char G, const unsigned char B);
+
+		void SetElementZLayer(const std::string& name, int zlayer);
 
 		void FrameUpdate();
 
@@ -358,6 +369,12 @@ class UI{
 
 		void RenderRawText(Font* font, const int x, const int y, const std::string& text,const int interline,
 			const unsigned char R, const unsigned char G, const unsigned char B);
+
+		// This function should be called only once at the Game::Start function since it is slow because it needs to recrate all ui rendering
+		// If you use z layer from now on you should create new elements with CreateLayered (old way still works but it would be slower)
+		// Layers are not dynamic you can use layers from 0 to 100 if you will give larger number it will default to 100
+		// Smaller number will default to 0
+		void UseLayerInRendering(bool use);
 
 
 		// You need to provide not name (made up by you) texture (needs to be already loaded by texture manager) path to pregenerated json file

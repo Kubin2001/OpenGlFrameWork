@@ -31,6 +31,7 @@ void Game::Start() {
 
 	renderer = new MT::Renderer();
 	renderer->Start(window, MT::Innit(window));
+	renderer->FLatRenderCopySetUp();
 
 	Global::defaultDrawColor[0] = 255;
 	Global::defaultDrawColor[1] = 255;
@@ -48,29 +49,41 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
-	std::println("Temp font  {} ms", MT::Timer::Tac<std::chrono::milliseconds>());
-	PathMaker pm;
-	pm.Open();
+	ui->settings.stopHoverAtFirst = true;
+	ui->settings.clickBoxStartAtDown = true;
+	ui->settings.stopCheckAtFirst = true;
+	ui->UseLayerInRendering(true);
 
-	Button* btn;
-	btn = ui->CreateButtonF("button4", 50, 350, 200, 200, nullptr, "arial12", "SomeText");
-	btn->SetColor(30, 30, 30);
-	btn->SetRenderTextType(2);
-	btn->SetFontColor(255, 0, 0);
-	btn = ui->CreateButtonF("button5", 350, 350, 200, 200, nullptr, "arial20", "SomeText");
-	btn->SetColor(30, 30, 30);
-	btn->SetRenderTextType(3);
-	btn->SetFontColor(255, 0, 0);
-	btn = ui->CreateButtonF("button6", 650, 350, 200, 200, nullptr, "arial40", "SomeText");
-	btn->SetColor(30, 30, 30);
-	btn->SetRenderTextType(4);
-	btn->SetFontColor(255, 0, 0);
-
-	renderer->FLatRenderCopySetUp();
+	int x = 50;
+	Font* font = ui->GetFont("arial12");
+	for (size_t i = 0; i < 10; i++) {
+		Button* btn = ui->CreateLayeredButton(13-i,"button" + std::to_string(i), x, 50, 200, 200, nullptr, font, "SomeText");
+		btn->SetColor(30, 30, 30);
+		btn->SetRenderTextType(2);
+		btn->SetHoverFilter(true, 255, 255, 255, 120);
+		btn->SetBorder(2, 255, 0, 0);
+		x += 100;
+	}
+	x = 50;
+	for (size_t i = 0; i < 10; i++) {
+		ClickBox* btn = ui->CreateLayeredClickBox(13-i,"cb" + std::to_string(i), x, 350, 200, 200, nullptr, font, "SomeText");
+		btn->SetColor(30, 30, 30);
+		btn->SetRenderTextType(2);
+		btn->SetHoverFilter(true, 255, 255, 255, 120);
+		btn->SetBorder(2, 255, 0, 0);
+		btn->SetClickSound("click");
+		x += 100;
+	}
 }
 
 void Game::LogicUpdate() {
 	Global::frameCounter++;
+	if (ui->ConsumeIfExist("cb1")) {
+		std::println("One");
+	}
+	if (ui->ConsumeIfExist("cb2")) {
+		std::println("Two");
+	}
 }
 
 void Game::FrameUpdate() {
