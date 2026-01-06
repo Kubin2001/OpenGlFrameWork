@@ -117,3 +117,4 @@ was removed or the new one was added to folder
 - Reloading textures in Texture Manager now also puts them to they newset state on PC
 - Colors can be initialized with enum
 - CreateTempFont from TTF repaired and should be used as de facto standard instead of create font
+- HasTag function for TagUiSection

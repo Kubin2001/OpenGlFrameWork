@@ -644,6 +644,14 @@ class TagUISection {
 			TagMap.clear();
 		}
 
+		bool HasTag(const std::string& tag) {
+			auto iter = TagMap.find(tag);
+			if (iter == TagMap.end()) {
+				return false;
+			}
+			return true;
+		}
+
 		std::vector<UIElemBase*>& GetTag(const std::string& tag) {
 			if (ui == nullptr) {
 				throw std::runtime_error("UI is nullptr tag section is not inicialized");
