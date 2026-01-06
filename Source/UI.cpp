@@ -697,8 +697,8 @@ void UI::CreateFont(const std::string& name, MT::Texture* texture, const std::st
 	fontManager->CreateFont(name, texture, jsonPath);
 }
 
-void UI::CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name) {
-	fontManager->CrateTempFontFromTTF(ttfPath, size, name);
+void UI::CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name, LocalTexMan* localTexMan) {
+	fontManager->CrateTempFontFromTTF(ttfPath, size, name,localTexMan);
 }
 
 Font* UI::GetFont(const std::string& name) {

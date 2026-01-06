@@ -358,8 +358,9 @@ void PathMaker::Open(bool compressStart, bool compressEnd, bool compressZeros, i
 	texMan.Start(ren);
 	texMan.LoadMultiple("Textures/FileExplorer");
 	ui = new UI(ren);
-	ui->CreateFont("arial12px", texMan.GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
-	ui->CreateFont("arial20px", texMan.GetTex("arial20px"), "Textures/Interface/Fonts/arial20px.json");
+	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial12px", &texMan);
+	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial20px", &texMan);
+
 	statusText = "Press R to start";
 	saveSection.Init(ui);
 

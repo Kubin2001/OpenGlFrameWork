@@ -80,6 +80,8 @@ class LocalTexMan {
 		// You need to pass extenstion with . example .png it supports all formats supported by sdl_image IMG_LOAD
 		bool IsFormatSupported(const std::string& format);
 
+		bool AddTexture(MT::Texture* tex, const std::string& name);
+
 		void LoadSingle(const char* filePath, const std::string& name);
 
 		//Loads single folder and uses file names (without extensions) as keys

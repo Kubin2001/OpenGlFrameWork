@@ -340,6 +340,14 @@ bool LocalTexMan::IsFormatSupported(const std::string& format) {
 	return false;
 }
 
+bool LocalTexMan::AddTexture(MT::Texture* tex, const std::string& name) {
+	if (Textures.find(name) != Textures.end()) {
+		return false;
+	}
+	Textures[name] = tex;
+	return true;
+}
+
 void LocalTexMan::LoadSingle(const char* filePath, const std::string& name) {
 	if (Textures.find(name) != Textures.end()) {
 		std::cout << "Texture: " << name << " is already loaded\n";

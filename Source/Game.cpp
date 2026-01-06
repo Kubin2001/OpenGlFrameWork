@@ -49,6 +49,8 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	std::println("Temp font  {} ms", MT::Timer::Tac<std::chrono::milliseconds>());
+	PathMaker pm;
+	pm.Open();
 
 	Button* btn;
 	btn = ui->CreateButtonF("button4", 50, 350, 200, 200, nullptr, "arial12", "SomeText");

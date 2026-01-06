@@ -74,7 +74,7 @@ std::string FileExplorer::Open(const std::string& path) {
 	texMan.Start(renderer);
 	texMan.LoadMultiple("Textures/FileExplorer");
 	ui = new UI(renderer);
-	ui->CreateFont("arial12px", texMan.GetTex("arial12px"), "Textures/Interface/Fonts/arial12px.json");
+	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial12px",&texMan);
 
 	ui->CreateClickBox("ArrowLeft", 10, 10, 30, 20, nullptr, ui->GetFont("arial12px"), "<-");
 	ui->GetClickBox("ArrowLeft")->SetColor(60, 60, 60);

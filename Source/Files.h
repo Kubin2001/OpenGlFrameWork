@@ -47,6 +47,4 @@ class FileExplorer {
 
 		std::string Open(const std::string& path = "");
 
-
-
 };

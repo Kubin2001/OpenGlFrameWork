@@ -541,7 +541,7 @@ void CrateFontFromTTF(const char* ttfPath, const int size, const std::string& na
 	TTF_Quit();
 }
 
-void FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name) {
+void FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name, LocalTexMan* localTexMan) {
 	TTF_Init();
 
 	TTF_Font* font = TTF_OpenFont(ttfPath, size);
@@ -605,9 +605,18 @@ void FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 	
 	MT::Texture *tex = MT::LoadTextureFromSurface(atlas);
 	
-	if (!TexMan::AddTexture(tex, name)) {
-		throw std::runtime_error("Texture name already taken");
+	if (localTexMan == nullptr) {
+		if (!TexMan::AddTexture(tex, name)) {
+			throw std::runtime_error("Texture name already taken");
+		}
 	}
+	else {
+		if (!localTexMan->AddTexture(tex, name)) {
+			throw std::runtime_error("Texture name already taken");
+		}
+	}
+
+
 	if (fonts.size() > 0) {
 		for (auto& it : fonts) {
 			if (it->GetName() == name) {

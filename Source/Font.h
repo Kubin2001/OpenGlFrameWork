@@ -4,6 +4,8 @@
 
 #include "Basics.h"
 
+class LocalTexMan;
+
 
 constexpr std::array<char32_t, 200> MakeCharset() {
 	std::array<char32_t, 200> cs{};
@@ -80,7 +82,7 @@ public:
 		unsigned char fR, unsigned char fG, unsigned char fB, unsigned char bR, unsigned char bG, unsigned char bB, int width, int height
 	, const std::string& outputPath = "font.json");
 
-	void CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name);
+	void CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name, LocalTexMan *localTexMan = nullptr);
 
 	~FontManager();
 };
