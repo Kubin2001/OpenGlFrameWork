@@ -541,10 +541,28 @@ void CrateFontFromTTF(const char* ttfPath, const int size, const std::string& na
 	TTF_Quit();
 }
 
-void FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name, LocalTexMan* localTexMan) {
+bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name, LocalTexMan* localTexMan) {
 	TTF_Init();
 
+	auto cleanUp = [](std::vector<SDL_Surface*>& surfaces, SDL_Surface* surf, TTF_Font *font) {
+		SDL_FreeSurface(surf);
+		for (auto& it : surfaces) {
+			SDL_FreeSurface(it);
+		}
+		TTF_CloseFont(font);
+		TTF_Quit();
+	};
+
+	if (!std::filesystem::exists(ttfPath)) {
+		std::println("Incorrect path in FontManager::CrateTempFontFromTTF for {} ", ttfPath);
+		return false;
+	}
+
 	TTF_Font* font = TTF_OpenFont(ttfPath, size);
+	if (font == nullptr) {
+		std::println("Cannot load font FontManager::CrateTempFontFromTTF for {} ", ttfPath);
+		return false;
+	}
 
 	// Creating string containing all signs
 	std::string strCharset = "";
@@ -607,12 +625,15 @@ void FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 	
 	if (localTexMan == nullptr) {
 		if (!TexMan::AddTexture(tex, name)) {
-			throw std::runtime_error("Texture name already taken");
+			cleanUp(surfaces, atlas, font);
+			std::println("Texture name alrady taken use other name FontManager::CrateTempFontFromTTF for {} ", name);
+			return false;
 		}
 	}
 	else {
 		if (!localTexMan->AddTexture(tex, name)) {
-			throw std::runtime_error("Texture name already taken");
+			cleanUp(surfaces, atlas, font);
+			std::println("Texture name alrady taken use other name FontManager::CrateTempFontFromTTF for {} ", name);
 		}
 	}
 
@@ -620,8 +641,9 @@ void FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 	if (fonts.size() > 0) {
 		for (auto& it : fonts) {
 			if (it->GetName() == name) {
-				throw std::runtime_error("font with idenical name already exist");
-				return;
+				cleanUp(surfaces, atlas, font);
+				std::println("Font with the same name already exist  FontManager::CrateTempFontFromTTF for {} ", name);
+				return false;
 			}
 		}
 	}
@@ -630,12 +652,8 @@ void FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 
 
 	//Clean Up
-	SDL_FreeSurface(atlas);
-	for (auto& it : surfaces) {
-		SDL_FreeSurface(it);
-	}
-	TTF_CloseFont(font);
-	TTF_Quit();
+	cleanUp(surfaces, atlas, font);
+	return true;
 }
 
 FontManager::~FontManager() {

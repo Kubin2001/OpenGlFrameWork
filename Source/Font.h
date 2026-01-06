@@ -82,7 +82,7 @@ public:
 		unsigned char fR, unsigned char fG, unsigned char fB, unsigned char bR, unsigned char bG, unsigned char bB, int width, int height
 	, const std::string& outputPath = "font.json");
 
-	void CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name, LocalTexMan *localTexMan = nullptr);
+	bool CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name, LocalTexMan *localTexMan = nullptr);
 
 	~FontManager();
 };

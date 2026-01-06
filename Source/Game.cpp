@@ -44,7 +44,6 @@ void Game::Start() {
 
 	ui = std::make_unique<UI>(renderer);
 
-
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial12");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
@@ -78,12 +77,6 @@ void Game::Start() {
 
 void Game::LogicUpdate() {
 	Global::frameCounter++;
-	if (ui->ConsumeIfExist("cb1")) {
-		std::println("One");
-	}
-	if (ui->ConsumeIfExist("cb2")) {
-		std::println("Two");
-	}
 }
 
 void Game::FrameUpdate() {

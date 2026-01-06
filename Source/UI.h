@@ -382,7 +382,7 @@ class UI{
 		void CreateFont(const std::string& name, MT::Texture* texture, const std::string& jsonPath);
 
 		//Generates font directly form TTF file you can find this files for example in system32/Fonts
-		void CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name, LocalTexMan* localTexMan = nullptr);
+		bool CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name, LocalTexMan* localTexMan = nullptr);
 
 		Font* GetFont(const std::string& name);
 
