@@ -48,31 +48,7 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
-	ui->settings.stopHoverAtFirst = true;
-	ui->settings.clickBoxStartAtDown = true;
-	ui->settings.stopCheckAtFirst = true;
-	ui->UseLayerInRendering(true);
 
-	int x = 50;
-	Font* font = ui->GetFont("arial12");
-	for (size_t i = 0; i < 10; i++) {
-		Button* btn = ui->CreateLayeredButton(13-i,"button" + std::to_string(i), x, 50, 200, 200, nullptr, font, "SomeText");
-		btn->SetColor(30, 30, 30);
-		btn->SetRenderTextType(2);
-		btn->SetHoverFilter(true, 255, 255, 255, 120);
-		btn->SetBorder(2, 255, 0, 0);
-		x += 100;
-	}
-	x = 50;
-	for (size_t i = 0; i < 10; i++) {
-		ClickBox* btn = ui->CreateLayeredClickBox(13-i,"cb" + std::to_string(i), x, 350, 200, 200, nullptr, font, "SomeText");
-		btn->SetColor(30, 30, 30);
-		btn->SetRenderTextType(2);
-		btn->SetHoverFilter(true, 255, 255, 255, 120);
-		btn->SetBorder(2, 255, 0, 0);
-		btn->SetClickSound("click");
-		x += 100;
-	}
 }
 
 void Game::LogicUpdate() {
@@ -88,6 +64,11 @@ void Game::FrameUpdate() {
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
+		if (event.type == SDL_KEYUP) {
+			if (event.key.keysym.scancode == SDL_SCANCODE_R) {
+				TexMan::RefreshTextures("Textures/Examples",true);
+			}
+		}
 		Exit();
 	}
 	Global::inputDelay++;
@@ -96,6 +77,11 @@ void Game::Input() {
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
 	ui->Render();
+	renderer->RenderCopy({ 50,50,50,50 }, TexMan::GetTex("granite"));
+	renderer->RenderCopy({ 50,150,50,50 }, TexMan::GetTex("grass",true));
+	renderer->RenderCopy({ 50,250,50,50 }, TexMan::GetTex("stone"));
+	renderer->RenderCopy({ 50,350,50,50 }, TexMan::GetTex("tree1"));
+	renderer->RenderCopy({ 50,450,50,50 }, TexMan::GetTex("water"));
 	renderer->Present();
 }
 

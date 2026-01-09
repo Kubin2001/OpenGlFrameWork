@@ -12,28 +12,53 @@ std::unordered_map<std::string, MT::Texture*> TexMan::Textures;
 std::vector<std::string> TexMan::SupportedFormats;
 MT::Renderer* TexMan::renderer = nullptr;
 bool TexMan::isInnit = false;
+MT::Texture* TexMan::defaultTex = nullptr;
+
+void TexMan::CreateDefaultTexture() {
+	SDL_Surface* surface = SDL_CreateRGBSurface(
+		0, 2, 2, 32,
+		0x00FF0000, 
+		0x0000FF00,
+		0x000000FF,
+		0xFF000000
+	);
+	// Last for numbers 0x... are format mapping R,G,B,A not real pixels colors
+
+	Uint32* p = (Uint32*)surface->pixels;
+	p[0] = 0xFFFF00FF;
+	p[1] = 0xFF000000;
+	p[2] = 0xFF000000;
+	p[3] = 0xFFFF00FF;
+
+	defaultTex = MT::LoadTextureFromSurface(surface);
+	SDL_FreeSurface(surface);
+}
 
 
 bool TexMan::Start(MT::Renderer* ren) {
-   renderer = ren;
-   if (renderer != nullptr) {
-	   isInnit = true;
-	   SupportedFormats.emplace_back(".png");
-	   SupportedFormats.emplace_back(".jpg");
-	   SupportedFormats.emplace_back(".jpeg");
-	   SupportedFormats.emplace_back(".bmp");
-	   SupportedFormats.emplace_back(".gif");
-	   SupportedFormats.emplace_back(".tif");
-	   SupportedFormats.emplace_back(".tiff");
-	   SupportedFormats.emplace_back(".tga");
-	   SupportedFormats.emplace_back(".ico");
-	   SupportedFormats.emplace_back(".cur");
-	   SupportedFormats.emplace_back(".pcx");
-	   SupportedFormats.emplace_back(".xpm");
-	   return isInnit;
-   }
+	if (isInnit) {
+		return false;
+	}
+	renderer = ren;
+	if (renderer != nullptr) {
+		isInnit = true;
+		SupportedFormats.emplace_back(".png");
+		SupportedFormats.emplace_back(".jpg");
+		SupportedFormats.emplace_back(".jpeg");
+		SupportedFormats.emplace_back(".bmp");
+		SupportedFormats.emplace_back(".gif");
+		SupportedFormats.emplace_back(".tif");
+		SupportedFormats.emplace_back(".tiff");
+		SupportedFormats.emplace_back(".tga");
+		SupportedFormats.emplace_back(".ico");
+		SupportedFormats.emplace_back(".cur");
+		SupportedFormats.emplace_back(".pcx");
+		SupportedFormats.emplace_back(".xpm");
+		CreateDefaultTexture();
+		return isInnit;
+	}
 
-   return false;
+	return false;
 }
 
 
@@ -105,13 +130,15 @@ void TexMan::DeepLoad(const std::string& directory) {
 }
 
 
-MT::Texture* TexMan::GetTex(const std::string& name) {
+MT::Texture* TexMan::GetTex(const std::string& name, bool retNullOnMissing) {
 	auto it = Textures.find(name);
 	if (it != Textures.end()) {
 		return it->second;
 	}
-	//std::cerr << "Texture not found: " << name << "\n";
-	return nullptr;
+	if (retNullOnMissing) {
+		return nullptr;
+	}
+	return defaultTex;
 }
 
 bool TexMan::DeleteTexture(const std::string& name) {
@@ -293,6 +320,10 @@ void TexMan::Clear() {
 		delete pair.second;
 	}
 	Textures.clear();
+	isInnit = false;
+	SupportedFormats.clear();
+	renderer = nullptr;
+	MT::DeleteTexture(defaultTex);
 }
 
 //LocalTexMan

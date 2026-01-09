@@ -16,7 +16,11 @@ class TexMan {
 		static MT::Renderer* renderer;
 		static bool isInnit;
 
+		static MT::Texture* defaultTex;
+
 		static void RefreshTexturesInFolder(const std::string& directory, bool removeInvalid, std::unordered_set<std::string>& namesCollector);
+
+		static void CreateDefaultTexture();
 
 	public:
 
@@ -41,13 +45,13 @@ class TexMan {
 		// Example tree.png key = tree
 		static void DeepLoad(const std::string& directory);
 
-		static MT::Texture* GetTex(const std::string& name);
+		static MT::Texture* GetTex(const std::string& name, bool retNullOnMissing = false);
 
 		static bool DeleteTexture(const std::string& name);
 
 		// Loads new previously unloaded textures in slected folder and all recursive folders
 		// removeInvalid flag will remove textures that no longer exist WARNING this will break exsting pointers
-		static void RefreshTextures(const std::string& directory, bool removeInvalid = false);
+		static void RefreshTextures(const std::string& directory, bool removeInvalid = true);
 
 		static Point GetTextureSize(const std::string& name);
 

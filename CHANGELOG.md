@@ -122,3 +122,8 @@ was removed or the new one was added to folder
 - TTFFont creation supports LocalTexMan
 - UI now provides full support for layers
 - Createtemp TTF font is less strict with its errors
+
+1.12
+- TexMan now generates default texture (Classic Missing Texture Texture) and return it instead of nullptr in GetTex
+- GetTex now has flag (Defaulted to false) if it should return nullptr instead of deafault texture if texture is missing
+- Remove Invalid is defaulted to true in refresh textures
