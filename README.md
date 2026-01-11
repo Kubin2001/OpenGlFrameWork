@@ -71,9 +71,9 @@ The framework is under active development and intended primarily for:
 - hobby games
 - internal tools and editors
 
-## Build
+## ⚙️ Build
 
-1: Get Cmake if it is not already installed on your PC https://cmake.org/download/
+1: Get Cmake If it is not already installed on your PC https://cmake.org/download/
 
 2: Open Terminal in clonned folder
 
