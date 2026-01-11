@@ -127,3 +127,4 @@ was removed or the new one was added to folder
 - TexMan now generates default texture (Classic Missing Texture Texture) and return it instead of nullptr in GetTex
 - GetTex now has flag (Defaulted to false) if it should return nullptr instead of deafault texture if texture is missing
 - Remove Invalid is defaulted to true in refresh textures
+- Build system changed to Cmake

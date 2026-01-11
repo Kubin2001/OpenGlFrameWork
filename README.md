@@ -61,6 +61,7 @@ or complex rendering pipelines.
 | Graphics        | OpenGL, GLAD, GLM                     |
 | Window / Input  | SDL2, SDL2_image                      |
 | Audio / Fonts   | SDL2_mixer, SDL2_ttf                  |
+| Build           | Cmake 3.20                            |
 
 
 ## 📌 Status
@@ -69,3 +70,14 @@ The framework is under active development and intended primarily for:
 - learning projects
 - hobby games
 - internal tools and editors
+
+## Build
+
+1: Get Cmake if it is not already installed on your PC https://cmake.org/download/
+
+2: Open Terminal in clonned folder
+
+3: Type cmake -S . -B build
+
+If you have visual studio it should work i am not sure about other IDE/Compilers
+
