@@ -13,9 +13,6 @@ void SceneMan::Print() {
 
 
 void SceneMan::Clear() {
-	for (auto& pair : Scenes) {
-		delete pair.second;
-	}
 	Scenes.clear();
 	currentScene = nullptr;
 }

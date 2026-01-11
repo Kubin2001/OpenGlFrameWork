@@ -35,11 +35,45 @@ class Scene {
 		friend class SceneMan;
 };
 
+//class SceneOne : public Scene {
+//	public:
+//	void Init() override {
+//		std::cout << ">>> [SceneOne] Init\n";
+//	}
+//
+//	void Clear() override {
+//		std::cout << ">>> [SceneOne] Clear\n";
+//	}
+//
+//
+//	void LogicUpdate() override {}
+//	void FrameUpdate() override {}
+//	void Input(SDL_Event& event) override {}
+//	void Render() override {}
+//};
+//
+//class SceneTwo : public Scene {
+//	public:
+//	void Init() override {
+//		std::cout << ">>> [SceneTwo] Init\n";
+//	}
+//
+//	void Clear() override {
+//		std::cout << ">>> [SceneTwo] clear\n";
+//	}
+//
+//
+//	void LogicUpdate() override {}
+//	void FrameUpdate() override {}
+//	void Input(SDL_Event& event) override {}
+//	void Render() override {}
+//};
+
 class SceneMan {
 	private:
 		inline static Scene* currentScene = nullptr;
 
-		inline static std::unordered_map<std::string, Scene*> Scenes;
+		inline static std::unordered_map<std::string, std::unique_ptr<Scene>> Scenes;
 
 		inline static std::unordered_map<std::string, std::unique_ptr<AnyData>> SharedData;
 
@@ -51,9 +85,9 @@ class SceneMan {
 		static void AddScene(const std::string& sceneName) {
 			static_assert(std::is_base_of_v<Scene, T>, "Type must be base of Scene class");
 			if (Scenes.find(sceneName) == Scenes.end()) {
-				T* scene = new T;
+				std::unique_ptr<T> scene = std::make_unique<T>();
 				scene->name = sceneName;
-				Scenes.insert(std::make_pair(sceneName, scene));
+				Scenes[sceneName] = std::move(scene);
 			}
 			else {
 				std::cerr << "ERROR: Scene '" << sceneName << "' already exists!\n";
@@ -69,17 +103,18 @@ class SceneMan {
 				return;
 			}
 			if (foundScene->second == nullptr) {
-				foundScene->second = new T;
+				foundScene->second = std::make_unique<T>();
+				foundScene->second->name = sceneName;
 			}
 			if(currentScene != nullptr){
 				currentScene->Clear();
 				if (reset) {
-					Scenes[currentScene->name] = nullptr;
-					delete currentScene;
+					Scenes[currentScene->name].reset();
+					currentScene = nullptr;
 				}
 			}
 
-			currentScene = foundScene->second;
+			currentScene = foundScene->second.get();
 			currentScene->name = sceneName;
 			currentScene->renderer = renderer;
 			currentScene->ui = ui;

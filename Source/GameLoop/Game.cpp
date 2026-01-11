@@ -48,6 +48,21 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
+	SceneMan::AddScene<SceneOne>("SceneOne");
+
+	SceneMan::AddScene<SceneTwo>("SceneTwo");
+
+	SceneMan::SwitchScene<SceneOne>("SceneOne");
+
+	SceneMan::SwitchScene<SceneTwo>("SceneTwo");
+
+	SceneMan::SwitchScene<SceneOne>("SceneOne");
+
+	SceneMan::SwitchScene<SceneTwo>("SceneTwo");
+
+	SceneMan::SwitchScene<SceneOne>("SceneOne");
+
+	SceneMan::SwitchScene<SceneTwo>("SceneTwo");
 
 }
 
