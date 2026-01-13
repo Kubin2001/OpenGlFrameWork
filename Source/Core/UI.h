@@ -17,6 +17,20 @@ enum class CastType {
 	PopUpBox
 };
 
+enum class TextRenderType {
+	Standard,
+	Centered,
+	FromRight,
+	CenteredX,
+	CenteredY
+};
+
+enum class RenderType {
+	Standard,
+	Rounded
+};
+
+
 // Basic non interactive button
 class UIElemBase :public GameObject {
 protected:
@@ -103,15 +117,10 @@ public:
 
 	static void RenderRounded(UIElemBase* elem, MT::Renderer* renderer);
 
-	// 1 normal rectangle
-	// 2 rounded rectangle
+	// Use Enum RenderType::
 	void SetRenderType(const unsigned int renderType);
 	
-	// 1 Standard
-	// 2 Center
-	// 3 From Right
-	// 4 Centered on X axis
-	// 5 Centered on Y axis
+	// Use Enum TextRenderType::
 	void SetRenderTextType(const unsigned short textRenderType);
 
 	bool IsHidden();

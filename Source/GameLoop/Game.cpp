@@ -48,8 +48,13 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
-	PathMaker pm;
-	pm.Open();
+	Button *btn = ui->CreateButtonF("btn1", 10, 10, 100, 100, nullptr,"arial12","some text");
+	btn->SetColor(30, 30, 30);
+	btn->SetRenderTextType((int)TextRenderType::FromRight);
+	btn = ui->CreateButtonF("btn2", 10, 300, 100, 100, nullptr, "arial12", "some text");
+	btn->SetColor(30, 30, 30);
+	btn->SetRenderType((int)RenderType::Rounded);
+	btn->SetRenderTextType((int)TextRenderType::Centered);
 
 }
 

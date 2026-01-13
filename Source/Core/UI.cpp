@@ -152,19 +152,19 @@ void UIElemBase::RenderText(MT::Renderer* renderer) {
 	font->SetFilter(fontRGB.R, fontRGB.G, fontRGB.B);
 	font->GetTexture()->SetAlphaBending(fontRGB.A);
 	switch (textRenderType) {
-		case 1:
+		case (int)TextRenderType::Standard:
 			font->RenderText(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
 			break;
-		case 2:
+		case (int)TextRenderType::Centered:
 			font->RenderTextCenter(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
 			break;
-		case 3:
+		case (int)TextRenderType::FromRight:
 			font->RenderTextFromRight(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
 			break;
-		case 4:
+		case (int)TextRenderType::CenteredX:
 			font->RenderTextCenterX(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
 			break;
-		case 5:
+		case (int)TextRenderType::CenteredY:
 			font->RenderTextCenterY(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
 			break;
 		default: // Standardowa opcja
@@ -175,10 +175,10 @@ void UIElemBase::RenderText(MT::Renderer* renderer) {
 }
 
 void UIElemBase::SetRenderType(const unsigned int renderType) {
-	if (renderType == 1) {
+	if (renderType == (int)RenderType::Standard) {
 		renderFunction = &UIElemBase::Render;
 	}
-	else  if (renderType == 2) {
+	else  if (renderType == (int)RenderType::Standard) {
 		renderFunction = &UIElemBase::RenderRounded;
 	}
 	else {
@@ -389,7 +389,7 @@ void UI::FillElem(UIElemBase *elem ,const std::string& name, int x, int y, int w
 
 	elem->name = name;
 	elem->GetRectangle().Set(x, y, w, h);
-	elem->SetRenderType(1);
+	elem->SetRenderType((int)RenderType::Standard);
 
 	elem->SetTexture(texture);
 
@@ -1021,10 +1021,10 @@ void UI::DumpButton(nlohmann::ordered_json& json, UIElemBase* elem) {
 		jsonElem["Font"] = fontName;
 	}
 	if (elem->renderFunction == &UIElemBase::Render) {
-		jsonElem["RenderType"] = 1;
+		jsonElem["RenderType"] = (int)RenderType::Standard;
 	}
 	else {
-		jsonElem["RenderType"] = 2;
+		jsonElem["RenderType"] = (int)RenderType::Rounded;
 	}
 	jsonElem["TextRenderType"] = elem->textRenderType;
 	jsonElem["Hidden"] = elem->hidden;
