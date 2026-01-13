@@ -129,3 +129,4 @@ was removed or the new one was added to folder
 - Remove Invalid is defaulted to true in refresh textures
 - Build system changed to Cmake
 - Scene Man is now based on smart pointers
+- File explorer now allows for easy reset of selected path

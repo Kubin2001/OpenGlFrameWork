@@ -76,8 +76,11 @@ std::string FileExplorer::Open(const std::string& path) {
 	ui = new UI(renderer);
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial12px",&texMan);
 
-	ui->CreateClickBox("ArrowLeft", 10, 10, 30, 20, nullptr, ui->GetFont("arial12px"), "<-");
-	ui->GetClickBox("ArrowLeft")->SetColor(60, 60, 60);
+	ClickBox *cb =  ui->CreateClickBox("ArrowLeft", 10, 10, 30, 20, nullptr, ui->GetFont("arial12px"), "<-");
+	cb->SetColor(60, 60, 60);
+	cb = ui->CreateClickBox("RetPathCheckBox", 10, 50, 30, 30);
+	cb->SetColor(255, 0, 0);
+	cb->SetHoverFilter(true, 255, 255, 255, 120);
 
 	selectedBox = ui->CreateButton("selectionButton", 50, 100, 300, 20, nullptr);
 	selectedBox->SetColor(135, 206, 250, 150);
@@ -146,6 +149,18 @@ void FileExplorer::Input() {
 		Update();
 	}
 
+	ClickBox* retPathCb = ui->GetClickBox("RetPathCheckBox");
+	if (retPathCb->ConsumeStatus()) {
+		retPath = "";
+	}
+	if (retPath.empty()) {
+		retPathCb->SetColor(255, 0, 0);
+	}
+	else {
+		retPathCb->SetColor(0, 255, 0);
+	}
+
+
 	for (size_t i = 0; i < folderElements.size(); ++i) {
 		if (folderElements[i]->ConsumeStatus() || folderElementsNames[i]->ConsumeStatus()) {
 			std::string temp = std::filesystem::path(folderElements[i]->GetName()).string();
@@ -173,6 +188,7 @@ void FileExplorer::Input() {
 				selectedElement = folderElements[i];
 				selectedBox->GetRectangle().y = selectedElement->GetRectangle().y;
 				selectedBox->Show();
+				retPath = temp;
 			}
 		}
 	}

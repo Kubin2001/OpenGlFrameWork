@@ -48,21 +48,9 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
-	SceneMan::AddScene<SceneOne>("SceneOne");
 
-	SceneMan::AddScene<SceneTwo>("SceneTwo");
-
-	SceneMan::SwitchScene<SceneOne>("SceneOne");
-
-	SceneMan::SwitchScene<SceneTwo>("SceneTwo");
-
-	SceneMan::SwitchScene<SceneOne>("SceneOne");
-
-	SceneMan::SwitchScene<SceneTwo>("SceneTwo");
-
-	SceneMan::SwitchScene<SceneOne>("SceneOne");
-
-	SceneMan::SwitchScene<SceneTwo>("SceneTwo");
+	FileExplorer fe;
+	std::println("{}", fe.Open());
 
 }
 
@@ -79,11 +67,6 @@ void Game::FrameUpdate() {
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
-		if (event.type == SDL_KEYUP) {
-			if (event.key.keysym.scancode == SDL_SCANCODE_R) {
-				TexMan::RefreshTextures("Textures/Examples",true);
-			}
-		}
 		Exit();
 	}
 	Global::inputDelay++;
@@ -92,11 +75,6 @@ void Game::Input() {
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
 	ui->Render();
-	renderer->RenderCopy({ 50,50,50,50 }, TexMan::GetTex("granite"));
-	renderer->RenderCopy({ 50,150,50,50 }, TexMan::GetTex("grass",true));
-	renderer->RenderCopy({ 50,250,50,50 }, TexMan::GetTex("stone"));
-	renderer->RenderCopy({ 50,350,50,50 }, TexMan::GetTex("tree1"));
-	renderer->RenderCopy({ 50,450,50,50 }, TexMan::GetTex("water"));
 	renderer->Present();
 }
 
