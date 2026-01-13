@@ -32,7 +32,7 @@ void PathMaker::CreateSaveMenu() {
 	btn->SetFontColor(40, 255, 255);
 	saveSection.Add(btn);
 
-	ClickBox* cb = ui->CreateClickBoxF("saveTxt", 60, 100, 40, 40, nullptr, "arial12px", "Txt", 1.0f, 0, -12);
+	ClickBox* cb = ui->CreateClickBoxF("saveTxt", 60, 100, 40, 40, nullptr, "arial12px", "Txt", 1.0f, 0, -15);
 	cb->SetRenderTextType(4);
 	cb->SetRenderType(2);
 	cb->SetColor(0, 255, 0, 255);
@@ -40,7 +40,7 @@ void PathMaker::CreateSaveMenu() {
 	cb->SetFontColor(40, 255, 255);
 	saveSection.Add(cb);
 
-	cb = ui->CreateClickBoxF("saveCsv", 125, 100, 40, 40, nullptr, "arial12px", "Csv", 1.0f, 0, -12);
+	cb = ui->CreateClickBoxF("saveCsv", 125, 100, 40, 40, nullptr, "arial12px", "Csv", 1.0f, 0, -15);
 	cb->SetRenderTextType(4);
 	cb->SetRenderType(2);
 	cb->SetColor(40, 40, 40, 255);
@@ -48,7 +48,7 @@ void PathMaker::CreateSaveMenu() {
 	cb->SetFontColor(40, 255, 255);
 	saveSection.Add(cb);
 
-	cb = ui->CreateClickBoxF("saveBin", 190, 100, 40, 40, nullptr, "arial12px", "Bin", 1.0f, 0, -12);
+	cb = ui->CreateClickBoxF("saveBin", 190, 100, 40, 40, nullptr, "arial12px", "Bin", 1.0f, 0, -15);
 	cb->SetRenderTextType(4);
 	cb->SetRenderType(2);
 	cb->SetColor(40, 40, 40, 255);
@@ -262,6 +262,10 @@ void PathMaker::Input() {
 					break;
 				case 2:
 					if (event.key.keysym.scancode == SDL_SCANCODE_R) {
+						TextBox* tb = ui->GetTextBox("saveName");
+						if (tb != nullptr && tb->IsUsed()) {
+							break;
+						}
 						statusText = "Press R to draw";
 						path.clear();
 						programState = 0;
@@ -356,7 +360,6 @@ void PathMaker::Open(bool compressStart, bool compressEnd, bool compressZeros, i
 	ren->Start(window, MT::Innit(window));
 
 	texMan.Start(ren);
-	texMan.LoadMultiple("Textures/FileExplorer");
 	ui = new UI(ren);
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial12px", &texMan);
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial20px", &texMan);

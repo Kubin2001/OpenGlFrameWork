@@ -130,3 +130,4 @@ was removed or the new one was added to folder
 - Build system changed to Cmake
 - Scene Man is now based on smart pointers
 - File explorer now allows for easy reset of selected path
+- Few bug fixes in path maker
