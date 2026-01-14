@@ -48,18 +48,21 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
-	Button *btn = ui->CreateButtonF("btn1", 10, 10, 100, 100, nullptr,"arial12","some text");
-	btn->SetColor(30, 30, 30);
-	btn->SetRenderTextType((int)TextRenderType::FromRight);
-	btn = ui->CreateButtonF("btn2", 10, 300, 100, 100, nullptr, "arial12", "some text");
+	Slider* sl = ui->CreateSlider("sl1", 100, 100, 50, 50, (int)SliderSlide::Y, 100, 300, nullptr);
+	sl->SetColor(30, 30, 30);
+	sl->SetRenderType((int)RenderType::Rounded);
+	sl->SetHoverFilter(true, 255, 255, 255, 120);
+
+
+	Button* btn = ui->CreateButton("btn1",300, 100, 50, 50, nullptr);
 	btn->SetColor(30, 30, 30);
 	btn->SetRenderType((int)RenderType::Rounded);
-	btn->SetRenderTextType((int)TextRenderType::Centered);
-
+	btn->SetHoverFilter(true, 255, 255, 255, 120);
 }
 
 void Game::LogicUpdate() {
 	Global::frameCounter++;
+	std::println("Percent {} ", ui->GetSlider("sl1")->GetPercent());
 }
 
 void Game::FrameUpdate() {

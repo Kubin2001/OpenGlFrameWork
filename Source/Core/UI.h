@@ -14,7 +14,8 @@ enum class CastType {
 	Button,
 	ClickBox,
 	TextBox,
-	PopUpBox
+	PopUpBox,
+	Slider
 };
 
 enum class TextRenderType {
@@ -28,6 +29,11 @@ enum class TextRenderType {
 enum class RenderType {
 	Standard,
 	Rounded
+};
+
+enum class SliderSlide {
+	X,
+	Y
 };
 
 
@@ -214,6 +220,40 @@ class PopUpBox : public UIElemBase {
 		void SetLifeTime(const int lifeTime);
 };
 
+class Slider : public UIElemBase {
+	private:
+		int slideType = 0; //Enmum class SliderSlide
+		int min = 0; // Min X or Y slider can go
+		int max = 0; // Max X or Y slider can go
+
+	public:
+		// Getters
+		int GetSlideType() const { return slideType; }
+		int GetMin() const { return min; }
+		int GetMax() const { return max; }
+
+		// Setters
+		void SetSlideType(int value) { slideType = value; }
+		void SetMin(int value) { min = value; }
+		void SetMax(int value) { max = value; }
+
+		float GetPercent() {
+			int radius = 0;
+			int pos = 0;
+			if (slideType == (int)SliderSlide::X) {
+				radius = max - min - GetRectangle().w;
+				pos = GetRectangle().x - min;
+			}
+			else {
+				radius = max - min - GetRectangle().h;
+				pos = GetRectangle().y - min;
+			}
+			return (float)pos / radius;
+		}
+
+		friend class UI;
+};
+
 
 template<typename T>
 class UIList;
@@ -276,6 +316,8 @@ class UI{
 
 		void DumpPopUpBox(nlohmann::ordered_json& json, PopUpBox* pb);
 
+		void DumpSlider(nlohmann::ordered_json& json, Slider* sl);
+
 		void FillElem(UIElemBase* elem, const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
@@ -319,6 +361,9 @@ class UI{
 		PopUpBox* CreateLayeredPopUpBox(int layer, const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr,
 			Font* font = nullptr, const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
+		Slider* CreateLayeredSlider(int layer, const std::string& name, int x, int y, int w, int h, int slideType, int min, int max,
+			MT::Texture* texture = nullptr);
+
 		Button* CreateButton(const std::string &name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
@@ -330,6 +375,8 @@ class UI{
 
 		PopUpBox* CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
+
+		Slider* CreateSlider(const std::string& name, int x, int y, int w, int h, int slideType, int min, int max, MT::Texture* texture = nullptr);
 
 		Button* CreateButtonF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string &fontStr = "",
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
@@ -354,10 +401,13 @@ class UI{
 
 		void CheckClickBoxes(ClickBox* cb, int eventType, bool& forceStop, SDL_Event& event);
 
+		void SlideSliders(Slider* slider, SDL_Event& event);
+
 		Button* GetButton(const std::string& name);
 		TextBox* GetTextBox(const std::string& name);
 		ClickBox* GetClickBox(const std::string& name);
 		PopUpBox* GetPopUpBox(const std::string& name);
+		Slider* GetSlider(const std::string& name);
 
 		// Consumes click box status if click box exist safe and recomended to ui->getClickBox->ConsumeStatus()
 		bool ConsumeIfExist(const std::string& name);

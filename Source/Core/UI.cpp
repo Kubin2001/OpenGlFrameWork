@@ -178,7 +178,7 @@ void UIElemBase::SetRenderType(const unsigned int renderType) {
 	if (renderType == (int)RenderType::Standard) {
 		renderFunction = &UIElemBase::Render;
 	}
-	else  if (renderType == (int)RenderType::Standard) {
+	else  if (renderType == (int)RenderType::Rounded) {
 		renderFunction = &UIElemBase::RenderRounded;
 	}
 	else {
@@ -321,6 +321,11 @@ void PopUpBox::SetLifeTime(const int lifeTime) {
 }
 
 //Pop Up Box
+
+//Slider
+
+//Slider
+
 UI::UI(MT::Renderer* renderer) {
 	fontManager = new FontManager();
 	this->renderer = renderer;
@@ -505,6 +510,35 @@ PopUpBox* UI::CreateLayeredPopUpBox(int layer, const std::string& name, int life
 	return pb;
 }
 
+Slider* UI::CreateLayeredSlider(int layer, const std::string& name, int x, int y, int w, int h, int slideType, int min, int max, MT::Texture* texture) {
+
+	if (!settings.useLayersInRendering) {
+		throw std::exception("This should not be used without layer in rendering set on");
+	}
+
+	if (GetSlider(name) != nullptr) {
+		std::cout << "Warning name collision Slider with name: " << name << " already exists addition abborted\n";
+		return nullptr;
+	}
+
+	if (layer < 0) { layer = 0; }
+	if (layer > 100) { layer = 100; }
+	ZElemVec[layer].emplace_back(new Slider());
+	Slider* sl = static_cast<Slider*>(ZElemVec[layer].back());
+	sl->zLayer = layer;
+
+	sl->castType = (int)CastType::Slider;
+	sl->name = name;
+	sl->GetRectangle().Set(x, y, w, h);
+	sl->SetRenderType((int)RenderType::Standard);
+	sl->SetTexture(texture);
+	sl->SetSlideType(slideType);
+	sl->SetMin(min);
+	sl->SetMax(max);
+
+	return sl;
+}
+
 Button* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
@@ -606,6 +640,38 @@ PopUpBox* UI::CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y
 	popupBoxesCount++;
 	return pb;
 }
+
+Slider* UI::CreateSlider(const std::string& name, int x, int y, int w, int h, int slideType, int min, int max, MT::Texture* texture){
+	if (GetSlider(name) != nullptr) {
+		std::cout << "Warning name collision PopUpBox with name: " << name << " already exists addition abborted\n";
+		return nullptr;
+	}
+
+	Slider* sl = nullptr;
+	if (settings.useLayersInRendering) {
+		ZElemVec[0].emplace_back(new Slider());
+		sl = static_cast<Slider*>(ZElemVec[0].back());
+	}
+	else {
+		UiElemVec.emplace_back(new Slider());
+		sl = static_cast<Slider*>(UiElemVec.back());
+	}
+
+	sl->castType = (int)CastType::Slider;
+	sl->castType = (int)CastType::Slider;
+	sl->name = name;
+	sl->GetRectangle().Set(x, y, w, h);
+	sl->SetRenderType((int)RenderType::Standard);
+
+	sl->SetTexture(texture);
+	sl->SetSlideType(slideType);
+	sl->SetMin(min);
+	sl->SetMax(max);
+
+	UIElemMap.emplace(sl->name, sl);
+	return sl;
+}
+
 
 Button* UI::CreateButtonF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, const std::string& fontSt,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
@@ -716,6 +782,37 @@ void UI::CheckClickBoxes(ClickBox *cb, int eventType, bool &forceStop, SDL_Event
 	}
 }
 
+
+void UI::SlideSliders(Slider* slider, SDL_Event& event) {
+	if (event.button.button != SDL_BUTTON_LEFT) { return; }
+
+	MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
+	if (!slider->GetRectangle().IsColliding(temprect)) { return; }
+
+	if (slider->GetSlideType() == (int)SliderSlide::X) {
+		slider->GetRectangle().x = temprect.x - slider->GetRectangle().w/2;
+		if (slider->GetRectangle().x < slider->min) {
+			slider->GetRectangle().x = slider->min;
+			return;
+		}
+		if (slider->GetRectangle().x > slider->max - slider->GetRectangle().w) {
+			slider->GetRectangle().x = slider->max - slider->GetRectangle().w;
+			return;
+		}
+	}
+	else {
+		slider->GetRectangle().y = temprect.y - slider->GetRectangle().h / 2;
+		if (slider->GetRectangle().y < slider->min) {
+			slider->GetRectangle().y = slider->min;
+			return;
+		}
+		if (slider->GetRectangle().y > slider->max - slider->GetRectangle().w) {
+			slider->GetRectangle().y = slider->max - slider->GetRectangle().w;
+			return;
+		}
+	}
+}
+
 void UI::ManageInput(SDL_Event& event) {
 
 	int eventType = SDL_MOUSEBUTTONUP;
@@ -725,44 +822,40 @@ void UI::ManageInput(SDL_Event& event) {
 	bool clickBoxesStopped = false;
 	bool hoverStopped = false;
 	
+
+	auto CheckElem = [&](UIElemBase* elem) {
+		CheckHover(elem, hoverStopped);
+
+		if (elem->castType == (int)CastType::ClickBox) {
+			if (clickBoxesStopped) { return; }
+			ClickBox* cb = static_cast<ClickBox*>(elem);
+			CheckClickBoxes(cb, eventType, clickBoxesStopped, event);
+		}
+		else if (elem->castType == (int)CastType::TextBox) {
+			TextBox* tb = static_cast<TextBox*>(elem);
+			CheckTextBoxInteraction(tb, event);
+			ManageTextBoxTextInput(tb, event);
+		}
+		else if (elem->castType == (int)CastType::Slider) {
+			Slider* sl = static_cast<Slider*>(elem);
+			SlideSliders(sl,event);
+		}
+	};
+
 	if (settings.useLayersInRendering) {
 		for (auto layerIter = ZElemVec.rbegin(); layerIter != ZElemVec.rend(); layerIter++) {
 			for (auto elemIter = layerIter->rbegin(); elemIter != layerIter->rend(); elemIter++) {
 				UIElemBase* elem = *elemIter;
-				CheckHover(elem, hoverStopped);
-
-				if (elem->castType == (int)CastType::ClickBox) {
-					if (clickBoxesStopped) { return; }
-					ClickBox* cb = static_cast<ClickBox*>(elem);
-					CheckClickBoxes(cb, eventType, clickBoxesStopped, event);
-				}
-				else if (elem->castType == (int)CastType::TextBox) {
-					TextBox* tb = static_cast<TextBox*>(elem);
-					CheckTextBoxInteraction(tb, event);
-					ManageTextBoxTextInput(tb, event);
-				}
+				CheckElem(elem);
 			}
 		}
 	}
 	else {
 		for (auto elemIter = UiElemVec.rbegin(); elemIter != UiElemVec.rend(); elemIter++) {
 			UIElemBase* elem = *elemIter;
-			CheckHover(elem, hoverStopped);
-
-			if (elem->castType == (int)CastType::ClickBox) {
-				if (clickBoxesStopped) { return; }
-				ClickBox* cb = static_cast<ClickBox*>(elem);
-				CheckClickBoxes(cb, eventType, clickBoxesStopped, event);
-			}
-			else if (elem->castType == (int)CastType::TextBox) {
-				TextBox* tb = static_cast<TextBox*>(elem);
-				CheckTextBoxInteraction(tb, event);
-				ManageTextBoxTextInput(tb, event);
-			}
+			CheckElem(elem);
 		}
 	}
-
-
 
 	SDL_GetMouseState(&lastMousePos.x, &lastMousePos.y);
 }
@@ -809,6 +902,18 @@ PopUpBox* UI::GetPopUpBox(const std::string& name) {
 	UIElemBase* elem = iter->second;
 	if (elem->castType == (int)CastType::PopUpBox) {
 		return static_cast<PopUpBox*>(elem);
+	}
+	return nullptr;
+}
+
+Slider* UI::GetSlider(const std::string& name) {
+	auto iter = UIElemMap.find(name);
+	if (iter == UIElemMap.end()) {
+		return nullptr;
+	}
+	UIElemBase* elem = iter->second;
+	if (elem->castType == (int)CastType::Slider) {
+		return static_cast<Slider*>(elem);
 	}
 	return nullptr;
 }
@@ -1066,6 +1171,13 @@ void UI::DumpPopUpBox(nlohmann::ordered_json& json, PopUpBox* pb) {
 	jsonElem["LifeTime"] = pb->lifeTime;
 }
 
+void UI::DumpSlider(nlohmann::ordered_json& json, Slider* sl) {
+	auto& jsonElem = json[sl->GetName()];
+	jsonElem["SlideType"] = sl->slideType;
+	jsonElem["Min"] = sl->min;
+	jsonElem["Max"] = sl->max;
+}
+
 void UI::DumpToJson(const std::string &fileName, const std::vector<UIElemBase*>& elements) {
 	std::ofstream file(fileName + ".json");
 	if (!file.is_open()) {
@@ -1089,6 +1201,10 @@ void UI::DumpToJson(const std::string &fileName, const std::vector<UIElemBase*>&
 			case (int)CastType::PopUpBox:
 				DumpButton(jsonFile, elem);
 				DumpPopUpBox(jsonFile, static_cast<PopUpBox*>(elem));
+				break;
+			case (int)CastType::Slider:
+				DumpButton(jsonFile, elem);
+				DumpSlider(jsonFile, static_cast<Slider*>(elem));
 				break;
 		}
 	}
@@ -1233,6 +1349,22 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 			pb->zLayer = prevLayer;
 			pb->lifeTime = val["LifeTime"];
 			loadedElements.emplace_back(pb);
+		}
+		else if (type == (int)CastType::Slider) {
+			Slider* sl = nullptr;
+			if (settings.useLayersInRendering) {
+				sl = CreateLayeredSlider(elem->zLayer, key, 120, 0, 0, 0, 0, 0, 0);
+			}
+			else {
+				sl = CreateSlider(key, 120, 0, 0, 0, 0, 0, 0);
+			}
+			int prevLayer = sl->zLayer;
+			*sl = *static_cast<Slider*>(elem.get());
+			sl->zLayer = prevLayer;
+			sl->slideType = val["SlideType"];
+			sl->min = val["Min"];
+			sl->max = val["Max"];
+			loadedElements.emplace_back(sl);
 		}
 	}
 	return loadedElements;

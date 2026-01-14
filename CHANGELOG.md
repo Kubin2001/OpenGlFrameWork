@@ -132,3 +132,6 @@ was removed or the new one was added to folder
 - File explorer now allows for easy reset of selected path
 - Few bug fixes in path maker
 - Text Render Type and Render Type now uses Enums
+
+1.13
+- New UI Element Slider
