@@ -1,8 +1,6 @@
 build/
-Libs/
 GLSLTest/
 x64/
-*.dll
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
