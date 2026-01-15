@@ -64,7 +64,7 @@ protected:
 
 	void (*renderFunction)(UIElemBase* ,MT::Renderer*) = nullptr;
 
-	unsigned short textRenderType = 1;
+	unsigned short textRenderType = 1; // Base is centered
 
 	bool hidden = false;
 

@@ -584,10 +584,10 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 	std::vector<MT::Rect> sourceRectangles;
 	sourceRectangles.reserve(strCharset.size());
 
-	int x = 0;
-	int y = 0;
-
+	int w = 0;
+	int maxH = 0;
 	for (auto& it : strCharset) {
+
 		SDL_Surface* surf = TTF_RenderGlyph32_Blended(font, it, { 255,255,255,255 });
 		if (!surf) continue;
 
@@ -598,22 +598,31 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 		SDL_SetSurfaceBlendMode(newSurf, SDL_BLENDMODE_NONE);
 		SDL_SetColorKey(newSurf, SDL_FALSE, 0);
 		surfaces.emplace_back(newSurf);
-		sourceRectangles.emplace_back(x, y, newSurf->w, newSurf->h);
-		x += newSurf->w + 1;
-	}
-
-	// Creating texture atlas from glyphs
-
-	int w = 0;
-	int maxH = 0;
-	for (auto& it : sourceRectangles) {
-		w += it.w + 1;
-		if (it.h >= maxH) {
-			maxH = it.h;
+		sourceRectangles.emplace_back(0, 0, newSurf->w, newSurf->h);
+		w += newSurf->w + 1;
+		if (newSurf->h >= maxH) {
+			maxH = newSurf->h;
 		}
 	}
 
-	SDL_Surface* atlas = SDL_CreateRGBSurfaceWithFormat(0, w, maxH, 32, SDL_PIXELFORMAT_RGBA32);
+	// Creating texture atlas from glyphs
+	constexpr int maxTextureWidth = 2000; // 2000 is quite small it can in theory be at most 4096 openGL max texture size
+
+	// Fix texture
+	int x = 0;
+	int y = 0;
+	for (auto& rect : sourceRectangles) {
+		if (x + rect.w + 1 > maxTextureWidth) {
+			x = 0;
+			y += maxH + 1;
+		}
+		rect.x = x;
+		rect.y = y;
+		x += rect.w + 1;
+	}
+
+
+	SDL_Surface* atlas = SDL_CreateRGBSurfaceWithFormat(0, maxTextureWidth, y +maxH +1, 32, SDL_PIXELFORMAT_RGBA32);
 	SDL_FillRect(atlas, nullptr, SDL_MapRGBA(atlas->format, 0, 0, 0, 0));
 
 	for (size_t i = 0; i < sourceRectangles.size(); i++) {

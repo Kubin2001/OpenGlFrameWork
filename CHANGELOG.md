@@ -135,3 +135,5 @@ was removed or the new one was added to folder
 
 1.13
 - New UI Element Slider
+- Base text render type is centered
+- CrateTempFontFromTTF can now generate much larger font sizes

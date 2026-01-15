@@ -48,21 +48,22 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
-	Slider* sl = ui->CreateSlider("sl1", 100, 100, 50, 50, (int)SliderSlide::Y, 100, 300, nullptr);
-	sl->SetColor(30, 30, 30);
-	sl->SetRenderType((int)RenderType::Rounded);
-	sl->SetHoverFilter(true, 255, 255, 255, 120);
+	MT::Texture* tex = TexMan::GetTex("arial12");
+	MT::Texture* tex2 = TexMan::GetTex("arial20");
+	MT::Texture* tex3 = TexMan::GetTex("arial40");
 
+	std::println("Arial12 Width: {} Heigth: {}", tex->w, tex->h);
+	std::println("Arial20 Width: {} Heigth: {}", tex2->w, tex2->h);
+	std::println("Arial40 Width: {} Heigth: {}", tex3->w, tex3->h);
 
-	Button* btn = ui->CreateButton("btn1",300, 100, 50, 50, nullptr);
+	Button *btn = ui->CreateButtonF("btn1", 100, 100, 100, 100, nullptr,"arial12","Some text + = 1");
 	btn->SetColor(30, 30, 30);
-	btn->SetRenderType((int)RenderType::Rounded);
-	btn->SetHoverFilter(true, 255, 255, 255, 120);
+	btn->SetRenderTextType((int)TextRenderType::Centered);
+
 }
 
 void Game::LogicUpdate() {
 	Global::frameCounter++;
-	std::println("Percent {} ", ui->GetSlider("sl1")->GetPercent());
 }
 
 void Game::FrameUpdate() {
@@ -81,6 +82,12 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
+	MT::Texture* tex = TexMan::GetTex("arial12");
+	MT::Texture* tex2 = TexMan::GetTex("arial20");
+	MT::Texture* tex3 = TexMan::GetTex("arial40");
+	renderer->RenderCopyFiltered({ 10,10,(int)tex->w,(int)tex->h }, TexMan::GetTex("arial12"), {255,0,0});
+	renderer->RenderCopyFiltered({ 10,200,(int)tex2->w,(int)tex2->h }, TexMan::GetTex("arial20"), { 255,0,0 });
+	renderer->RenderCopyFiltered({ 10,400,(int)tex3->w,(int)tex3->h }, TexMan::GetTex("arial40"), { 255,0,0 });
 	ui->Render();
 	renderer->Present();
 }
