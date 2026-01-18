@@ -44,10 +44,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 target_link_directories(${PROJECT_NAME} PRIVATE
-    "${LIBS_DIR}/SDL2/lib/x64"
-    "${LIBS_DIR}/SDL2Image/lib/x64"
-    "${LIBS_DIR}/SDL2Mixer/lib/x64"
-    "${LIBS_DIR}/SDL2_ttf/lib/x64"
+    "${LIBS_DIR}/SDL2/lib/"
+    "${LIBS_DIR}/SDL2Image/lib/"
+    "${LIBS_DIR}/SDL2Mixer/lib/"
+    "${LIBS_DIR}/SDL2_ttf/lib/"
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
