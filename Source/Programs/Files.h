@@ -21,6 +21,8 @@ class FileExplorer {
 
 		std::vector<std::string> extensionFilter = {};
 
+		std::unordered_map<std::string, MT::Texture*> extensionsTextures;
+
 		UI* ui = nullptr;
 
 		LocalTexMan texMan;
@@ -38,7 +40,8 @@ class FileExplorer {
 
 		void Update();
 
-		void CreateElement(int x, int y, const std::string& dirPath, const std::string& dirName, const std::string& texture);
+		void CreateElement(int x, int y, const std::string& dirPath, const std::string& dirName, const std::string& texture
+			, const std::string& extension);
 
 		bool ExtensionAllowed(const std::string &ext);
 

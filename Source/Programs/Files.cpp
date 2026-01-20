@@ -42,17 +42,53 @@ FileExplorer::FileExplorer(int scroolSpeed, const std::vector<std::string> exten
 	this->extensionFilter = extensionFilter;
 }
 
-void FileExplorer::CreateElement(int x, int y, const std::string& dirPath, const std::string& dirName, const std::string& texture) {
-	folderElements.emplace_back(ui->CreateClickBox(dirPath, x, y, 20, 20,
-		texMan.GetTex(texture), ui->GetFont("arial12px")
-		, dirName, 1.0f, 25, 5));
-	folderElements.back()->SetHoverFilter(1, 255, 255, 255, 70);
+void FileExplorer::CreateElement(int x, int y, const std::string& dirPath, const std::string& dirName, const std::string& texture
+	, const std::string &extension) {
+
+	MT::Texture *usedTexture = nullptr;
+	auto extIter = extensionsTextures.find(extension);
+	if (extIter == extensionsTextures.end()) {
+		usedTexture = texMan.GetTex(texture);
+	}
+	else {
+		usedTexture = extIter->second;
+	}
+
+	folderElements.emplace_back(ui->CreateClickBox(dirPath, x, y, 20, 20, usedTexture));
+	ClickBox* cb = folderElements.back();
+	cb->SetHoverFilter(1, 255, 255, 255, 70);
 
 	folderElementsNames.emplace_back(ui->CreateClickBox("Name" + dirPath, x + 20, y, 300 - 75, 20,
-		nullptr, ui->GetFont("arial12px")
-		, "", 1.0f, 25, 5));
-	folderElementsNames.back()->SetColor(255, 255, 255, 0);
-	folderElementsNames.back()->SetHoverFilter(1, 255, 255, 255, 70);
+		nullptr, ui->GetFont("arial12px"), dirName,1.0f,5));
+	cb = folderElementsNames.back();
+	cb->SetColor(255, 255, 255, 0);
+	cb->SetHoverFilter(true, 255, 255, 255, 70);
+	cb->SetRenderTextType((int)TextRenderType::CenteredY);
+}
+
+static std::unordered_map<std::string, MT::Texture*> LoadExtensionTextures(LocalTexMan *texMan) {
+	std::unordered_map<std::string, MT::Texture*> extensions;
+	if (!std::filesystem::exists("Common")) {
+		std::filesystem::create_directory("Common");
+		return extensions;
+	}
+	if (!std::filesystem::exists("Common/fileSystemExtensions.csv")) {
+		std::ofstream file("Common/fileSystemExtensions.csv");
+		return extensions;
+	}
+	std::ifstream file("Common/fileSystemExtensions.csv");
+	std::vector<std::vector<std::string>> readedTexturesNames =  ReadCsv("Common/fileSystemExtensions.csv");
+	for (auto& csvLine : readedTexturesNames) {
+		if (csvLine.size() != 2) { continue; }
+
+		std::string extension = csvLine[0];
+		std::string texName = csvLine[1];
+		MT::Texture* tex = texMan->GetTex(texName);
+		if (tex != nullptr) {
+			extensions[extension] = tex;
+		}
+	}
+	return extensions;
 }
 
 std::string FileExplorer::Open(const std::string& path) {
@@ -72,9 +108,11 @@ std::string FileExplorer::Open(const std::string& path) {
 
 	currentPath = current.string();
 	texMan.Start(renderer);
-	texMan.LoadMultiple("Textures/FileExplorer");
+	texMan.DeepLoad("Textures/FileExplorer");
 	ui = new UI(renderer);
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial12px",&texMan);
+
+	extensionsTextures = LoadExtensionTextures(&texMan);
 
 	ClickBox *cb =  ui->CreateClickBox("ArrowLeft", 10, 10, 30, 20, nullptr, ui->GetFont("arial12px"), "<-");
 	cb->SetColor(60, 60, 60);
@@ -219,12 +257,13 @@ void FileExplorer::Update() {
 	int y = 10;
 
 	for (auto& dir : std::filesystem::directory_iterator(currentPath)) {
+		std::filesystem::path path = dir.path();
 		if (dir.is_directory()) {
-			CreateElement(x, y, dir.path().string(), dir.path().filename().string(), "FeFolderIcon");
+			CreateElement(x, y, path.string(), path.filename().string(), "FeFolderIcon", path.extension().string());
 		}
 		else {
-			if (ExtensionAllowed(dir.path().extension().string())) {
-				CreateElement(x, y, dir.path().string(), dir.path().filename().string(), "FeFileIcon");
+			if (ExtensionAllowed(path.extension().string())) {
+				CreateElement(x, y, path.string(), path.filename().string(), "FeFileIcon", path.extension().string());
 			}
 			else {
 				continue;

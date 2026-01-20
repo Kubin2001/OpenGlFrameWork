@@ -137,3 +137,4 @@ was removed or the new one was added to folder
 - New UI Element Slider
 - Base text render type is centered
 - CrateTempFontFromTTF can now generate much larger font sizes
+- File Explorer now allows for custom extension textures configuration
