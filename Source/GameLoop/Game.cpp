@@ -48,8 +48,11 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
-	FileExplorer fe;
-	fe.Open();
+	//FileExplorer fe;
+	//fe.Open();
+
+	//PathMaker pm;
+	//pm.Open();
 
 }
 

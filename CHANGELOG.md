@@ -138,3 +138,4 @@ was removed or the new one was added to folder
 - Base text render type is centered
 - CrateTempFontFromTTF can now generate much larger font sizes
 - File Explorer now allows for custom extension textures configuration
+- Base text render type is once again left up corner

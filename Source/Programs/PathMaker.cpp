@@ -10,14 +10,14 @@ static void CreateErrorBox(UI* ui, const std::string& text) {
 	PopUpBox *pb =  ui->CreatePopUpBoxF("erroxBox" + std::to_string(RandInt(0, 1000)), 120, 200, 5, 100, 40,nullptr,"arial12px");
 	pb->SetColor(120, 120, 120);
 	pb->SetText(text);
-	pb->SetRenderTextType(2);
+	pb->SetRenderTextType((int)TextRenderType::Centered);
 }
 
 static void CreateInfoBox(UI* ui, const std::string& text) {
 	PopUpBox* pb = ui->CreatePopUpBoxF("erroxBox" + std::to_string(RandInt(0, 1000)), 120, 200, 5, 100, 40, nullptr, "arial12px");
 	pb->SetColor(120, 120, 120);
 	pb->SetText(text);
-	pb->SetRenderTextType(2);
+	pb->SetRenderTextType((int)TextRenderType::Centered);
 }
 
 
@@ -25,47 +25,47 @@ static void CreateInfoBox(UI* ui, const std::string& text) {
 void PathMaker::CreateSaveMenu() {
 	if (!saveSection.GetClickBoxes().empty()) { return; }
 	Button* btn = ui->CreateButtonF("saveBack", 50, 50, 190, 200, nullptr, "arial20px", "Saving", 1.0f, 0, 10);
-	btn->SetRenderTextType(4); 
-	btn->SetRenderType(2); 
+	btn->SetRenderTextType((int)TextRenderType::CenteredX); 
+	btn->SetRenderType((int)RenderType::Rounded);
 	btn->SetColor(40, 40, 40, 255); 
 	btn->SetBorder(2, 70, 160, 255); 
 	btn->SetFontColor(40, 255, 255);
 	saveSection.Add(btn);
 
 	ClickBox* cb = ui->CreateClickBoxF("saveTxt", 60, 100, 40, 40, nullptr, "arial12px", "Txt", 1.0f, 0, -15);
-	cb->SetRenderTextType(4);
-	cb->SetRenderType(2);
+	cb->SetRenderTextType((int)TextRenderType::CenteredX);
+	cb->SetRenderType((int)RenderType::Rounded);
 	cb->SetColor(0, 255, 0, 255);
 	cb->SetBorder(2, 70, 160, 255);
 	cb->SetFontColor(40, 255, 255);
 	saveSection.Add(cb);
 
 	cb = ui->CreateClickBoxF("saveCsv", 125, 100, 40, 40, nullptr, "arial12px", "Csv", 1.0f, 0, -15);
-	cb->SetRenderTextType(4);
-	cb->SetRenderType(2);
+	cb->SetRenderTextType((int)TextRenderType::CenteredX);
+	cb->SetRenderType((int)RenderType::Rounded);
 	cb->SetColor(40, 40, 40, 255);
 	cb->SetBorder(2, 70, 160, 255);
 	cb->SetFontColor(40, 255, 255);
 	saveSection.Add(cb);
 
 	cb = ui->CreateClickBoxF("saveBin", 190, 100, 40, 40, nullptr, "arial12px", "Bin", 1.0f, 0, -15);
-	cb->SetRenderTextType(4);
-	cb->SetRenderType(2);
+	cb->SetRenderTextType((int)TextRenderType::CenteredX);
+	cb->SetRenderType((int)RenderType::Rounded);
 	cb->SetColor(40, 40, 40, 255);
 	cb->SetBorder(2, 70, 160, 255);
 	cb->SetFontColor(40, 255, 255);
 	saveSection.Add(cb);
 
 	TextBox* tb = ui->CreateTextBoxF("saveName", 90, 150, 110, 40, nullptr, "arial20px", "Name"); 
-	tb->SetRenderTextType(2);
-	tb->SetRenderType(2);
+	tb->SetRenderTextType((int)TextRenderType::Centered);
+	tb->SetRenderType((int)RenderType::Rounded);
 	tb->SetColor(70, 70, 70, 255);
 	tb->SetBorder(2, 70, 160, 255);
 	saveSection.Add(tb);
 
 	cb = ui->CreateClickBoxF("saveConf", 125, 200, 40, 30, nullptr, "arial12px", "Save");
-	cb->SetRenderTextType(2);
-	cb->SetRenderType(2);
+	cb->SetRenderTextType((int)TextRenderType::Centered);
+	cb->SetRenderType((int)RenderType::Rounded);
 	cb->SetColor(40, 40, 40, 255);
 	cb->SetBorder(2, 70, 160, 255);
 	cb->SetFontColor(40, 255, 255);
