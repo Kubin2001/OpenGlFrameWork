@@ -17,17 +17,7 @@ MapPos::MapPos(int x, int y) {
 	CalcAll(x, y);
 }
 
-int MapPos::minX = 0;
-int MapPos::minY = 0;
-int MapPos::tileSize = 0;
-int MapPos::regionSize = 0;
-int MapPos::tilesPerRegion = 0;
-int MapPos::regionsCountWidth = 0;
-int MapPos::regionsCountHeight = 0;
-int MapPos::maxX = 0;
-int MapPos::maxY = 0;
-
-void MapPos::FedData(int mX, int mY, int tSize, int tilesPerReg, int regionsW, int regionsH) {
+void MapPos::FedData(int mX, int mY, int tSize, int tilesPerReg, int regionsW, int regionsH) noexcept{
 	MapPos::minX = mX;
 	MapPos::minY = mY;
 	MapPos::tileSize = tSize;
@@ -56,7 +46,7 @@ void MapPos::CalcRegTile(int x, int y) {
 	columnTile = localX / MapPos::tileSize;
 }
 
-void MapPos::CalcRegion(int x, int y) {
+void MapPos::CalcRegion(int x, int y){
 	rows = (y - MapPos::minY) / MapPos::regionSize;
 	if ((y - MapPos::minY) < 0) {
 		rows -= 1;
@@ -68,7 +58,7 @@ void MapPos::CalcRegion(int x, int y) {
 	}
 }
 
-void MapPos::CalcAbsTile(int x, int y) {
+void MapPos::CalcAbsTile(int x, int y){
 	absTileRows = (y - MapPos::minY) / MapPos::tileSize;
 	if ((y - MapPos::minY) < 0) {
 		absTileRows -= 1;
@@ -80,7 +70,7 @@ void MapPos::CalcAbsTile(int x, int y) {
 	}
 }
 
-void MapPos::CalcAll(int x, int y) {
+void MapPos::CalcAll(int x, int y){
 	CalcRegTile(x,y);
 	CalcRegion(x,y);
 	CalcAbsTile(x,y);
@@ -103,7 +93,7 @@ void MapPos::RecalculateFromAbs() {
 	}
 }
 
-bool MapPos::CorrectnessRegionTile() {
+bool MapPos::CorrectnessRegionTile()  const {
 	if(rowsTile >= MapPos::tilesPerRegion){
 		std::println("MapPos Incorrect tile rows too big");
 		return false;
@@ -123,7 +113,7 @@ bool MapPos::CorrectnessRegionTile() {
 	return true;
 }
 
-bool MapPos::CorrectnessRegion() {
+bool MapPos::CorrectnessRegion()  const {
 	if (rows > MapPos::regionsCountHeight -1) {
 		std::println("MapPos Incorrect rows too big");
 		return false;
@@ -143,7 +133,7 @@ bool MapPos::CorrectnessRegion() {
 	return true;
 }
 
-bool MapPos::CorrectnessAbsTile() {
+bool MapPos::CorrectnessAbsTile()  const {
 	int countWidth = MapPos::regionsCountWidth * MapPos::tilesPerRegion;
 	int countHeight = MapPos::regionsCountHeight * MapPos::tilesPerRegion;
 	if (absTileRows >= countHeight) {
@@ -165,7 +155,7 @@ bool MapPos::CorrectnessAbsTile() {
 	return true;
 }
 
-bool MapPos::CorrectnesAbsCol() {
+bool MapPos::CorrectnesAbsCol() const {
 	int countWidth = MapPos::regionsCountWidth * MapPos::tilesPerRegion;
 	if (absTileColumn >= countWidth) {
 		std::println("MapPos Incorrect abs tile columns too big");
@@ -178,7 +168,7 @@ bool MapPos::CorrectnesAbsCol() {
 	return true;
 }
 
-bool MapPos::CorrectnesAbsRow() {
+bool MapPos::CorrectnesAbsRow() const {
 	int countHeight = MapPos::regionsCountHeight * MapPos::tilesPerRegion;
 	if (absTileRows >= countHeight) {
 		std::println("MapPos Incorrect abs tile rows too big");
@@ -192,7 +182,7 @@ bool MapPos::CorrectnesAbsRow() {
 }
 //Silent checks
 
-bool MapPos::CorrectnessRegionTileS() {
+bool MapPos::CorrectnessRegionTileS() const {
 	if (rowsTile >= MapPos::tilesPerRegion) {
 		return false;
 	}
@@ -208,7 +198,7 @@ bool MapPos::CorrectnessRegionTileS() {
 	return true;
 }
 
-bool MapPos::CorrectnessRegionS() {
+bool MapPos::CorrectnessRegionS() const {
 	if (rows > MapPos::regionsCountHeight - 1) {
 		return false;
 	}
@@ -224,7 +214,7 @@ bool MapPos::CorrectnessRegionS() {
 	return true;
 }
 
-bool MapPos::CorrectnessAbsTileS() {
+bool MapPos::CorrectnessAbsTileS() const {
 	int countWidth = MapPos::regionsCountWidth * MapPos::tilesPerRegion;
 	int countHeight = MapPos::regionsCountHeight * MapPos::tilesPerRegion;
 	if (absTileRows >= countHeight) {
@@ -242,7 +232,7 @@ bool MapPos::CorrectnessAbsTileS() {
 	return true;
 }
 
-bool MapPos::CorrectnesAbsColS() {
+bool MapPos::CorrectnesAbsColS() const {
 	int countWidth = MapPos::regionsCountWidth * MapPos::tilesPerRegion;
 	if (absTileColumn >= countWidth) {
 		return false;
@@ -253,7 +243,7 @@ bool MapPos::CorrectnesAbsColS() {
 	return true;
 }
 
-bool MapPos::CorrectnesAbsRowS() {
+bool MapPos::CorrectnesAbsRowS() const {
 	int countHeight = MapPos::regionsCountHeight * MapPos::tilesPerRegion;
 	if (absTileRows >= countHeight) {
 		return false;

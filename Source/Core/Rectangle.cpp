@@ -31,24 +31,24 @@ namespace MT {
         this->h = h;
     }
 
-    Point Rect::GetCenter() {
+    Point Rect::GetCenter() const noexcept {
         return { x + (int)(w * 0.5f),(int)(y + h * 0.5f) };
     }
 
-    SDL_Rect Rect::ToSDLRect() {
+    SDL_Rect Rect::ToSDLRect() const noexcept {
         return { x,y,w, h };
     }
 
-    RectF Rect::ToRectF() {
+    RectF Rect::ToRectF() const noexcept {
         return { static_cast<float>(x),static_cast<float>(y),
                  static_cast<float>(w), static_cast<float>(h) };
     }
 
-    CompositeRect Rect::ToCompositeRect() {
+    CompositeRect Rect::ToCompositeRect() const noexcept {
         return { (float)x, (float)y , w, h };
     }
 
-    bool Rect::IsColliding(const SDL_Rect& rect) noexcept {
+    bool Rect::IsColliding(const SDL_Rect& rect) const noexcept {
         if (rect.x + rect.w >= x &&
             rect.x - w <= x &&
             rect.y + rect.h >= y &&
@@ -58,7 +58,7 @@ namespace MT {
         return false;
     }
 
-    bool Rect::IsColliding(const Rect& rect) noexcept {
+    bool Rect::IsColliding(const Rect& rect) const noexcept {
         if (rect.x + rect.w >= x &&
             rect.x - w <= x &&
             rect.y + rect.h >= y &&
@@ -68,7 +68,7 @@ namespace MT {
         return false;
     }
 
-    bool Rect::IsColliding(const RectF& rect) noexcept {
+    bool Rect::IsColliding(const RectF& rect) const noexcept {
         if (rect.x + rect.w >= x &&
             rect.x - w <= x &&
             rect.y + rect.h >= y &&
@@ -78,7 +78,7 @@ namespace MT {
         return false;
     }
 
-    bool Rect::IsColliding(const CompositeRect& rect) noexcept {
+    bool Rect::IsColliding(const CompositeRect& rect) const noexcept {
         if (rect.x + rect.w >= x &&
             rect.x - w <= x &&
             rect.y + rect.h >= y &&
@@ -88,7 +88,7 @@ namespace MT {
         return false;
     }
 
-    Rect& Rect::operator=(const SDL_Rect& rect) {
+    Rect& Rect::operator=(const SDL_Rect& rect) noexcept {
         this->x = rect.x;
         this->y = rect.y;
         this->w = rect.w;
@@ -96,7 +96,7 @@ namespace MT {
         return *this;
     }
 
-    Rect& Rect::operator=(const RectF& rect) {
+    Rect& Rect::operator=(const RectF& rect) noexcept {
         this->x = (int)rect.x;
         this->y = (int)rect.y;
         this->w = (int)rect.w;
@@ -104,7 +104,7 @@ namespace MT {
         return *this;
     }
 
-    Rect& Rect::operator=(const CompositeRect& rect) {
+    Rect& Rect::operator=(const CompositeRect& rect) noexcept {
         this->x = (int)rect.x;
         this->y = (int)rect.y;
         this->w = rect.w;
@@ -112,7 +112,7 @@ namespace MT {
         return *this;
     }
 
-    bool Rect::operator==(const SDL_Rect& rect) noexcept {
+    bool Rect::operator==(const SDL_Rect& rect) const noexcept {
         if (this->x == rect.x && this->y == rect.y &&
             this->w == rect.w && this->h == rect.h) {
             return true;
@@ -120,7 +120,7 @@ namespace MT {
         return false;
     }
 
-    bool Rect::operator==(const Rect& rect) noexcept {
+    bool Rect::operator==(const Rect& rect) const noexcept {
         if (this->x == rect.x && this->y == rect.y &&
             this->w == rect.w && this->h == rect.h) {
             return true;
@@ -128,7 +128,7 @@ namespace MT {
         return false;
     }
 
-    bool Rect::operator==(const RectF& rect) noexcept {
+    bool Rect::operator==(const RectF& rect) const noexcept {
         if (this->x == (int)rect.x && this->y == (int)rect.y &&
             this->w == (int)rect.w && this->h == (int)rect.h) {
             return true;
@@ -136,7 +136,7 @@ namespace MT {
         return false;
     }
 
-    bool Rect::operator==(const CompositeRect& rect) noexcept {
+    bool Rect::operator==(const CompositeRect& rect) const noexcept {
         if (this->x == (int)rect.x && this->y == (int)rect.y &&
             this->w == rect.w && this->h == rect.h) {
             return true;
@@ -161,26 +161,26 @@ namespace MT {
         this->h = h;
     }
 
-    Point RectF::GetCenter() {
+    Point RectF::GetCenter() const noexcept {
         return { static_cast<int>(x) + static_cast<int>(w * 0.5f),
                  static_cast<int>(y) + static_cast<int>(h * 0.5f) };
     }
 
-    SDL_Rect RectF::ToSDLRect() {
+    SDL_Rect RectF::ToSDLRect() const noexcept {
         return { static_cast<int>(x), static_cast<int>(y),
                  static_cast<int>(w), static_cast<int>(h) };
     }
 
-    Rect RectF::ToRect() {
+    Rect RectF::ToRect() const noexcept {
         return { static_cast<int>(x), static_cast<int>(y),
                  static_cast<int>(w), static_cast<int>(h) };
     }
 
-    CompositeRect RectF::ToCompositeRect() {
+    CompositeRect RectF::ToCompositeRect() const noexcept {
         return { x, y, static_cast<int>(w), static_cast<int>(h) };
     }
 
-    bool RectF::IsColliding(const SDL_Rect& rect) noexcept {
+    bool RectF::IsColliding(const SDL_Rect& rect) const noexcept {
         if (rect.x + rect.w >= x &&
             rect.x - w <= x &&
             rect.y + rect.h >= y &&
@@ -190,7 +190,7 @@ namespace MT {
         return false;
     }
 
-    bool RectF::IsColliding(const Rect& rect) noexcept {
+    bool RectF::IsColliding(const Rect& rect) const noexcept {
         if (rect.x + rect.w >= x &&
             rect.x - w <= x &&
             rect.y + rect.h >= y &&
@@ -200,7 +200,7 @@ namespace MT {
         return false;
     }
 
-    bool RectF::IsColliding(const RectF& rect) noexcept {
+    bool RectF::IsColliding(const RectF& rect) const noexcept {
         if (rect.x + rect.w >= x &&
             rect.x - w <= x &&
             rect.y + rect.h >= y &&
@@ -210,7 +210,7 @@ namespace MT {
         return false;
     }
 
-    bool RectF::IsColliding(const CompositeRect& rect) noexcept {
+    bool RectF::IsColliding(const CompositeRect& rect) const noexcept {
         if (rect.x + rect.w >= x &&
             rect.x - w <= x &&
             rect.y + rect.h >= y &&
@@ -220,7 +220,7 @@ namespace MT {
         return false;
     }
 
-    RectF& RectF::operator=(const SDL_Rect& rect) {
+    RectF& RectF::operator=(const SDL_Rect& rect) noexcept {
         this->x = (float)rect.x;
         this->y = (float)rect.y;
         this->w = (float)rect.w;
@@ -228,7 +228,7 @@ namespace MT {
         return *this;
     }
 
-    RectF& RectF::operator=(const Rect& rect) {
+    RectF& RectF::operator=(const Rect& rect) noexcept {
         this->x = (float)rect.x;
         this->y = (float)rect.y;
         this->w = (float)rect.w;
@@ -236,7 +236,7 @@ namespace MT {
         return *this;
     }
 
-    RectF& RectF::operator=(const CompositeRect& rect) {
+    RectF& RectF::operator=(const CompositeRect& rect) noexcept {
         this->x = rect.x;
         this->y = rect.y;
         this->w = (float)rect.w;
@@ -244,7 +244,7 @@ namespace MT {
         return *this;
     }
 
-    bool RectF::operator==(const SDL_Rect& rect) noexcept {
+    bool RectF::operator==(const SDL_Rect& rect) const noexcept {
         if ((int)this->x == rect.x && (int)this->y == rect.y &&
             (int)this->w == rect.w && (int)this->h == rect.h) {
             return true;
@@ -252,7 +252,7 @@ namespace MT {
         return false;
     }
 
-    bool RectF::operator==(const Rect& rect) noexcept {
+    bool RectF::operator==(const Rect& rect) const noexcept {
         if ((int)this->x == rect.x && (int)this->y == rect.y &&
             (int)this->w == rect.w && (int)this->h == rect.h) {
             return true;
@@ -260,7 +260,7 @@ namespace MT {
         return false;
     }
 
-    bool RectF::operator==(const RectF& rect) noexcept {
+    bool RectF::operator==(const RectF& rect) const noexcept {
         if (this->x == rect.x && this->y == rect.y &&
             this->w == rect.w && this->h == rect.h) {
             return true;
@@ -268,7 +268,7 @@ namespace MT {
         return false;
     }
 
-    bool RectF::operator==(const CompositeRect& rect) noexcept {
+    bool RectF::operator==(const CompositeRect& rect) const noexcept {
         if (this->x == rect.x && this->y == rect.y &&
             this->w == rect.w && this->h == rect.h) {
             return true;
@@ -296,25 +296,25 @@ namespace MT {
 
     // ----- Conversion methods -----
 
-    Point CompositeRect::GetCenter() {
+    Point CompositeRect::GetCenter() const noexcept {
         return { (int)(x + w * 0.5f), (int)(y + h * 0.5f) };
     }
 
-    SDL_Rect CompositeRect::ToSDLRect() {
+    SDL_Rect CompositeRect::ToSDLRect() const noexcept {
         return { (int)x, (int)y, w, h };
     }
 
-    RectF CompositeRect::ToRectF() {
+    RectF CompositeRect::ToRectF() const noexcept {
         return { x, y, static_cast<float>(w), static_cast<float>(h) };
     }
 
-    Rect CompositeRect::ToRect() {
+    Rect CompositeRect::ToRect() const noexcept {
         return { (int)x, (int)y, w, h };
     }
 
     // ----- Collision -----
 
-    bool CompositeRect::IsColliding(const SDL_Rect& rect) noexcept {
+    bool CompositeRect::IsColliding(const SDL_Rect& rect) const noexcept {
         if (rect.x + rect.w >= x &&
             rect.x - w <= x &&
             rect.y + rect.h >= y &&
@@ -324,7 +324,7 @@ namespace MT {
         return false;
     }
 
-    bool CompositeRect::IsColliding(const Rect& rect) noexcept {
+    bool CompositeRect::IsColliding(const Rect& rect) const noexcept {
         if (rect.x + rect.w >= x &&
             rect.x - w <= x &&
             rect.y + rect.h >= y &&
@@ -334,7 +334,7 @@ namespace MT {
         return false;
     }
 
-    bool CompositeRect::IsColliding(const RectF& rect) noexcept {
+    bool CompositeRect::IsColliding(const RectF& rect) const noexcept {
         if (rect.x + rect.w >= x &&
             rect.x - w <= x &&
             rect.y + rect.h >= y &&
@@ -344,7 +344,7 @@ namespace MT {
         return false;
     }
 
-    bool CompositeRect::IsColliding(const CompositeRect& rect) noexcept {
+    bool CompositeRect::IsColliding(const CompositeRect& rect) const noexcept {
         if (rect.x + rect.w >= x &&
             rect.x - w <= x &&
             rect.y + rect.h >= y &&
@@ -356,7 +356,7 @@ namespace MT {
 
     // ----- Assignment -----
 
-    CompositeRect& CompositeRect::operator=(const SDL_Rect& rect) {
+    CompositeRect& CompositeRect::operator=(const SDL_Rect& rect) noexcept {
         this->x = (float)rect.x;
         this->y = (float)rect.y;
         this->w = rect.w;
@@ -364,7 +364,7 @@ namespace MT {
         return *this;
     }
 
-    CompositeRect& CompositeRect::operator=(const RectF& rect) {
+    CompositeRect& CompositeRect::operator=(const RectF& rect) noexcept {
         this->x = rect.x;
         this->y = rect.y;
         this->w = (int)rect.w;
@@ -372,7 +372,7 @@ namespace MT {
         return *this;
     }
 
-    CompositeRect& CompositeRect::operator=(const Rect& rect) {
+    CompositeRect& CompositeRect::operator=(const Rect& rect) noexcept {
         this->x = (float)rect.x;
         this->y = (float)rect.y;
         this->w = rect.w;
@@ -382,7 +382,7 @@ namespace MT {
 
     // ----- Comparison -----
 
-    bool CompositeRect::operator==(const SDL_Rect& rect) noexcept {
+    bool CompositeRect::operator==(const SDL_Rect& rect) const noexcept {
         if ((int)this->x == rect.x && (int)this->y == rect.y &&
             this->w == rect.w && this->h == rect.h) {
             return true;
@@ -390,7 +390,7 @@ namespace MT {
         return false;
     }
 
-    bool CompositeRect::operator==(const Rect& rect) noexcept {
+    bool CompositeRect::operator==(const Rect& rect) const noexcept {
         if ((int)this->x == rect.x && (int)this->y == rect.y &&
             this->w == rect.w && this->h == rect.h) {
             return true;
@@ -398,7 +398,7 @@ namespace MT {
         return false;
     }
 
-    bool CompositeRect::operator==(const RectF& rect) noexcept {
+    bool CompositeRect::operator==(const RectF& rect) const noexcept {
         if (this->x == rect.x && this->y == rect.y &&
             this->w == (int)rect.w && this->h == (int)rect.h) {
             return true;
@@ -406,7 +406,7 @@ namespace MT {
         return false;
     }
 
-    bool CompositeRect::operator==(const CompositeRect& rect) noexcept {
+    bool CompositeRect::operator==(const CompositeRect& rect) const noexcept {
         if (this->x == rect.x && this->y == rect.y &&
             this->w == rect.w && this->h == rect.h) {
             return true;

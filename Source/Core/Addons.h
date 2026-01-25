@@ -9,13 +9,13 @@
 void MethaneVersion();
 
 struct MapPos {
-	int rows = 0; //Du¿e Regiony
+	int rows = 0; // Large Regions
 	int column = 0;
 
-	int rowsTile = 0; //Pole w regionie 
+	int rowsTile = 0; // Tiles In large Regions
 	int columnTile = 0;
 
-	int absTileRows = 0;
+	int absTileRows = 0; // Absolute Tile Pos in whole map
 	int absTileColumn = 0;
 
 	MapPos();
@@ -35,41 +35,41 @@ struct MapPos {
 
 	// It will never work with automaitic check cause like with mouse cause it always is between 0 and tile per region
 	// it is for manual change
-	bool CorrectnessRegionTile();
+	bool CorrectnessRegionTile() const;
 
-	bool CorrectnessRegion();
+	bool CorrectnessRegion() const;
 
-	bool CorrectnessAbsTile();
+	bool CorrectnessAbsTile() const;
 
-	bool CorrectnesAbsCol();
+	bool CorrectnesAbsCol() const;
 
-	bool CorrectnesAbsRow();
+	bool CorrectnesAbsRow() const;
 
 	//Silent checks without cout
 
-	bool CorrectnessRegionTileS();
+	bool CorrectnessRegionTileS() const;
 
-	bool CorrectnessRegionS();
+	bool CorrectnessRegionS() const;
 
-	bool CorrectnessAbsTileS();
+	bool CorrectnessAbsTileS() const;
 
-	bool CorrectnesAbsColS();
+	bool CorrectnesAbsColS() const;
 
-	bool CorrectnesAbsRowS();
+	bool CorrectnesAbsRowS() const;
 
 
 
-	static int minX;
-	static int minY;
-	static int tileSize;
-	static int regionSize;
-	static int tilesPerRegion;
-	static int regionsCountWidth;
-	static int regionsCountHeight;
-	static int maxX;
-	static int maxY;
+	inline static int minX = 0;
+	inline static int minY = 0;
+	inline static int tileSize = 0;
+	inline static int regionSize = 0;
+	inline static int tilesPerRegion = 0;
+	inline static int regionsCountWidth = 0;
+	inline static int regionsCountHeight = 0;
+	inline static int maxX = 0;
+	inline static int maxY = 0;
 
-	static void FedData(int mX, int mY, int tSize, int tilesPerReg, int regionsW, int regionsH);
+	static void FedData(int mX, int mY, int tSize, int tilesPerReg, int regionsW, int regionsH) noexcept;
 
 
 };

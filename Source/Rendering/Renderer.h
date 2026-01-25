@@ -135,8 +135,8 @@ namespace MT {
 
 		private:
 		SDL_Window* window = nullptr;
-		Rect vievPort;
-		unsigned int VAO, VBO;
+		Rect vievPort{0,0,0,0};
+		unsigned int VAO = 0, VBO = 0;
 		ShaderLoader loader;
 		//Shaders IDs
 		unsigned int currentProgram;

@@ -140,3 +140,4 @@ was removed or the new one was added to folder
 - File Explorer now allows for custom extension textures configuration
 - Base text render type is once again left up corner
 - New function for detecting RotatedRect->Rect collision 
+- Correct const and noexept functions definitions for Rectangles and MapPos

@@ -39,24 +39,24 @@ namespace MT {
 
 		void Set(const int x, const int y, const int w, const int h) noexcept;
 
-		Point GetCenter();
-		SDL_Rect ToSDLRect();
-		RectF ToRectF();
-		CompositeRect ToCompositeRect();
+		Point GetCenter() const noexcept;
+		SDL_Rect ToSDLRect() const noexcept;
+		RectF ToRectF() const noexcept;
+		CompositeRect ToCompositeRect() const noexcept;
 
-		bool IsColliding(const SDL_Rect& rect) noexcept;
-		bool IsColliding(const Rect& rect) noexcept;
-		bool IsColliding(const RectF& rect) noexcept;
-		bool IsColliding(const CompositeRect& rect) noexcept;
+		bool IsColliding(const SDL_Rect& rect) const noexcept;
+		bool IsColliding(const Rect& rect) const noexcept;
+		bool IsColliding(const RectF& rect) const noexcept;
+		bool IsColliding(const CompositeRect& rect) const noexcept;
 
-		Rect& operator=(const SDL_Rect& rect);
-		Rect& operator=(const RectF& rect);
-		Rect& operator=(const CompositeRect& rect);
+		Rect& operator=(const SDL_Rect& rect) noexcept;
+		Rect& operator=(const RectF& rect) noexcept;
+		Rect& operator=(const CompositeRect& rect) noexcept;
 
-		bool operator==(const SDL_Rect& rect) noexcept;
-		bool operator==(const Rect& rect) noexcept;
-		bool operator==(const RectF& rect) noexcept;
-		bool operator==(const CompositeRect& rect) noexcept;
+		bool operator==(const SDL_Rect& rect) const noexcept;
+		bool operator==(const Rect& rect) const noexcept;
+		bool operator==(const RectF& rect) const noexcept;
+		bool operator==(const CompositeRect& rect) const noexcept;
 	};
 
 	struct RectF {
@@ -70,24 +70,24 @@ namespace MT {
 
 		void Set(const float x, const float y, const float w, const float h) noexcept;
 
-		Point GetCenter();
-		SDL_Rect ToSDLRect();
-		Rect ToRect();
-		CompositeRect ToCompositeRect();
+		Point GetCenter() const noexcept;
+		SDL_Rect ToSDLRect() const noexcept;
+		Rect ToRect() const noexcept;
+		CompositeRect ToCompositeRect() const noexcept;
 
-		bool IsColliding(const SDL_Rect& rect) noexcept;
-		bool IsColliding(const Rect& rect) noexcept;
-		bool IsColliding(const RectF& rect) noexcept;
-		bool IsColliding(const CompositeRect& rect) noexcept;
+		bool IsColliding(const SDL_Rect& rect) const noexcept;
+		bool IsColliding(const Rect& rect) const noexcept;
+		bool IsColliding(const RectF& rect) const noexcept;
+		bool IsColliding(const CompositeRect& rect) const noexcept;
 
-		RectF& operator=(const SDL_Rect& rect);
-		RectF& operator=(const Rect& rect);
-		RectF& operator=(const CompositeRect& rect);
+		RectF& operator=(const SDL_Rect& rect) noexcept;
+		RectF& operator=(const Rect& rect) noexcept;
+		RectF& operator=(const CompositeRect& rect) noexcept;
 
-		bool operator==(const SDL_Rect& rect) noexcept;
-		bool operator==(const Rect& rect) noexcept;
-		bool operator==(const RectF& rect) noexcept;
-		bool operator==(const CompositeRect& rect) noexcept;
+		bool operator==(const SDL_Rect& rect) const noexcept;
+		bool operator==(const Rect& rect) const noexcept;
+		bool operator==(const RectF& rect) const noexcept;
+		bool operator==(const CompositeRect& rect) const noexcept;
 	};
 
 	struct CompositeRect {
@@ -101,24 +101,24 @@ namespace MT {
 
 		void Set(const float x, const float y, const int w, const int h) noexcept;
 
-		Point GetCenter();
-		SDL_Rect ToSDLRect();
-		RectF ToRectF();
-		Rect ToRect();
+		Point GetCenter()const noexcept;
+		SDL_Rect ToSDLRect()const noexcept;
+		RectF ToRectF()const noexcept;
+		Rect ToRect()const noexcept;
 
-		bool IsColliding(const SDL_Rect& rect) noexcept;
-		bool IsColliding(const Rect& rect) noexcept;
-		bool IsColliding(const RectF& rect) noexcept;
-		bool IsColliding(const CompositeRect& rect) noexcept;
+		bool IsColliding(const SDL_Rect& rect) const noexcept;
+		bool IsColliding(const Rect& rect) const noexcept;
+		bool IsColliding(const RectF& rect) const noexcept;
+		bool IsColliding(const CompositeRect& rect) const noexcept;
 
-		CompositeRect& operator=(const SDL_Rect& rect);
-		CompositeRect& operator=(const RectF& rect);
-		CompositeRect& operator=(const Rect& rect);
+		CompositeRect& operator=(const SDL_Rect& rect) noexcept;
+		CompositeRect& operator=(const RectF& rect) noexcept;
+		CompositeRect& operator=(const Rect& rect) noexcept;
 
-		bool operator==(const SDL_Rect& rect) noexcept;
-		bool operator==(const Rect& rect) noexcept;
-		bool operator==(const RectF& rect) noexcept;
-		bool operator==(const CompositeRect& rect) noexcept;
+		bool operator==(const SDL_Rect& rect) const noexcept;
+		bool operator==(const Rect& rect) const noexcept;
+		bool operator==(const RectF& rect) const noexcept;
+		bool operator==(const CompositeRect& rect) const noexcept;
 	};
 
 }

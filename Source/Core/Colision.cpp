@@ -216,10 +216,10 @@ bool RotRectCollision(const MT::CompositeRect& rotRect, const float angle, const
 
 	std::array<glm::vec2, 4> rotCorners = GetCorners(rectCopy, rad);
 
-	const float x = static_cast<float>(rect.x);
-	const float y = static_cast<float>(rect.y);
-	const float w = rect.w;
-	const float h = rect.h;
+	const float x = rect.x;
+	const float y = rect.y;
+	const float w = static_cast<float>(rect.w);
+	const float h = static_cast<float>(rect.h);
 
 
 	std::array<glm::vec2, 4> staticCorners = { {{x, y},{x + w,y},{x + w,y + h},{x,y + h} } };
