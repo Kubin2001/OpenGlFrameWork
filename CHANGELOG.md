@@ -139,3 +139,4 @@ was removed or the new one was added to folder
 - CrateTempFontFromTTF can now generate much larger font sizes
 - File Explorer now allows for custom extension textures configuration
 - Base text render type is once again left up corner
+- New function for detecting RotatedRect->Rect collision 

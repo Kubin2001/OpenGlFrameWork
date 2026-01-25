@@ -14,6 +14,7 @@
 
 #include <chrono>
 
+#include "Colision.h"
 
 
 
@@ -48,11 +49,6 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
-	//FileExplorer fe;
-	//fe.Open();
-
-	//PathMaker pm;
-	//pm.Open();
 
 }
 
@@ -75,6 +71,15 @@ void Game::Input() {
 }
 
 void Game::Render() {
+	MT::Rect rect1{ 100,100,100,100 };
+	float angle = (float)Global::frameCounter/10;
+	Point p = GetMousePos();
+	MT::Rect mouseRect{ p.x,p.y,1,1 };
+	renderer->RenderRectEX(rect1, { 0,0,0 }, angle);
+	if (RotRectCollision(rect1, angle, mouseRect)) {
+		std::println("{}", Global::frameCounter);
+	}
+
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
 	ui->Render();
 	renderer->Present();

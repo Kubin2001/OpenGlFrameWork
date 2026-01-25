@@ -25,6 +25,10 @@ int AdvancedCollision(const MT::Rect& rect, const MT::Rect& rect2, int deepth);
 //Mowa o kole idealnym nie np 40 na 60 tylko zawsze musi byæ kwadratowe
 bool CircleMouseCollision(const MT::Rect &circleRect, const MT::Rect &rect);
 
+bool RotRectCollision(const MT::Rect& rotRect, const float angle, const MT::Rect& rect);
+
+bool RotRectCollision(const MT::CompositeRect& rotRect, const float angle, const MT::CompositeRect& rect);
+
 class CollisonProjectile{
 	private:
 	int xMov = 0;
