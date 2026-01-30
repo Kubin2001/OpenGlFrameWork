@@ -71,7 +71,7 @@ void Game::Render() {
 	int x = 10;
 	int y = 10;
 	for (size_t i = 0; i < 10; i++) {
-		renderer->FLatRenderCopy({ 10,10,30,30 }, TexMan::GetTex(" "));
+		renderer->FLatRenderCopy({ 10,10,30,30 }, TexMan::GetTex("water"));
 	}
 	renderer->FLatRenderCopyPresent();
 
