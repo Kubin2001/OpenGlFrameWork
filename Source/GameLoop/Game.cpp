@@ -28,7 +28,6 @@ void Game::Start() {
 
 	renderer = new MT::Renderer();
 	renderer->Start(window, MT::Innit(window));
-	renderer->FLatRenderCopySetUp();
 
 	Global::defaultDrawColor[0] = 255;
 	Global::defaultDrawColor[1] = 255;
@@ -45,8 +44,8 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
-	FileExplorer fe;
-	fe.Open();
+	renderer->FLatRenderCopySetUp();
+
 }
 
 void Game::LogicUpdate() {
@@ -69,6 +68,13 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
+	int x = 10;
+	int y = 10;
+	for (size_t i = 0; i < 10; i++) {
+		renderer->FLatRenderCopy({ 10,10,30,30 }, TexMan::GetTex(" "));
+	}
+	renderer->FLatRenderCopyPresent();
+
 	ui->Render();
 	renderer->Present();
 }

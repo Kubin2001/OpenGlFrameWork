@@ -142,3 +142,4 @@ was removed or the new one was added to folder
 - New function for detecting RotatedRect->Rect collision 
 - Correct const and noexept functions definitions for Rectangles and MapPos
 - File explorer now shows currentPath
+- FlatRenderCopy now works fine with default texture 

@@ -2493,6 +2493,7 @@ void MT::Renderer::Resize(const unsigned int w, const unsigned int h) {
 void MT::Renderer::FLatRenderCopySetUp() {
     flatRenderVec.clear();
     int i = 0;
+    flatRenderVec.emplace_back(TexMan::GetDefaultTex()->texture);
     for (auto& tex : TexMan::GetAllTex()) {
         tex.second->batchIndex = i++;
         flatRenderVec.emplace_back(tex.second->texture);

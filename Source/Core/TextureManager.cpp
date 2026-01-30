@@ -141,6 +141,10 @@ MT::Texture* TexMan::GetTex(const std::string& name, bool retNullOnMissing) {
 	return defaultTex;
 }
 
+MT::Texture* TexMan::GetDefaultTex() {
+	return defaultTex;
+}
+
 bool TexMan::DeleteTexture(const std::string& name) {
 	auto it = Textures.find(name);
 	if (it != Textures.end()) {

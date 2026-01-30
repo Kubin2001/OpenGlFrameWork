@@ -47,6 +47,8 @@ class TexMan {
 
 		static MT::Texture* GetTex(const std::string& name, bool retNullOnMissing = false);
 
+		static MT::Texture* GetDefaultTex();
+
 		static bool DeleteTexture(const std::string& name);
 
 		// Loads new previously unloaded textures in slected folder and all recursive folders
