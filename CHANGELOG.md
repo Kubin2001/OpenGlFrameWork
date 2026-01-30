@@ -141,3 +141,4 @@ was removed or the new one was added to folder
 - Base text render type is once again left up corner
 - New function for detecting RotatedRect->Rect collision 
 - Correct const and noexept functions definitions for Rectangles and MapPos
+- File explorer now shows currentPath

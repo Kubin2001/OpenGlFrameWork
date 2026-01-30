@@ -4,6 +4,19 @@
 #include <print>
 #include <filesystem>
 
+std::string BreakLines(const std::string& input, std::size_t every) {
+	std::string out;
+	out.reserve(input.size() + input.size() / every);
+
+	for (size_t i = 0; i < input.size(); ++i) {
+		if (i > 0 && i % every == 0) {
+			out += '\n';
+		}		
+		out += input[i];
+	}
+	return out;
+}
+
 std::vector<std::string> ReadCsvLine(const std::string& line, const char separator) {
 	std::vector<std::string> items;
 	std::string temp = "";
@@ -228,6 +241,13 @@ void FileExplorer::Input() {
 				selectedBox->Show();
 				retPath = temp;
 			}
+		}
+	}
+	if (ClickBox* cb = ui->GetClickBox("RetPathCheckBox")) {
+		if (cb->IsHovered() && !retPath.empty()) {
+			Point mouse = GetMousePos();
+			std::string breakPath = BreakLines(retPath,35);
+			ui->RenderRawText(ui->GetFont("arial12px"), mouse.x, mouse.y, breakPath, 15, 200, 200, 200);
 		}
 	}
 }
