@@ -143,3 +143,4 @@ was removed or the new one was added to folder
 - Correct const and noexept functions definitions for Rectangles and MapPos
 - File explorer now shows currentPath
 - FlatRenderCopy now works fine with default texture 
+- More modern animations design

@@ -1,7 +1,26 @@
 #pragma once
 #include <vector>
+#include <memory>
 
 #include "Renderer.h"
+
+enum class AnimType {
+	Looped,
+	Singular,
+	LoopedBack,
+	SingularBack,
+
+	EndStartLooped,
+	StartEndLooped,
+
+	EndStartSingular,
+	StartEndSingular,
+
+	// Do not set this one it is only used for 	EndStartSingular second stage
+	EndStartSingularSecond,
+	// Do not set this one it is only used for 	StartEndSingular second stage
+	StartEndSingularSecond
+};
 
 class Animation {
 	public:
@@ -9,10 +28,7 @@ class Animation {
 		unsigned int firstFrame = 0;
 		unsigned int lastFrame = 0;
 		unsigned short frameDelay = 20;
-		int type = 0; // 0 looped 1 singular 2 looped Back 3 singular Back 
-		//4 back-up looped 5 up-back looped
-		//6 back - up singular 8 up - back singullar
-		//7 up - back singular 9 back - up singullar
+		AnimType type = AnimType::Singular; 
 
 		MT::Rect &Get();
 
@@ -22,9 +38,8 @@ class Animation {
 
 };
 
-Animation* CreateAnimation(const int clipsAmount, const short frameWidth,
-	const short frameHeight, const int frameDelay, const int type = 1);
+std::unique_ptr<Animation> CreateAnimation(const int clipsAmount, const short frameWidth,
+	const short frameHeight, const int frameDelay, AnimType type = AnimType::Singular);
 
-void DeleteAnimation(Animation*& animation);
 
-Animation* CopyAnimation(Animation* animation);
+std::unique_ptr<Animation> CopyAnimation(Animation* animation);

@@ -46,6 +46,8 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
+	anim = CreateAnimation(6, 30, 30, 60, AnimType::StartEndLooped);
+
 }
 
 void Game::LogicUpdate() {
@@ -68,12 +70,7 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-	int x = 10;
-	int y = 10;
-	for (size_t i = 0; i < 10; i++) {
-		renderer->FLatRenderCopy({ 10,10,30,30 }, TexMan::GetTex("water"));
-	}
-	renderer->FLatRenderCopyPresent();
+	renderer->RenderCopyPart({ 10,10,300,300 }, anim->Get(), TexMan::GetTex("AnimTest"));
 
 	ui->Render();
 	renderer->Present();

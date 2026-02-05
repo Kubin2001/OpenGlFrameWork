@@ -2,101 +2,93 @@
 
 #include "GlobalVariables.h"
 
-Animation* CreateAnimation(const int clipsAmount, const short frameWidth,const short frameHeight, 
-	const int frameDelay, const int type) {
+std::unique_ptr<Animation> CreateAnimation(const int clipsAmount, const short frameWidth,const short frameHeight,
+	const int frameDelay, AnimType type) {
 
-	Animation* anim = new Animation();
+	std::unique_ptr<Animation> anim = std::make_unique<Animation>();
+
 	anim->firstFrame = Global::frameCounter;
 	anim->frameDelay = frameDelay;
 	anim->lastFrame = frameDelay * clipsAmount;
 	anim->type = type;
 	anim->clips.reserve(clipsAmount);
+
 	int x = 0;
-	int y = 0;
-	int w = frameWidth;
-	int h = frameHeight;
 	for (size_t i = 0; i < clipsAmount; i++) {
-		anim->clips.emplace_back(x, y, w, h);
+		anim->clips.emplace_back(x, 0, frameWidth, frameWidth);
 		x += (frameWidth + 1);
 	}
 
 	return anim;
 }
 
-void DeleteAnimation(Animation*& animation) {
-	if (animation != nullptr) {
-		delete animation;
-	}
-	animation = nullptr;
-}
-
 MT::Rect& Animation::Get() {
 	int currentFrame = Global::frameCounter - firstFrame;
 	switch (type) {
-		case 0:
+		case AnimType::Looped:
 			if (currentFrame >= lastFrame) {
 				firstFrame = Global::frameCounter;
 				return clips[0];
 			}
 			return clips[currentFrame / frameDelay];
-		case 1:
+		case AnimType::Singular:
 			if (currentFrame >= lastFrame) {
 				return clips.back();
 			}
 			return clips[currentFrame / frameDelay];
 
-		case 2:
+		case AnimType::LoopedBack:
 			if (currentFrame >= lastFrame) {
 				firstFrame = Global::frameCounter;
 				return clips.back();
 			}
 			return clips[(clips.size() - 1) - (currentFrame / frameDelay)];
 
-		case 3:
+		case AnimType::SingularBack:
 			if (currentFrame >= lastFrame) {
 				return clips[0];
 			}
 			return clips[(clips.size() - 1) - (currentFrame / frameDelay)];
 
-		case 4:
+		case AnimType::EndStartLooped:
 			if (currentFrame >= lastFrame) {
 				firstFrame = Global::frameCounter;
-				type = 5;
+				type = AnimType::StartEndLooped;
 				return clips[0];
 			}
 			return clips[(clips.size() - 1) - (currentFrame / frameDelay)];
 
-		case 5:
+		case AnimType::StartEndLooped:
 			if (currentFrame >= lastFrame) {
 				firstFrame = Global::frameCounter;
-				type = 4;
+				type = AnimType::EndStartLooped;
 				return clips.back();
 			}
 			return clips[currentFrame / frameDelay];
 
-		case 6:
+		case AnimType::EndStartSingular:
 			if (currentFrame >= lastFrame) {
 				firstFrame = Global::frameCounter;
-				type = 8;
+				type = AnimType::EndStartSingularSecond;
 				return clips[0];
 			}
 			return clips[(clips.size() - 1) - (currentFrame / frameDelay)];
 
-		case 7:
+		case AnimType::StartEndSingular:
 			if (currentFrame >= lastFrame) {
 				firstFrame = Global::frameCounter;
-				type = 9;
+				type = AnimType::StartEndSingularSecond;
 				return clips.back();
 			}
 			return clips[currentFrame / frameDelay];
 
-		case 8:
+		case AnimType::EndStartSingularSecond:
 			if (currentFrame >= lastFrame) {
 				return clips.back();
 			}
 			return clips[currentFrame / frameDelay];
 
-		case 9:
+		case AnimType::StartEndSingularSecond:
 			if (currentFrame >= lastFrame) {
 				return clips[0];
 			}
@@ -113,8 +105,8 @@ MT::Rect& Animation::Get() {
 
 void Animation::Reset() {
 	firstFrame = Global::frameCounter;
-	if (type == 9) { type = 7; }
-	if (type == 8) { type = 6; }
+	if (type == AnimType::StartEndSingularSecond) { type = AnimType::StartEndSingular; }
+	if (type == AnimType::EndStartSingularSecond) { type = AnimType::EndStartSingular; }
 }
 
 void Animation::CloneFrame(const unsigned int index, const unsigned int count) {
@@ -130,11 +122,11 @@ void Animation::CloneFrame(const unsigned int index, const unsigned int count) {
 	lastFrame += copyVec.size() * frameDelay;
 }
 
-Animation* CopyAnimation(Animation* animation) {
+std::unique_ptr<Animation> CopyAnimation(Animation* animation) {
 	if (animation == nullptr) {
-		return nullptr;
+		throw std::exception("Passed animation is empty cannot copy");
 	}
-	Animation* anim = new Animation();
+	std::unique_ptr<Animation> anim = std::make_unique<Animation>();
 	anim->firstFrame = Global::frameCounter;
 	anim->frameDelay = animation->frameDelay;
 	anim->lastFrame = animation->frameDelay * animation->clips.size();
