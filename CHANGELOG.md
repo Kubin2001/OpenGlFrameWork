@@ -147,3 +147,4 @@ was removed or the new one was added to folder
 
 1.14
 - New render function that allows mixing 2 tesxtures together "RenderMaskedOverlay"
+- Mixing functions work on atlases

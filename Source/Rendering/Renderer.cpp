@@ -930,9 +930,8 @@ void MT::Renderer::LoadShaders() {
 			        break;
 		        }
 		        case 10:{ // MaskedOverlay
-		            oOutVec.xy = uvs[gl_VertexID % 6];
+		            oOutVec.xy = vec2(atr3,atr4); // UV;
 			        oOutVec.z  = atr5; // alpha
-
 			        break;
 		        }
 	        }
@@ -1890,7 +1889,7 @@ void MT::Renderer::RenderRoundedBorder(const Rect& rect, const Color& col, const
     std::memcpy(globalVertices.data() + old, vertices, N * sizeof(float));
 }
 
-void MT::Renderer::RenderMaskedOverlay(const MT::Rect& rect, const MT::Texture* tex1, const MT::Texture* tex2) {
+void MT::Renderer::RenderMaskedOverlay(const Rect& rect, const Rect &sourceRect, const Texture* tex1, const Texture* tex2) {
     if (!tex1 || ! tex2) { return; }
     if (!vievPort.IsColliding(rect)) {
         return;
@@ -1920,14 +1919,23 @@ void MT::Renderer::RenderMaskedOverlay(const MT::Rect& rect, const MT::Texture* 
     }
     currentSize = renderCopySize; // Same size as this size so no need to change
 
-    //    // pos.x, pos.y tex.u, tex.v
+    const float tempSourceX = static_cast<float>(sourceRect.x) / tex1->w;
+    const float tempSourceY = static_cast<float>(sourceRect.y) / tex1->h;
+    const float tempSourceW = static_cast<float>(sourceRect.w) / tex1->w;
+    const float tempSourceH = static_cast<float>(sourceRect.h) / tex1->h;
+
+    const float u0 = tempSourceX;
+    const float u1 = tempSourceX + tempSourceW;
+    const float v1 = 1.0f - tempSourceY;
+    const float v0 = v1 - tempSourceH;
+
     const float verticles[] = {
-        x,     y - h, 0.0f, 0.0f,tex1->alpha,
-        x,     y,     0.0f, 1.0f,tex1->alpha,
-        x + w, y - h, 1.0f, 0.0f,tex1->alpha,
-        x,     y,     0.0f, 1.0f,tex1->alpha,
-        x + w, y,     1.0f, 1.0f,tex1->alpha,
-        x + w, y - h, 1.0f, 0.0f,tex1->alpha
+        x,     y - h, u0, v0, tex1->alpha,
+        x,     y,     u0, v1, tex1->alpha,
+        x + w, y - h, u1, v0, tex1->alpha,
+        x,     y,     u0, v1, tex1->alpha,
+        x + w, y,     u1, v1, tex1->alpha,
+        x + w, y - h, u1, v0, tex1->alpha
     };
 
     constexpr int N = 30;
@@ -2506,7 +2514,7 @@ void MT::Renderer::RenderRoundedBorderUPR(const Rect& rect, const Color& col, co
     ExpandUpr(vertices);
 }
 
-void MT::Renderer::RenderMaskedOverlayUPR(const Rect& rect, const Texture* tex1, const Texture* tex2) {
+void MT::Renderer::RenderMaskedOverlayUPR(const Rect& rect, const Rect& sourceRect, const Texture* tex1, const Texture* tex2) {
     if (!tex1 || !tex2) { return; }
     if (!vievPort.IsColliding(rect)) {
         return;
@@ -2532,14 +2540,23 @@ void MT::Renderer::RenderMaskedOverlayUPR(const Rect& rect, const Texture* tex1,
     CheckUPRProgram();
     currentSize = renderUPRSize;
 
-    //    // pos.x, pos.y tex.u, tex.v
+    const float tempSourceX = static_cast<float>(sourceRect.x) / tex1->w;
+    const float tempSourceY = static_cast<float>(sourceRect.y) / tex1->h;
+    const float tempSourceW = static_cast<float>(sourceRect.w) / tex1->w;
+    const float tempSourceH = static_cast<float>(sourceRect.h) / tex1->h;
+
+    const float u0 = tempSourceX;
+    const float u1 = tempSourceX + tempSourceW;
+    const float v1 = 1.0f - tempSourceY;
+    const float v0 = v1 - tempSourceH;
+
     float vertices[] = {
-        x,     y - h, 0.0f, 0.0f,tex1->alpha, 0.0f, 0.0f, 10.0f,
-        x,     y,     0.0f, 1.0f,tex1->alpha, 0.0f, 0.0f, 10.0f,
-        x + w, y - h, 1.0f, 0.0f,tex1->alpha, 0.0f, 0.0f, 10.0f,
-        x,     y,     0.0f, 1.0f,tex1->alpha, 0.0f, 0.0f, 10.0f,
-        x + w, y,     1.0f, 1.0f,tex1->alpha, 0.0f, 0.0f, 10.0f,
-        x + w, y - h, 1.0f, 0.0f,tex1->alpha, 0.0f, 0.0f, 10.0f
+        x,     y - h, u0, v0, tex1->alpha, 0.0f, 0.0f, 10.0f,
+        x,     y,     u0, v1, tex1->alpha, 0.0f, 0.0f, 10.0f,
+        x + w, y - h, u1, v0, tex1->alpha, 0.0f, 0.0f, 10.0f,
+        x,     y,     u0, v1, tex1->alpha, 0.0f, 0.0f, 10.0f,
+        x + w, y,     u1, v1, tex1->alpha, 0.0f, 0.0f, 10.0f,
+        x + w, y - h, u1, v0, tex1->alpha, 0.0f, 0.0f, 10.0f
     };
 
     ExpandUpr(vertices);

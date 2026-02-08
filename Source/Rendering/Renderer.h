@@ -237,7 +237,7 @@ namespace MT {
 
 		void RenderRoundedBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
 
-		void RenderMaskedOverlay(const Rect& rect, const Texture* tex1, const Texture* tex2);
+		void RenderMaskedOverlay(const Rect& rect, const Rect &sourceRect, const Texture* tex1, const Texture* tex2);
 
 		//UPR Universal Pipeline Render does not change shader ever so it is much faster in shader switch rendering but slower overall
 		void RenderRectUPR(const Rect& rect, const Color& col, const int alpha = 255);
@@ -268,7 +268,7 @@ namespace MT {
 
 		void RenderRoundedBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
 
-		void RenderMaskedOverlayUPR(const Rect& rect, const Texture* tex1, const Texture* tex2);
+		void RenderMaskedOverlayUPR(const Rect& rect, const Rect &sourceRect, const Texture* tex1, const Texture* tex2);
 
 		//UPR
 
