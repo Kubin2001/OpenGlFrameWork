@@ -2,20 +2,20 @@
 
 #include "GlobalVariables.h"
 
-std::unique_ptr<Animation> CreateAnimation(const int clipsAmount, const short frameWidth,const short frameHeight,
+Animation CreateAnimation(const int clipsAmount, const short frameWidth,const short frameHeight,
 	const int frameDelay, AnimType type) {
 
-	std::unique_ptr<Animation> anim = std::make_unique<Animation>();
+	Animation anim;
 
-	anim->firstFrame = Global::frameCounter;
-	anim->frameDelay = frameDelay;
-	anim->lastFrame = frameDelay * clipsAmount;
-	anim->type = type;
-	anim->clips.reserve(clipsAmount);
+	anim.firstFrame = Global::frameCounter;
+	anim.frameDelay = frameDelay;
+	anim.lastFrame = frameDelay * clipsAmount;
+	anim.type = type;
+	anim.clips.reserve(clipsAmount);
 
 	int x = 0;
 	for (size_t i = 0; i < clipsAmount; i++) {
-		anim->clips.emplace_back(x, 0, frameWidth, frameWidth);
+		anim.clips.emplace_back(x, 0, frameWidth, frameWidth);
 		x += (frameWidth + 1);
 	}
 
@@ -122,15 +122,15 @@ void Animation::CloneFrame(const unsigned int index, const unsigned int count) {
 	lastFrame += copyVec.size() * frameDelay;
 }
 
-std::unique_ptr<Animation> CopyAnimation(Animation* animation) {
+Animation CopyAnimation(Animation* animation) {
 	if (animation == nullptr) {
 		throw std::exception("Passed animation is empty cannot copy");
 	}
-	std::unique_ptr<Animation> anim = std::make_unique<Animation>();
-	anim->firstFrame = Global::frameCounter;
-	anim->frameDelay = animation->frameDelay;
-	anim->lastFrame = animation->frameDelay * animation->clips.size();
-	anim->type = animation->type;
-	anim->clips = animation->clips;
+	Animation anim;
+	anim.firstFrame = Global::frameCounter;
+	anim.frameDelay = animation->frameDelay;
+	anim.lastFrame = animation->frameDelay * animation->clips.size();
+	anim.type = animation->type;
+	anim.clips = animation->clips;
 	return anim;
 }

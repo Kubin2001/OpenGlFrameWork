@@ -38,8 +38,8 @@ class Animation {
 
 };
 
-std::unique_ptr<Animation> CreateAnimation(const int clipsAmount, const short frameWidth,
+Animation CreateAnimation(const int clipsAmount, const short frameWidth,
 	const short frameHeight, const int frameDelay, AnimType type = AnimType::Singular);
 
 
-std::unique_ptr<Animation> CopyAnimation(Animation* animation);
+Animation CopyAnimation(Animation* animation);
