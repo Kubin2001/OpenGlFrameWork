@@ -46,8 +46,6 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
-	anim = CreateAnimation(6, 30, 30, 60, AnimType::StartEndLooped);
-
 }
 
 void Game::LogicUpdate() {
@@ -70,7 +68,9 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-	renderer->RenderCopyPart({ 10,10,300,300 }, anim->Get(), TexMan::GetTex("AnimTest"));
+	renderer->RenderCopy({ 100,200,40,60 }, TexMan::GetTex("grass"));
+	renderer->RenderMaskedOverlay({ 100,400,40,60 }, TexMan::GetTex("shape"), TexMan::GetTex("maskTex"));
+	renderer->RenderCopy({ 100,600,40,60 }, TexMan::GetTex("tree2"));
 
 	ui->Render();
 	renderer->Present();

@@ -4,15 +4,13 @@
 
 #include "UI.h"
 
-#include "Animator.h"
-
 class Game {
 private:
 	SDL_Window* window = nullptr;
 	MT::Renderer *renderer = nullptr;
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui = nullptr;
-	std::unique_ptr<Animation> anim = nullptr;
+
 public:
 	Game();
 

@@ -152,6 +152,7 @@ namespace MT {
 		unsigned int renderCopyRoundedRectId = 0;
 		unsigned int renderBorderId = 0;
 		unsigned int renderRoundedBorderId = 0;
+		unsigned int renderMaskedId = 0;
 		unsigned int uprId = 0;
 
 		//Uniforms Ids
@@ -160,6 +161,7 @@ namespace MT {
 		unsigned int roundRectCopyRadius = 0;
 		unsigned int roundBorderRadius = 0;
 		unsigned int roundRoundedBorderRadius = 0;
+		unsigned int currentMaskTexture = 0;
 
 		//Uniforms Values
 		glm::vec2 roundRectRadiusVal = { 0.0f,0.0f };
@@ -232,6 +234,8 @@ namespace MT {
 		void RenderBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
 
 		void RenderRoundedBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
+
+		void RenderMaskedOverlay(const Rect& rect, const Texture* tex1, const Texture* tex2);
 
 		//UPR Universal Pipeline Render does not change shader ever so it is much faster in shader switch rendering but slower overall
 		void RenderRectUPR(const Rect& rect, const Color& col, const int alpha = 255);

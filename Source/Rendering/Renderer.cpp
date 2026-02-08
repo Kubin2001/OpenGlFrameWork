@@ -218,12 +218,19 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     renderCopyRoundedRectId = loader.GetProgram("RenderCopyRoundedRectangle");
     renderBorderId = loader.GetProgram("RenderBorder");
     renderRoundedBorderId = loader.GetProgram("RenderRoundedBorder");
+    renderMaskedId = loader.GetProgram("RenderMasked");
     uprId = loader.GetProgram("RenderUPR");
 
     roundRectRadius = glGetUniformLocation(renderRoundedRectId, "uPixelSize");
     roundRectCopyRadius = glGetUniformLocation(renderCopyRoundedRectId, "uPixelSize");
     roundBorderRadius = glGetUniformLocation(renderBorderId, "uPixelSize");
     roundRoundedBorderRadius = glGetUniformLocation(renderRoundedBorderId, "uPixelSize");
+
+    glUseProgram(renderMaskedId);
+
+    glUniform1i(glGetUniformLocation(renderMaskedId, "texture1"), 0);
+    glUniform1i(glGetUniformLocation(renderMaskedId, "texture2"), 1);
+    glActiveTexture(GL_TEXTURE0);
     return true;
 }
 
@@ -773,6 +780,47 @@ void MT::Renderer::LoadShaders() {
         )glsl";
 
         loader.CreateProgramStr("RenderRoundedBorder", vertexStr, fragmentStr);
+    }
+
+    if (!loader.IsProgram("RenderMasked")) {
+        constexpr const char* vertexStr = R"glsl(
+        #version 330 core
+        layout (location = 3) in vec2 aPos;
+        layout (location = 4) in vec3 aTexCordAlpha;
+
+        out vec2 texCord;
+        out float vAlpha;
+
+        void main(){
+	        gl_Position = vec4(aPos, 0.0 ,1.0);
+
+	        texCord = aTexCordAlpha.xy;
+            vAlpha = aTexCordAlpha.z;
+        }
+        )glsl";
+
+        constexpr const char* fragmentStr = R"glsl(
+        #version 330 core
+
+        out vec4 FragColor;
+
+        in vec2 texCord;
+        in float vAlpha;
+
+        uniform sampler2D texture1;
+        uniform sampler2D texture2;
+
+
+        void main(){
+	        vec4 texcolor = texture(texture1,texCord);
+	        vec4 texcolor2 = texture(texture2,texCord);
+	        texcolor.a *= vAlpha;
+	        FragColor = vec4(texcolor.r * texcolor2.r, texcolor.g * texcolor2.g, 
+		        texcolor.b * texcolor2.b, texcolor.a);
+        }
+        )glsl";
+
+        loader.CreateProgramStr("RenderMasked", vertexStr, fragmentStr);
     }
 
     if (!loader.IsProgram("RenderUPR")) {
@@ -1820,6 +1868,52 @@ void MT::Renderer::RenderRoundedBorder(const Rect& rect, const Color& col, const
     const size_t old = globalVertices.size();
     globalVertices.resize(old + N);
     std::memcpy(globalVertices.data() + old, vertices, N * sizeof(float));
+}
+
+void MT::Renderer::RenderMaskedOverlay(const MT::Rect& rect, const MT::Texture* tex1, const MT::Texture* tex2) {
+    if (!tex1 || ! tex2) { return; }
+    if (!vievPort.IsColliding(rect)) {
+        return;
+    }
+    const float x = (rect.x / static_cast<float>(W)) * 2.0f - 1.0f;
+    const float y = 1.0f - (rect.y / static_cast<float>(H)) * 2.0f;
+    const float w = (rect.w / static_cast<float>(W)) * 2.0f;
+    const float h = (rect.h / static_cast<float>(H)) * 2.0f;
+
+    if (currentTexture != tex1->texture) {
+        Present(false);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tex1->texture);
+        currentTexture = tex1->texture;
+    }
+    if (currentMaskTexture != tex2->texture) {
+        Present(false);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, tex2->texture);
+    }
+
+    if (currentProgram != renderMaskedId) {
+        Present(false);
+        currentProgram = renderMaskedId;
+        glUseProgram(currentProgram);
+    }
+    currentSize = renderCopySize; // Same size as this size so no need to change
+
+    //    // pos.x, pos.y tex.u, tex.v
+    const float verticles[] = {
+        x,     y - h, 0.0f, 0.0f,tex1->alpha,
+        x,     y,     0.0f, 1.0f,tex1->alpha,
+        x + w, y - h, 1.0f, 0.0f,tex1->alpha,
+        x,     y,     0.0f, 1.0f,tex1->alpha,
+        x + w, y,     1.0f, 1.0f,tex1->alpha,
+        x + w, y - h, 1.0f, 0.0f,tex1->alpha
+    };
+
+    constexpr int N = 30;
+    const size_t old = globalVertices.size();
+    globalVertices.resize(old + N);
+    std::memcpy(globalVertices.data() + old, verticles, N * sizeof(float));
+    glActiveTexture(GL_TEXTURE0);
 }
 
 void MT::Renderer::ExpandUpr(float *vertices) {
