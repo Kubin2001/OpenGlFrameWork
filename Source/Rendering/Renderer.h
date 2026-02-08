@@ -193,6 +193,8 @@ namespace MT {
 
 		void ExpandUpr(float* vertices);
 
+		void CheckUPRProgram();
+
 		public:
 		int W, H;
 		SDL_GLContext context;
@@ -265,6 +267,8 @@ namespace MT {
 		void RenderBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
 
 		void RenderRoundedBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
+
+		void RenderMaskedOverlayUPR(const Rect& rect, const Texture* tex1, const Texture* tex2);
 
 		//UPR
 

@@ -144,3 +144,6 @@ was removed or the new one was added to folder
 - File explorer now shows currentPath
 - FlatRenderCopy now works fine with default texture 
 - More modern animations design
+
+1.14
+- New render function that allows mixing 2 tesxtures together "RenderMaskedOverlay"
