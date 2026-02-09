@@ -793,13 +793,23 @@ void MT::Renderer::LoadShaders() {
         layout (location = 3) in vec2 aPos;
         layout (location = 4) in vec3 aTexCordAlpha;
 
-        out vec2 texCord;
+        const vec2 uvs[6] = vec2[6](
+            vec2(0.0, 0.0), // 0
+            vec2(0.0, 1.0), // 1
+            vec2(1.0, 0.0), // 2
+            vec2(0.0, 1.0), // 3
+            vec2(1.0, 1.0), // 4
+            vec2(1.0, 0.0)  // 5
+        );
+
+        out vec4 texCord;
         out float vAlpha;
 
         void main(){
 	        gl_Position = vec4(aPos, 0.0 ,1.0);
 
-	        texCord = aTexCordAlpha.xy;
+	        texCord.xy = aTexCordAlpha.xy;
+            texCord.zw = uvs[gl_VertexID %6];
             vAlpha = aTexCordAlpha.z;
         }
         )glsl";
@@ -809,7 +819,7 @@ void MT::Renderer::LoadShaders() {
 
         out vec4 FragColor;
 
-        in vec2 texCord;
+        in vec4 texCord;
         in float vAlpha;
 
         uniform sampler2D texture1;
@@ -817,8 +827,8 @@ void MT::Renderer::LoadShaders() {
 
 
         void main(){
-	        vec4 texcolor = texture(texture1,texCord);
-	        vec4 texcolor2 = texture(texture2,texCord);
+	        vec4 texcolor = texture(texture1,texCord.xy);
+	        vec4 texcolor2 = texture(texture2,texCord.zw);
 	        texcolor.a *= vAlpha;
 	        FragColor = vec4(texcolor.r * texcolor2.r, texcolor.g * texcolor2.g, 
 		        texcolor.b * texcolor2.b, texcolor.a);
@@ -930,8 +940,9 @@ void MT::Renderer::LoadShaders() {
 			        break;
 		        }
 		        case 10:{ // MaskedOverlay
-		            oOutVec.xy = vec2(atr3,atr4); // UV;
-			        oOutVec.z  = atr5; // alpha
+		            oOutVec.xy = vec2(atr3,atr4); // UV Tex1;
+		            oOutVec.zw = uvs[gl_VertexID % 6]; // UV Tex2;
+			        oOutVecTwo.x  = atr5; // alpha
 			        break;
 		        }
 	        }
@@ -1072,10 +1083,10 @@ void MT::Renderer::LoadShaders() {
                     FragColor = vec4(vColor.rgb, vColor.a * finalAlpha);
                     break;
                     }
-               case 10:{ // MaskedOverlay
+                case 10:{ // MaskedOverlay
                     vec4 texcolor = texture(texture1,oOutVec.xy);
-	                vec4 texcolor2 = texture(texture2,oOutVec.xy);
-	                texcolor.a *= oOutVec.z;
+	                vec4 texcolor2 = texture(texture2,oOutVec.zw);
+	                texcolor.a *= oOutVecTwo.x;
 	                FragColor = vec4(texcolor.r * texcolor2.r, texcolor.g * texcolor2.g, 
 		                texcolor.b * texcolor2.b, texcolor.a);
                     break;
