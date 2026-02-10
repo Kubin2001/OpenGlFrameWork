@@ -2,8 +2,8 @@
 
 #include "GlobalVariables.h"
 
-Animation CreateAnimation(const int clipsAmount, const short frameWidth,const short frameHeight,
-	const int frameDelay, AnimType type) {
+Animation CreateAnimation(const int clipsAmount, const short frameWidth, const short frameHeight, 
+	const int frameDelay, AnimType type, int step, int xStart, int yStart) {
 
 	Animation anim;
 
@@ -13,9 +13,9 @@ Animation CreateAnimation(const int clipsAmount, const short frameWidth,const sh
 	anim.type = type;
 	anim.clips.reserve(clipsAmount);
 
-	int x = 0;
+	int x = xStart;
 	for (size_t i = 0; i < clipsAmount; i++) {
-		anim.clips.emplace_back(x, 0, frameWidth, frameWidth);
+		anim.clips.emplace_back(x, yStart, frameWidth, frameWidth);
 		x += (frameWidth + 1);
 	}
 

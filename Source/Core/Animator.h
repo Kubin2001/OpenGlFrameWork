@@ -39,7 +39,7 @@ class Animation {
 };
 
 Animation CreateAnimation(const int clipsAmount, const short frameWidth,
-	const short frameHeight, const int frameDelay, AnimType type = AnimType::Singular);
+	const short frameHeight, const int frameDelay, AnimType type = AnimType::Singular, int step = 1, int xStart = 0, int yStart = 0);
 
 
 Animation CopyAnimation(Animation* animation);

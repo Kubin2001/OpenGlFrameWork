@@ -46,6 +46,9 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
+	anim = CreateAnimation(4, 40, 40, 20, AnimType::StartEndLooped);
+	anim2 = CreateAnimation(4, 40, 40, 20, AnimType::StartEndLooped,1,0,41);
+
 }
 
 void Game::LogicUpdate() {
@@ -68,10 +71,8 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-	renderer->RenderCopyUPR({ 100,200,40,60 }, TexMan::GetTex("grass"));
-	renderer->RenderMaskedOverlayUPR({ 100,400,40,60 }, {0,0,20,30}, TexMan::GetTex("shape"), TexMan::GetTex("maskTex"));
-	renderer->RenderCopyUPR({ 100,600,40,60 }, TexMan::GetTex("tree2"));
-
+	renderer->RenderMaskedOverlay({100,100,40,40},anim.Get(),TexMan::GetTex("gateShape"), TexMan::GetTex("gateTex"));
+	renderer->RenderMaskedOverlay({ 100,300,40,40 }, anim2.Get(), TexMan::GetTex("gateShape"), TexMan::GetTex("gateTex"));
 	ui->Render();
 	renderer->Present();
 }
