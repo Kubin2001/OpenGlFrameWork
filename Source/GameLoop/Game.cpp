@@ -45,10 +45,6 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	renderer->FLatRenderCopySetUp();
-
-	anim = CreateAnimation(4, 40, 40, 20, AnimType::StartEndLooped);
-	anim2 = CreateAnimation(4, 40, 40, 20, AnimType::StartEndLooped,1,0,41);
-
 }
 
 void Game::LogicUpdate() {
@@ -71,8 +67,6 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-	renderer->RenderMaskedOverlay({100,100,40,40},anim.Get(),TexMan::GetTex("gateShape"), TexMan::GetTex("gateTex"));
-	renderer->RenderMaskedOverlay({ 100,300,40,40 }, anim2.Get(), TexMan::GetTex("gateShape"), TexMan::GetTex("gateTex"));
 	ui->Render();
 	renderer->Present();
 }

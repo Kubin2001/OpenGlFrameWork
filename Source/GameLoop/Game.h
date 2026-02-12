@@ -11,8 +11,6 @@ private:
 	MT::Renderer *renderer = nullptr;
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui = nullptr;
-	Animation anim;
-	Animation anim2;
 
 
 public:

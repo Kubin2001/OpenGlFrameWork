@@ -15,7 +15,7 @@ Animation CreateAnimation(const int clipsAmount, const short frameWidth, const s
 
 	int x = xStart;
 	for (size_t i = 0; i < clipsAmount; i++) {
-		anim.clips.emplace_back(x, yStart, frameWidth, frameWidth);
+		anim.clips.emplace_back(x, yStart, frameWidth, frameHeight);
 		x += (frameWidth + 1);
 	}
 
