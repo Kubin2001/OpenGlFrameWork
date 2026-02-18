@@ -22,6 +22,18 @@ Animation CreateAnimation(const int clipsAmount, const short frameWidth, const s
 	return anim;
 }
 
+
+Animation CreateAnimation(const std::vector<MT::Rect>& frames, const int frameDelay, AnimType type) {
+	Animation anim;
+	anim.firstFrame = Global::frameCounter;
+	anim.frameDelay = frameDelay;
+	anim.lastFrame = frameDelay * frames.size();
+	anim.type = type;
+	anim.clips = frames;
+
+	return anim;
+}
+
 MT::Rect& Animation::Get() {
 	int currentFrame = Global::frameCounter - firstFrame;
 	switch (type) {
