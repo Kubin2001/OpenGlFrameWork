@@ -13,7 +13,7 @@ class SoundMan
 		static void RefreshSoundsInFolder(const std::string& directory, bool removeInvalid, std::unordered_set<std::string>& namesCollector);
 
 	public:
-		static void Innit();
+		static void Init();
 
 		static void Print();
 
@@ -21,7 +21,7 @@ class SoundMan
 
 		static void LoadSounds(const std::string& directory);
 
-		static void DeppLoad(const std::string& directory);
+		static void DeepLoad(const std::string& directory);
 
 		static void PlaySound(const std::string& name, int volume = 100);
 

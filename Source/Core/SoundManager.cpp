@@ -3,7 +3,7 @@
 #include "SoundManager.h"
 #include <filesystem>
 
-void SoundMan::Innit() {
+void SoundMan::Init() {
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
 		std::println("Failed to sound manager (sdl_mixer error): {}", Mix_GetError());
 	}
@@ -46,7 +46,7 @@ void SoundMan::LoadSounds(const std::string& directory) {
 
 }
 
-void SoundMan::DeppLoad(const std::string& directory) {
+void SoundMan::DeepLoad(const std::string& directory) {
 	LoadSounds(directory);
 	for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(directory)) {
 		if (entry.is_directory()) {
@@ -156,13 +156,13 @@ void SoundMan::RefreshSounds(const std::string& directory, bool removeInvalid) {
 	RefreshSoundsInFolder(directory, removeInvalid, namesCollector);
 
 	if (removeInvalid) {
-		std::vector<std::string> texturesToErase;
-		for (auto& [key, tex] : Sounds) {
+		std::vector<std::string> soundsToErase;
+		for (auto& [key, sound] : Sounds) {
 			if (!namesCollector.contains(key)) {
-				texturesToErase.emplace_back(key);
+				soundsToErase.emplace_back(key);
 			}
 		}
-		for (auto& it : texturesToErase) {
+		for (auto& it : soundsToErase) {
 			DeleteSound(it);
 		}
 	}

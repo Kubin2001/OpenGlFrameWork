@@ -11,7 +11,7 @@
 std::unordered_map<std::string, MT::Texture*> TexMan::Textures;
 std::vector<std::string> TexMan::SupportedFormats;
 MT::Renderer* TexMan::renderer = nullptr;
-bool TexMan::isInnit = false;
+bool TexMan::isInit = false;
 MT::Texture* TexMan::defaultTex = nullptr;
 
 void TexMan::CreateDefaultTexture() {
@@ -36,12 +36,12 @@ void TexMan::CreateDefaultTexture() {
 
 
 bool TexMan::Start(MT::Renderer* ren) {
-	if (isInnit) {
+	if (isInit) {
 		return false;
 	}
 	renderer = ren;
 	if (renderer != nullptr) {
-		isInnit = true;
+		isInit = true;
 		SupportedFormats.emplace_back(".png");
 		SupportedFormats.emplace_back(".jpg");
 		SupportedFormats.emplace_back(".jpeg");
@@ -55,7 +55,7 @@ bool TexMan::Start(MT::Renderer* ren) {
 		SupportedFormats.emplace_back(".pcx");
 		SupportedFormats.emplace_back(".xpm");
 		CreateDefaultTexture();
-		return isInnit;
+		return isInit;
 	}
 
 	return false;
@@ -63,7 +63,7 @@ bool TexMan::Start(MT::Renderer* ren) {
 
 
 bool TexMan::IsWorking() {
-	return isInnit;
+	return isInit;
 }
 
 void TexMan::Print() {
@@ -324,7 +324,7 @@ void TexMan::Clear() {
 		delete pair.second;
 	}
 	Textures.clear();
-	isInnit = false;
+	isInit = false;
 	SupportedFormats.clear();
 	renderer = nullptr;
 	MT::DeleteTexture(defaultTex);
@@ -334,7 +334,7 @@ void TexMan::Clear() {
 bool LocalTexMan::Start(MT::Renderer* ren) {
 	renderer = ren;
 	if (renderer != nullptr) {
-		isInnit = true;
+		isInit = true;
 		SupportedFormats.emplace_back(".png");
 		SupportedFormats.emplace_back(".jpg");
 		SupportedFormats.emplace_back(".jpeg");
@@ -347,7 +347,7 @@ bool LocalTexMan::Start(MT::Renderer* ren) {
 		SupportedFormats.emplace_back(".cur");
 		SupportedFormats.emplace_back(".pcx");
 		SupportedFormats.emplace_back(".xpm");
-		return isInnit;
+		return isInit;
 	}
 
 	return false;
@@ -355,7 +355,7 @@ bool LocalTexMan::Start(MT::Renderer* ren) {
 
 
 bool LocalTexMan::IsWorking() {
-	return isInnit;
+	return isInit;
 }
 
 void LocalTexMan::Print() {

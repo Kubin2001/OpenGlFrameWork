@@ -357,7 +357,7 @@ void PathMaker::Open(bool compressStart, bool compressEnd, bool compressZeros, i
 	window = SDL_CreateWindow("Path Maker", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		windowW, windowH, SDL_WINDOW_SHOWN | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_OPENGL);
 	ren = new MT::Renderer();
-	ren->Start(window, MT::Innit(window));
+	ren->Start(window, MT::Init(window));
 
 	texMan.Start(ren);
 	ui = new UI(ren);

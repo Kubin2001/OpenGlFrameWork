@@ -24,7 +24,7 @@ SDL_Surface * FlipSurfaceVertical(SDL_Surface * surface) {
     return flipped;
 }
 
-SDL_GLContext MT::Innit(SDL_Window* window) {
+SDL_GLContext MT::Init(SDL_Window* window) {
 
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);

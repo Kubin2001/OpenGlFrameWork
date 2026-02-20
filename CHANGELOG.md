@@ -150,3 +150,4 @@ was removed or the new one was added to folder
 - Mixing functions work on atlases
 - Animations can now be split into multiple ones from one texture
 - Animations now accept direct cords vector
+- Spelling mistakes fixes

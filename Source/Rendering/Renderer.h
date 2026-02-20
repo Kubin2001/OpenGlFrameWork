@@ -25,7 +25,7 @@ enum class ColorType {
 
 namespace MT {
 
-	SDL_GLContext Innit(SDL_Window* window);
+	SDL_GLContext Init(SDL_Window* window);
 
 	struct Color {
 		unsigned char R = 0, G = 0, B = 0;

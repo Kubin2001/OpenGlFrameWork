@@ -14,7 +14,7 @@ class TexMan {
 		static std::unordered_map<std::string, MT::Texture*> Textures;
 		static std::vector<std::string> SupportedFormats;
 		static MT::Renderer* renderer;
-		static bool isInnit;
+		static bool isInit;
 
 		static MT::Texture* defaultTex;
 
@@ -74,7 +74,7 @@ class LocalTexMan {
 		std::unordered_map<std::string, MT::Texture*> Textures = {};
 		std::vector<std::string> SupportedFormats = {};
 		MT::Renderer* renderer = nullptr;
-		bool isInnit = false;
+		bool isInit = false;
 
 	public:
 		bool Start(MT::Renderer* ren);

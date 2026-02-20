@@ -109,7 +109,7 @@ std::string FileExplorer::Open(const std::string& path) {
 	window = SDL_CreateWindow("FileWindow", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		300, 300, SDL_WINDOW_SHOWN | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_OPENGL);
 	renderer = new MT::Renderer();
-	renderer->Start(window, MT::Innit(window));
+	renderer->Start(window, MT::Init(window));
 
 	std::filesystem::path current;
 	if (std::filesystem::exists(path)) {

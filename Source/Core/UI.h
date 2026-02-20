@@ -488,7 +488,7 @@ private:
 
 public:
 
-	void Innit(UI* ui, ClickBox* main, int w, int h, int R, int G, int B, const std::vector<std::string>& texts, short space = 0) {
+	void Init(UI* ui, ClickBox* main, int w, int h, int R, int G, int B, const std::vector<std::string>& texts, short space = 0) {
 		this->ui = ui;
 		mainElement = main;
 		Elements.reserve(texts.size());

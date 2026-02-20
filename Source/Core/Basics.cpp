@@ -18,7 +18,7 @@ MT::Rect &GameObjectBasic::GetRectangle() {
 }
 
 
-void GameObjectBasic::Innit(int x, int y, int w, int h) {
+void GameObjectBasic::Init(int x, int y, int w, int h) {
 	this->rectangle.x = x;
 	this->rectangle.y = y;
 	this->rectangle.w = w;
@@ -50,7 +50,7 @@ void GameObject::SetTexture(MT::Texture* texture) {
 	this->texture = texture;
 }
 
-void GameObject::Innit(int x, int y, int w, int h, MT::Texture* texture) {
+void GameObject::Init(int x, int y, int w, int h, MT::Texture* texture) {
 	this->rectangle.x = x;
 	this->rectangle.y = y;
 	this->rectangle.w = w;

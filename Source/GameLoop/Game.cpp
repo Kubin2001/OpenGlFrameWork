@@ -27,7 +27,7 @@ void Game::Start() {
 		Global::windowWidth, Global::windowHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
 	renderer = new MT::Renderer();
-	renderer->Start(window, MT::Innit(window));
+	renderer->Start(window, MT::Init(window));
 
 	Global::defaultDrawColor[0] = 255;
 	Global::defaultDrawColor[1] = 255;
@@ -35,8 +35,8 @@ void Game::Start() {
 
 	TexMan::Start(renderer);
 	TexMan::DeepLoad("Textures");
-	SoundMan::Innit();
-	SoundMan::DeppLoad("Sounds");
+	SoundMan::Init();
+	SoundMan::DeepLoad("Sounds");
 
 	ui = std::make_unique<UI>(renderer);
 

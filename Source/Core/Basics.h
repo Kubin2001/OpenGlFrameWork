@@ -13,7 +13,7 @@ class GameObjectBasic {
 		MT::Rect &GetRectangle();
 
 
-		void Innit(int x, int y, int w, int h);
+		void Init(int x, int y, int w, int h);
 };
 
 class GameObject {
@@ -32,5 +32,5 @@ class GameObject {
 
 		void SetTexture(MT::Texture* texture);
 
-		void Innit(int x, int y, int w, int h, MT::Texture* texture);
+		void Init(int x, int y, int w, int h, MT::Texture* texture);
 };
