@@ -48,6 +48,9 @@ void Game::Start() {
 	std::vector<MT::Rect> clips = { {0,0,30,30},{31,0,30,30},{62,0,30,30},{93,0,30,30},{124,0,30,30},{155,0,30,30} };
 	anim = CreateAnimation(clips, 20, AnimType::Looped);
 
+	FileExplorer fe;
+	fe.Open();
+
 	renderer->FLatRenderCopySetUp();
 }
 

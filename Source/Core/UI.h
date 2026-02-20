@@ -41,7 +41,7 @@ enum class SliderSlide {
 class UIElemBase :public GameObject {
 protected:
 	std::string name = "";
-	int castType = 0; // enum
+	CastType castType = CastType::Button;
 
 	std::string text = "";
 	float textScale = 1.0f;

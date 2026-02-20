@@ -426,7 +426,7 @@ Button* UI::CreateLayeredButton(int layer, const std::string& name, int x, int y
 	Button* btn = static_cast<Button*>(ZElemVec[layer].back());
 	btn->zLayer = layer;;
 
-	btn->castType = (int)CastType::Button;
+	btn->castType = CastType::Button;
 	FillElem(btn, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
 	UIElemMap.emplace(btn->name, btn);
@@ -451,7 +451,7 @@ TextBox* UI::CreateLayeredTextBox(int layer, const std::string& name, int x, int
 	TextBox* tb = static_cast<TextBox*>(ZElemVec[layer].back());
 	tb->zLayer = layer;
 
-	tb->castType = (int)CastType::TextBox;
+	tb->castType = CastType::TextBox;
 	FillElem(tb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
 	UIElemMap.emplace(tb->name, tb);
@@ -476,7 +476,7 @@ ClickBox* UI::CreateLayeredClickBox(int layer, const std::string& name, int x, i
 	ClickBox* cb = static_cast<ClickBox*>(ZElemVec[layer].back());
 	cb->zLayer = layer;
 
-	cb->castType = (int)CastType::ClickBox;
+	cb->castType = CastType::ClickBox;
 	FillElem(cb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
 	UIElemMap.emplace(cb->name, cb);
@@ -501,7 +501,7 @@ PopUpBox* UI::CreateLayeredPopUpBox(int layer, const std::string& name, int life
 	PopUpBox* pb = static_cast<PopUpBox*>(ZElemVec[layer].back());
 	pb->zLayer = layer;
 
-	pb->castType = (int)CastType::PopUpBox;
+	pb->castType = CastType::PopUpBox;
 	pb->lifeTime = lifeSpan;
 	FillElem(pb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
@@ -527,7 +527,7 @@ Slider* UI::CreateLayeredSlider(int layer, const std::string& name, int x, int y
 	Slider* sl = static_cast<Slider*>(ZElemVec[layer].back());
 	sl->zLayer = layer;
 
-	sl->castType = (int)CastType::Slider;
+	sl->castType = CastType::Slider;
 	sl->name = name;
 	sl->GetRectangle().Set(x, y, w, h);
 	sl->SetRenderType((int)RenderType::Standard);
@@ -558,7 +558,7 @@ Button* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT
 
 	}
 
-	btn->castType = (int)CastType::Button;
+	btn->castType = CastType::Button;
 	FillElem(btn,name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
 	UIElemMap.emplace(btn->name, btn);
@@ -583,7 +583,7 @@ TextBox* UI::CreateTextBox(const std::string& name, int x, int y, int w, int h, 
 		tb = static_cast<TextBox*>(UiElemVec.back());
 	}
 
-	tb->castType = (int)CastType::TextBox;
+	tb->castType = CastType::TextBox;
 	FillElem(tb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
 	UIElemMap.emplace(tb->name, tb);
@@ -608,7 +608,7 @@ ClickBox* UI::CreateClickBox(const std::string& name, int x, int y, int w, int h
 		cb = static_cast<ClickBox*>(UiElemVec.back());
 	}
 
-	cb->castType = (int)CastType::ClickBox;
+	cb->castType = CastType::ClickBox;
 	FillElem(cb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
 	UIElemMap.emplace(cb->name, cb);
@@ -632,7 +632,7 @@ PopUpBox* UI::CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y
 		pb = static_cast<PopUpBox*>(UiElemVec.back());
 	}
 
-	pb->castType = (int)CastType::PopUpBox;
+	pb->castType = CastType::PopUpBox;
 	pb->lifeTime = lifeSpan;
 	FillElem(pb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
@@ -657,8 +657,8 @@ Slider* UI::CreateSlider(const std::string& name, int x, int y, int w, int h, in
 		sl = static_cast<Slider*>(UiElemVec.back());
 	}
 
-	sl->castType = (int)CastType::Slider;
-	sl->castType = (int)CastType::Slider;
+	sl->castType = CastType::Slider;
+	sl->castType = CastType::Slider;
 	sl->name = name;
 	sl->GetRectangle().Set(x, y, w, h);
 	sl->SetRenderType((int)RenderType::Standard);
@@ -826,17 +826,17 @@ void UI::ManageInput(SDL_Event& event) {
 	auto CheckElem = [&](UIElemBase* elem) {
 		CheckHover(elem, hoverStopped);
 
-		if (elem->castType == (int)CastType::ClickBox) {
+		if (elem->castType == CastType::ClickBox) {
 			if (clickBoxesStopped) { return; }
 			ClickBox* cb = static_cast<ClickBox*>(elem);
 			CheckClickBoxes(cb, eventType, clickBoxesStopped, event);
 		}
-		else if (elem->castType == (int)CastType::TextBox) {
+		else if (elem->castType == CastType::TextBox) {
 			TextBox* tb = static_cast<TextBox*>(elem);
 			CheckTextBoxInteraction(tb, event);
 			ManageTextBoxTextInput(tb, event);
 		}
-		else if (elem->castType == (int)CastType::Slider) {
+		else if (elem->castType == CastType::Slider) {
 			Slider* sl = static_cast<Slider*>(elem);
 			SlideSliders(sl,event);
 		}
@@ -866,7 +866,7 @@ Button* UI::GetButton(const std::string& name) {
 		return nullptr;
 	}
 	UIElemBase* elem = iter->second;
-	if (elem->castType == (int)CastType::Button) {
+	if (elem->castType == CastType::Button) {
 		return static_cast<Button*>(elem);
 	}
 	return nullptr;
@@ -877,7 +877,7 @@ TextBox* UI::GetTextBox(const std::string& name) {
 		return nullptr;
 	}
 	UIElemBase* elem = iter->second;
-	if (elem->castType == (int)CastType::TextBox) {
+	if (elem->castType == CastType::TextBox) {
 		return static_cast<TextBox*>(elem);
 	}
 	return nullptr;
@@ -888,7 +888,7 @@ ClickBox* UI::GetClickBox(const std::string& name) {
 		return nullptr;
 	}
 	UIElemBase* elem = iter->second;
-	if (elem->castType == (int)CastType::ClickBox) {
+	if (elem->castType == CastType::ClickBox) {
 		return static_cast<ClickBox*>(elem);
 	}
 	return nullptr;
@@ -900,7 +900,7 @@ PopUpBox* UI::GetPopUpBox(const std::string& name) {
 		return nullptr;
 	}
 	UIElemBase* elem = iter->second;
-	if (elem->castType == (int)CastType::PopUpBox) {
+	if (elem->castType == CastType::PopUpBox) {
 		return static_cast<PopUpBox*>(elem);
 	}
 	return nullptr;
@@ -912,7 +912,7 @@ Slider* UI::GetSlider(const std::string& name) {
 		return nullptr;
 	}
 	UIElemBase* elem = iter->second;
-	if (elem->castType == (int)CastType::Slider) {
+	if (elem->castType == CastType::Slider) {
 		return static_cast<Slider*>(elem);
 	}
 	return nullptr;
@@ -971,7 +971,7 @@ void UI::FrameUpdate() {
 	if (settings.useLayersInRendering) {
 		for (auto layerIter = ZElemVec.rbegin(); layerIter != ZElemVec.rend(); layerIter++) {
 			for (auto elemIt = layerIter->rbegin(); elemIt != layerIter->rend(); elemIt++) {
-				if ((*elemIt)->castType != (int)CastType::PopUpBox) {
+				if ((*elemIt)->castType != CastType::PopUpBox) {
 					++elemIt;
 					continue;
 				}
@@ -989,7 +989,7 @@ void UI::FrameUpdate() {
 	}
 	else {
 		for (auto elemIt = UiElemVec.rbegin(); elemIt != UiElemVec.rend();) {
-			if ((*elemIt)->castType != (int)CastType::PopUpBox) {
+			if ((*elemIt)->castType != CastType::PopUpBox) {
 				++elemIt;
 				continue;
 			}
@@ -1014,7 +1014,7 @@ bool UI::DeleteElement(const std::string& name) {
 		std::vector<UIElemBase*>& layer = ZElemVec[elemIter->second->zLayer];
 		auto vecIter = std::find(layer.rbegin(), layer.rend(), elemIter->second);
 		if (vecIter != layer.rend()) {
-			if (elemIter->second->castType == (int)CastType::PopUpBox) {
+			if (elemIter->second->castType == CastType::PopUpBox) {
 				popupBoxesCount--;
 			}
 			delete* vecIter;
@@ -1028,7 +1028,7 @@ bool UI::DeleteElement(const std::string& name) {
 	else {
 		auto vecIter = std::find(UiElemVec.rbegin(), UiElemVec.rend(), elemIter->second);
 		if (vecIter != UiElemVec.rend()) {
-			if (elemIter->second->castType == (int)CastType::PopUpBox) {
+			if (elemIter->second->castType == CastType::PopUpBox) {
 				popupBoxesCount--;
 			}
 			delete* vecIter;
@@ -1187,22 +1187,22 @@ void UI::DumpToJson(const std::string &fileName, const std::vector<UIElemBase*>&
 	nlohmann::ordered_json jsonFile;
 	for (auto& elem : elements) {
 		switch (elem->castType) {
-			case (int)CastType::Button:
+			case CastType::Button:
 				DumpButton(jsonFile, elem);
 				break;
-			case (int)CastType::ClickBox:
+			case CastType::ClickBox:
 				DumpButton(jsonFile, elem);
 				DumpClickBox(jsonFile, static_cast<ClickBox*>(elem));
 				break;
-			case (int)CastType::TextBox:
+			case CastType::TextBox:
 				DumpButton(jsonFile, elem);
 				DumpTextBox(jsonFile, static_cast<TextBox*>(elem));
 				break;
-			case (int)CastType::PopUpBox:
+			case CastType::PopUpBox:
 				DumpButton(jsonFile, elem);
 				DumpPopUpBox(jsonFile, static_cast<PopUpBox*>(elem));
 				break;
-			case (int)CastType::Slider:
+			case CastType::Slider:
 				DumpButton(jsonFile, elem);
 				DumpSlider(jsonFile, static_cast<Slider*>(elem));
 				break;
