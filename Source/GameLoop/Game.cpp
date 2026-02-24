@@ -44,13 +44,6 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
-
-	std::vector<MT::Rect> clips = { {0,0,30,30},{31,0,30,30},{62,0,30,30},{93,0,30,30},{124,0,30,30},{155,0,30,30} };
-	anim = CreateAnimation(clips, 20, AnimType::Looped);
-
-	FileExplorer fe;
-	fe.Open();
-
 	renderer->FLatRenderCopySetUp();
 }
 
@@ -74,7 +67,6 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-	renderer->RenderCopyPart({ 100,100,40,40 }, anim.Get(), TexMan::GetTex("AnimTest"));
 	ui->Render();
 	renderer->Present();
 }
