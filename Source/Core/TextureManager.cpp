@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <vector>
 #include <string>
+#include <format>
 
 
 std::unordered_map<std::string, MT::Texture*> TexMan::Textures;
@@ -318,6 +319,178 @@ void TexMan::SplitTexture(const char* path, const std::vector<std::string> &name
 	}
 }
 
+MT::Atlas TexMan::CreateAtlas(int tileSize, const std::vector<std::string>& textureNames, bool deleteOriginals) {
+	std::vector<std::string> errors;
+	if (tileSize < 1 || tileSize > 2048) {
+		errors.emplace_back("Illogical Tile Size must be between 1 and 2048");
+		return {errors};
+	}
+
+	if (textureNames.empty()) {
+		errors.emplace_back("Textures names are empty cannot create empty atlas");
+		return { errors };
+	}
+
+	// Creating MT::textures vector
+
+	std::vector<MT::Texture*> texturesToMap;
+	texturesToMap.reserve(textureNames.size());
+
+	for (auto& name : textureNames) {
+		auto texIter = Textures.find(name);
+		if (texIter != Textures.end()) {
+			texturesToMap.emplace_back(texIter->second);
+		}
+		else {
+			errors.emplace_back(std::format(" Texture with name: {} is not loaded", texIter->first));
+			return { errors };
+		}
+	}
+
+	// Getting max textures sizes
+	int maxWidth = 0;
+	int maxHeight = 0;
+	int meanWidth = 0;
+	int meanHeight = 0;
+
+	for (auto& tex : texturesToMap) {
+		if (tex->w > maxWidth) {
+			maxWidth = tex->w;
+		}
+		if (tex->h > maxHeight) {
+			maxHeight = tex->h;
+		}
+		meanHeight += tex->h;
+		meanWidth += tex->w;
+	}
+	meanWidth /= texturesToMap.size();
+	meanHeight /= texturesToMap.size();
+
+	// Creating TileMapSize
+	int rowsSize = (std::max(maxHeight, static_cast<int>(meanHeight * (texturesToMap.size() / 2) + 1)) / tileSize +1);
+	int colSize = (std::max(maxWidth, static_cast<int>(meanWidth * (texturesToMap.size() / 2) + 1)) / tileSize) +1;
+	
+	int maxOpenGLTexSizeFlorred = 4000;
+	if (rowsSize > maxOpenGLTexSizeFlorred / tileSize || colSize > maxOpenGLTexSizeFlorred / tileSize) {
+		errors.emplace_back("Too many textures for a single atlas texture size would be bigger than max OpenGl possible size 4096");
+		return { errors };
+	}
+
+	std::vector<std::vector<int>> tileMap = {};
+	tileMap.resize(rowsSize);
+	for (auto& row : tileMap) {
+		row.resize(colSize);
+	}
+
+	// Filling TileMap
+
+	Point lastFreeCell{ 0,0 }; // X = row Y = Column
+
+	auto tryInsert = [](std::vector<std::vector<int>>& tileMap, Point cell, int w, int h, int tileSize, int texIndex)->bool {
+		int rowsTaken = (h + tileSize - 1) / tileSize;
+		int colTaken = (w + tileSize - 1) / tileSize;
+
+		if (cell.x + rowsTaken > tileMap.size() || cell.y + colTaken > tileMap[0].size()) {
+			return false;
+		}
+
+		// Colison check
+		for (size_t i = cell.x; i < cell.x + rowsTaken; i++) {
+			for (size_t j = cell.y; j < cell.y + colTaken; j++) {
+				if (tileMap[i][j] != 0) {
+					return false;
+				}
+			}
+		}
+
+		// Inserting texture
+		for (size_t i = cell.x; i < cell.x + rowsTaken; i++) {
+			for (size_t j = cell.y; j < cell.y + colTaken; j++) {
+				tileMap[i][j] = texIndex + 1;
+			}
+		}
+
+		return true;
+	};
+
+	int currentTexIndex = 0;
+	while (currentTexIndex < texturesToMap.size()) {
+		MT::Texture* current = texturesToMap[currentTexIndex];
+		if (tryInsert(tileMap, lastFreeCell, current->w, current->h, tileSize, currentTexIndex)) {
+			currentTexIndex++;
+		}
+		lastFreeCell.y++;
+		if (lastFreeCell.y > tileMap[0].size() - 1) {
+			lastFreeCell.y = 0;
+			lastFreeCell.x++;
+			if (lastFreeCell.x > tileMap.size() -1) {
+				errors.emplace_back("Not all textures are fitting in the atlas it is broken");
+				return { errors };
+			}
+		}
+
+	}
+	
+
+	// Converting all textures to surfaces for atlas
+	std::vector<SDL_Surface*> surfaces;
+	surfaces.reserve(texturesToMap.size());
+	for (auto& tex : texturesToMap) {
+		surfaces.emplace_back(MT::TextureToSurface(tex));
+	}
+
+	// Creating map to remove already inserted textures
+	std::unordered_map<int, SDL_Surface*> texturesToInsert; // key texture id +1 (Just like in tile map)
+
+	for (size_t i = 0; i < surfaces.size(); i++) {
+		texturesToInsert[i + 1] = surfaces[i];
+	}
+	
+	// Creating atlas itself
+	SDL_Surface* atlas = SDL_CreateRGBSurfaceWithFormat(0,tileMap[0].size() * tileSize, tileMap.size() * tileSize, 32, SDL_PIXELFORMAT_RGBA32);
+
+	SDL_FillRect(atlas, NULL, SDL_MapRGBA(atlas->format, 0, 0, 0, 0));
+
+	// Coping surfaces to atlas
+
+	std::vector<MT::Rect> sourceRectangles;
+	sourceRectangles.resize(surfaces.size());
+
+	for (size_t i = 0; i < tileMap.size(); i++) { // row
+		for (size_t j = 0; j < tileMap[i].size(); j++) { // column
+			int cell = tileMap[i][j];
+			int rowPos = j * tileSize; // Swaped
+			int colPow = i * tileSize;
+			SDL_Rect dest{ rowPos,colPow,0,0 };
+			if (cell == 0) { continue;  }
+			auto mapIter = texturesToInsert.find(cell);
+			if (mapIter == texturesToInsert.end()) {
+				//Texture is already inserted
+				continue;
+			}
+			sourceRectangles[cell - 1] = MT::Rect{ dest.x, dest.y, mapIter->second->w, mapIter->second->h };
+			SDL_BlitSurface(mapIter->second, NULL, atlas, &dest);
+			texturesToInsert.erase(mapIter);
+		}
+	}
+
+	// Removing the originals
+	if (deleteOriginals) {
+		for (auto& name : textureNames) {
+			TexMan::DeleteTexture(name);
+		}
+	}
+
+
+	// CleanUp and return
+	for (auto& surf : surfaces) {
+		SDL_FreeSurface(surf);
+	}
+	MT::Texture *atlasTex = MT::LoadTextureFromSurface(atlas);
+	SDL_FreeSurface(atlas);
+	return { atlasTex,sourceRectangles,errors };
+}
+
 void TexMan::Clear() {
 	for (auto& pair : Textures) {
 		MT::DeleteTexture(pair.second);
@@ -513,6 +686,7 @@ void LocalTexMan::SplitTexture(const char* path, const std::vector<std::string>&
 		index++;
 	}
 }
+
 
 void LocalTexMan::Clear() {
 	for (auto& pair : Textures) {

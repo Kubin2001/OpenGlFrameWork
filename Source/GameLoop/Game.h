@@ -4,12 +4,14 @@
 
 #include "UI.h"
 
+
 class Game {
 private:
 	SDL_Window* window = nullptr;
 	MT::Renderer *renderer = nullptr;
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui = nullptr;
+	MT::Atlas atlas = {};
 
 
 public:

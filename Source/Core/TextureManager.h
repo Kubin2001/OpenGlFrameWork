@@ -7,7 +7,29 @@
 #include "Addons.h"
 #include "Renderer.h"
 
+namespace MT {
+	struct Atlas {
+		MT::Texture* tex = nullptr;
+		std::vector<MT::Rect> sourceRectangles = {};
+		std::vector<std::string> errors = {};
 
+		Atlas() {
+
+		}
+
+		Atlas(std::vector<std::string>& errors) {
+			this->errors = std::move(errors);
+		}
+
+		Atlas(MT::Texture* tex, std::vector<MT::Rect>& sourceRectangles, std::vector<std::string>& errors) {
+			this->tex = tex;
+			this->sourceRectangles = std::move(sourceRectangles);
+			this->errors = std::move(errors);
+		}
+	};
+
+
+}
 
 class TexMan {
 	private:
@@ -65,6 +87,8 @@ class TexMan {
 		// Original texture needs to have seperator color at higest pixel at the row and cant use it anywere else
 		static void SplitTexture(const char* path, const std::vector<std::string>& names,
 			const unsigned char r = 0, const unsigned char g = 0, const unsigned char b = 0, const unsigned char a = 255);
+
+		static MT::Atlas CreateAtlas(int tileSize, const std::vector<std::string>& textureNames, bool deleteOriginals = false);
 
 		static void Clear();
 };

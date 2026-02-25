@@ -45,6 +45,14 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	renderer->FLatRenderCopySetUp();
+
+
+	MT::Timer::Tic();
+	std::vector<std::string> names = { "granite", "grass", "water","tree1","AnimTest"};
+	MT::Atlas atlas = TexMan::CreateAtlas(40, names);
+	std::println("Time taken: {} mikrosec", MT::Timer::Tac<std::chrono::microseconds>());
+
+	TexMan::AddTexture(atlas.tex, "atlas");
 }
 
 void Game::LogicUpdate() {
@@ -67,6 +75,8 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
+	MT::Texture* atlas = TexMan::GetTex("atlas");
+	renderer->RenderCopy({ 100,100,(int)atlas->w,(int)atlas->h }, atlas);
 	ui->Render();
 	renderer->Present();
 }

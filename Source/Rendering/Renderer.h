@@ -107,6 +107,8 @@ namespace MT {
 
 	Texture* LoadTextureFromSurface(SDL_Surface* surf);
 
+	SDL_Surface* TextureToSurface(Texture* texture);
+
 	struct ConstextGuard {
 		SDL_Window* window;
 		SDL_GLContext context;

@@ -110,6 +110,7 @@ MT::Texture* MT::LoadTextureFromSurface(SDL_Surface* surf) {
 
     SDL_Surface* formatted = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_RGBA32, 0); // Aby się nie crashowało jak jest zły format
     SDL_Surface* flipped = FlipSurfaceVertical(formatted);
+
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, flipped->w, flipped->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, flipped->pixels); // RGBA dla png
     metTex->w = flipped->w;
     metTex->h = flipped->h;
@@ -118,6 +119,30 @@ MT::Texture* MT::LoadTextureFromSurface(SDL_Surface* surf) {
     SDL_FreeSurface(formatted);
 
     return metTex;
+}
+
+SDL_Surface* MT::TextureToSurface(Texture* texture) {
+    if (texture == nullptr) { return nullptr; }
+
+    glBindTexture(GL_TEXTURE_2D, texture->texture);
+    
+    unsigned char* pixels = new unsigned char[texture->w * texture->h * 4];
+
+    glGetTexImage(GL_TEXTURE_2D, 0,
+        GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+    SDL_Surface* outSurf = SDL_CreateRGBSurfaceWithFormatFrom(pixels, texture->w, texture->h, 32, texture->w * 4, SDL_PIXELFORMAT_RGBA32);
+
+    SDL_Surface* flipped = FlipSurfaceVertical(outSurf);
+    delete[] pixels;
+    SDL_FreeSurface(outSurf);
+
+    if (!flipped) {
+        return nullptr;
+    }
+
+    return flipped;
+
 }
 
 glm::vec2 RotateAndTranslate2D(float localX, float localY, const glm::vec2& center, float cosA, float sinA) {

@@ -151,3 +151,7 @@ was removed or the new one was added to folder
 - Animations can now be split into multiple ones from one texture
 - Animations now accept direct cords vector
 - Spelling mistakes fixes
+
+1.15
+- MT::TextureToSurface to surface function
+- Create Atlas Function for Texture Manager
