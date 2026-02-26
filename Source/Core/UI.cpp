@@ -408,7 +408,7 @@ void UI::FillElem(UIElemBase *elem ,const std::string& name, int x, int y, int w
 	elem->SetTextStartY(textStartY);
 }
 
-Button* UI::CreateLayeredButton(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+Button* UI::LCreateButton(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	if (!settings.useLayersInRendering) {
@@ -433,7 +433,7 @@ Button* UI::CreateLayeredButton(int layer, const std::string& name, int x, int y
 	return btn;
 }
 
-TextBox* UI::CreateLayeredTextBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+TextBox* UI::LCreateTextBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	if (!settings.useLayersInRendering) {
@@ -458,7 +458,7 @@ TextBox* UI::CreateLayeredTextBox(int layer, const std::string& name, int x, int
 	return tb;
 }
 
-ClickBox* UI::CreateLayeredClickBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+ClickBox* UI::LCreateClickBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	if (!settings.useLayersInRendering) {
@@ -483,7 +483,7 @@ ClickBox* UI::CreateLayeredClickBox(int layer, const std::string& name, int x, i
 	return cb;
 }
 
-PopUpBox* UI::CreateLayeredPopUpBox(int layer, const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+PopUpBox* UI::LCreatePopUpBox(int layer, const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	if (!settings.useLayersInRendering) {
@@ -510,7 +510,7 @@ PopUpBox* UI::CreateLayeredPopUpBox(int layer, const std::string& name, int life
 	return pb;
 }
 
-Slider* UI::CreateLayeredSlider(int layer, const std::string& name, int x, int y, int w, int h, int slideType, int min, int max, MT::Texture* texture) {
+Slider* UI::LCreateSlider(int layer, const std::string& name, int x, int y, int w, int h, int slideType, int min, int max, MT::Texture* texture) {
 
 	if (!settings.useLayersInRendering) {
 		throw std::exception("This should not be used without layer in rendering set on");
@@ -1296,7 +1296,7 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		if (type == (int)CastType::Button) {
 			Button* btn = nullptr;
 			if (settings.useLayersInRendering) {
-				btn = CreateLayeredButton(elem->zLayer,key, 0, 0, 0, 0);
+				btn = LCreateButton(elem->zLayer,key, 0, 0, 0, 0);
 			}
 			else {
 				btn = CreateButton(key, 0, 0, 0, 0);
@@ -1309,7 +1309,7 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		else if (type == (int)CastType::ClickBox) {
 			ClickBox* cb = nullptr;
 			if (settings.useLayersInRendering) {
-				cb = CreateLayeredClickBox(elem->zLayer, key, 0, 0, 0, 0);
+				cb = LCreateClickBox(elem->zLayer, key, 0, 0, 0, 0);
 			}
 			else {
 				cb = CreateClickBox(key, 0, 0, 0, 0);
@@ -1324,7 +1324,7 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		else if (type == (int)CastType::TextBox) {
 			TextBox* tb = nullptr;
 			if (settings.useLayersInRendering) {
-				tb = CreateLayeredTextBox(elem->zLayer, key, 0, 0, 0, 0);
+				tb = LCreateTextBox(elem->zLayer, key, 0, 0, 0, 0);
 			}
 			else {
 				tb = CreateTextBox(key, 0, 0, 0, 0);
@@ -1339,7 +1339,7 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		else if (type == (int)CastType::PopUpBox) {
 			PopUpBox* pb = nullptr;
 			if (settings.useLayersInRendering) {
-				pb = CreateLayeredPopUpBox(elem->zLayer, key, 120, 0, 0, 0, 0);
+				pb = LCreatePopUpBox(elem->zLayer, key, 120, 0, 0, 0, 0);
 			}
 			else {
 				pb = CreatePopUpBox(key,120, 0, 0, 0, 0);
@@ -1353,7 +1353,7 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		else if (type == (int)CastType::Slider) {
 			Slider* sl = nullptr;
 			if (settings.useLayersInRendering) {
-				sl = CreateLayeredSlider(elem->zLayer, key, 120, 0, 0, 0, 0, 0, 0);
+				sl = LCreateSlider(elem->zLayer, key, 120, 0, 0, 0, 0, 0, 0);
 			}
 			else {
 				sl = CreateSlider(key, 120, 0, 0, 0, 0, 0, 0);

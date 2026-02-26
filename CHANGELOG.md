@@ -155,3 +155,4 @@ was removed or the new one was added to folder
 1.15
 - MT::TextureToSurface to surface function
 - Create Atlas Function for Texture Manager
+- CreateLayered UI elements functions names has been shortened

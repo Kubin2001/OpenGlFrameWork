@@ -347,21 +347,21 @@ class UI{
 		friend class UIList;
 		UI(MT::Renderer* renderer);
 
-		Button* CreateLayeredButton(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture =nullptr, 
+		Button* LCreateButton(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture =nullptr, 
 			Font* font = nullptr,const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
-		TextBox* CreateLayeredTextBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr,
+		TextBox* LCreateTextBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr,
 			Font* font = nullptr,
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
-		ClickBox* CreateLayeredClickBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr,
+		ClickBox* LCreateClickBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr,
 			Font* font = nullptr,
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
-		PopUpBox* CreateLayeredPopUpBox(int layer, const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr,
+		PopUpBox* LCreatePopUpBox(int layer, const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr,
 			Font* font = nullptr, const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
-		Slider* CreateLayeredSlider(int layer, const std::string& name, int x, int y, int w, int h, int slideType, int min, int max,
+		Slider* LCreateSlider(int layer, const std::string& name, int x, int y, int w, int h, int slideType, int min, int max,
 			MT::Texture* texture = nullptr);
 
 		Button* CreateButton(const std::string &name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
