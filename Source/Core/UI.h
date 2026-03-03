@@ -403,6 +403,7 @@ class UI{
 
 		void SlideSliders(Slider* slider, SDL_Event& event);
 
+		UIElemBase* GetElem(const std::string& name);
 		Button* GetButton(const std::string& name);
 		TextBox* GetTextBox(const std::string& name);
 		ClickBox* GetClickBox(const std::string& name);

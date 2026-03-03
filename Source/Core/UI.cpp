@@ -860,6 +860,14 @@ void UI::ManageInput(SDL_Event& event) {
 	SDL_GetMouseState(&lastMousePos.x, &lastMousePos.y);
 }
 
+UIElemBase* UI::GetElem(const std::string& name) {
+	auto iter = UIElemMap.find(name);
+	if (iter == UIElemMap.end()) {
+		return nullptr;
+	}
+	return iter->second;
+}
+
 Button* UI::GetButton(const std::string& name) {
 	auto iter = UIElemMap.find(name);
 	if (iter == UIElemMap.end()) {
