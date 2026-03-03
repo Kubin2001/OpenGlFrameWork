@@ -2,7 +2,7 @@
 
 #include "GlobalVariables.h"
 
-Animation CreateAnimation(const int clipsAmount, const short frameWidth, const short frameHeight, 
+Animation CreateAnimation(const int clipsAmount, const int frameWidth, const int frameHeight, 
 	const int frameDelay, AnimType type, int step, int xStart, int yStart) {
 
 	Animation anim;
@@ -16,7 +16,7 @@ Animation CreateAnimation(const int clipsAmount, const short frameWidth, const s
 	int x = xStart;
 	for (size_t i = 0; i < clipsAmount; i++) {
 		anim.clips.emplace_back(x, yStart, frameWidth, frameHeight);
-		x += (frameWidth + 1);
+		x += (frameWidth + step);
 	}
 
 	return anim;
@@ -35,7 +35,7 @@ Animation CreateAnimation(const std::vector<MT::Rect>& frames, const int frameDe
 }
 
 MT::Rect& Animation::Get() {
-	int currentFrame = Global::frameCounter - firstFrame;
+	unsigned int currentFrame = static_cast<unsigned int>(Global::frameCounter - firstFrame);
 	switch (type) {
 		case AnimType::Looped:
 			if (currentFrame >= lastFrame) {

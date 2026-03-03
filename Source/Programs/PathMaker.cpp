@@ -168,7 +168,7 @@ std::vector<Point> PathMaker::LoadTxt(const std::string& path){
 			retPath.back().y = std::stoi(line);
 		}
 		catch (const std::exception& e) {
-			std::println("Cannot convert this file to path vector {}", path);
+			std::println("Cannot convert this file to path vector {} ERROR: {}", path, e.what());
 			return{};
 		}
 	}

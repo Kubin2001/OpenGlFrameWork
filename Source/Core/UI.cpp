@@ -380,7 +380,7 @@ void UI::UseLayerInRendering(bool use) {
 		else {
 			for (auto& layer : ZElemVec) {
 				for (auto& elem : layer) {
-					UiElemVec.emplace_back();
+					UiElemVec.emplace_back(elem);
 				}
 				layer.clear();
 			}
@@ -1078,7 +1078,7 @@ std::vector<Font*>& UI::GetAllFonts() {
 void UI::ScanFont(const std::string& texturePath, const std::string& charactersDataPath,
 	unsigned char fR, unsigned char fG, unsigned char fB, unsigned char bR, unsigned char bG, unsigned char bB, Point size,
 	const std::string& outputPath) {
-	fontManager->ScanFont(texturePath, charactersDataPath, fR, fG, fB, bR, bG, bB, size.x, size.y);
+	fontManager->ScanFont(texturePath, charactersDataPath, fR, fG, fB, bR, bG, bB, size.x, size.y, outputPath);
 }
 
 

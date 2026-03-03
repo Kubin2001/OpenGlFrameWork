@@ -27,7 +27,7 @@ class Animation {
 		std::vector<MT::Rect> clips;
 		unsigned int firstFrame = 0;
 		unsigned int lastFrame = 0;
-		unsigned short frameDelay = 20;
+		unsigned int frameDelay = 20;
 		AnimType type = AnimType::Singular; 
 
 		MT::Rect &Get();
@@ -38,8 +38,8 @@ class Animation {
 
 };
 
-Animation CreateAnimation(const int clipsAmount, const short frameWidth,
-	const short frameHeight, const int frameDelay, AnimType type = AnimType::Singular, int step = 1, int xStart = 0, int yStart = 0);
+Animation CreateAnimation(const int clipsAmount, const int frameWidth,
+	const int frameHeight, const int frameDelay, AnimType type = AnimType::Singular, int step = 1, int xStart = 0, int yStart = 0);
 
 Animation CreateAnimation(const std::vector<MT::Rect> &frames, const int frameDelay, AnimType type = AnimType::Singular);
 

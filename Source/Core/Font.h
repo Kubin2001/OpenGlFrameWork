@@ -15,7 +15,7 @@ constexpr std::array<char32_t, 200> MakeCharset() {
 	return cs;
 }
 
-static constexpr std::array<char32_t, 200> charset = MakeCharset();
+static constexpr std::array<char32_t, 200> globalCharset = MakeCharset();
 
 class Font : public GameObject{
 private:

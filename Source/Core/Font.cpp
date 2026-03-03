@@ -322,11 +322,11 @@ void FontManager::ScanFont(const std::string& texturePath, const std::string& ch
 
 	Pixel font{ fR,fG,fB,255};
 
-	short maxX = -1;
-	short minX = 10000;
+	int maxX = -1;
+	int minX = 10000;
 
-	short maxY = -1;
-	short minY = 10000;
+	int maxY = -1;
+	int minY = 10000;
 
 
 	std::vector<SDL_Rect> jsonRectangles;
@@ -438,11 +438,11 @@ void CrateFontFromTTF(const char* ttfPath, const int size, const std::string& na
 	strCharset.reserve(100); // Nie wiem ile w sumie bo jeszcze nie wiem ile znaków trzymaæ
 
 	for (size_t i = 32; i < 127; i++) { // od 31 do 127 bo od 31 w dól znaki kontrolne i 127 do 159 tak samo
-		strCharset += charset[i];
+		strCharset += globalCharset[i];
 	}
 
 	for (size_t i = 160; i < 199; i++) { // dziwne znaki czy to wogóle zachowaæ nie wiem mo¿e opcja w funkcji?
-		strCharset += charset[i];
+		strCharset += globalCharset[i];
 	}
 
 
@@ -569,11 +569,11 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 	strCharset.reserve(100); // Nie wiem ile w sumie bo jeszcze nie wiem ile znaków trzymaæ
 
 	for (size_t i = 32; i < 127; i++) { // od 31 do 127 bo od 31 w dól znaki kontrolne i 127 do 159 tak samo
-		strCharset += charset[i];
+		strCharset += globalCharset[i];
 	}
 
 	for (size_t i = 160; i < 199; i++) { // dziwne znaki czy to wogóle zachowaæ nie wiem mo¿e opcja w funkcji?
-		strCharset += charset[i];
+		strCharset += globalCharset[i];
 	}
 
 

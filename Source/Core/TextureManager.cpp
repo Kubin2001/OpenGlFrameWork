@@ -215,8 +215,8 @@ Point TexMan::GetTextureSize(const std::string& name) {
 	Point p(-1, -1);
 	auto it = Textures.find(name);
 	if (it == Textures.end()) {
+		std::println("Texture not found: {}", name);
 		return p;
-		std::cerr << "Texture not found: " << name << "\n";
 	}
 	p.x = it->second->w;
 	p.y = it->second->h;
@@ -442,7 +442,7 @@ MT::Atlas TexMan::CreateAtlas(int tileSize, const std::vector<std::string>& text
 	// Creating map to remove already inserted textures
 	std::unordered_map<int, SDL_Surface*> texturesToInsert; // key texture id +1 (Just like in tile map)
 
-	for (size_t i = 0; i < surfaces.size(); i++) {
+	for (int i = 0; i < surfaces.size(); i++) {
 		texturesToInsert[i + 1] = surfaces[i];
 	}
 	
@@ -456,8 +456,8 @@ MT::Atlas TexMan::CreateAtlas(int tileSize, const std::vector<std::string>& text
 	std::vector<MT::Rect> sourceRectangles;
 	sourceRectangles.resize(surfaces.size());
 
-	for (size_t i = 0; i < tileMap.size(); i++) { // row
-		for (size_t j = 0; j < tileMap[i].size(); j++) { // column
+	for (int i = 0; i < tileMap.size(); i++) { // row
+		for (int j = 0; j < tileMap[i].size(); j++) { // column
 			int cell = tileMap[i][j];
 			int rowPos = j * tileSize; // Swaped
 			int colPow = i * tileSize;
@@ -620,8 +620,8 @@ Point LocalTexMan::GetTextureSize(const std::string& name) {
 	Point p(-1, -1);
 	auto it = Textures.find(name);
 	if (it == Textures.end()) {
+		std::println("Texture not found: {}", name);
 		return p;
-		std::cerr << "Texture not found: " << name << "\n";
 	}
 	p.x = it->second->w;
 	p.y = it->second->h;
