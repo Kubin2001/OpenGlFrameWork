@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(MSVC) # For MSVC
-    add_compile_options(/W2 /MP)
+    add_compile_options(/W4 /MP /wd4458)
 else() #For GCC or Clang
     add_compile_options(-Wall)
 endif()
