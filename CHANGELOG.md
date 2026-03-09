@@ -157,3 +157,4 @@ was removed or the new one was added to folder
 - Create Atlas Function for Texture Manager
 - CreateLayered UI elements functions names has been shortened
 - Safer function to retrieve ui elements if they do not need to be casted to derivered type
+- Atlas returns rectangles map instead of vector

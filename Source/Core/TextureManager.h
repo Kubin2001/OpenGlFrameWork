@@ -10,18 +10,16 @@
 namespace MT {
 	struct Atlas {
 		MT::Texture* tex = nullptr;
-		std::vector<MT::Rect> sourceRectangles = {};
+		std::unordered_map<std::string, MT::Rect> sourceRectangles = {};
 		std::vector<std::string> errors = {};
 
-		Atlas() {
-
-		}
+		Atlas() = default;
 
 		Atlas(std::vector<std::string>& errors) {
 			this->errors = std::move(errors);
 		}
 
-		Atlas(MT::Texture* tex, std::vector<MT::Rect>& sourceRectangles, std::vector<std::string>& errors) {
+		Atlas(MT::Texture* tex, std::unordered_map<std::string, MT::Rect> & sourceRectangles, std::vector<std::string>& errors) {
 			this->tex = tex;
 			this->sourceRectangles = std::move(sourceRectangles);
 			this->errors = std::move(errors);

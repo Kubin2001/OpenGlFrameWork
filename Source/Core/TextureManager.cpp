@@ -453,8 +453,8 @@ MT::Atlas TexMan::CreateAtlas(int tileSize, const std::vector<std::string>& text
 
 	// Coping surfaces to atlas
 
-	std::vector<MT::Rect> sourceRectangles;
-	sourceRectangles.resize(surfaces.size());
+	std::unordered_map<std::string, MT::Rect> sourceRectangles;
+	sourceRectangles.reserve(surfaces.size());
 
 	for (int i = 0; i < tileMap.size(); i++) { // row
 		for (int j = 0; j < tileMap[i].size(); j++) { // column
@@ -468,7 +468,8 @@ MT::Atlas TexMan::CreateAtlas(int tileSize, const std::vector<std::string>& text
 				//Texture is already inserted
 				continue;
 			}
-			sourceRectangles[cell - 1] = MT::Rect{ dest.x, dest.y, mapIter->second->w, mapIter->second->h };
+			
+			sourceRectangles[textureNames[cell - 1]] = MT::Rect{ dest.x, dest.y, mapIter->second->w, mapIter->second->h };
 			SDL_BlitSurface(mapIter->second, NULL, atlas, &dest);
 			texturesToInsert.erase(mapIter);
 		}

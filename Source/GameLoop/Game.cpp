@@ -45,6 +45,9 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	renderer->FLatRenderCopySetUp();
+
+
+	atlas = TexMan::CreateAtlas(40, { "water","maskTex","tree1","grass","AnimTest" });
 }
 
 void Game::LogicUpdate() {
@@ -67,24 +70,13 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
+	renderer->RenderCopy({ 0, 0, (int)atlas.tex->w, (int)atlas.tex->h }, atlas.tex);
+	renderer->RenderBorder({ 0, 0, (int)atlas.tex->w, (int)atlas.tex->h }, {0,0,0},2);
 
-	Point mouse = GetMousePos();
+	renderer->RenderCopyPart({ 400,400,40,40 }, atlas.sourceRectangles["maskTex"], atlas.tex);
 
-	//Render Rect
-	MT::Timer::Tic();
-	for (size_t i = 0; i < 10000; i++) {
-		//renderer->RenderRect({ 100,100,100,100 }, { 255,100,100 }, Global::frameCounter);
-		//renderer->RenderRectEX({ 100,100,100,100 }, { 100,100,100 },Global::frameCounter);
-		renderer->DrawLine(100, 100, mouse.x, mouse.y, 5, { 255,0,0 });
-	}
+	ui->Render();
 	renderer->Present();
-	auto time = MT::Timer::Tac<std::chrono::microseconds>();
-
-
-
-	std::println("Time {} mikrosec", time);
-
-	//ui->Render();
 
 }
 
