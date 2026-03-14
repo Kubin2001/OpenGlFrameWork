@@ -46,8 +46,10 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
+	ui->CreateButton("Btn1", 100, 100, 100, 100);
 
-	atlas = TexMan::CreateAtlas(40, { "water","maskTex","tree1","grass","AnimTest" });
+	ui->CreateButton("Btn2", 100, 100, 100, 100);
+	ui->RenameElem("Btn2", "Btn1");
 }
 
 void Game::LogicUpdate() {
@@ -70,10 +72,6 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-	renderer->RenderCopy({ 0, 0, (int)atlas.tex->w, (int)atlas.tex->h }, atlas.tex);
-	renderer->RenderBorder({ 0, 0, (int)atlas.tex->w, (int)atlas.tex->h }, {0,0,0},2);
-
-	renderer->RenderCopyPart({ 400,400,40,40 }, atlas.sourceRectangles["maskTex"], atlas.tex);
 
 	ui->Render();
 	renderer->Present();

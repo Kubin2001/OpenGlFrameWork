@@ -11,7 +11,6 @@ private:
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui = nullptr;
 
-	MT::Atlas atlas = {};
 
 
 public:
