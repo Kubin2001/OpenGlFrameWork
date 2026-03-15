@@ -233,12 +233,6 @@ int UIElemBase::GetZLayer() {
 	return this->zLayer;
 }
 
-void UIElemBase::SetZLayer(const int temp) {
-	int layer = temp;
-	if (layer < 0) { layer = 0; }
-	else if (layer > 100) { layer = 100; }
-	zLayer = temp;
-}
 
 //BUTTON
 //TextBox
@@ -969,7 +963,9 @@ void UI::SetElementZLayer(const std::string& name, int zlayer) {
 	}
 	UIElemBase* elem = iter->second;
 	int prevLayer = elem->zLayer;
-	elem->SetZLayer(zlayer);
+	if (zlayer < 0) { zlayer = 0; }
+	else if (zlayer > 100) { zlayer = 100; }
+	elem->zLayer = zlayer;
 	if (settings.useLayersInRendering) {
 		auto elemIter = std::find_if(ZElemVec[prevLayer].begin(), ZElemVec[prevLayer].end(), 
 			[&](UIElemBase* itElem) {return elem == itElem; });

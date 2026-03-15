@@ -45,11 +45,6 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	renderer->FLatRenderCopySetUp();
-
-	ui->CreateButton("Btn1", 100, 100, 100, 100);
-
-	ui->CreateButton("Btn2", 100, 100, 100, 100);
-	ui->RenameElem("Btn2", "Btn1");
 }
 
 void Game::LogicUpdate() {

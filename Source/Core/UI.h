@@ -82,7 +82,6 @@ protected:
 
 	void RenderText(MT::Renderer* renderer);
 
-	void SetZLayer(const int temp);
 
 public:
 	std::string& GetName();
@@ -327,10 +326,8 @@ class UI{
 			bool useLayersInRendering = false;
 		public:
 			// If the newest ClickBox is clicked older ones that are also clicked will not call its status
-			// it might not work well with layers in rendering tuned on 
 			bool stopCheckAtFirst = false;
 			// If the newest Element hovered all hover checks will stop
-			// it might not work well with layers in rendering tuned on 
 			bool stopHoverAtFirst = false;
 			// Click boxes status will be checked at MOUSEBUTTONUP not like default MOUSEBUTTONDOWN
 			bool clickBoxStartAtDown = false;
@@ -436,6 +433,10 @@ class UI{
 		// Smaller number will default to 0
 		void UseLayerInRendering(bool use);
 
+		bool UsingLayers() {
+			return settings.useLayersInRendering;
+		}
+
 
 		// You need to provide not name (made up by you) texture (needs to be already loaded by texture manager) path to pregenerated json file
 		// Strongly recomended to use  CrateTempFontFromTTF if you do not have any custom strange fonts
@@ -489,33 +490,33 @@ private:
 
 public:
 
-	void Init(UI* ui, ClickBox* main, int w, int h, int R, int G, int B, const std::vector<std::string>& texts, short space = 0) {
+	void Init(UI* ui, ClickBox* mainBtn, int w, int h, const MT::Color &color, const std::vector<std::string>& texts, short space = 0) {
 		this->ui = ui;
-		mainElement = main;
+		mainElement = mainBtn;
 		Elements.reserve(texts.size());
 		MT::Rect& rect = mainElement->GetRectangle();
-		int y = rect.y + (rect.h + space);
-		int counter = 0;
+		int y = rect.y + rect.h + space;
+		Font* font = mainElement->GetFont();
+		const std::string& name = mainElement->GetName();
 		for (size_t i = 0; i < texts.size(); i++) {
-			if constexpr (std::is_same_v<T*, Button*>) {
-				Elements.emplace_back(
-					ui->CreateButton(main->GetName() + std::to_string(counter), rect.x, y,
-						w, h, nullptr, ui->GetFont("arial12px"), texts[i]));
+			T* elem = nullptr;
+			if constexpr (std::is_same_v<T, Button>) {
+				elem = ui->CreateButton(name + std::to_string(i), rect.x, y, w, h, nullptr, font, texts[i]);
 			}
-			else if constexpr (std::is_same_v<T*, TextBox*>) {
-				Elements.emplace_back(
-					ui->CreateTextBox(main->GetName() + std::to_string(counter), rect.x, y,
-						w, h, nullptr, ui->GetFont("arial12px"), texts[i]));
+			else if constexpr (std::is_same_v<T, TextBox>) {
+				elem = ui->CreateTextBox(name + std::to_string(i), rect.x, y, w, h, nullptr, font, texts[i]);
 			}
-			else if constexpr (std::is_same_v<T*, ClickBox*>) {
-				Elements.emplace_back(
-					ui->CreateClickBox(main->GetName() + std::to_string(counter), rect.x, y,
-						w, h, nullptr, ui->GetFont("arial12px"), texts[i]));
+			else if constexpr (std::is_same_v<T, ClickBox>) {
+				elem = ui->CreateClickBox(name + std::to_string(i), rect.x, y, w, h, nullptr, font, texts[i]);
 			}
-			Elements[i]->SetColor(R, G, B);
-			Elements.back()->Hide();
+			Elements.emplace_back(elem);
+
+			elem->SetColor(color.R, color.G, color.B);
+			elem->Hide();
 			y += (h + space);
-			counter++;
+			if (ui->UsingLayers()) {
+				ui->SetElementZLayer(elem->GetName(), mainElement->GetZLayer());
+			}
 		}
 		ui->AddListRef(this);
 		initalized = true;

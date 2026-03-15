@@ -159,3 +159,4 @@ was removed or the new one was added to folder
 - Safer function to retrieve ui elements if they do not need to be casted to derivered type
 - Atlas returns rectangles map instead of vector
 - Renaming ui elements return false when element with new name already exists
+- UI List has been improved
