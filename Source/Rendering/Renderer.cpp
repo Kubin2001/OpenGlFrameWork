@@ -2711,7 +2711,8 @@ void MT::Renderer::FLatRenderCopyPresent(bool clearVectors) {
 void MT::Renderer::SetClipSize(const MT::Rect& rect) {
     Present(false);
     glEnable(GL_SCISSOR_TEST);
-    glScissor(rect.x, rect.y, rect.w, rect.h);
+    int glY = H - (rect.y + rect.h);
+    glScissor(rect.x, glY, rect.w, rect.h);
 
 }
 

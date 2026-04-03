@@ -160,3 +160,4 @@ was removed or the new one was added to folder
 - Atlas returns rectangles map instead of vector
 - Renaming ui elements return false when element with new name already exists
 - UI List has been improved
+- Each ui layer supports its own clipping size

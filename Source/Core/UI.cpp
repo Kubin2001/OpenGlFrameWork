@@ -7,76 +7,12 @@
 #include "GlobalVariables.h"
 
 //UIElemBase
-std::string& UIElemBase::GetName() {
-	return name;
-}
-
-//void UIElemBase::SetName(const std::string &value) {
-//	name = value;
-//}
-
-void UIElemBase::SetText(const std::string &temptext) {
-	text = temptext;
-}
-
-std::string& UIElemBase::GetText() {
-	return text;
-}
-
-float UIElemBase::GetTextScale() {
-	return textScale;
-}
-void UIElemBase::SetTextScale(float temp) {
-	textScale = temp;
-}
-int UIElemBase::GetInterLine() {
-	return interLine;
-}
-void UIElemBase::SetInterLine(int temp) {
-	interLine = temp;
-}
-
-bool UIElemBase::GetBorder() {
-	return border;
-}
-
-Font* UIElemBase::GetFont() {
-	return font;
-}
-
-void UIElemBase::SetFont(Font* font) {
-	this->font = font;
-}
-
-int UIElemBase::GetBorderThickness() {
-	return borderThickness;
-}
-
-void UIElemBase::SetBorderThickness(const int temp) {
-	borderThickness = temp;
-	border = true;
-}
-
 void UIElemBase::SetBorder(const int width, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A) {
-	border = true;
 	borderThickness = width;
 	borderRGB.R = R;
 	borderRGB.G = G;
 	borderRGB.B = B;
 	borderRGB.A = A;
-}
-
-int UIElemBase::GetTextStartX() {
-	return textStartX;
-}
-void UIElemBase::SetTextStartX(int temp) {
-	textStartX = temp;
-}
-int UIElemBase::GetTextStartY() {
-	return textStartY;
-}
-void UIElemBase::SetTextStartY(int temp) {
-	textStartY = temp;
 }
 
 void UIElemBase::SetColor(const unsigned char R, const unsigned char G, const unsigned char B , const unsigned char A) {
@@ -113,7 +49,7 @@ void UIElemBase::Render(UIElemBase* elem, MT::Renderer* renderer) {
 		else {
 			renderer->RenderCopyUPR(elem->rectangle, elem->texture);
 		}
-		if (elem->GetBorder()) {
+		if (elem->GetBorderThickness() > 0) {
 			renderer->RenderBorderUPR(elem->rectangle, { elem->borderRGB.R, elem->borderRGB.G, elem->borderRGB.B }
 			,elem->borderThickness, elem->borderRGB.A);
 		}
@@ -133,7 +69,7 @@ void UIElemBase::RenderRounded(UIElemBase* elem, MT::Renderer* renderer) {
 		else {
 			renderer->RenderCopyRoundedUPR(elem->rectangle, elem->texture);
 		}
-		if (elem->GetBorder()) {
+		if (elem->GetBorderThickness() > 0) {
 			renderer->RenderRoundedBorderUPR(elem->rectangle, { elem->borderRGB.R, elem->borderRGB.G, elem->borderRGB.B }
 			, elem->borderThickness, elem->borderRGB.A);
 		}
@@ -325,9 +261,9 @@ UI::UI(MT::Renderer* renderer) {
 	this->renderer = renderer;
 	lastMousePos.x = -10000000;
 	lastMousePos.y = -10000000;
-	ZElemVec.resize(101); // 100 leayers (101 in theory if you count 0)
+	LayerVec.resize(101); // 100 leayers (101 in theory if you count 0)
 	for (auto& elem : UiElemVec) {
-		ZElemVec[elem->zLayer].emplace_back(elem);
+		LayerVec[elem->zLayer].elements.emplace_back(elem);
 	}
 }
 
@@ -335,9 +271,15 @@ UI::UI(MT::Renderer* renderer) {
 
 void UI::Render() {
 	if (settings.useLayersInRendering) {
-		for (auto& layer : ZElemVec) {
-			for (auto& elem : layer) {
+		for (auto& layer : LayerVec) {
+			if (layer.clipTest) {
+				renderer->SetClipSize(layer.clipRect);
+			}
+			for (auto& elem : layer.elements) {
 				elem->renderFunction(elem, renderer);
+			}
+			if (layer.clipTest) {
+				renderer->ResetClipSize();
 			}
 		}
 	}
@@ -361,7 +303,7 @@ void UI::UseLayerInRendering(bool use) {
 		}
 		else {
 			for (auto& elem : UiElemVec) {
-				ZElemVec[elem->zLayer].emplace_back(elem);
+				LayerVec[elem->zLayer].elements.emplace_back(elem);
 			}
 			UiElemVec.clear();
 			settings.useLayersInRendering = true;
@@ -372,11 +314,11 @@ void UI::UseLayerInRendering(bool use) {
 			return;
 		}
 		else {
-			for (auto& layer : ZElemVec) {
-				for (auto& elem : layer) {
+			for (auto& layer : LayerVec) {
+				for (auto& elem : layer.elements) {
 					UiElemVec.emplace_back(elem);
 				}
-				layer.clear();
+				layer.elements.clear();
 			}
 			settings.useLayersInRendering = false;
 		}
@@ -416,8 +358,8 @@ Button* UI::LCreateButton(int layer, const std::string& name, int x, int y, int 
 
 	if (layer < 0) { layer = 0; }
 	if (layer > 100) { layer = 100; }
-	ZElemVec[layer].emplace_back(new Button());
-	Button* btn = static_cast<Button*>(ZElemVec[layer].back());
+	LayerVec[layer].elements.emplace_back(new Button());
+	Button* btn = static_cast<Button*>(LayerVec[layer].elements.back());
 	btn->zLayer = layer;;
 
 	btn->castType = CastType::Button;
@@ -441,8 +383,8 @@ TextBox* UI::LCreateTextBox(int layer, const std::string& name, int x, int y, in
 
 	if (layer < 0) { layer = 0; }
 	if (layer > 100) { layer = 100; }
-	ZElemVec[layer].emplace_back(new TextBox());
-	TextBox* tb = static_cast<TextBox*>(ZElemVec[layer].back());
+	LayerVec[layer].elements.emplace_back(new TextBox());
+	TextBox* tb = static_cast<TextBox*>(LayerVec[layer].elements.back());
 	tb->zLayer = layer;
 
 	tb->castType = CastType::TextBox;
@@ -466,8 +408,8 @@ ClickBox* UI::LCreateClickBox(int layer, const std::string& name, int x, int y, 
 
 	if (layer < 0) { layer = 0; }
 	if (layer > 100) { layer = 100; }
-	ZElemVec[layer].emplace_back(new ClickBox());
-	ClickBox* cb = static_cast<ClickBox*>(ZElemVec[layer].back());
+	LayerVec[layer].elements.emplace_back(new ClickBox());
+	ClickBox* cb = static_cast<ClickBox*>(LayerVec[layer].elements.back());
 	cb->zLayer = layer;
 
 	cb->castType = CastType::ClickBox;
@@ -491,8 +433,8 @@ PopUpBox* UI::LCreatePopUpBox(int layer, const std::string& name, int lifeSpan, 
 
 	if (layer < 0) { layer = 0; }
 	if (layer > 100) { layer = 100; }
-	ZElemVec[layer].emplace_back(new PopUpBox());
-	PopUpBox* pb = static_cast<PopUpBox*>(ZElemVec[layer].back());
+	LayerVec[layer].elements.emplace_back(new PopUpBox());
+	PopUpBox* pb = static_cast<PopUpBox*>(LayerVec[layer].elements.back());
 	pb->zLayer = layer;
 
 	pb->castType = CastType::PopUpBox;
@@ -517,8 +459,8 @@ Slider* UI::LCreateSlider(int layer, const std::string& name, int x, int y, int 
 
 	if (layer < 0) { layer = 0; }
 	if (layer > 100) { layer = 100; }
-	ZElemVec[layer].emplace_back(new Slider());
-	Slider* sl = static_cast<Slider*>(ZElemVec[layer].back());
+	LayerVec[layer].elements.emplace_back(new Slider());
+	Slider* sl = static_cast<Slider*>(LayerVec[layer].elements.back());
 	sl->zLayer = layer;
 
 	sl->castType = CastType::Slider;
@@ -543,8 +485,8 @@ Button* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT
 
 	Button* btn = nullptr;
 	if (settings.useLayersInRendering) {
-		ZElemVec[0].emplace_back(new Button());
-		btn = static_cast<Button*>(ZElemVec[0].back());
+		LayerVec[0].elements.emplace_back(new Button());
+		btn = static_cast<Button*>(LayerVec[0].elements.back());
 	}
 	else {
 		UiElemVec.emplace_back(new Button());
@@ -569,8 +511,8 @@ TextBox* UI::CreateTextBox(const std::string& name, int x, int y, int w, int h, 
 
 	TextBox* tb = nullptr;
 	if (settings.useLayersInRendering) {
-		ZElemVec[0].emplace_back(new TextBox());
-		tb = static_cast<TextBox*>(ZElemVec[0].back());
+		LayerVec[0].elements.emplace_back(new TextBox());
+		tb = static_cast<TextBox*>(LayerVec[0].elements.back());
 	}
 	else {
 		UiElemVec.emplace_back(new TextBox());
@@ -594,8 +536,8 @@ ClickBox* UI::CreateClickBox(const std::string& name, int x, int y, int w, int h
 
 	ClickBox* cb = nullptr;
 	if (settings.useLayersInRendering) {
-		ZElemVec[0].emplace_back(new ClickBox());
-		cb = static_cast<ClickBox*>(ZElemVec[0].back());
+		LayerVec[0].elements.emplace_back(new ClickBox());
+		cb = static_cast<ClickBox*>(LayerVec[0].elements.back());
 	}
 	else {
 		UiElemVec.emplace_back(new ClickBox());
@@ -618,8 +560,8 @@ PopUpBox* UI::CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y
 
 	PopUpBox* pb = nullptr;
 	if (settings.useLayersInRendering) {
-		ZElemVec[0].emplace_back(new PopUpBox());
-		pb = static_cast<PopUpBox*>(ZElemVec[0].back());
+		LayerVec[0].elements.emplace_back(new PopUpBox());
+		pb = static_cast<PopUpBox*>(LayerVec[0].elements.back());
 	}
 	else {
 		UiElemVec.emplace_back(new PopUpBox());
@@ -643,8 +585,8 @@ Slider* UI::CreateSlider(const std::string& name, int x, int y, int w, int h, in
 
 	Slider* sl = nullptr;
 	if (settings.useLayersInRendering) {
-		ZElemVec[0].emplace_back(new Slider());
-		sl = static_cast<Slider*>(ZElemVec[0].back());
+		LayerVec[0].elements.emplace_back(new Slider());
+		sl = static_cast<Slider*>(LayerVec[0].elements.back());
 	}
 	else {
 		UiElemVec.emplace_back(new Slider());
@@ -764,7 +706,7 @@ void UI::ManageTextBoxTextInput(TextBox *tb, SDL_Event& event) {
 	}
 }
 
-void UI::CheckClickBoxes(ClickBox *cb, int eventType, bool &forceStop, SDL_Event& event) {
+void UI::CheckClickBoxes(ClickBox *cb, unsigned int eventType, bool &forceStop, SDL_Event& event) {
 	if (event.type == eventType) {
 		// Checks from newest to oldest it does not really have diffence on overall order
 		// since status is called when you want but if you use stopCheckAtFirst setting it will not call
@@ -842,9 +784,11 @@ void UI::ManageInput(SDL_Event& event) {
 		}
 	};
 
+	MT::Rect mouseRect{ event.button.x ,event.button.y,1,1 };
 	if (settings.useLayersInRendering) {
-		for (auto layerIter = ZElemVec.rbegin(); layerIter != ZElemVec.rend(); layerIter++) {
-			for (auto elemIter = layerIter->rbegin(); elemIter != layerIter->rend(); elemIter++) {
+		for (auto layerIter = LayerVec.rbegin(); layerIter != LayerVec.rend(); layerIter++) {
+			if (layerIter->clipTest && !mouseRect.IsColliding(layerIter->clipRect)) { continue; }
+			for (auto elemIter = layerIter->elements.rbegin(); elemIter != layerIter->elements.rend(); elemIter++) {
 				UIElemBase* elem = *elemIter;
 				CheckElem(elem);
 			}
@@ -967,20 +911,27 @@ void UI::SetElementZLayer(const std::string& name, int zlayer) {
 	else if (zlayer > 100) { zlayer = 100; }
 	elem->zLayer = zlayer;
 	if (settings.useLayersInRendering) {
-		auto elemIter = std::find_if(ZElemVec[prevLayer].begin(), ZElemVec[prevLayer].end(), 
+		auto elemIter = std::find_if(LayerVec[prevLayer].elements.begin(), LayerVec[prevLayer].elements.end(),
 			[&](UIElemBase* itElem) {return elem == itElem; });
-		if (elemIter != ZElemVec[prevLayer].end()) { // If it is the end guess we are fucked
-			ZElemVec[prevLayer].erase(elemIter);
+		if (elemIter != LayerVec[prevLayer].elements.end()) { // If it is the end guess we are fucked
+			LayerVec[prevLayer].elements.erase(elemIter);
 		}
-		ZElemVec[elem->zLayer].emplace_back(elem);
+		LayerVec[elem->zLayer].elements.emplace_back(elem);
+	}
+}
+
+void UI::SetLayerClipTest(bool test, const MT::Rect& rect, int zlayer) {
+	if (zlayer > -1 && zlayer < LayerVec.size()) {
+		LayerVec[zlayer].clipTest = test;
+		LayerVec[zlayer].clipRect = rect;
 	}
 }
 
 void UI::FrameUpdate() {
 	if (popupBoxesCount < 1) { return; }
 	if (settings.useLayersInRendering) {
-		for (auto layerIter = ZElemVec.rbegin(); layerIter != ZElemVec.rend(); layerIter++) {
-			for (auto elemIt = layerIter->rbegin(); elemIt != layerIter->rend(); elemIt++) {
+		for (auto layerIter = LayerVec.rbegin(); layerIter != LayerVec.rend(); layerIter++) {
+			for (auto elemIt = layerIter->elements.rbegin(); elemIt != layerIter->elements.rend(); elemIt++) {
 				if ((*elemIt)->castType != CastType::PopUpBox) {
 					++elemIt;
 					continue;
@@ -1021,7 +972,7 @@ bool UI::DeleteElement(const std::string& name) {
 	auto elemIter = UIElemMap.find(name);
 	if (elemIter == UIElemMap.end()) { return false; }
 	if (settings.useLayersInRendering) {
-		std::vector<UIElemBase*>& layer = ZElemVec[elemIter->second->zLayer];
+		std::vector<UIElemBase*>& layer = LayerVec[elemIter->second->zLayer].elements;
 		auto vecIter = std::find(layer.rbegin(), layer.rend(), elemIter->second);
 		if (vecIter != layer.rend()) {
 			if (elemIter->second->castType == CastType::PopUpBox) {
@@ -1107,7 +1058,6 @@ void UI::DumpButton(nlohmann::ordered_json& json, UIElemBase* elem) {
 
 	jsonElem["Text"] = elem->text;
 	jsonElem["TextScale"] = elem->textScale;
-	jsonElem["Border"] = elem->border;
 	jsonElem["BorderThinkness"] = elem->borderThickness;
 	jsonElem["TextStartX"] = elem->textStartX;
 	jsonElem["TextStartY"] = elem->textStartY;
@@ -1266,7 +1216,6 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		}
 		elem->text = val["Text"];
 		elem->textScale = val["TextScale"];
-		elem->border = val["Border"];
 		elem->borderThickness = val["BorderThinkness"];
 		elem->textStartX = val["TextStartX"];
 		elem->textStartY = val["TextStartY"];
@@ -1389,20 +1338,18 @@ void UI::ClearAll(bool clearLists) {
 		for (auto& it : ListTbRef) {
 			it->Clear();
 		}
-		ListBtnRef.clear();
+		ListTbRef.clear();
 		for (auto& it : ListCbRef) {
 			it->Clear();
 		}
-		ListBtnRef.clear();
-		ListTbRef.clear();
 		ListCbRef.clear();
 	}
 	if (settings.useLayersInRendering) {
-		for (auto& layer : ZElemVec) {
-			for (auto& elem : layer) {
+		for (auto& layer : LayerVec) {
+			for (auto& elem : layer.elements) {
 				delete elem;
 			}
-			layer.clear();
+			layer.elements.clear();
 		}
 	}
 	else {

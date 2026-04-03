@@ -47,8 +47,6 @@ protected:
 	float textScale = 1.0f;
 	int interLine = 20;
 
-	bool border = false;
-
 	int borderThickness = 0;
 
 	int textStartX = 0;
@@ -78,39 +76,39 @@ protected:
 
 	int zLayer = 0; // Bazowo zawsze 0 
 
-	bool GetBorder();
-
 	void RenderText(MT::Renderer* renderer);
 
 
 public:
-	std::string& GetName();
+	std::string& GetName() {return name;}
 
 	// Unused breaks hash use ui->Rename()
 	//void SetName(const std::string &value);
 
-	std::string& GetText();
-	void SetText(const std::string &temptext);
+	void SetText(const std::string& temptext) {text = temptext;}
 
-	float GetTextScale();
-	void SetTextScale(float temp);
-	int GetInterLine();
-	void SetInterLine(int temp);
+	std::string& GetText() {return text;}
 
-	int GetBorderThickness();
+	float GetTextScale() {return textScale;}
+	void SetTextScale(float temp) {textScale = temp;}
+	int GetInterLine() {return interLine;}
+	void SetInterLine(int temp) {interLine = temp;}
 
-	void SetBorderThickness(const int temp);
+	Font* GetFont() {return font;}
+
+	void SetFont(Font* font) {this->font = font;}
+
+	int GetBorderThickness() {return borderThickness;}
+
+	void SetBorderThickness(const int temp) {borderThickness = temp;}
+
+	int GetTextStartX() {return textStartX;}
+	void SetTextStartX(int temp) {textStartX = temp;}
+	int GetTextStartY() {return textStartY;}
+	void SetTextStartY(int temp) {textStartY = temp;}
+
 
 	void SetBorder(const int width, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255);
-
-	int GetTextStartX();
-	void SetTextStartX(int temp);
-	int GetTextStartY();
-	void SetTextStartY(int temp);
-
-	Font* GetFont();
-
-	void SetFont(Font* font);
 
 	void SetColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255);
 
@@ -259,6 +257,14 @@ class UIList;
 
 class UISection;
 
+
+struct UILayer {
+	bool clipTest = false;
+	MT::Rect clipRect{ 0,0,0,0 };
+	std::vector<UIElemBase*> elements;
+
+};
+
 // To propelly start the UI you need to place manage input function in event loop and render in rendering loop
 class UI{
 	private:
@@ -266,7 +272,7 @@ class UI{
 		LocalTexMan* localTexMan = nullptr;
 
 		std::vector<UIElemBase*> UiElemVec;
-		std::vector<std::vector<UIElemBase*>> ZElemVec;
+		std::vector<UILayer> LayerVec;
 
 		std::unordered_map<std::string, UIElemBase*> UIElemMap;
 
@@ -396,7 +402,7 @@ class UI{
 
 		void ManageTextBoxTextInput(TextBox* tb, SDL_Event& event);
 
-		void CheckClickBoxes(ClickBox* cb, int eventType, bool& forceStop, SDL_Event& event);
+		void CheckClickBoxes(ClickBox* cb, unsigned int eventType, bool& forceStop, SDL_Event& event);
 
 		void SlideSliders(Slider* slider, SDL_Event& event);
 
@@ -415,6 +421,8 @@ class UI{
 		void SetElementFontColor(const std::string& name, const unsigned char R, const unsigned char G, const unsigned char B);
 
 		void SetElementZLayer(const std::string& name, int zlayer);
+
+		void SetLayerClipTest(bool test, const MT::Rect& rect, int zlayer);
 
 		void FrameUpdate();
 
