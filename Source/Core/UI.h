@@ -81,8 +81,7 @@ protected:
 public:
 	std::string& GetName() {return name;}
 
-	// Unused breaks hash use ui->Rename()
-	//void SetName(const std::string &value);
+	CastType GetCastType() { return this->castType; }
 
 	void SetText(const std::string& temptext) {text = temptext;}
 
