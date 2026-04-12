@@ -62,7 +62,7 @@ protected:
 
 	void (*renderFunction)(UIElemBase* ,MT::Renderer*) = nullptr;
 
-	unsigned short textRenderType = 0; // Base is left up corner
+	TextRenderType textRenderType = TextRenderType::Standard; // Base is left up corner
 
 	bool hidden = false;
 
@@ -77,7 +77,6 @@ protected:
 	int zLayer = 0; // Bazowo zawsze 0 
 
 	void RenderText(MT::Renderer* renderer);
-
 
 public:
 	std::string& GetName() {return name;}
@@ -108,39 +107,89 @@ public:
 	void SetTextStartY(int temp) {textStartY = temp;}
 
 
-	void SetBorder(const int width, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255);
+	void SetBorder(const int width, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255) {
+		borderThickness = width;
+		borderRGB.R = R;
+		borderRGB.G = G;
+		borderRGB.B = B;
+		borderRGB.A = A;
+	}
 
-	void SetColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255);
+	void SetColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255) {
+		buttonColor.R = R;
+		buttonColor.G = G;
+		buttonColor.B = B;
+		buttonColor.A = A;
+	}
 
-	void SetBorderColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255);
 
-	void SetFontColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255);
+	void SetBorderColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255) {
+		borderRGB.R = R;
+		borderRGB.G = G;
+		borderRGB.B = B;
+		borderRGB.A = A;
+	}
 
-	static void Render(UIElemBase *elem, MT::Renderer* renderer);
-
-	static void RenderRounded(UIElemBase* elem, MT::Renderer* renderer);
+	void SetFontColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255) {
+		if (font != nullptr) {
+			if (font->GetTexture() != nullptr) {
+				fontRGB.R = R;
+				fontRGB.G = G;
+				fontRGB.B = B;
+				fontRGB.A = A;
+			}
+		}
+	}
 
 	// Use Enum RenderType::
-	void SetRenderType(const unsigned int renderType);
+	void SetRenderType(RenderType renderType) {
+		if (renderType == RenderType::Standard) {
+			renderFunction = &UIElemBase::Render;
+		}
+		else  if (renderType == RenderType::Rounded) {
+			renderFunction = &UIElemBase::RenderRounded;
+		}
+		else {
+			renderFunction = &UIElemBase::Render;
+		}
+	}
 	
 	// Use Enum TextRenderType::
-	void SetRenderTextType(const unsigned short textRenderType);
+	void SetRenderTextType(TextRenderType textRenderType) {this->textRenderType = textRenderType;}
 
-	bool IsHidden();
+	bool IsHidden() {return hidden;}
 
-	void Hide();
+	void Hide() {hidden = true;}
 
-	void Show();
+	void Show() {hidden = false;}
 
-	bool IsHovered();
+	bool IsHovered() {return hovered;}
 
-	void SetHover(bool temp);
+	void SetHover(bool temp) {hovered = temp;}
 
-	void SetHoverFilter(const bool filter, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A, const std::string& sound = "");
+	void SetHoverFilter(const bool filter, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255, const std::string& sound = "") {
+		this->hoverable = filter;
+		hoverFilter.R = R;
+		hoverFilter.G = G;
+		hoverFilter.B = B;
+		hoverFilter.A = A;
+		if (sound == "") {
+			hoverSound = nullptr;
+		}
+		else {
+			hoverSound = SoundMan::GetSound(sound);
+		}
+	}
 
-	Mix_Chunk* GetHoverSound();
+	Mix_Chunk* GetHoverSound() {return hoverSound;}
 
-	int GetZLayer();
+	void SetHoverSound(std::string &name){hoverSound = SoundMan::GetSound(name);}
+
+	int GetZLayer() {return this->zLayer;}
+
+	static void Render(UIElemBase* elem, MT::Renderer* renderer);
+
+	static void RenderRounded(UIElemBase* elem, MT::Renderer* renderer);
 
 	virtual ~UIElemBase() = default;
 
@@ -162,21 +211,27 @@ private:
 
 	std::string clickSound = "";
 public:
-	bool GetStatus();
+	bool GetStatus() {return status;}
 
-	void SetStatus(bool value);
+	void SetStatus(bool value) {status = value;}
 
-	bool ConsumeStatus();
+	bool ConsumeStatus() {
+		if (status) {
+			status = false;
+			return true;
+		}
+		return false;
+	}
 
-	void TurnOn();
+	void TurnOn() {turnedOn = true;}
 
-	void TurnOff();
+	void TurnOff() {turnedOn = false;}
 
-	bool IsOn();
+	bool IsOn() {return turnedOn;}
 
-	void SetClickSound(const std::string &temp);
+	void SetClickSound(const std::string& temp) {this->clickSound = temp;}
 
-	std::string &GetClickSound();
+	std::string& GetClickSound() {return clickSound;}
 
 	friend class UI;
 };
@@ -189,17 +244,27 @@ private:
 	bool turnedOn = true;
 	unsigned int maxTextLength = 1'000'000;
 public:
-	bool IsUsed();
+	bool IsUsed() {return this->isUsed;}
 
-	void TurnOn();
+	void TurnOn() {turnedOn = true;}
 
-	void TurnOff();
+	void TurnOff() {
+		turnedOn = false;
+		isUsed = false;
+	}
 
-	bool IsOn();
+	bool IsOn() {return turnedOn;}
 
-	void SetTextLength(unsigned int val);
+	void SetTextLength(unsigned int val) {
+		if (val > 1'000'000) {
+			this->maxTextLength = 1'000'000;
+		}
+		else {
+			this->maxTextLength = val;
+		}
+	}
 
-	unsigned int GetTextLength();
+	unsigned int GetTextLength() {return this->maxTextLength;}
 
 	friend class UI;
 };
@@ -213,31 +278,32 @@ class PopUpBox : public UIElemBase {
 	public:
 		friend class UI;
 
-		int GetLifeTime();
-		void SetLifeTime(const int lifeTime);
+		int GetLifeTime() {return this->lifeTime;}
+
+		void SetLifeTime(const int lifeTime) {this->lifeTime = lifeTime;}
 };
 
 class Slider : public UIElemBase {
 	private:
-		int slideType = 0; //Enmum class SliderSlide
+		SliderSlide slideType = SliderSlide::X; //Enmum class SliderSlide
 		int min = 0; // Min X or Y slider can go
 		int max = 0; // Max X or Y slider can go
 
 	public:
 		// Getters
-		int GetSlideType() const { return slideType; }
+		SliderSlide GetSlideType() const { return slideType; }
 		int GetMin() const { return min; }
 		int GetMax() const { return max; }
 
 		// Setters
-		void SetSlideType(int value) { slideType = value; }
+		void SetSlideType(SliderSlide value) { slideType = value; }
 		void SetMin(int value) { min = value; }
 		void SetMax(int value) { max = value; }
 
 		float GetPercent() {
 			int radius = 0;
 			int pos = 0;
-			if (slideType == (int)SliderSlide::X) {
+			if (slideType == SliderSlide::X) {
 				radius = max - min - GetRectangle().w;
 				pos = GetRectangle().x - min;
 			}
@@ -364,7 +430,7 @@ class UI{
 		PopUpBox* LCreatePopUpBox(int layer, const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr,
 			Font* font = nullptr, const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
-		Slider* LCreateSlider(int layer, const std::string& name, int x, int y, int w, int h, int slideType, int min, int max,
+		Slider* LCreateSlider(int layer, const std::string& name, int x, int y, int w, int h, SliderSlide slideType, int min, int max,
 			MT::Texture* texture = nullptr);
 
 		Button* CreateButton(const std::string &name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
@@ -379,7 +445,7 @@ class UI{
 		PopUpBox* CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
-		Slider* CreateSlider(const std::string& name, int x, int y, int w, int h, int slideType, int min, int max, MT::Texture* texture = nullptr);
+		Slider* CreateSlider(const std::string& name, int x, int y, int w, int h, SliderSlide slideType, int min, int max, MT::Texture* texture = nullptr);
 
 		Button* CreateButtonF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string &fontStr = "",
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);

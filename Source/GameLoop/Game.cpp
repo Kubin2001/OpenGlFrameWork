@@ -45,38 +45,6 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	renderer->FLatRenderCopySetUp();
-
-	ui->UseLayerInRendering(true);
-
-	ClickBox* cb = nullptr;
-	Font* font = ui->GetFont("arial12");
-
-	cb = ui->LCreateClickBox(10, "Box1", 200, 200, 100, 100, nullptr, font, "Some text I");
-	cb->SetColor(30, 30, 30);
-	cb->SetHoverFilter(true, 255, 255, 255, 120);
-	cb->SetRenderTextType((int)TextRenderType::Centered);
-
-	cb = ui->LCreateClickBox(10, "Box2", 350, 200, 100, 100, nullptr, font, "Some text II");
-	cb->SetColor(30, 30, 30);
-	cb->SetHoverFilter(true, 255, 255, 255, 120);
-	cb->SetRenderTextType((int)TextRenderType::Centered);
-
-	cb = ui->LCreateClickBox(10, "Box3", 200, 350, 100, 100, nullptr, font, "Some text III");
-	cb->SetColor(30, 30, 30);
-	cb->SetHoverFilter(true, 255, 255, 255, 120);
-	cb->SetRenderTextType((int)TextRenderType::Centered);
-
-	cb = ui->LCreateClickBox(10, "Box4", 350, 350, 100, 400, nullptr, font, "Some text IV");
-	cb->SetColor(30, 30, 30);
-	cb->SetHoverFilter(true, 255, 255, 255, 120);
-	cb->SetRenderTextType((int)TextRenderType::Centered);
-
-	Button* btn = ui->LCreateButton(9, "btn", 50, 50, 500, 500);
-	btn->SetColor(180, 180, 180);
-	btn->SetBorder(4, 0, 0, 0);
-
-	ui->SetLayerClipTest(true, { 50,50,500,500 },10);
-
 }
 
 void Game::LogicUpdate() {

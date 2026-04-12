@@ -76,7 +76,7 @@ void FileExplorer::CreateElement(int x, int y, const std::string& dirPath, const
 	cb = folderElementsNames.back();
 	cb->SetColor(255, 255, 255, 0);
 	cb->SetHoverFilter(true, 255, 255, 255, 70);
-	cb->SetRenderTextType((int)TextRenderType::CenteredY);
+	cb->SetRenderTextType(TextRenderType::CenteredY);
 }
 
 static std::unordered_map<std::string, MT::Texture*> LoadExtensionTextures(LocalTexMan *texMan) {

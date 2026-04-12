@@ -7,39 +7,6 @@
 #include "GlobalVariables.h"
 
 //UIElemBase
-void UIElemBase::SetBorder(const int width, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A) {
-	borderThickness = width;
-	borderRGB.R = R;
-	borderRGB.G = G;
-	borderRGB.B = B;
-	borderRGB.A = A;
-}
-
-void UIElemBase::SetColor(const unsigned char R, const unsigned char G, const unsigned char B , const unsigned char A) {
-	buttonColor.R = R;
-	buttonColor.G = G;
-	buttonColor.B = B;
-	buttonColor.A = A;
-}
-
-
-void UIElemBase::SetBorderColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A) {
-	borderRGB.R = R;
-	borderRGB.G = G;
-	borderRGB.B = B;
-	borderRGB.A = A;
-}
-
-void UIElemBase::SetFontColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A) {
-	if (font != nullptr) {
-		if (font->GetTexture() != nullptr) {
-			fontRGB.R = R;
-			fontRGB.G = G;
-			fontRGB.B = B;
-			fontRGB.A = A;
-		}
-	}
-}
 
 void UIElemBase::Render(UIElemBase* elem, MT::Renderer* renderer) {
 	if (!elem->hidden) {
@@ -88,19 +55,19 @@ void UIElemBase::RenderText(MT::Renderer* renderer) {
 	font->SetFilter(fontRGB.R, fontRGB.G, fontRGB.B);
 	font->GetTexture()->SetAlphaBending(fontRGB.A);
 	switch (textRenderType) {
-		case (int)TextRenderType::Standard:
+		case TextRenderType::Standard:
 			font->RenderText(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
 			break;
-		case (int)TextRenderType::Centered:
+		case TextRenderType::Centered:
 			font->RenderTextCenter(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
 			break;
-		case (int)TextRenderType::FromRight:
+		case TextRenderType::FromRight:
 			font->RenderTextFromRight(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
 			break;
-		case (int)TextRenderType::CenteredX:
+		case TextRenderType::CenteredX:
 			font->RenderTextCenterX(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
 			break;
-		case (int)TextRenderType::CenteredY:
+		case TextRenderType::CenteredY:
 			font->RenderTextCenterY(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
 			break;
 		default: // Standardowa opcja
@@ -110,151 +77,8 @@ void UIElemBase::RenderText(MT::Renderer* renderer) {
 	font->GetTexture()->SetAlphaBending(255);
 }
 
-void UIElemBase::SetRenderType(const unsigned int renderType) {
-	if (renderType == (int)RenderType::Standard) {
-		renderFunction = &UIElemBase::Render;
-	}
-	else  if (renderType == (int)RenderType::Rounded) {
-		renderFunction = &UIElemBase::RenderRounded;
-	}
-	else {
-		renderFunction = &UIElemBase::Render;
-	}
-}
-
-void UIElemBase::SetRenderTextType(const unsigned short textRenderType) {
-	this->textRenderType = textRenderType;
-}
-
-
-bool UIElemBase::IsHidden() {
-	return hidden;
-}
-
-void UIElemBase::Hide() {
-	hidden = true;
-}
-
-void UIElemBase::Show() {
-	hidden = false;
-}
-
-bool UIElemBase::IsHovered() {
-	return hovered;
-}
-
-void UIElemBase::SetHover(bool temp) {
-	hovered = temp;
-}
-
-void UIElemBase::SetHoverFilter(const bool filter, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A, const std::string& sound) {
-	this->hoverable = filter;
-	hoverFilter.R = R;
-	hoverFilter.G = G;
-	hoverFilter.B = B;
-	hoverFilter.A = A;
-	if (sound == "") {
-		hoverSound = nullptr;
-	}
-	else {
-		hoverSound = SoundMan::GetSound(sound);
-	}
-}
-
-Mix_Chunk* UIElemBase::GetHoverSound() {
-	return hoverSound;
-}
-
-int UIElemBase::GetZLayer() {
-	return this->zLayer;
-}
-
 
 //BUTTON
-//TextBox
-bool TextBox::IsUsed() {
-	return this->isUsed;
-}
-
-void TextBox::TurnOn() {
-	turnedOn = true;
-}
-
-void TextBox::TurnOff() {
-	turnedOn = false;
-	isUsed = false;
-}
-
-bool TextBox::IsOn() {
-	return turnedOn;
-}
-
-void TextBox::SetTextLength(unsigned int val) {
-	if (val > 1'000'000) {
-		this->maxTextLength = 1'000'000;
-	}
-	else {
-		this->maxTextLength = val;
-	}
-}
-
-unsigned int TextBox::GetTextLength() {
-	return this->maxTextLength;
-}
-
-
-//ClickBox
-bool ClickBox::GetStatus() {
-	return status;
-}
-
-void ClickBox::SetStatus(bool value) {
-	status = value;
-}
-
-bool ClickBox::ConsumeStatus() {
-	if (status) {
-		status = false;
-		return true;
-	}
-	return false;
-}
-
-void ClickBox::TurnOn() {
-	turnedOn = true;
-}
-
-void ClickBox::TurnOff() {
-	turnedOn = false;
-}
-
-bool ClickBox::IsOn() {
-	return turnedOn;
-}
-
-void ClickBox::SetClickSound(const std::string& temp) {
-	this->clickSound = temp;
-}
-
-std::string& ClickBox::GetClickSound() {
-	return clickSound;
-}
-//ClickBox
-//Pop Up Box
-
-int PopUpBox::GetLifeTime() {
-	return this->lifeTime;
-}
-
-void PopUpBox::SetLifeTime(const int lifeTime) {
-	this->lifeTime = lifeTime;
-}
-
-//Pop Up Box
-
-//Slider
-
-//Slider
 
 UI::UI(MT::Renderer* renderer) {
 	fontManager = new FontManager();
@@ -330,7 +154,7 @@ void UI::FillElem(UIElemBase *elem ,const std::string& name, int x, int y, int w
 
 	elem->name = name;
 	elem->GetRectangle().Set(x, y, w, h);
-	elem->SetRenderType((int)RenderType::Standard);
+	elem->SetRenderType(RenderType::Standard);
 
 	elem->SetTexture(texture);
 
@@ -446,7 +270,7 @@ PopUpBox* UI::LCreatePopUpBox(int layer, const std::string& name, int lifeSpan, 
 	return pb;
 }
 
-Slider* UI::LCreateSlider(int layer, const std::string& name, int x, int y, int w, int h, int slideType, int min, int max, MT::Texture* texture) {
+Slider* UI::LCreateSlider(int layer, const std::string& name, int x, int y, int w, int h, SliderSlide slideType, int min, int max, MT::Texture* texture) {
 
 	if (!settings.useLayersInRendering) {
 		throw std::exception("This should not be used without layer in rendering set on");
@@ -466,7 +290,7 @@ Slider* UI::LCreateSlider(int layer, const std::string& name, int x, int y, int 
 	sl->castType = CastType::Slider;
 	sl->name = name;
 	sl->GetRectangle().Set(x, y, w, h);
-	sl->SetRenderType((int)RenderType::Standard);
+	sl->SetRenderType(RenderType::Standard);
 	sl->SetTexture(texture);
 	sl->SetSlideType(slideType);
 	sl->SetMin(min);
@@ -577,7 +401,7 @@ PopUpBox* UI::CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y
 	return pb;
 }
 
-Slider* UI::CreateSlider(const std::string& name, int x, int y, int w, int h, int slideType, int min, int max, MT::Texture* texture){
+Slider* UI::CreateSlider(const std::string& name, int x, int y, int w, int h, SliderSlide slideType, int min, int max, MT::Texture* texture){
 	if (GetSlider(name) != nullptr) {
 		std::cout << "Warning name collision PopUpBox with name: " << name << " already exists addition abborted\n";
 		return nullptr;
@@ -597,7 +421,7 @@ Slider* UI::CreateSlider(const std::string& name, int x, int y, int w, int h, in
 	sl->castType = CastType::Slider;
 	sl->name = name;
 	sl->GetRectangle().Set(x, y, w, h);
-	sl->SetRenderType((int)RenderType::Standard);
+	sl->SetRenderType(RenderType::Standard);
 
 	sl->SetTexture(texture);
 	sl->SetSlideType(slideType);
@@ -731,7 +555,7 @@ void UI::SlideSliders(Slider* slider, SDL_Event& event) {
 	MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
 	if (!slider->GetRectangle().IsColliding(temprect)) { return; }
 
-	if (slider->GetSlideType() == (int)SliderSlide::X) {
+	if (slider->GetSlideType() == SliderSlide::X) {
 		slider->GetRectangle().x = temprect.x - slider->GetRectangle().w/2;
 		if (slider->GetRectangle().x < slider->min) {
 			slider->GetRectangle().x = slider->min;
@@ -1234,7 +1058,7 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		if (val.contains("Font")) {
 			elem->font = GetFont(val["Font"]);
 		}
-		int renderFunction = val["RenderType"];
+		RenderType renderFunction = val["RenderType"];
 		elem->SetRenderType(renderFunction);
 		elem->textRenderType = val["TextRenderType"];
 		elem->hidden = val["Hidden"];
@@ -1312,10 +1136,10 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		else if (type == (int)CastType::Slider) {
 			Slider* sl = nullptr;
 			if (settings.useLayersInRendering) {
-				sl = LCreateSlider(elem->zLayer, key, 120, 0, 0, 0, 0, 0, 0);
+				sl = LCreateSlider(elem->zLayer, key, 120, 0, 0, 0, SliderSlide::X, 0, 0);
 			}
 			else {
-				sl = CreateSlider(key, 120, 0, 0, 0, 0, 0, 0);
+				sl = CreateSlider(key, 120, 0, 0, 0, SliderSlide::X, 0, 0);
 			}
 			int prevLayer = sl->zLayer;
 			*sl = *static_cast<Slider*>(elem.get());
