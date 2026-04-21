@@ -168,7 +168,7 @@ void UI::FillElem(UIElemBase *elem ,const std::string& name, int x, int y, int w
 	elem->SetTextStartY(textStartY);
 }
 
-Button* UI::LCreateButton(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+Label* UI::LCreateButton(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	if (!settings.useLayersInRendering) {
@@ -182,15 +182,15 @@ Button* UI::LCreateButton(int layer, const std::string& name, int x, int y, int 
 
 	if (layer < 0) { layer = 0; }
 	if (layer > 100) { layer = 100; }
-	LayerVec[layer].elements.emplace_back(new Button());
-	Button* btn = static_cast<Button*>(LayerVec[layer].elements.back());
-	btn->zLayer = layer;;
+	LayerVec[layer].elements.emplace_back(new Label());
+	Label* lb = static_cast<Label*>(LayerVec[layer].elements.back());
+	lb->zLayer = layer;;
 
-	btn->castType = CastType::Button;
-	FillElem(btn, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
+	lb->castType = CastType::Label;
+	FillElem(lb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
-	UIElemMap.emplace(btn->name, btn);
-	return btn;
+	UIElemMap.emplace(lb->name, lb);
+	return lb;
 }
 
 TextBox* UI::LCreateTextBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
@@ -299,7 +299,7 @@ Slider* UI::LCreateSlider(int layer, const std::string& name, int x, int y, int 
 	return sl;
 }
 
-Button* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+Label* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	if (GetButton(name) != nullptr) {
@@ -307,22 +307,22 @@ Button* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT
 		return nullptr;
 	}
 
-	Button* btn = nullptr;
+	Label* lb = nullptr;
 	if (settings.useLayersInRendering) {
-		LayerVec[0].elements.emplace_back(new Button());
-		btn = static_cast<Button*>(LayerVec[0].elements.back());
+		LayerVec[0].elements.emplace_back(new Label());
+		lb = static_cast<Label*>(LayerVec[0].elements.back());
 	}
 	else {
-		UiElemVec.emplace_back(new Button());
-		btn = static_cast<Button*>(UiElemVec.back());
+		UiElemVec.emplace_back(new Label());
+		lb = static_cast<Label*>(UiElemVec.back());
 
 	}
 
-	btn->castType = CastType::Button;
-	FillElem(btn,name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
+	lb->castType = CastType::Label;
+	FillElem(lb,name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
-	UIElemMap.emplace(btn->name, btn);
-	return btn;
+	UIElemMap.emplace(lb->name, lb);
+	return lb;
 }
 
 TextBox* UI::CreateTextBox(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
@@ -433,7 +433,7 @@ Slider* UI::CreateSlider(const std::string& name, int x, int y, int w, int h, Sl
 }
 
 
-Button* UI::CreateButtonF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, const std::string& fontSt,
+Label* UI::CreateButtonF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, const std::string& fontSt,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 	return CreateButton(name, x, y, w, h, texture, GetFont(fontSt), text, textScale, textStartX, textStartY);
 }
@@ -636,14 +636,14 @@ UIElemBase* UI::GetElem(const std::string& name) {
 	return iter->second;
 }
 
-Button* UI::GetButton(const std::string& name) {
+Label* UI::GetButton(const std::string& name) {
 	auto iter = UIElemMap.find(name);
 	if (iter == UIElemMap.end()) {
 		return nullptr;
 	}
 	UIElemBase* elem = iter->second;
-	if (elem->castType == CastType::Button) {
-		return static_cast<Button*>(elem);
+	if (elem->castType == CastType::Label) {
+		return static_cast<Label*>(elem);
 	}
 	return nullptr;
 }
@@ -971,7 +971,7 @@ void UI::DumpToJson(const std::string &fileName, const std::vector<UIElemBase*>&
 	nlohmann::ordered_json jsonFile;
 	for (auto& elem : elements) {
 		switch (elem->castType) {
-			case CastType::Button:
+			case CastType::Label:
 				DumpButton(jsonFile, elem);
 				break;
 			case CastType::ClickBox:
@@ -1017,8 +1017,8 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 
 		std::unique_ptr<UIElemBase> elem = nullptr;
 
-		if (type == (int)CastType::Button) {
-			elem = std::make_unique<Button>();
+		if (type == (int)CastType::Label) {
+			elem = std::make_unique<Label>();
 		}
 		else if (type == (int)CastType::ClickBox) {
 			elem = std::make_unique<ClickBox>();
@@ -1076,18 +1076,18 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		elem->zLayer = val["Zlayer"];
 
 
-		if (type == (int)CastType::Button) {
-			Button* btn = nullptr;
+		if (type == (int)CastType::Label) {
+			Label* lb = nullptr;
 			if (settings.useLayersInRendering) {
-				btn = LCreateButton(elem->zLayer,key, 0, 0, 0, 0);
+				lb = LCreateButton(elem->zLayer,key, 0, 0, 0, 0);
 			}
 			else {
-				btn = CreateButton(key, 0, 0, 0, 0);
+				lb = CreateButton(key, 0, 0, 0, 0);
 			}
-			int prevLayer = btn->zLayer;
-			*btn = *static_cast<Button*>(elem.get());
-			btn->zLayer = prevLayer;
-			loadedElements.emplace_back(btn);
+			int prevLayer = lb->zLayer;
+			*lb = *static_cast<Label*>(elem.get());
+			lb->zLayer = prevLayer;
+			loadedElements.emplace_back(lb);
 		}
 		else if (type == (int)CastType::ClickBox) {
 			ClickBox* cb = nullptr;
@@ -1155,10 +1155,10 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 
 void UI::ClearAll(bool clearLists) {
 	if (clearLists) {
-		for (auto& it : ListBtnRef) {
+		for (auto& it : ListLbRef) {
 			it->Clear();
 		}
-		ListBtnRef.clear();
+		ListLbRef.clear();
 		for (auto& it : ListTbRef) {
 			it->Clear();
 		}

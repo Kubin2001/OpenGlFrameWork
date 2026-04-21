@@ -24,13 +24,13 @@ static void CreateInfoBox(UI* ui, const std::string& text) {
 
 void PathMaker::CreateSaveMenu() {
 	if (!saveSection.GetClickBoxes().empty()) { return; }
-	Button* btn = ui->CreateButtonF("saveBack", 50, 50, 190, 200, nullptr, "arial20px", "Saving", 1.0f, 0, 10);
-	btn->SetRenderTextType(TextRenderType::CenteredX); 
-	btn->SetRenderType(RenderType::Rounded);
-	btn->SetColor(40, 40, 40, 255); 
-	btn->SetBorder(2, 70, 160, 255); 
-	btn->SetFontColor(40, 255, 255);
-	saveSection.Add(btn);
+	Label* lb = ui->CreateButtonF("saveBack", 50, 50, 190, 200, nullptr, "arial20px", "Saving", 1.0f, 0, 10);
+	lb->SetRenderTextType(TextRenderType::CenteredX); 
+	lb->SetRenderType(RenderType::Rounded);
+	lb->SetColor(40, 40, 40, 255); 
+	lb->SetBorder(2, 70, 160, 255); 
+	lb->SetFontColor(40, 255, 255);
+	saveSection.Add(lb);
 
 	ClickBox* cb = ui->CreateClickBoxF("saveTxt", 60, 100, 40, 40, nullptr, "arial12px", "Txt", 1.0f, 0, -15);
 	cb->SetRenderTextType(TextRenderType::CenteredX);

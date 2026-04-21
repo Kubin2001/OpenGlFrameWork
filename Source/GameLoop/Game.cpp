@@ -45,6 +45,12 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	renderer->FLatRenderCopySetUp();
+
+	FileExplorer fe;
+	fe.Open();
+
+	PathMaker pe;
+	pe.Open();
 }
 
 void Game::LogicUpdate() {
@@ -67,9 +73,31 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-	ui->Render();
-	renderer->Present();
 
+	MT::Texture* texture = TexMan::GetTex("granite");
+	MT::Texture* texture2 = TexMan::GetTex("grass");
+	MT::Texture* texture3 = TexMan::GetTex("water");
+
+	MT::Rect rect1{ 10,10,100,100 };
+	MT::Rect rect2{ 10,210,100,100 };
+	MT::Rect rect3{ 10,410,100,100 };
+
+	MT::Timer::Tic();
+	for (size_t i = 0; i < 1000; i++) {
+		renderer->FLatRenderCopy(rect1, texture);
+		renderer->FLatRenderCopy(rect2, texture2);
+		renderer->FLatRenderCopy(rect3, texture3);
+
+	}
+	renderer->FLatRenderCopyPresent();
+	//renderer->RenderCopy({ 500,500,200,200 }, tAtlas);
+	renderer->Present();
+	auto time = MT::Timer::Tac<std::chrono::microseconds>();
+
+
+	std::println("Time {} mikrosec", time);
+
+	//ui->Render();
 }
 
 

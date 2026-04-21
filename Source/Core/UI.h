@@ -11,7 +11,7 @@
 #include "json.hpp"
 
 enum class CastType {
-	Button,
+	Label,
 	ClickBox,
 	TextBox,
 	PopUpBox,
@@ -41,7 +41,7 @@ enum class SliderSlide {
 class UIElemBase :public GameObject {
 protected:
 	std::string name = "";
-	CastType castType = CastType::Button;
+	CastType castType = CastType::Label;
 
 	std::string text = "";
 	float textScale = 1.0f;
@@ -196,13 +196,13 @@ public:
 };
 
 
-class Button : public UIElemBase {
+class Label : public UIElemBase {
 
 	public:
 		friend class UI;
 };
 
-// A button that can be clicked with a mouse
+// An element that can be clicked with a mouse
 class ClickBox : public UIElemBase {
 private:
 	bool status = false;
@@ -341,7 +341,7 @@ class UI{
 
 		std::unordered_map<std::string, UIElemBase*> UIElemMap;
 
-		std::vector<UIList<Button>*> ListBtnRef;
+		std::vector<UIList<Label>*> ListLbRef;
 		std::vector<UIList<TextBox>*> ListTbRef;
 		std::vector<UIList<ClickBox>*> ListCbRef;
 
@@ -354,8 +354,8 @@ class UI{
 
 		template<typename T>
 		void AddListRef(UIList<T>* ref) {
-			if constexpr (std::is_same_v<T*, Button*>) {
-				ListBtnRef.emplace_back(ref);
+			if constexpr (std::is_same_v<T*, Label*>) {
+				ListLbRef.emplace_back(ref);
 			}
 			if constexpr (std::is_same_v<T*, TextBox*>) {
 				ListTbRef.emplace_back(ref);
@@ -367,8 +367,8 @@ class UI{
 		
 		template<typename T>
 		void RemoveListRef(UIList<T>* ref) {
-			if constexpr (std::is_same_v<T*, Button*>) {
-				std::erase(ListBtnRef, ref);
+			if constexpr (std::is_same_v<T*, Label*>) {
+				std::erase(ListLbRef, ref);
 			}
 			if constexpr (std::is_same_v<T*, TextBox*>) {
 				std::erase(ListTbRef, ref);
@@ -415,7 +415,7 @@ class UI{
 		friend class UIList;
 		UI(MT::Renderer* renderer);
 
-		Button* LCreateButton(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture =nullptr, 
+		Label* LCreateButton(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture =nullptr, 
 			Font* font = nullptr,const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		TextBox* LCreateTextBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr,
@@ -432,7 +432,7 @@ class UI{
 		Slider* LCreateSlider(int layer, const std::string& name, int x, int y, int w, int h, SliderSlide slideType, int min, int max,
 			MT::Texture* texture = nullptr);
 
-		Button* CreateButton(const std::string &name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
+		Label* CreateButton(const std::string &name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		TextBox* CreateTextBox(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
@@ -446,7 +446,7 @@ class UI{
 
 		Slider* CreateSlider(const std::string& name, int x, int y, int w, int h, SliderSlide slideType, int min, int max, MT::Texture* texture = nullptr);
 
-		Button* CreateButtonF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string &fontStr = "",
+		Label* CreateButtonF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string &fontStr = "",
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		TextBox* CreateTextBoxF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string& fontStr ="",
@@ -472,7 +472,7 @@ class UI{
 		void SlideSliders(Slider* slider, SDL_Event& event);
 
 		UIElemBase* GetElem(const std::string& name);
-		Button* GetButton(const std::string& name);
+		Label* GetButton(const std::string& name);
 		TextBox* GetTextBox(const std::string& name);
 		ClickBox* GetClickBox(const std::string& name);
 		PopUpBox* GetPopUpBox(const std::string& name);
@@ -548,7 +548,7 @@ class UI{
 
 template<typename T>
 class UIList {
-	static_assert((!std::is_pointer_v<T>) && (std::is_same_v<T, Button> || std::is_same_v<T, TextBox> ||
+	static_assert((!std::is_pointer_v<T>) && (std::is_same_v<T, Label> || std::is_same_v<T, TextBox> ||
 		std::is_same_v<T, ClickBox>), "Not a valid type you need to pass Button , TextBox or ClickBox also not a pointer type");
 private:
 	UI* ui = nullptr;
@@ -573,7 +573,7 @@ public:
 		const std::string& name = mainElement->GetName();
 		for (size_t i = 0; i < texts.size(); i++) {
 			T* elem = nullptr;
-			if constexpr (std::is_same_v<T, Button>) {
+			if constexpr (std::is_same_v<T, Label>) {
 				elem = ui->CreateButton(name + std::to_string(i), rect.x, y, w, h, nullptr, font, texts[i]);
 			}
 			else if constexpr (std::is_same_v<T, TextBox>) {
@@ -660,7 +660,7 @@ public:
 
 class UISection {
 	private:
-		std::vector<Button*> buttons = {};
+		std::vector<Label*> buttons = {};
 
 		std::vector<TextBox*> textBoxes = {};
 
@@ -681,7 +681,7 @@ class UISection {
 			this->ui = ui;		
 		}
 
-		void Add(Button* button) {
+		void Add(Label* button) {
 			if (ui == nullptr) {
 				throw std::runtime_error("UI is nullptr section is not inicialized");
 			}
@@ -725,7 +725,7 @@ class UISection {
 			popUpBoxes.clear();
 		}	
 
-		std::vector<Button*>& GetButtons() { return buttons; }
+		std::vector<Label*>& GetButtons() { return buttons; }
 		std::vector<TextBox*>& GetTextBoxes() { return textBoxes; }
 		std::vector<ClickBox*>& GetClickBoxes() { return clickBoxes; }
 		std::vector<PopUpBox*>& GetPopUpBoxes() { return popUpBoxes; }

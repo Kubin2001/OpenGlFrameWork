@@ -162,3 +162,4 @@ was removed or the new one was added to folder
 - UI List has been improved
 - Each ui layer supports its own clipping size
 - All UI Enums are now also enums in elements itself so no longer need to be casted
+- Button renamed to Label
