@@ -168,7 +168,7 @@ void UI::FillElem(UIElemBase *elem ,const std::string& name, int x, int y, int w
 	elem->SetTextStartY(textStartY);
 }
 
-Label* UI::LCreateButton(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+Label* UI::LCreateLabel(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	if (!settings.useLayersInRendering) {
@@ -299,7 +299,7 @@ Slider* UI::LCreateSlider(int layer, const std::string& name, int x, int y, int 
 	return sl;
 }
 
-Label* UI::CreateButton(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+Label* UI::CreateLabel(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	if (GetButton(name) != nullptr) {
@@ -433,9 +433,9 @@ Slider* UI::CreateSlider(const std::string& name, int x, int y, int w, int h, Sl
 }
 
 
-Label* UI::CreateButtonF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, const std::string& fontSt,
+Label* UI::CreateLabelF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, const std::string& fontSt,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
-	return CreateButton(name, x, y, w, h, texture, GetFont(fontSt), text, textScale, textStartX, textStartY);
+	return CreateLabel(name, x, y, w, h, texture, GetFont(fontSt), text, textScale, textStartX, textStartY);
 }
 
 TextBox* UI::CreateTextBoxF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, const std::string& fontSt,
@@ -1079,10 +1079,10 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		if (type == (int)CastType::Label) {
 			Label* lb = nullptr;
 			if (settings.useLayersInRendering) {
-				lb = LCreateButton(elem->zLayer,key, 0, 0, 0, 0);
+				lb = LCreateLabel(elem->zLayer,key, 0, 0, 0, 0);
 			}
 			else {
-				lb = CreateButton(key, 0, 0, 0, 0);
+				lb = CreateLabel(key, 0, 0, 0, 0);
 			}
 			int prevLayer = lb->zLayer;
 			*lb = *static_cast<Label*>(elem.get());

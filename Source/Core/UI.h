@@ -415,7 +415,7 @@ class UI{
 		friend class UIList;
 		UI(MT::Renderer* renderer);
 
-		Label* LCreateButton(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture =nullptr, 
+		Label* LCreateLabel(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture =nullptr, 
 			Font* font = nullptr,const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		TextBox* LCreateTextBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr,
@@ -432,7 +432,7 @@ class UI{
 		Slider* LCreateSlider(int layer, const std::string& name, int x, int y, int w, int h, SliderSlide slideType, int min, int max,
 			MT::Texture* texture = nullptr);
 
-		Label* CreateButton(const std::string &name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
+		Label* CreateLabel(const std::string &name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		TextBox* CreateTextBox(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
@@ -446,7 +446,7 @@ class UI{
 
 		Slider* CreateSlider(const std::string& name, int x, int y, int w, int h, SliderSlide slideType, int min, int max, MT::Texture* texture = nullptr);
 
-		Label* CreateButtonF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string &fontStr = "",
+		Label* CreateLabelF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string &fontStr = "",
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
 		TextBox* CreateTextBoxF(const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, const std::string& fontStr ="",
@@ -574,7 +574,7 @@ public:
 		for (size_t i = 0; i < texts.size(); i++) {
 			T* elem = nullptr;
 			if constexpr (std::is_same_v<T, Label>) {
-				elem = ui->CreateButton(name + std::to_string(i), rect.x, y, w, h, nullptr, font, texts[i]);
+				elem = ui->CreateLabel(name + std::to_string(i), rect.x, y, w, h, nullptr, font, texts[i]);
 			}
 			else if constexpr (std::is_same_v<T, TextBox>) {
 				elem = ui->CreateTextBox(name + std::to_string(i), rect.x, y, w, h, nullptr, font, texts[i]);

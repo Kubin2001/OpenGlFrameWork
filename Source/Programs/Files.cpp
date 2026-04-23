@@ -133,7 +133,7 @@ std::string FileExplorer::Open(const std::string& path) {
 	cb->SetColor(255, 0, 0);
 	cb->SetHoverFilter(true, 255, 255, 255, 120);
 
-	selectedBox = ui->CreateButton("selectionButton", 50, 100, 300, 20, nullptr);
+	selectedBox = ui->CreateLabel("selectionButton", 50, 100, 300, 20, nullptr);
 	selectedBox->SetColor(135, 206, 250, 150);
 
 	Update();

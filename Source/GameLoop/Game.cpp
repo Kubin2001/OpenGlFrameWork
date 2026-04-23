@@ -46,11 +46,29 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
-	FileExplorer fe;
-	fe.Open();
+	Font* font = ui->GetFont("arial12");
 
-	PathMaker pe;
-	pe.Open();
+	Label* btn = ui->CreateLabel("test1", 10, 10, 100, 100, nullptr, font, "text1");
+	btn->SetColor(255, 0, 0);
+	btn->SetRenderTextType(TextRenderType::Centered);
+	btn->SetBorder(10, 0, 0, 255);
+
+	btn = ui->CreateLabel("test2", 10, 120, 100, 100, nullptr, font, "text2");
+	btn->SetColor(30, 30, 30);
+	btn->SetRenderTextType(TextRenderType::Centered);
+	btn->SetBorder(10, 255, 255, 255);
+
+	btn = ui->CreateLabel("test3", 10, 240, 100, 100, nullptr, font, "text3");
+	btn->SetColor(30, 30, 30);
+	btn->SetRenderTextType(TextRenderType::Centered);
+	btn->SetBorder(10, 100, 100, 100);
+	btn->SetRenderType(RenderType::Rounded);
+
+	btn = ui->CreateLabel("test4", 10, 360, 100, 100, TexMan::GetTex("grass"), font, "text4");
+	btn->SetColor(30, 30, 30);
+	btn->SetRenderTextType(TextRenderType::Centered);
+	btn->SetBorder(10, 100, 100, 100);
+	btn->SetRenderType(RenderType::Rounded);
 }
 
 void Game::LogicUpdate() {
@@ -73,31 +91,15 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-
-	MT::Texture* texture = TexMan::GetTex("granite");
-	MT::Texture* texture2 = TexMan::GetTex("grass");
-	MT::Texture* texture3 = TexMan::GetTex("water");
-
-	MT::Rect rect1{ 10,10,100,100 };
-	MT::Rect rect2{ 10,210,100,100 };
-	MT::Rect rect3{ 10,410,100,100 };
-
 	MT::Timer::Tic();
-	for (size_t i = 0; i < 1000; i++) {
-		renderer->FLatRenderCopy(rect1, texture);
-		renderer->FLatRenderCopy(rect2, texture2);
-		renderer->FLatRenderCopy(rect3, texture3);
-
-	}
-	renderer->FLatRenderCopyPresent();
-	//renderer->RenderCopy({ 500,500,200,200 }, tAtlas);
+	ui->Render();
 	renderer->Present();
 	auto time = MT::Timer::Tac<std::chrono::microseconds>();
 
 
 	std::println("Time {} mikrosec", time);
 
-	//ui->Render();
+
 }
 
 

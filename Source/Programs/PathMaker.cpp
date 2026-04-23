@@ -24,7 +24,7 @@ static void CreateInfoBox(UI* ui, const std::string& text) {
 
 void PathMaker::CreateSaveMenu() {
 	if (!saveSection.GetClickBoxes().empty()) { return; }
-	Label* lb = ui->CreateButtonF("saveBack", 50, 50, 190, 200, nullptr, "arial20px", "Saving", 1.0f, 0, 10);
+	Label* lb = ui->CreateLabelF("saveBack", 50, 50, 190, 200, nullptr, "arial20px", "Saving", 1.0f, 0, 10);
 	lb->SetRenderTextType(TextRenderType::CenteredX); 
 	lb->SetRenderType(RenderType::Rounded);
 	lb->SetColor(40, 40, 40, 255); 
