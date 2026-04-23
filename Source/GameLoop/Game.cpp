@@ -45,30 +45,6 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	renderer->FLatRenderCopySetUp();
-
-	Font* font = ui->GetFont("arial12");
-
-	Label* btn = ui->CreateLabel("test1", 10, 10, 100, 100, nullptr, font, "text1");
-	btn->SetColor(255, 0, 0);
-	btn->SetRenderTextType(TextRenderType::Centered);
-	btn->SetBorder(10, 0, 0, 255);
-
-	btn = ui->CreateLabel("test2", 10, 120, 100, 100, nullptr, font, "text2");
-	btn->SetColor(30, 30, 30);
-	btn->SetRenderTextType(TextRenderType::Centered);
-	btn->SetBorder(10, 255, 255, 255);
-
-	btn = ui->CreateLabel("test3", 10, 240, 100, 100, nullptr, font, "text3");
-	btn->SetColor(30, 30, 30);
-	btn->SetRenderTextType(TextRenderType::Centered);
-	btn->SetBorder(10, 100, 100, 100);
-	btn->SetRenderType(RenderType::Rounded);
-
-	btn = ui->CreateLabel("test4", 10, 360, 100, 100, TexMan::GetTex("grass"), font, "text4");
-	btn->SetColor(30, 30, 30);
-	btn->SetRenderTextType(TextRenderType::Centered);
-	btn->SetBorder(10, 100, 100, 100);
-	btn->SetRenderType(RenderType::Rounded);
 }
 
 void Game::LogicUpdate() {
@@ -91,14 +67,34 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-	MT::Timer::Tic();
+	MT::Texture* tex1 = TexMan::GetTex("tree1");
+	MT::Texture* tex2 = TexMan::GetTex("grass");
+	Point mouse = GetMousePos();
+	MT::Rect rect(mouse.x, mouse.y, 40, 40);
+
+	int x = 0;
+	int y = 0;
+	for (size_t i = 0; i < 10; i++) {
+		for (size_t j = 0; j < 10; j++) {
+			MT::Rect tempRect{ rect.x + x,rect.y + y ,40,40 };
+			if (j % 2 == 0) {
+				renderer->FLatRenderCopy(tempRect, tex1);
+			}
+			else {
+				renderer->FLatRenderCopy(tempRect, tex2);
+			}
+			x += 50;
+
+		}
+		y += 50;
+		x = 0;
+	}
+
+	renderer->FLatRenderCopyPresent();
+
+
 	ui->Render();
 	renderer->Present();
-	auto time = MT::Timer::Tac<std::chrono::microseconds>();
-
-
-	std::println("Time {} mikrosec", time);
-
 
 }
 

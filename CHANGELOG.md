@@ -163,3 +163,11 @@ was removed or the new one was added to folder
 - Each ui layer supports its own clipping size
 - All UI Enums are now also enums in elements itself so no longer need to be casted
 - Button renamed to Label
+
+
+2.00
+- Entire rendering pipeline has been redesigned
+	- Most functions are over 3 times faster in release and 5 times faster in debug
+	- New function render double overlay what can merge 2 textures with 2 sourceRectangles
+	- Faster same type rectangles collision
+	- Draw Line supports UPR

@@ -31,5 +31,7 @@ class ShaderLoader {
 
 		bool IsProgram(const std::string& name);
 
+		void LoadSavedShaders();
+
 		~ShaderLoader();
 };

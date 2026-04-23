@@ -44,8 +44,19 @@ namespace MT {
 		RectF ToRectF() const noexcept;
 		CompositeRect ToCompositeRect() const noexcept;
 
+
+		// Inlined for max performace for renderer
+		bool IsColliding(const Rect& rect) const noexcept {
+			if (rect.x + rect.w >= x &&
+				rect.x - w <= x &&
+				rect.y + rect.h >= y &&
+				rect.y - h <= y) {
+				return true;
+			}
+			return false;
+		}
+
 		bool IsColliding(const SDL_Rect& rect) const noexcept;
-		bool IsColliding(const Rect& rect) const noexcept;
 		bool IsColliding(const RectF& rect) const noexcept;
 		bool IsColliding(const CompositeRect& rect) const noexcept;
 

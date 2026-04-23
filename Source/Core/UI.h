@@ -549,7 +549,7 @@ class UI{
 template<typename T>
 class UIList {
 	static_assert((!std::is_pointer_v<T>) && (std::is_same_v<T, Label> || std::is_same_v<T, TextBox> ||
-		std::is_same_v<T, ClickBox>), "Not a valid type you need to pass Button , TextBox or ClickBox also not a pointer type");
+		std::is_same_v<T, ClickBox>), "Not a valid type you need to pass Label , TextBox or ClickBox also not a pointer type");
 private:
 	UI* ui = nullptr;
 
@@ -563,7 +563,7 @@ private:
 
 public:
 
-	void Init(UI* ui, ClickBox* mainBtn, int w, int h, const MT::Color &color, const std::vector<std::string>& texts, short space = 0) {
+	void Init(UI* ui, ClickBox* mainBtn, int w, int h, const MT::ColorA &color, const std::vector<std::string>& texts, short space = 0) {
 		this->ui = ui;
 		mainElement = mainBtn;
 		Elements.reserve(texts.size());
@@ -584,7 +584,7 @@ public:
 			}
 			Elements.emplace_back(elem);
 
-			elem->SetColor(color.R, color.G, color.B);
+			elem->SetColor(color.R, color.G, color.B, color.A);
 			elem->Hide();
 			y += (h + space);
 			if (ui->UsingLayers()) {
@@ -660,7 +660,7 @@ public:
 
 class UISection {
 	private:
-		std::vector<Label*> buttons = {};
+		std::vector<Label*> labels = {};
 
 		std::vector<TextBox*> textBoxes = {};
 
@@ -685,7 +685,7 @@ class UISection {
 			if (ui == nullptr) {
 				throw std::runtime_error("UI is nullptr section is not inicialized");
 			}
-			buttons.emplace_back(button);
+			labels.emplace_back(button);
 		}
 		void Add(TextBox* textBox) {
 			if (ui == nullptr) {
@@ -707,7 +707,7 @@ class UISection {
 		}
 
 		void Clear() {
-			for (auto& elem: buttons) {
+			for (auto& elem: labels) {
 				ui->DeleteElement(elem->GetName());
 			}
 			for (auto& elem : clickBoxes) {
@@ -719,13 +719,13 @@ class UISection {
 			for (auto& elem : popUpBoxes) {
 				ui->DeleteElement(elem->GetName());
 			}
-			buttons.clear();
+			labels.clear();
 			textBoxes.clear();
 			clickBoxes.clear();
 			popUpBoxes.clear();
 		}	
 
-		std::vector<Label*>& GetButtons() { return buttons; }
+		std::vector<Label*>& GetButtons() { return labels; }
 		std::vector<TextBox*>& GetTextBoxes() { return textBoxes; }
 		std::vector<ClickBox*>& GetClickBoxes() { return clickBoxes; }
 		std::vector<PopUpBox*>& GetPopUpBoxes() { return popUpBoxes; }

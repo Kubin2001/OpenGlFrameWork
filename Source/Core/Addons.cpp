@@ -6,7 +6,7 @@
 #include <print>
 
 void MethaneVersion() {
-	std::println("Using Methane SDL OpenGL Framework v1.15");
+	std::println("Using Methane SDL OpenGL Framework v2.00");
 }
 
 MapPos::MapPos() {

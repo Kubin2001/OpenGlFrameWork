@@ -58,15 +58,6 @@ namespace MT {
         return false;
     }
 
-    bool Rect::IsColliding(const Rect& rect) const noexcept {
-        if (rect.x + rect.w >= x &&
-            rect.x - w <= x &&
-            rect.y + rect.h >= y &&
-            rect.y - h <= y) {
-            return true;
-        }
-        return false;
-    }
 
     bool Rect::IsColliding(const RectF& rect) const noexcept {
         if (rect.x + rect.w >= x &&

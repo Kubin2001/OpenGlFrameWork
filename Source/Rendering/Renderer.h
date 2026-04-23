@@ -139,63 +139,109 @@ namespace MT {
 		SDL_Window* window = nullptr;
 		Rect vievPort{0,0,0,0};
 		unsigned int VAO = 0, VBO = 0;
+
+		//Vaos
+		GLuint rectVao = 0;
+		GLuint rectExVao = 0;
+		GLuint copyVao = 0;
+		GLuint copyPartVao = 0;
+		GLuint copyExVao = 0;
+		GLuint copyCircleVao = 0;
+		GLuint circleVao = 0;
+		GLuint roundedVao = 0;
+		GLuint roundedCopyVao = 0;
+		GLuint filteredVao = 0;
+		GLuint borderVao = 0;
+		GLuint roundedBorderVao = 0;
+		GLuint maskedVao = 0;
+		GLuint doubleMaskedVao = 0;
+		GLuint uprVao = 0;
+		GLuint flatVao = 0;
+
 		ShaderLoader loader;
 		//Shaders IDs
-		unsigned int currentProgram;
-
-		unsigned int renderBaseId = 0;
-		unsigned int renderCopyId = 0;
-		unsigned int flatRenderCopyId = 0;
+		unsigned int currentProgram = 0;
 		unsigned int renderRectId = 0;
+		unsigned int renderRectExId = 0;
+		unsigned int renderCopyId = 0;
+		unsigned int renderCopyPartId = 0;
+		unsigned int renderCopyExId = 0;
 		unsigned int renderCopyCircleId = 0;
 		unsigned int renderCircleId = 0;
+		unsigned int renderRoundedId = 0;
+		unsigned int renderCopyRoundedId = 0;
 		unsigned int renderCopyFilterId = 0;
-		unsigned int renderRoundedRectId = 0;
-		unsigned int renderCopyRoundedRectId = 0;
 		unsigned int renderBorderId = 0;
 		unsigned int renderRoundedBorderId = 0;
 		unsigned int renderMaskedId = 0;
+		unsigned int renderDoubleMaskedId = 0;
+
+		unsigned int flatRenderCopyId = 0;
 		unsigned int uprId = 0;
 
 		//Uniforms Ids
+		// VievPorts
+		unsigned int renderRectVievPort = 0;
+		unsigned int renderRectExVievPort = 0;
+		unsigned int renderCopyVievPort = 0;
+		unsigned int renderCopyPartVievPort = 0;
+		unsigned int renderCopyExVievPort = 0;
+		unsigned int renderCopyCircleVievPort = 0;
+		unsigned int renderCircleVievPort = 0;
+		unsigned int renderRoundedVievPort = 0;
+		unsigned int renderCopyRoundedVievPort = 0;
+		unsigned int renderFilterVievPort = 0;
+		unsigned int renderBorderVievPort = 0;
+		unsigned int renderRoundedBorderVievPort = 0;
+		unsigned int renderMaskedVievPort = 0;
+		unsigned int renderDoubleMaskedVievPort = 0;
+		unsigned int uprVievPort = 0;
+		unsigned int flatVievPort = 0;
+
 		unsigned int currentTexture = 0;
-		unsigned int roundRectRadius = 0;
-		unsigned int roundRectCopyRadius = 0;
-		unsigned int roundBorderRadius = 0;
-		unsigned int roundRoundedBorderRadius = 0;
 		unsigned int currentMaskTexture = 0;
-
-		//Uniforms Values
-		glm::vec2 roundRectRadiusVal = { 0.0f,0.0f };
-		glm::vec2 roundRectCopyRadiusVal = { 0.0f,0.0f };
-		glm::vec2 roundBorderRadiusVal = { 0.0f,0.0f };
-		glm::vec2 roundRoundedBorderRadiusVal = { 0.0f,0.0f };
-
 
 		//Veretex Sizes
 		unsigned int currentSize = 0;
-		unsigned int renderRectSize = 4; // Wszystkie renderowania bez tesktur
-		unsigned int renderCopySize = 5; // Wszystkie renderowania tekstur
-		unsigned int flatRenderCopySize = 2;
-		unsigned int renderCopyBaseSize = 3;
-		unsigned int renderCircleSize = 7;
-		unsigned int renderCopyCircleSize = 6;
-		unsigned int renderRoundedSize = 4;
-		unsigned int renderCopyRoundedSize = 5;
-		unsigned int renderFilteredSize = 8;
-		unsigned int renderUPRSize = 8; 
-		unsigned int renderBorderSize = 5; // Same for rounded border
+		inline static constexpr unsigned int renderRectSize = 6;
+		inline static constexpr unsigned int renderRectExSize = 7;
+		inline static constexpr unsigned int renderCopySize = 5;
+		inline static constexpr unsigned int renderCopyPartSize = 9;
+		inline static constexpr unsigned int renderCopyExSize = 10;
+		inline static constexpr unsigned int renderCopyCircleSize = 6;
+		inline static constexpr unsigned int renderCircleSize = 7;
+		inline static constexpr unsigned int renderRoundedSize = 6;
+		inline static constexpr unsigned int renderCopyRoundedSize = 5;
+		inline static constexpr unsigned int renderFilteredSize = 10;
+		inline static constexpr unsigned int renderBorderSize = 7;
+		inline static constexpr unsigned int renderRoundedBorderSize = 7;
+		inline static constexpr unsigned int renderMaskedSize = 9;
+		inline static constexpr unsigned int renderDoubleMaskedSize = 13;
+		inline static constexpr unsigned int UPRSize = 14;
+		inline static constexpr unsigned int flatSize = 4;
 
+		inline static constexpr unsigned int batchSize = 840'000; // ~3.3 MB
+		size_t currentIndex = 0;
 		std::vector<float> globalVertices = {};
 
 		//Agressive Batching Rendering
 		std::vector<FlatRenderLayer> flatRenderVec = {};
 
-		void LoadShaders();
-
 		void ExpandUpr(float* vertices);
 
-		void CheckUPRProgram();
+		inline void CheckUPRProgram() {
+			if (currentProgram != uprId) {
+				Present(false);
+				glBindVertexArray(uprVao);
+				currentProgram = uprId;
+				glUseProgram(currentProgram);
+			}
+			currentSize = UPRSize;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+		}
 
 		public:
 		int W, H;
@@ -212,16 +258,16 @@ namespace MT {
 		void DrawLine(const int x1, const int y1, const int x2, const int y2, const int thickness,
 			const Color& col, const unsigned char alpha = 255);
 
-		// Same as render copy but it uses faster shader but is extreamly slow when switching betweeen any other renderCopy functions
-		void RenderCopyAS(const Rect& rect, const Texture* texture);
-
 		void RenderCopy(const Rect& rect, const Texture* texture);
 
 		void RenderCopyPart(const Rect& rect, const Rect& source, const Texture* texture);
 
-		void RenderCopyEX(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
+		void RenderCopyEX(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f) {
+			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
+			RenderCopyEX(rect, fullSource, texture, flip, rotation);
+		}
 
-		void RenderCopyPartEX(const Rect& rect, const Rect& source, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
+		void RenderCopyEX(const Rect& rect, const Rect& source, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
 
 		void RenderCopyCircle(const Rect& rect, const Texture* texture, const float radius = 0.5f);
 
@@ -231,28 +277,39 @@ namespace MT {
 
 		void RenderCopyRounded(const Rect& rect, const Texture* texture);
 
-		void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter);
+		void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter) {
+			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
+			RenderCopyFiltered(rect, fullSource, texture, filter);
+		}
 
-		void RenderCopyPartFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
+		void RenderCopyFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
 
 		void RenderBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
 
 		void RenderRoundedBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
 
-		void RenderMaskedOverlay(const Rect& rect, const Rect &sourceRect, const Texture* tex1, const Texture* tex2);
+		void RenderMaskedOverlay(const Rect& rect, const Rect &source, const Texture* tex1, const Texture* tex2);
+
+		void RenderDoubleMaskedOverlay(const Rect& rect, const Rect& source, const Rect& source2, const Texture* tex1, const Texture* tex2);
 
 		//UPR Universal Pipeline Render does not change shader ever so it is much faster in shader switch rendering but slower overall
 		void RenderRectUPR(const Rect& rect, const Color& col, const int alpha = 255);
 
 		void RenderRectEXUPR(const Rect& rect, const Color& col, const float rotation, const int alpha = 255);
 
+		void DrawLineUPR(const int x1, const int y1, const int x2, const int y2, const int thickness,
+			const Color& col, const unsigned char alpha = 255);
+
 		void RenderCopyUPR(const Rect& rect, const Texture* texture);
 
 		void RenderCopyPartUPR(const Rect& rect, const Rect& source, const Texture* texture);
 
-		void RenderCopyEXUPR(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
+		void RenderCopyEXUPR(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f) {
+			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
+			RenderCopyEXUPR(rect, fullSource, texture, flip, rotation);
+		}
 
-		void RenderCopyPartEXUPR(const Rect& rect, const Rect& source, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
+		void RenderCopyEXUPR(const Rect& rect, const Rect& source, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
 
 		void RenderCopyCircleUPR(const Rect& rect, const Texture* texture, const float radius = 0.5f);
 
@@ -262,15 +319,20 @@ namespace MT {
 
 		void RenderCopyRoundedUPR(const Rect& rect, const Texture* texture);
 
-		void RenderCopyFilteredUPR(const Rect& rect, const Texture* texture, const Color& filter);
+		void RenderCopyFilteredUPR(const Rect& rect, const Texture* texture, const Color& filter) {
+			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
+			RenderCopyFilteredUPR(rect, fullSource, texture, filter);
+		}
 
-		void RenderCopyPartFilteredUPR(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
+		void RenderCopyFilteredUPR(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
 
 		void RenderBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
 
 		void RenderRoundedBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
 
-		void RenderMaskedOverlayUPR(const Rect& rect, const Rect &sourceRect, const Texture* tex1, const Texture* tex2);
+		void RenderMaskedOverlayUPR(const Rect& rect, const Rect &source, const Texture* tex1, const Texture* tex2);
+
+		void RenderDoubleMaskedOverlayUPR(const Rect& rect, const Rect& source, const Rect& source2, const Texture* tex1, const Texture* tex2);
 
 		//UPR
 
@@ -293,7 +355,7 @@ namespace MT {
 
 		// Needs to be called after all flat operations are finisched 
 		// NORMAL RENDER PRESENT WILL NOT DRAW ANYTHING !!!
-		void FLatRenderCopyPresent(bool clearVectors = true);
+		void FLatRenderCopyPresent();
 
 		void SetClipSize(const Rect& rect);
 
