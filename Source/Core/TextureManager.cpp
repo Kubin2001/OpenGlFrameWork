@@ -367,8 +367,8 @@ MT::Atlas TexMan::CreateAtlas(int tileSize, const std::vector<std::string>& text
 	meanHeight /= texturesToMap.size();
 
 	// Creating TileMapSize
-	int rowsSize = (std::max(maxHeight, static_cast<int>(meanHeight * (texturesToMap.size() / 2) + 1)) / tileSize +1);
-	int colSize = (std::max(maxWidth, static_cast<int>(meanWidth * (texturesToMap.size() / 2) + 1)) / tileSize) +1;
+	int rowsSize = (std::max(maxHeight, static_cast<int>(meanHeight * (texturesToMap.size() / 1.5) + 1)) / tileSize +1);
+	int colSize = (std::max(maxWidth, static_cast<int>(meanWidth * (texturesToMap.size() / 1.5) + 1)) / tileSize) +1;
 	
 	int maxOpenGLTexSizeFlorred = 4000;
 	if (rowsSize > maxOpenGLTexSizeFlorred / tileSize || colSize > maxOpenGLTexSizeFlorred / tileSize) {

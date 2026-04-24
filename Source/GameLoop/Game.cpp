@@ -45,6 +45,10 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	renderer->FLatRenderCopySetUp();
+
+	std::vector<std::string> names = { "tree1","FeFolderIcon","grass"};
+
+	atlas = TexMan::CreateAtlas(40, names);
 }
 
 void Game::LogicUpdate() {
@@ -67,31 +71,12 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-	MT::Texture* tex1 = TexMan::GetTex("tree1");
-	MT::Texture* tex2 = TexMan::GetTex("grass");
-	Point mouse = GetMousePos();
-	MT::Rect rect(mouse.x, mouse.y, 40, 40);
+	renderer->RenderCopy({ 100,100,(int)atlas.tex->w,(int)atlas.tex->h }, atlas.tex);
+	renderer->RenderBorder({ 100,100,(int)atlas.tex->w,(int)atlas.tex->h }, {0,0,0},3);
 
-	int x = 0;
-	int y = 0;
-	for (size_t i = 0; i < 10; i++) {
-		for (size_t j = 0; j < 10; j++) {
-			MT::Rect tempRect{ rect.x + x,rect.y + y ,40,40 };
-			if (j % 2 == 0) {
-				renderer->FLatRenderCopy(tempRect, tex1);
-			}
-			else {
-				renderer->FLatRenderCopy(tempRect, tex2);
-			}
-			x += 50;
-
-		}
-		y += 50;
-		x = 0;
-	}
-
-	renderer->FLatRenderCopyPresent();
-
+	renderer->RenderCopyPart({ 500,100,40,40}, atlas.sourceRectangles["tree1"],atlas.tex);
+	renderer->RenderCopyPart({ 500,300,40,40 }, atlas.sourceRectangles["FeFolderIcon"], atlas.tex);
+	renderer->RenderCopyPart({ 500,500,40,40 }, atlas.sourceRectangles["grass"], atlas.tex);
 
 	ui->Render();
 	renderer->Present();

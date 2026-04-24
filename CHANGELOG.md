@@ -171,3 +171,6 @@ was removed or the new one was added to folder
 	- New function render double overlay what can merge 2 textures with 2 sourceRectangles
 	- Faster same type rectangles collision
 	- Draw Line supports UPR
+	
+2.01
+- Larger texture atlas error margin
