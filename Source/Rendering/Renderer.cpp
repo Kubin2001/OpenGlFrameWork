@@ -79,14 +79,6 @@ MT::Texture* MT::LoadTexture(const char* path) {
     return metTex;
 }
 
-void MT::DeleteTexture(Texture*& tex) { 
-    if (tex == nullptr) { return; } 
-    glDeleteTextures(1, &tex->texture); 
-    tex->texture = 0; 
-    tex->w = 0; 
-    tex->h = 0; 
-    delete tex; 
-    tex = nullptr; }
 
 MT::Texture* MT::LoadTextureFromSurface(SDL_Surface* surf) {
     unsigned int texture;

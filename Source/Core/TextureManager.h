@@ -31,12 +31,11 @@ namespace MT {
 
 class TexMan {
 	private:
-		static std::unordered_map<std::string, MT::Texture*> Textures;
-		static std::vector<std::string> SupportedFormats;
-		static MT::Renderer* renderer;
-		static bool isInit;
-
-		static MT::Texture* defaultTex;
+		inline static std::unordered_map<std::string, std::unique_ptr<MT::Texture>> Textures{};
+		inline static std::vector<std::string> SupportedFormats{};
+		inline static MT::Renderer* renderer = nullptr;
+		inline static bool isInit = false;
+		inline static MT::Texture* defaultTex = nullptr;
 
 		static void RefreshTexturesInFolder(const std::string& directory, bool removeInvalid, std::unordered_set<std::string>& namesCollector);
 
@@ -79,21 +78,21 @@ class TexMan {
 
 		static size_t GetTexturesAmount();
 
-		static std::unordered_map<std::string, MT::Texture*> &GetAllTex();
+		static std::unordered_map<std::string, std::unique_ptr<MT::Texture>> &GetAllTex();
 
 		// Function to split texture into multiple smaller textures at runtime
 		// Original texture needs to have seperator color at higest pixel at the row and cant use it anywere else
 		static void SplitTexture(const char* path, const std::vector<std::string>& names,
 			const unsigned char r = 0, const unsigned char g = 0, const unsigned char b = 0, const unsigned char a = 255);
 
-		static MT::Atlas CreateAtlas(int tileSize, const std::vector<std::string>& textureNames, bool deleteOriginals = false);
+		static MT::Atlas CreateAtlas(const std::string& atlasTexName, int tileSize, const std::vector<std::string>& textureNames, bool deleteOriginals = false);
 
 		static void Clear();
 };
 
 class LocalTexMan {
 	private:
-		std::unordered_map<std::string, MT::Texture*> Textures = {};
+		std::unordered_map<std::string, std::unique_ptr<MT::Texture>> Textures{};
 		std::vector<std::string> SupportedFormats = {};
 		MT::Renderer* renderer = nullptr;
 		bool isInit = false;
@@ -125,11 +124,6 @@ class LocalTexMan {
 		bool DeleteTexture(const std::string& name);
 
 		Point GetTextureSize(const std::string& name);
-
-		// Function to split texture into multiple smaller textures at runtime
-		// Original texture needs to have seperator color at higest pixel at the row and cant use it anywere else
-		void SplitTexture(const char* path, const std::vector<std::string>& names,
-			const unsigned char r = 0, const unsigned char g = 0, const unsigned char b = 0, const unsigned char a = 255);
 
 		void Clear();
 };

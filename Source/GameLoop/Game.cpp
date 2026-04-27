@@ -46,9 +46,6 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
-	std::vector<std::string> names = { "tree1","FeFolderIcon","grass"};
-
-	atlas = TexMan::CreateAtlas(40, names);
 }
 
 void Game::LogicUpdate() {
@@ -64,6 +61,9 @@ void Game::FrameUpdate() {
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
+		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_R) {
+			TexMan::RefreshTextures("Textures/Test", true);
+		}
 		Exit();
 	}
 	Global::inputDelay++;
@@ -71,12 +71,10 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-	renderer->RenderCopy({ 100,100,(int)atlas.tex->w,(int)atlas.tex->h }, atlas.tex);
-	renderer->RenderBorder({ 100,100,(int)atlas.tex->w,(int)atlas.tex->h }, {0,0,0},3);
-
-	renderer->RenderCopyPart({ 500,100,40,40}, atlas.sourceRectangles["tree1"],atlas.tex);
-	renderer->RenderCopyPart({ 500,300,40,40 }, atlas.sourceRectangles["FeFolderIcon"], atlas.tex);
-	renderer->RenderCopyPart({ 500,500,40,40 }, atlas.sourceRectangles["grass"], atlas.tex);
+	renderer->RenderCopy({ 10,10,100,100 }, TexMan::GetTex("grassTest"));
+	renderer->RenderCopy({ 10,210,100,100 }, TexMan::GetTex("stoneTest"));
+	renderer->RenderCopy({ 10,410,100,100 }, TexMan::GetTex("tree1Test"));
+	renderer->RenderCopy({ 10,610,100,100 }, TexMan::GetTex("waterTest"));
 
 	ui->Render();
 	renderer->Present();

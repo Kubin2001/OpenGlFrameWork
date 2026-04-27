@@ -91,19 +91,29 @@ namespace MT {
 		unsigned int batchIndex = 0;
 		float alpha = 1.0f;
 		public:
-		unsigned int w, h, texture;
+		unsigned int w = 0, h = 0, texture = 0;
 		std::filesystem::file_time_type writeTime;
+
+		Texture() = default;
+
+		Texture(const Texture&) = delete;            
+		Texture& operator=(const Texture&) = delete; 
 
 		void SetAlphaBending(const unsigned char A) {
 			alpha = float(A) / 255;
 		}
 		friend class Renderer;
+
+		~Texture() {
+			if (texture != 0) {
+				glDeleteTextures(1, &texture);
+			}
+		}
 	};
 
 
 	Texture* LoadTexture(const char* path);
 
-	void DeleteTexture(Texture*& tex);
 
 	Texture* LoadTextureFromSurface(SDL_Surface* surf);
 

@@ -871,7 +871,7 @@ void UI::DumpButton(nlohmann::ordered_json& json, UIElemBase* elem) {
 
 	std::string textureName = "";
 	for (auto& texture : TexMan::GetAllTex()) {
-		if (elem->texture == texture.second) {
+		if (elem->texture == texture.second.get()) {
 			textureName = texture.first;
 			break;
 		}

@@ -8,13 +8,6 @@
 #include <string>
 #include <format>
 
-
-std::unordered_map<std::string, MT::Texture*> TexMan::Textures;
-std::vector<std::string> TexMan::SupportedFormats;
-MT::Renderer* TexMan::renderer = nullptr;
-bool TexMan::isInit = false;
-MT::Texture* TexMan::defaultTex = nullptr;
-
 void TexMan::CreateDefaultTexture() {
 	SDL_Surface* surface = SDL_CreateRGBSurface(
 		0, 2, 2, 32,
@@ -85,10 +78,10 @@ bool TexMan::IsFormatSupported(const std::string& format) {
 }
 
 bool TexMan::AddTexture(MT::Texture* tex, const std::string& name) {
-	if (Textures.find(name) != Textures.end()) {
+	if (Textures.contains(name)) {
 		return false;
 	}
-	Textures[name] = tex;
+	Textures[name] = std::unique_ptr<MT::Texture>(tex);
 	return true;
 }
 
@@ -98,7 +91,7 @@ void TexMan::LoadSingle(const char* filePath, const std::string& name) {
 		return;
 	}
 	MT::Texture* tex = MT::LoadTexture(filePath);
-	Textures.insert(std::make_pair(name, tex));
+	Textures[name] = std::unique_ptr<MT::Texture>(tex);
 }
 
 
@@ -134,7 +127,7 @@ void TexMan::DeepLoad(const std::string& directory) {
 MT::Texture* TexMan::GetTex(const std::string& name, bool retNullOnMissing) {
 	auto it = Textures.find(name);
 	if (it != Textures.end()) {
-		return it->second;
+		return it->second.get();
 	}
 	if (retNullOnMissing) {
 		return nullptr;
@@ -149,11 +142,10 @@ MT::Texture* TexMan::GetDefaultTex() {
 bool TexMan::DeleteTexture(const std::string& name) {
 	auto it = Textures.find(name);
 	if (it != Textures.end()) {
-		MT::DeleteTexture(it->second);
 		Textures.erase(it);
 		return true;
 	}
-	else{return false;}
+	return false;
 }
 
 void TexMan::RefreshTexturesInFolder(const std::string& directory, bool removeInvalid, std::unordered_set<std::string>&namesCollector) {
@@ -170,11 +162,10 @@ void TexMan::RefreshTexturesInFolder(const std::string& directory, bool removeIn
 				LoadSingle(path.c_str(), stem);
 			}
 			else{ // Check if it needs to be refreshed
-				MT::Texture* tex = textureIter->second;
+				MT::Texture* tex = textureIter->second.get();
 				if (tex->writeTime != std::filesystem::last_write_time(path)) { //Refresh texture
-					MT::DeleteTexture(tex);
 					tex = MT::LoadTexture(path.c_str());
-					textureIter->second = tex;
+					textureIter->second = std::unique_ptr<MT::Texture>(tex);
 				}
 			}
 			if (removeInvalid) { // Add to later check if it is missing in textures
@@ -205,7 +196,6 @@ void TexMan::RefreshTextures(const std::string& directory, bool removeInvalid) {
 			}
 		}
 		for (auto& it : texturesToErase) {
-			MT::DeleteTexture(Textures[it]);
 			Textures.erase(it);
 		}
 	}
@@ -227,7 +217,7 @@ size_t TexMan::GetTexturesAmount() {
 	return Textures.size();
 }
 
-std::unordered_map<std::string, MT::Texture*> &TexMan::GetAllTex() {
+std::unordered_map<std::string, std::unique_ptr<MT::Texture>>&TexMan::GetAllTex() {
 	return Textures;
 }
 
@@ -314,12 +304,12 @@ void TexMan::SplitTexture(const char* path, const std::vector<std::string> &name
 	for (auto& elem : surfaces) {
 		MT::Texture* tex = MT::LoadTextureFromSurface(elem);
 		SDL_FreeSurface(elem);
-		Textures[names[index]] = tex;
+		Textures[names[index]] = std::unique_ptr<MT::Texture>(tex);
 		index++;
 	}
 }
 
-MT::Atlas TexMan::CreateAtlas(int tileSize, const std::vector<std::string>& textureNames, bool deleteOriginals) {
+MT::Atlas TexMan::CreateAtlas(const std::string &atlasTexName, int tileSize, const std::vector<std::string>& textureNames, bool deleteOriginals) {
 	std::vector<std::string> errors;
 	if (tileSize < 1 || tileSize > 2048) {
 		errors.emplace_back("Illogical Tile Size must be between 1 and 2048");
@@ -339,7 +329,7 @@ MT::Atlas TexMan::CreateAtlas(int tileSize, const std::vector<std::string>& text
 	for (auto& name : textureNames) {
 		auto texIter = Textures.find(name);
 		if (texIter != Textures.end()) {
-			texturesToMap.emplace_back(texIter->second);
+			texturesToMap.emplace_back(texIter->second.get());
 		}
 		else {
 			errors.emplace_back(std::format(" Texture with name: {} is not loaded", texIter->first));
@@ -475,6 +465,19 @@ MT::Atlas TexMan::CreateAtlas(int tileSize, const std::vector<std::string>& text
 		}
 	}
 
+	// CleanUp and return
+	for (auto& surf : surfaces) {
+		SDL_FreeSurface(surf);
+	}
+
+	MT::Texture* atlasTex = MT::LoadTextureFromSurface(atlas);
+	SDL_FreeSurface(atlas);
+	if (!AddTexture(atlasTex, atlasTexName)) {
+		errors.emplace_back("Atlas was created but its name was already taken by other texture please provide unique name and try again");
+		delete atlasTex;
+		return { errors };
+	}
+
 	// Removing the originals
 	if (deleteOriginals) {
 		for (auto& name : textureNames) {
@@ -482,26 +485,16 @@ MT::Atlas TexMan::CreateAtlas(int tileSize, const std::vector<std::string>& text
 		}
 	}
 
-
-	// CleanUp and return
-	for (auto& surf : surfaces) {
-		SDL_FreeSurface(surf);
-	}
-	MT::Texture *atlasTex = MT::LoadTextureFromSurface(atlas);
-	SDL_FreeSurface(atlas);
 	return { atlasTex,sourceRectangles,errors };
 }
 
 void TexMan::Clear() {
-	for (auto& pair : Textures) {
-		MT::DeleteTexture(pair.second);
-		delete pair.second;
-	}
 	Textures.clear();
 	isInit = false;
 	SupportedFormats.clear();
 	renderer = nullptr;
-	MT::DeleteTexture(defaultTex);
+	delete defaultTex;
+	defaultTex = nullptr;
 }
 
 //LocalTexMan
@@ -553,7 +546,7 @@ bool LocalTexMan::AddTexture(MT::Texture* tex, const std::string& name) {
 	if (Textures.find(name) != Textures.end()) {
 		return false;
 	}
-	Textures[name] = tex;
+	Textures[name] = std::unique_ptr<MT::Texture>(tex);
 	return true;
 }
 
@@ -563,7 +556,7 @@ void LocalTexMan::LoadSingle(const char* filePath, const std::string& name) {
 		return;
 	}
 	MT::Texture* tex = MT::LoadTexture(filePath);
-	Textures.insert(std::make_pair(name, tex));
+	Textures[name] = std::unique_ptr<MT::Texture>(tex);
 }
 
 
@@ -599,7 +592,7 @@ void LocalTexMan::DeepLoad(const std::string& directory) {
 MT::Texture* LocalTexMan::GetTex(const std::string& name) {
 	auto it = Textures.find(name);
 	if (it != Textures.end()) {
-		return it->second;
+		return it->second.get();
 	}
 	std::cerr << "Texture not found: " << name << "\n";
 	return nullptr;
@@ -608,7 +601,6 @@ MT::Texture* LocalTexMan::GetTex(const std::string& name) {
 bool LocalTexMan::DeleteTexture(const std::string& name) {
 	auto it = Textures.find(name);
 	if (it != Textures.end()) {
-		delete it->second;
 		Textures.erase(it);
 		return true;
 	}
@@ -629,70 +621,7 @@ Point LocalTexMan::GetTextureSize(const std::string& name) {
 	return p;
 }
 
-void LocalTexMan::SplitTexture(const char* path, const std::vector<std::string>& names,
-	const unsigned char r, const unsigned char g, const unsigned char b, const unsigned char a) {
-	SDL_Surface* surface = IMG_Load(path);
-	SDL_Surface* converted = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
-	if (!converted) {
-		std::cout << "Failed to convert surface format\n";
-		SDL_FreeSurface(surface);
-		return;
-	}
-
-	std::vector<std::vector<SDL_Color>> copySurfData;
-	std::vector<SDL_Surface*> surfaces;
-
-	for (int x = 0; x < converted->w; ++x) {
-		copySurfData.emplace_back();
-		for (int y = 0; y < converted->h; ++y) {
-			Uint8* p = (Uint8*)converted->pixels + y * converted->pitch + x * 4; // 4 bajty na piksel
-
-			SDL_Color col(p[0], p[1], p[2], p[3]);
-
-			if (col.r == r && col.g == g && col.b == b && col.a == a) {
-				bool fullColumnColored = true;
-				for (int ty = 0; ty < converted->h; ++ty) { // Checking if all column has seperator color
-					Uint8* pIn = (Uint8*)converted->pixels + ty * converted->pitch + x * 4;
-					SDL_Color inCol(pIn[0], pIn[1], pIn[2], pIn[3]);
-					if (inCol.r == r && inCol.g == g && inCol.b == b && inCol.a == a) {
-						continue;
-					}
-					else {
-						fullColumnColored = false;
-						break;
-					}
-				}
-				if (fullColumnColored) {
-					surfaces.push_back(CopyVectorToSurface(copySurfData));
-				}
-				break;
-			}
-			else {
-				copySurfData.back().emplace_back(col.r, col.g, col.b, col.a);
-			}
-		}
-	}
-
-	SDL_FreeSurface(converted);
-
-	if (!copySurfData.empty()) {
-		surfaces.push_back(CopyVectorToSurface(copySurfData));
-	}
-
-	int index = 0;
-	for (auto& elem : surfaces) {
-		MT::Texture* tex = MT::LoadTextureFromSurface(elem);
-		SDL_FreeSurface(elem);
-		Textures[names[index]] = tex;
-		index++;
-	}
-}
-
 
 void LocalTexMan::Clear() {
-	for (auto& pair : Textures) {
-		MT::DeleteTexture(pair.second);
-		delete pair.second;
-	}
 	Textures.clear();
 }
