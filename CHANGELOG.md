@@ -174,3 +174,4 @@ was removed or the new one was added to folder
 	
 2.01
 - Larger texture atlas error margin
+- Minor TexMan fixes
