@@ -46,6 +46,9 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
+	anim = CreateAnimation(6, 30, 30, 20, AnimType::Looped);
+	anim.CloneFrame(3, 5);
+
 }
 
 void Game::LogicUpdate() {
@@ -71,10 +74,8 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-	renderer->RenderCopy({ 10,10,100,100 }, TexMan::GetTex("grassTest"));
-	renderer->RenderCopy({ 10,210,100,100 }, TexMan::GetTex("stoneTest"));
-	renderer->RenderCopy({ 10,410,100,100 }, TexMan::GetTex("tree1Test"));
-	renderer->RenderCopy({ 10,610,100,100 }, TexMan::GetTex("waterTest"));
+	
+	renderer->RenderCopyPart({ 100,100,100,100 }, anim.Get(), TexMan::GetTex("AnimTest"));
 
 	ui->Render();
 	renderer->Present();

@@ -85,7 +85,7 @@ class TexMan {
 		static void SplitTexture(const char* path, const std::vector<std::string>& names,
 			const unsigned char r = 0, const unsigned char g = 0, const unsigned char b = 0, const unsigned char a = 255);
 
-		static MT::Atlas CreateAtlas(const std::string& atlasTexName, int tileSize, const std::vector<std::string>& textureNames, bool deleteOriginals = false);
+		static MT::Atlas CreateAtlas(const std::string& atlasTexName, unsigned int tileSize, const std::vector<std::string>& textureNames, bool deleteOriginals = false);
 
 		static void Clear();
 };

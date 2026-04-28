@@ -309,7 +309,7 @@ void TexMan::SplitTexture(const char* path, const std::vector<std::string> &name
 	}
 }
 
-MT::Atlas TexMan::CreateAtlas(const std::string &atlasTexName, int tileSize, const std::vector<std::string>& textureNames, bool deleteOriginals) {
+MT::Atlas TexMan::CreateAtlas(const std::string &atlasTexName, unsigned int tileSize, const std::vector<std::string>& textureNames, bool deleteOriginals) {
 	std::vector<std::string> errors;
 	if (tileSize < 1 || tileSize > 2048) {
 		errors.emplace_back("Illogical Tile Size must be between 1 and 2048");
@@ -338,10 +338,10 @@ MT::Atlas TexMan::CreateAtlas(const std::string &atlasTexName, int tileSize, con
 	}
 
 	// Getting max textures sizes
-	int maxWidth = 0;
-	int maxHeight = 0;
-	int meanWidth = 0;
-	int meanHeight = 0;
+	unsigned int maxWidth = 0;
+	unsigned int maxHeight = 0;
+	unsigned int meanWidth = 0;
+	unsigned int meanHeight = 0;
 
 	for (auto& tex : texturesToMap) {
 		if (tex->w > maxWidth) {
@@ -353,12 +353,12 @@ MT::Atlas TexMan::CreateAtlas(const std::string &atlasTexName, int tileSize, con
 		meanHeight += tex->h;
 		meanWidth += tex->w;
 	}
-	meanWidth /= texturesToMap.size();
-	meanHeight /= texturesToMap.size();
+	meanWidth /= static_cast<unsigned int>(texturesToMap.size());
+	meanHeight /= static_cast<unsigned int>(texturesToMap.size());
 
 	// Creating TileMapSize
-	int rowsSize = (std::max(maxHeight, static_cast<int>(meanHeight * (texturesToMap.size() / 1.5) + 1)) / tileSize +1);
-	int colSize = (std::max(maxWidth, static_cast<int>(meanWidth * (texturesToMap.size() / 1.5) + 1)) / tileSize) +1;
+	unsigned int rowsSize = (std::max(maxHeight, static_cast<unsigned int>(meanHeight * (texturesToMap.size() / 1.5) + 1)) / tileSize +1);
+	unsigned int colSize = (std::max(maxWidth, static_cast<unsigned int>(meanWidth * (texturesToMap.size() / 1.5) + 1)) / tileSize) +1;
 	
 	int maxOpenGLTexSizeFlorred = 4000;
 	if (rowsSize > maxOpenGLTexSizeFlorred / tileSize || colSize > maxOpenGLTexSizeFlorred / tileSize) {
@@ -437,7 +437,8 @@ MT::Atlas TexMan::CreateAtlas(const std::string &atlasTexName, int tileSize, con
 	}
 	
 	// Creating atlas itself
-	SDL_Surface* atlas = SDL_CreateRGBSurfaceWithFormat(0,tileMap[0].size() * tileSize, tileMap.size() * tileSize, 32, SDL_PIXELFORMAT_RGBA32);
+	SDL_Surface* atlas = SDL_CreateRGBSurfaceWithFormat(0, static_cast<unsigned int>(tileMap[0].size()) * tileSize,
+		static_cast<unsigned int>(tileMap.size()) * tileSize, 32, SDL_PIXELFORMAT_RGBA32);
 
 	SDL_FillRect(atlas, NULL, SDL_MapRGBA(atlas->format, 0, 0, 0, 0));
 

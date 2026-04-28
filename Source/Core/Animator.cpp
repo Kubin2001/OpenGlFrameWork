@@ -7,7 +7,7 @@ Animation CreateAnimation(const int clipsAmount, const int frameWidth, const int
 
 	Animation anim;
 
-	anim.firstFrame = Global::frameCounter;
+	anim.firstFrame = static_cast<unsigned int>(Global::frameCounter);
 	anim.frameDelay = frameDelay;
 	anim.lastFrame = frameDelay * clipsAmount;
 	anim.type = type;
@@ -25,9 +25,9 @@ Animation CreateAnimation(const int clipsAmount, const int frameWidth, const int
 
 Animation CreateAnimation(const std::vector<MT::Rect>& frames, const int frameDelay, AnimType type) {
 	Animation anim;
-	anim.firstFrame = Global::frameCounter;
+	anim.firstFrame = static_cast<unsigned int>(Global::frameCounter);
 	anim.frameDelay = frameDelay;
-	anim.lastFrame = frameDelay * frames.size();
+	anim.lastFrame = frameDelay * static_cast<unsigned int>(frames.size());
 	anim.type = type;
 	anim.clips = frames;
 
@@ -39,7 +39,7 @@ MT::Rect& Animation::Get() {
 	switch (type) {
 		case AnimType::Looped:
 			if (currentFrame >= lastFrame) {
-				firstFrame = Global::frameCounter;
+				firstFrame = static_cast<unsigned int>(Global::frameCounter);
 				return clips[0];
 			}
 			return clips[currentFrame / frameDelay];
@@ -51,7 +51,7 @@ MT::Rect& Animation::Get() {
 
 		case AnimType::LoopedBack:
 			if (currentFrame >= lastFrame) {
-				firstFrame = Global::frameCounter;
+				firstFrame = static_cast<unsigned int>(Global::frameCounter);
 				return clips.back();
 			}
 			return clips[(clips.size() - 1) - (currentFrame / frameDelay)];
@@ -64,7 +64,7 @@ MT::Rect& Animation::Get() {
 
 		case AnimType::EndStartLooped:
 			if (currentFrame >= lastFrame) {
-				firstFrame = Global::frameCounter;
+				firstFrame = static_cast<unsigned int>(Global::frameCounter);
 				type = AnimType::StartEndLooped;
 				return clips[0];
 			}
@@ -72,7 +72,7 @@ MT::Rect& Animation::Get() {
 
 		case AnimType::StartEndLooped:
 			if (currentFrame >= lastFrame) {
-				firstFrame = Global::frameCounter;
+				firstFrame = static_cast<unsigned int>(Global::frameCounter);
 				type = AnimType::EndStartLooped;
 				return clips.back();
 			}
@@ -80,7 +80,7 @@ MT::Rect& Animation::Get() {
 
 		case AnimType::EndStartSingular:
 			if (currentFrame >= lastFrame) {
-				firstFrame = Global::frameCounter;
+				firstFrame = static_cast<unsigned int>(Global::frameCounter);
 				type = AnimType::EndStartSingularSecond;
 				return clips[0];
 			}
@@ -88,7 +88,7 @@ MT::Rect& Animation::Get() {
 
 		case AnimType::StartEndSingular:
 			if (currentFrame >= lastFrame) {
-				firstFrame = Global::frameCounter;
+				firstFrame = static_cast<unsigned int>(Global::frameCounter);
 				type = AnimType::StartEndSingularSecond;
 				return clips.back();
 			}
@@ -108,7 +108,7 @@ MT::Rect& Animation::Get() {
 
 		default:
 			if (currentFrame >= lastFrame) {
-				firstFrame = Global::frameCounter;
+				firstFrame = static_cast<unsigned int>(Global::frameCounter);
 				return clips[0];
 			}
 			return clips[currentFrame / frameDelay];
@@ -116,7 +116,7 @@ MT::Rect& Animation::Get() {
 }
 
 void Animation::Reset() {
-	firstFrame = Global::frameCounter;
+	firstFrame = static_cast<unsigned int>(Global::frameCounter);
 	if (type == AnimType::StartEndSingularSecond) { type = AnimType::StartEndSingular; }
 	if (type == AnimType::EndStartSingularSecond) { type = AnimType::EndStartSingular; }
 }
@@ -131,7 +131,7 @@ void Animation::CloneFrame(const unsigned int index, const unsigned int count) {
 
 	clips.insert(clips.begin() + index, copyVec.begin(), copyVec.end());
 
-	lastFrame += copyVec.size() * frameDelay;
+	lastFrame = static_cast<unsigned int>(clips.size()) * frameDelay;
 }
 
 Animation CopyAnimation(Animation* animation) {
@@ -139,9 +139,9 @@ Animation CopyAnimation(Animation* animation) {
 		throw std::exception("Passed animation is empty cannot copy");
 	}
 	Animation anim;
-	anim.firstFrame = Global::frameCounter;
+	anim.firstFrame = static_cast<unsigned int>(Global::frameCounter);
 	anim.frameDelay = animation->frameDelay;
-	anim.lastFrame = animation->frameDelay * animation->clips.size();
+	anim.lastFrame = animation->frameDelay * static_cast<unsigned int>(animation->clips.size());
 	anim.type = animation->type;
 	anim.clips = animation->clips;
 	return anim;

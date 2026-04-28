@@ -91,7 +91,7 @@ void SoundMan::PlayRawSoundStereo(Mix_Chunk* sound, int left, int right, int vol
 	int SDL_Volume = (volume * MIX_MAX_VOLUME) / 100;
 	int SDL_Left = (left * 255) / 100;
 	int SDL_Right = (right * 255) / 100;
-	Mix_SetPanning(channel, SDL_Left, SDL_Right);
+	Mix_SetPanning(channel, static_cast<Uint8>(SDL_Left), static_cast<Uint8>(SDL_Right));
 
 	Mix_Volume(channel, SDL_Volume);
 }

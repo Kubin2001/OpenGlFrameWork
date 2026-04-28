@@ -132,7 +132,7 @@ unsigned int ShaderLoader::LoadShaderStrRaw(const char* shaderText, GLenum shade
     if (!success) {
         glGetShaderInfoLog(shaderID, 512, nullptr, infoLog);
         std::println("Error with shader compilation  ERROR: {} in \n {}", infoLog, shaderText);
-        return -1;
+        return 0;
     }
     std::println("Raw Shader Compilation succesfull");
     return shaderID;
