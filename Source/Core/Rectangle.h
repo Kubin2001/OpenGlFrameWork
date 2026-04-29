@@ -46,7 +46,7 @@ namespace MT {
 
 
 		// Inlined for max performace for renderer
-		bool IsColliding(const Rect& rect) const noexcept {
+		inline bool IsColliding(const Rect& rect) const noexcept {
 			if (rect.x + rect.w >= x &&
 				rect.x - w <= x &&
 				rect.y + rect.h >= y &&
