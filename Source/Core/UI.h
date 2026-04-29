@@ -803,14 +803,7 @@ class TagUISection {
 			return true;
 		}
 
-		std::unordered_map<std::string, std::vector<UIElemBase*>>& GetTag(const std::string& tag) {
-			if (ui == nullptr) {
-				throw std::runtime_error("UI is nullptr tag section is not inicialized");
-			}
-			return TagMap;
-		}
-
-		std::vector<UIElemBase*>& GetAll(const std::string& tag) {
+		std::vector<UIElemBase*>&  GetTag(const std::string& tag) {
 			if (ui == nullptr) {
 				throw std::runtime_error("UI is nullptr tag section is not inicialized");
 			}
@@ -819,6 +812,13 @@ class TagUISection {
 				throw std::runtime_error("This tag does not exist");
 			}
 			return iter->second;
+		}
+
+		std::unordered_map<std::string, std::vector<UIElemBase*>>& GetAll() {
+			if (ui == nullptr) {
+				throw std::runtime_error("UI is nullptr tag section is not inicialized");
+			}
+			return TagMap;
 		}
 
 		UIElemBase* GetElem(const std::string& tag, const std::string &name) {
