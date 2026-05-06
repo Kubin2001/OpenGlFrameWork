@@ -202,9 +202,9 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
 
     DefineAtributes(VBO, circleVao, renderCircleSize, { 4,3 });
 
-    DefineAtributes(VBO, roundedVao, renderRoundedSize, { 4,2 });
+    DefineAtributes(VBO, roundedVao, renderRoundedSize, { 4,2,1});
 
-    DefineAtributes(VBO, roundedCopyVao, renderCopyRoundedSize, { 4,1 });
+    DefineAtributes(VBO, roundedCopyVao, renderCopyRoundedSize, { 4,1,1 });
 
     DefineAtributes(VBO, filteredVao, renderFilteredSize, { 4,4,2 });
 
@@ -234,7 +234,7 @@ bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
     renderCopyCircleId = loader.GetProgram("RenderCopyCircle");
     renderCircleId = loader.GetProgram("RenderCircle");
     renderRoundedId = loader.GetProgram("RenderRoundedRectangle");
-    renderCopyRoundedId = loader.GetProgram("RenderCopyRoundedRectangle");
+    renderCopyRoundedId = loader.GetProgram("RenderCopyRounded");
     renderCopyFilterId = loader.GetProgram("RenderCopyFilter");
     renderBorderId = loader.GetProgram("RenderBorder");
     renderRoundedBorderId = loader.GetProgram("RenderRoundedBorder");
@@ -653,7 +653,7 @@ void MT::Renderer::RenderCircle(const Rect& rect, const Color& col, const unsign
     currentIndex += currentSize;
 }
 
-void MT::Renderer::RenderRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha) {
+void MT::Renderer::RenderRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha, int roundingSize) {
     if (!vievPort.IsColliding(rect)) {return;}
 
     if (currentProgram != renderRoundedId) {
@@ -686,12 +686,13 @@ void MT::Renderer::RenderRoundedRect(const Rect& rect, const Color& col, const u
     ptr[3] = static_cast<float>(rect.h);
     ptr[4] = fRG;
     ptr[5] = fBA;
+    ptr[6] = static_cast<float>(roundingSize);
 
     currentIndex += currentSize;
 }
 
 
-void MT::Renderer::RenderCopyRounded(const MT::Rect& rect, const MT::Texture* texture) {
+void MT::Renderer::RenderCopyRounded(const Rect& rect, const Texture* texture, int roundingSize) {
     if (!vievPort.IsColliding(rect)) {return;}
 
     if (currentProgram != renderCopyRoundedId) {
@@ -718,6 +719,7 @@ void MT::Renderer::RenderCopyRounded(const MT::Rect& rect, const MT::Texture* te
     ptr[2] = static_cast<float>(rect.w);
     ptr[3] = static_cast<float>(rect.h);
     ptr[4] = texture->alpha;
+    ptr[5] = static_cast<float>(roundingSize);
 
     currentIndex += currentSize;
 }
@@ -1189,7 +1191,7 @@ void MT::Renderer::RenderCircleUPR(const Rect& rect, const Color& col, const uns
     currentIndex += currentSize;
 }
 
-void MT::Renderer::RenderRoundedRectUPR(const Rect& rect, const Color& col, const unsigned char alpha) {
+void MT::Renderer::RenderRoundedRectUPR(const Rect& rect, const Color& col, const unsigned char alpha, int roundingSize) {
     if (!vievPort.IsColliding(rect)) { return; }
 
     CheckUPRProgram();
@@ -1203,7 +1205,7 @@ void MT::Renderer::RenderRoundedRectUPR(const Rect& rect, const Color& col, cons
     ptr[5] = static_cast<float>(col.G);
     ptr[6] = static_cast<float>(col.B);
     ptr[7] = static_cast<float>(alpha);
-    ptr[8] = 0.0f;
+    ptr[8] = static_cast<float>(roundingSize);
     ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
     ptr[12] = 0.0f;
     ptr[13] = 7.0f; //ShaderID
@@ -1211,7 +1213,7 @@ void MT::Renderer::RenderRoundedRectUPR(const Rect& rect, const Color& col, cons
     currentIndex += currentSize;
 }
 
-void MT::Renderer::RenderCopyRoundedUPR(const MT::Rect& rect, const MT::Texture* texture) {
+void MT::Renderer::RenderCopyRoundedUPR(const MT::Rect& rect, const MT::Texture* texture, int roundingSize) {
     if (!texture) { return; }
     if (!vievPort.IsColliding(rect)) { return; }
 
@@ -1229,7 +1231,8 @@ void MT::Renderer::RenderCopyRoundedUPR(const MT::Rect& rect, const MT::Texture*
     ptr[2] = static_cast<float>(rect.w);
     ptr[3] = static_cast<float>(rect.h);
     ptr[4] = static_cast<float>(texture->alpha); 
-    ptr[5] = 0.0f; ptr[6] = 0.0f; ptr[7] = 0.0f;
+    ptr[5] = static_cast<float>(roundingSize);
+    ptr[6] = 0.0f; ptr[7] = 0.0f;
     ptr[8] = 0.0f; ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
     ptr[12] = 0.0f;
     ptr[13] = 8.0f; //ShaderID

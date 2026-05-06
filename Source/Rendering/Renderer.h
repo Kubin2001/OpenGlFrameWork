@@ -220,8 +220,8 @@ namespace MT {
 		inline static constexpr unsigned int renderCopyExSize = 10;
 		inline static constexpr unsigned int renderCopyCircleSize = 6;
 		inline static constexpr unsigned int renderCircleSize = 7;
-		inline static constexpr unsigned int renderRoundedSize = 6;
-		inline static constexpr unsigned int renderCopyRoundedSize = 5;
+		inline static constexpr unsigned int renderRoundedSize = 7;
+		inline static constexpr unsigned int renderCopyRoundedSize = 6;
 		inline static constexpr unsigned int renderFilteredSize = 10;
 		inline static constexpr unsigned int renderBorderSize = 7;
 		inline static constexpr unsigned int renderRoundedBorderSize = 7;
@@ -283,9 +283,9 @@ namespace MT {
 
 		void RenderCircle(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f);
 
-		void RenderRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha = 255);
+		void RenderRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha = 255, int roundingSize = 8);
 
-		void RenderCopyRounded(const Rect& rect, const Texture* texture);
+		void RenderCopyRounded(const Rect& rect, const Texture* texture, int roundingSize = 8);
 
 		void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter) {
 			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
@@ -325,9 +325,9 @@ namespace MT {
 
 		void RenderCircleUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f);
 
-		void RenderRoundedRectUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255);
+		void RenderRoundedRectUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255, int roundingSize = 8);
 
-		void RenderCopyRoundedUPR(const Rect& rect, const Texture* texture);
+		void RenderCopyRoundedUPR(const Rect& rect, const Texture* texture, int roundingSize = 8);
 
 		void RenderCopyFilteredUPR(const Rect& rect, const Texture* texture, const Color& filter) {
 			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };

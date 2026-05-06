@@ -846,10 +846,12 @@ void ShaderLoader::LoadSavedShaders() {
         #version 330 core
         layout(location = 0) in vec4 aRect;
         layout(location = 1) in vec2 aColorPacked;
+        layout(location = 2) in float aRounding;
 
         out vec4 oColor;
         out vec2 oUV;
         out vec2 oWH;
+        out float oRounding;
 
         uniform vec2 uVievPort;
 
@@ -897,6 +899,7 @@ void ShaderLoader::LoadSavedShaders() {
             oColor = vec4(vRG, vBA);
             oUV = uvs[gl_VertexID % 6];
             oWH = aRect.zw;
+            oRounding = aRounding;
         }
         )glsl";
 
@@ -908,18 +911,22 @@ void ShaderLoader::LoadSavedShaders() {
         in vec4 oColor;
         in vec2 oUV;
         in vec2 oWH;
+        in float oRounding;
 
         float roundedBoxSDF(vec2 p, vec2 size, float r){
-            vec2 d = abs(p - size * 0.5) - (size * 0.5 - vec2(r));
-            return length(max(d, 0.0)) - r;
+            float safeR = min(r, min(size.x, size.y) * 0.5);
+            vec2 halfSize = size * 0.5;
+            vec2 d = abs(p) - halfSize + safeR;
+    
+            return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - safeR;
         }
 
         void main(){
-            vec2 pX = oUV * oWH;
+            vec2 pX = oUV * oWH - oWH * 0.5;
 
-            float d = roundedBoxSDF(pX, oWH, 8.0); // 8.0 is the size of a curve if nedded the change uniform is requied
+            float d = roundedBoxSDF(pX, oWH, oRounding);
 
-            float alpha = 1.0 - smoothstep(0.0, 1.0, d);
+            float alpha = 1.0 - smoothstep(-1.0, 1.0, d);
 
             if (alpha <= 0.001) discard;
 
@@ -930,15 +937,17 @@ void ShaderLoader::LoadSavedShaders() {
         CreateProgramStr("RenderRoundedRectangle", vertexStr, fragmentStr);
     }
 
-    if (!IsProgram("RenderCopyRoundedRectangle")) {
+    if (!IsProgram("RenderCopyRounded")) {
         constexpr const char* vertexStr = R"glsl(
         #version 330 core
         layout(location = 0) in vec4 aRect;
         layout(location = 1) in float aAlpha;
+        layout(location = 2) in float aRounding;
 
         out vec2 oUV;
         out vec2 oWH;
         out float oAlpha;
+        out float oRounding;
 
         uniform vec2 uVievPort;
 
@@ -975,6 +984,7 @@ void ShaderLoader::LoadSavedShaders() {
             oUV = uvs[gl_VertexID % 6];
             oWH = aRect.zw;
             oAlpha = aAlpha;
+            oRounding = aRounding;
         }
         )glsl";
 
@@ -986,20 +996,24 @@ void ShaderLoader::LoadSavedShaders() {
         in vec2 oUV;
         in vec2 oWH;
         in float oAlpha;
+        in float oRounding;
 
         uniform sampler2D texture1;
 
         float roundedBoxSDF(vec2 p, vec2 size, float r){
-            vec2 d = abs(p - size * 0.5) - (size * 0.5 - vec2(r));
-            return length(max(d, 0.0)) - r;
+            float safeR = min(r, min(size.x, size.y) * 0.5);
+            vec2 halfSize = size * 0.5;
+            vec2 d = abs(p) - halfSize + safeR;
+    
+            return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - safeR;
         }
 
         void main(){
 
-            vec2 pX = oUV * oWH;
-            float d = roundedBoxSDF(pX, oWH, 8.0); // 8.0 is the size of a curve if nedded the change uniform is requied
+            vec2 pX = oUV * oWH - oWH * 0.5;
+            float d = roundedBoxSDF(pX, oWH, oRounding);
 
-            float alpha = 1.0 - smoothstep(0.0, 1.0, d);
+            float alpha = 1.0 - smoothstep(-1.0, 1.0, d);
 
             if (alpha <= 0.001) discard;
             
@@ -1010,7 +1024,7 @@ void ShaderLoader::LoadSavedShaders() {
         }
         )glsl";
 
-        CreateProgramStr("RenderCopyRoundedRectangle", vertexStr, fragmentStr);
+        CreateProgramStr("RenderCopyRounded", vertexStr, fragmentStr);
     }
 
     if (!IsProgram("RenderBorder")) {
@@ -1515,6 +1529,7 @@ void ShaderLoader::LoadSavedShaders() {
                     oVecOne = aVecOne / 255.0;
                     oVecTwo.xy = uvs[gl_VertexID % 6]; //UV
                     oVecTwo.zw = aRect.zw; // Rect width and Height
+                    oVecThree.x = aVecTwo.x; // Rounding Radius
                     break;
                 }
                 case 8:{ // Render Copy Rounded Rect 
@@ -1522,6 +1537,7 @@ void ShaderLoader::LoadSavedShaders() {
                     oVecOne.xy = uvs[gl_VertexID % 6];
                     oVecOne.zw = aRect.zw; // Rect width and Height
                     oVecTwo.x = aVecOne.x; // alpha
+                    oVecTwo.y = aVecOne.y; // Rounding Radius
                     break;
                 }
 
@@ -1581,8 +1597,11 @@ void ShaderLoader::LoadSavedShaders() {
         uniform sampler2D texture2;
 
         float roundedBoxSDF(vec2 p, vec2 size, float r){
-            vec2 d = abs(p - size * 0.5) - (size * 0.5 - vec2(r));
-            return length(max(d, 0.0)) - r;
+            float safeR = min(r, min(size.x, size.y) * 0.5);
+            vec2 halfSize = size * 0.5;
+            vec2 d = abs(p) - halfSize + safeR;
+    
+            return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - safeR;
         }
 
         float boxSDF(vec2 p, vec2 size) {
@@ -1641,23 +1660,23 @@ void ShaderLoader::LoadSavedShaders() {
                     break;
                 }
 
-               case 7:{ // Render  Rounded Rect 
-                    vec2 pX = oVecTwo.xy * oVecTwo.zw;
+                case 7:{ // Render  Rounded Rect 
+                    vec2 pX = oVecTwo.xy * oVecTwo.zw - oVecTwo.zw * 0.5;
 
-                    float d = roundedBoxSDF(pX, oVecTwo.zw, 8.0); // 8.0 is the size of a curve if nedded the change uniform is requied
+                    float d = roundedBoxSDF(pX, oVecTwo.zw, oVecThree.x); 
 
-                    float alpha = 1.0 - smoothstep(0.0, 1.0, d);
+                    float alpha = 1.0 - smoothstep(-1.0, 1.0, d);
 
                     if (alpha <= 0.001) discard;
 
                     FragColor = vec4(oVecOne.rgb, oVecOne.a * alpha);
                     break;
-               }
-               case 8:{ // Render Copy  Rounded Rect 
-                    vec2 pX = oVecOne.xy * oVecOne.zw;
-                    float d = roundedBoxSDF(pX, oVecOne.zw, 8.0); // 8.0 is the size of a curve if nedded the change uniform is requied
+                }
+                case 8:{ // Render Copy  Rounded Rect 
+                    vec2 pX = oVecOne.xy * oVecOne.zw - oVecOne.zw * 0.5;
+                    float d = roundedBoxSDF(pX, oVecOne.zw, oVecTwo.y); 
 
-                    float alpha = 1.0 - smoothstep(0.0, 1.0, d);
+                    float alpha = 1.0 - smoothstep(-1.0, 1.0, d);
 
                     if (alpha <= 0.001) discard;
             
@@ -1666,14 +1685,14 @@ void ShaderLoader::LoadSavedShaders() {
 
 	                FragColor = texcolor;
                     break;
-               }
-               case 9:{ // Render Copy Filtered
+                }
+                case 9:{ // Render Copy Filtered
 	                vec4 texcolor = texture(texture1,oVecOne.xy);
 	                texcolor *= oVecTwo; 
 	                FragColor = texcolor;
                     break;
-               }
-               case 10:{ // Render Border
+                }
+                case 10:{ // Render Border
                     vec2 pX = oVecOne.xy * oVecOne.zw;
     
                     float d = boxSDF(pX, oVecOne.zw);

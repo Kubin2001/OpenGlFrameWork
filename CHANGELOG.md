@@ -176,3 +176,4 @@ was removed or the new one was added to folder
 - Larger texture atlas error margin
 - Minor TexMan fixes
 - Tag section can return all existing tags for iteration
+- Better rounded rectangles rendering

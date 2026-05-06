@@ -46,8 +46,7 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
-	anim = CreateAnimation(6, 30, 30, 20, AnimType::Looped);
-	anim.CloneFrame(3, 5);
+
 
 }
 
@@ -64,9 +63,6 @@ void Game::FrameUpdate() {
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
-		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_R) {
-			TexMan::RefreshTextures("Textures/Test", true);
-		}
 		Exit();
 	}
 	Global::inputDelay++;
@@ -75,7 +71,16 @@ void Game::Input() {
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
 	
-	renderer->RenderCopyPart({ 100,100,100,100 }, anim.Get(), TexMan::GetTex("AnimTest"));
+	renderer->RenderCopyRounded({ 10,10,100,100 }, TexMan::GetTex("water"),8);
+
+	renderer->RenderRoundedRect({ 10,300,100,100 }, {30,30,30}, 255 ,8);
+
+	renderer->RenderCopyRoundedUPR({ 300,10,100,100 }, TexMan::GetTex("water"), 8);
+
+	renderer->RenderRoundedRectUPR({ 300,300,100,100 }, { 30,30,30 }, 255, 8);
+
+	renderer->RenderRoundedBorder({ 300,300,100,100 }, { 255,0,0 }, 8);
+
 
 	ui->Render();
 	renderer->Present();
