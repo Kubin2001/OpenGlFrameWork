@@ -342,24 +342,6 @@ void MT::Renderer::RenderRect(const Rect& rect, const Color& col, const int alph
     currentIndex += currentSize;
 }
 
-glm::vec2 RotateNdc(float localX, float localY, const glm::vec2& mainCenter, float cosA, float sinA, int w, int h) {
-    // Odwracamy lokalną oś Y (bo piksele rosną w dół)
-    localY = -localY;
-
-    // rotate local around origin then translate by center
-    float rx = localX * cosA - localY * sinA;
-    float ry = localX * sinA + localY * cosA;
-
-    float px = mainCenter.x + rx;
-    float py = mainCenter.y + ry;
-
-    // convert to NDC
-    float ndc_x = (px / float(w)) * 2.0f - 1.0f;
-    float ndc_y = 1.0f - (py / float(h)) * 2.0f;
-
-    return { ndc_x, ndc_y };
-}
-
 void MT::Renderer::RenderRectEX(const Rect& rect, const Color& col, const float rotation, const int alpha) {
     if (!vievPort.IsColliding(rect)) {
         return;

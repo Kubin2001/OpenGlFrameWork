@@ -177,3 +177,6 @@ was removed or the new one was added to folder
 - Minor TexMan fixes
 - Tag section can return all existing tags for iteration
 - Better rounded rectangles rendering
+
+2.02
+- Exprerimental custom shader implementation

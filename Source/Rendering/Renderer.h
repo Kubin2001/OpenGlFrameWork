@@ -254,7 +254,7 @@ namespace MT {
 		}
 
 		public:
-		int W, H;
+		int W = 0, H = 0;
 		SDL_GLContext context;
 
 		bool Start(SDL_Window* window, SDL_GLContext context);
@@ -370,5 +370,148 @@ namespace MT {
 		void SetClipSize(const Rect& rect);
 
 		void ResetClipSize();
+
+		template<unsigned int size>
+		friend class CustomShader;
 	};
+
+	template<unsigned int size>
+	class CustomShader {
+	private:
+		inline static unsigned int globalID = 0;
+
+		unsigned int VAO = 0;
+		std::unordered_map<std::string,int> uniforms;
+		unsigned int shaderID = 0;
+		Renderer* ren = nullptr;
+
+	public:
+		bool Create(Renderer *ren, const char* vertexStr, const char* fragmentStr, const std::vector<unsigned int> &VAOAligment) {
+			if(ren == nullptr){
+				return false;
+			}
+			this->ren = ren;
+			std::string strID = std::to_string(globalID);
+			if (!ren->loader.CreateProgramStr("Custom" + strID, vertexStr, fragmentStr)) {
+				return false;
+			}
+			try {
+				shaderID = ren->loader.GetProgram("Custom" + strID);
+			}
+			catch (const std::exception&) {
+				return false;
+			}
+			unsigned int vaoSize = 0;
+			for (auto& val : VAOAligment) {
+				vaoSize += val;
+			}
+			if (vaoSize != size) {
+				return false;
+			}
+
+			glGenVertexArrays(1, &VAO);
+			glBindVertexArray(VAO);
+			glBindBuffer(GL_ARRAY_BUFFER, ren->VBO);
+
+			unsigned int spread = 0;
+			for (unsigned int i = 0; i < VAOAligment.size(); i++) {
+				glVertexAttribPointer(i, VAOAligment[i], GL_FLOAT, GL_FALSE, size * sizeof(float), (void*)(spread * sizeof(float)));
+				glEnableVertexAttribArray(i);
+				glVertexAttribDivisor(i, 1);
+				spread += VAOAligment[i];
+			}
+			glBindVertexArray(0);
+
+
+			return true;
+		}
+
+		// Creates unifrom with selected name and binds it to the shaderProgram
+		int AddUniform(const std::string &name) {
+			glUseProgram(shaderID);
+			int  uniformID = glGetUniformLocation(shaderID, name.c_str());
+			if (uniformID == -1) {
+				throw("Cannot get uniform in Custom Shader::AddUniform");
+			}
+			uniforms[name] = uniformID;
+			return uniforms[name];
+		}
+
+		int GetUnifrom(const std::string& name, bool setProg = false) {
+			if (setProg) {
+				glUseProgram(shaderID);
+			}
+			auto uniIter = uniforms.find(name);
+			if (uniIter == uniforms.end()) {
+				return 0;
+			}
+			return uniIter->second;
+		}
+
+		void Render(std::array<float,size> elements, MT::Texture* tex1 = nullptr, MT::Texture* tex2 = nullptr) {
+			if (ren->currentProgram != shaderID) {
+				ren->Present(false);
+				glBindVertexArray(VAO);
+				ren->currentProgram = shaderID;
+				glUseProgram(shaderID);
+			}
+			if (tex1 && ren->currentTexture != tex1->texture) {
+				ren->Present(false);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, tex1->texture);
+				ren->currentTexture = tex1->texture;
+			}
+			if (tex2 && ren->currentMaskTexture != tex2->texture) {
+				ren->Present(false);
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, tex2->texture);
+				ren->currentMaskTexture = tex2->texture;
+			}
+
+			ren->currentSize = size;
+			if (ren->currentIndex + ren->currentSize > Renderer::batchSize) {
+				ren->Present(false);
+			}
+
+			float* ptr = &ren->globalVertices[ren->currentIndex];
+			for (size_t i = 0; i < elements.size(); i++) {
+				ptr[i] = elements[i];
+			}
+
+			ren->currentIndex += ren->currentSize;
+		}
+
+		CustomShader() = default;
+
+		CustomShader(const CustomShader& other) = delete;
+		CustomShader& operator=(const CustomShader& other) = delete;
+
+		CustomShader(CustomShader<size>&& other) noexcept{
+			this->VAO = other.VAO;
+			other.VAO = 0;
+			this->shaderID = other.shaderID;
+			this->uniforms = std::move(other.uniforms);
+			this->ren = other.ren;
+		}
+
+		CustomShader& operator = (CustomShader<size>&& other) noexcept {
+			if (this == &other) { return *this; }
+			if (this->VAO != 0) {
+				glDeleteVertexArrays(1, &(this->VAO));
+			}
+			this->VAO = other.VAO;
+			other.VAO = 0;
+			this->shaderID = other.shaderID;
+			this->uniforms = std::move(other.uniforms);
+			this->ren = other.ren;
+			return *this;
+		}
+
+		~CustomShader() {
+			if (VAO != 0) {
+				glDeleteVertexArrays(1, &VAO);;
+			}
+		}
+	};
+
 }

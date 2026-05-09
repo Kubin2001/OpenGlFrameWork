@@ -138,7 +138,7 @@ unsigned int ShaderLoader::LoadShaderStrRaw(const char* shaderText, GLenum shade
     return shaderID;
 }
 
-void ShaderLoader::CreateProgramStr(const std::string name, const char* vertexStr, const char* fragmentStr) {
+bool ShaderLoader::CreateProgramStr(const std::string name, const char* vertexStr, const char* fragmentStr) {
     unsigned int vertex = LoadShaderStrRaw(vertexStr, GL_VERTEX_SHADER);
     unsigned int fragment = LoadShaderStrRaw(fragmentStr, GL_FRAGMENT_SHADER);
 
@@ -154,17 +154,22 @@ void ShaderLoader::CreateProgramStr(const std::string name, const char* vertexSt
     //catch error
     glGetProgramiv(shaderPrograms[name], GL_LINK_STATUS, &success);
 
+    bool created = false;
+
     if (!success) {
         glGetProgramInfoLog(shaderPrograms[name], 512, nullptr, infoLog);
         std::println ("Cannot create shader program: {} ERROR: {}",name,infoLog);
     }
     else{
         std::println("Linking succesfull");
+        created = true;
     }
 
     //Usuwanie shaderów bo z racji po³¹czenia w program s¹ niepotrzebne
     glDeleteShader(vertex);
     glDeleteShader(fragment);
+
+    return created;
 }
 
 unsigned int& ShaderLoader::GetProgram(const std::string& name) {

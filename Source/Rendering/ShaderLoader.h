@@ -25,7 +25,7 @@ class ShaderLoader {
 
 		unsigned int LoadShaderStrRaw(const char* shaderText, GLenum shaderType);
 
-		void CreateProgramStr(const std::string name, const char* vertexStr, const char* fragmentStr);
+		bool CreateProgramStr(const std::string name, const char* vertexStr, const char* fragmentStr);
 
 		unsigned int& GetProgram(const std::string& name);
 
@@ -35,3 +35,4 @@ class ShaderLoader {
 
 		~ShaderLoader();
 };
+
