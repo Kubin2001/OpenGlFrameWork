@@ -6,6 +6,7 @@
 #include <filesystem>
 #include "ShaderLoader.h"
 #include "Rectangle.h"
+#include "Window.h"
 
 enum class ColorType {     
 	White,      
@@ -24,8 +25,6 @@ enum class ColorType {
 };
 
 namespace MT {
-
-	SDL_GLContext Init(SDL_Window* window);
 
 	struct Color {
 		unsigned char R = 0, G = 0, B = 0;
@@ -146,7 +145,7 @@ namespace MT {
 	class Renderer {
 
 		private:
-		SDL_Window* window = nullptr;
+		SDL_Window* window  = nullptr;
 		Rect vievPort{0,0,0,0};
 		unsigned int VAO = 0, VBO = 0;
 
@@ -255,9 +254,8 @@ namespace MT {
 
 		public:
 		int W = 0, H = 0;
-		SDL_GLContext context;
 
-		bool Start(SDL_Window* window, SDL_GLContext context);
+		bool Start(const MT::Window& mtWindow);
 
 		void ClearFrame(const unsigned char R, const unsigned char G, const unsigned char B);
 

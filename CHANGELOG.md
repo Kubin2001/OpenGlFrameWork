@@ -180,3 +180,4 @@ was removed or the new one was added to folder
 
 2.02
 - Exprerimental custom shader implementation
+- SDL Window Wrapper MT::window

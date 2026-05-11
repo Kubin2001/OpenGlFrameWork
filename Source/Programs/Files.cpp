@@ -106,10 +106,9 @@ static std::unordered_map<std::string, MT::Texture*> LoadExtensionTextures(Local
 
 std::string FileExplorer::Open(const std::string& path) {
 	MT::ConstextGuard cg;
-	window = SDL_CreateWindow("FileWindow", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		300, 300, SDL_WINDOW_SHOWN | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_OPENGL);
+	window.Init("FileWindow", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 300, 300, SDL_WINDOW_SHOWN | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_OPENGL);
 	renderer = new MT::Renderer();
-	renderer->Start(window, MT::Init(window));
+	renderer->Start(window);
 
 	std::filesystem::path current;
 	if (std::filesystem::exists(path)) {
@@ -157,7 +156,6 @@ std::string FileExplorer::Maintain() {
 	texMan.Clear();
 	renderer->Clear();
 	delete renderer;
-	SDL_DestroyWindow(window);
 	return retPath;
 }
 
@@ -187,7 +185,7 @@ void FileExplorer::Input() {
 			}
 		}
 		if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE) {
-			Uint32 myWindowID = SDL_GetWindowID(window);
+			Uint32 myWindowID = SDL_GetWindowID(window.GetWindow());
 			if (event.window.windowID == myWindowID) {
 				finished = true;
 			}

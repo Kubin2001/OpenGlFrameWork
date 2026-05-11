@@ -224,7 +224,7 @@ std::vector<Point> PathMaker::LoadBin(const std::string& path) {
 void PathMaker::Input() {
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE) {
-			Uint32 myWindowID = SDL_GetWindowID(window);
+			Uint32 myWindowID = SDL_GetWindowID(window.GetWindow());
 			if (event.window.windowID == myWindowID) {
 				finished = true;
 			}
@@ -354,10 +354,12 @@ void PathMaker::Maintain() {
 
 void PathMaker::Open(bool compressStart, bool compressEnd, bool compressZeros, int windowW, int windowH) {
 	MT::ConstextGuard cg;
-	window = SDL_CreateWindow("Path Maker", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		windowW, windowH, SDL_WINDOW_SHOWN | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_OPENGL);
+	//window = SDL_CreateWindow("Path Maker", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+	//	windowW, windowH, SDL_WINDOW_SHOWN | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_OPENGL);
+	window.Init("FileWindow", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowW, windowH
+		, SDL_WINDOW_SHOWN | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_OPENGL);
 	ren = new MT::Renderer();
-	ren->Start(window, MT::Init(window));
+	ren->Start(window);
 
 	texMan.Start(ren);
 	ui = new UI(ren);
@@ -377,5 +379,4 @@ void PathMaker::Open(bool compressStart, bool compressEnd, bool compressZeros, i
 	texMan.Clear();
 	ren->Clear();
 	delete ren;
-	SDL_DestroyWindow(window);
 }

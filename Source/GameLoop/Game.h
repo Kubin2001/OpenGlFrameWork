@@ -3,20 +3,17 @@
 #include <memory>
 
 #include "UI.h"
-#include "Animator.h"
+#include "Window.h"
 
 class Game {
 private:
-	SDL_Window* window = nullptr;
+	MT::Window window{};
 	MT::Renderer *renderer = nullptr;
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui = nullptr;
-	MT::CustomShader<9> cShader;
 
 
 public:
-	Game();
-
 	void Start();
 
 	void LogicUpdate();

@@ -24,23 +24,6 @@ SDL_Surface * FlipSurfaceVertical(SDL_Surface * surface) {
     return flipped;
 }
 
-SDL_GLContext MT::Init(SDL_Window* window) {
-
-    SDL_GLContext context = SDL_GL_CreateContext(window);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-
-    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
-        std::cerr << "Failed to initialize GLAD\n";
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-        throw std::runtime_error("Failed to initialize GLAD");
-    }
-    return context;
-}
-
 MT::Texture* MT::LoadTexture(const char* path) {
     unsigned int texture;
     glGenTextures(1, &texture);
@@ -144,10 +127,9 @@ glm::vec2 RotateAndTranslate2D(float localX, float localY, const glm::vec2& cent
     };
 }
 
-bool MT::Renderer::Start(SDL_Window* window, SDL_GLContext context) {
-    this->window = window;
-    SDL_GL_GetDrawableSize(window, &W, &H);
-    this->context = context;
+bool MT::Renderer::Start(const MT::Window &mtWindow) {
+    this->window = mtWindow.GetWindow();
+    SDL_GL_GetDrawableSize(this->window, &W, &H);
     vievPort.Set(0, 0, W, H);
     // Deklaracja zmiennych dla Vertex Array Object (VAO) i Vertex Buffer Object (VBO)
     // Generowanie VAO (Vertex Array Object) - obiekt przechowujący konfigurację atrybutów wierzchołków
@@ -1435,11 +1417,10 @@ void MT::Renderer::Clear() {
     globalVertices.clear();
     globalVertices.shrink_to_fit();
     flatRenderVec.clear();
-
-    SDL_GL_DeleteContext(context);
 }
 
 void MT::Renderer::Resize(const unsigned int w, const unsigned int h) {
+    Present(false);
     W = w;
     H = h;
     vievPort.w = W;
@@ -1485,6 +1466,9 @@ void MT::Renderer::Resize(const unsigned int w, const unsigned int h) {
     AssingVievPort(uprId, uprVievPort);
 
     AssingVievPort(flatRenderCopyId, flatVievPort);
+
+    currentProgram = 0;
+    glUseProgram(0);
 
     SDL_GL_GetDrawableSize(window, &W, &H);
     glViewport(0, 0, W, H);

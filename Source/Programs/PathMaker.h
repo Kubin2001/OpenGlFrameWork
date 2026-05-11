@@ -8,7 +8,7 @@
 // It does not store full position only their shifts
 class PathMaker {
 private:
-	SDL_Window* window = nullptr;
+	MT::Window window{};
 	MT::Renderer* ren = nullptr;
 	SDL_Event event = {};
 	bool finished = false;

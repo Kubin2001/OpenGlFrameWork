@@ -1,5 +1,6 @@
 #pragma once
 #include "UI.h"
+#include "Window.h"
 
 
 std::vector<std::string> ReadCsvLine(const std::string& line, const char separator = ',');
@@ -9,7 +10,7 @@ std::vector<std::vector<std::string>> ReadCsv(const std::string& path, const cha
 
 class FileExplorer {
 	private:
-		SDL_Window* window = nullptr;
+		MT::Window window{};
 		MT::Renderer* renderer = nullptr;
 		SDL_Event event = {};
 
