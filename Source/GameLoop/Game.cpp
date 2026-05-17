@@ -44,19 +44,13 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
-	FileExplorer fe;
-	fe.Open();
-
-	PathMaker pe;
-	pe.Open();
-
-	Label* lb = ui->CreateLabel("Test1",100,100,100,100,nullptr,ui->GetFont("arial12"),"Some text");
-	lb->SetColor(30, 30, 30);
-
-	lb = ui->CreateLabel("Test2", 100, 400, 100, 100, nullptr, ui->GetFont("arial12"), "Some text");
-	lb->SetColor(255, 30, 30);
-	lb->SetHoverFilter(true, 255, 255, 255, 120);
-
+	std::vector<std::string> texturesNames = { "tree1", "granite", "water" };
+	MT::Timer::Tic();
+	atlasOne = TexMan::CreateAtlas("atlas1", 40, texturesNames);
+	std::println("Old time : {}us", MT::Timer::Tac<std::chrono::microseconds>());
+	MT::Timer::Tic();
+	atlasTwo = TexMan::CreateAtlasNew("atlas2", 40, texturesNames);
+	std::println("New time : {}us", MT::Timer::Tac<std::chrono::microseconds>());
 
 }
 
@@ -73,24 +67,6 @@ void Game::FrameUpdate() {
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
-		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_F) {
-			window.ToggleFullScreen();
-			Point size = window.GetSize();
-			std::println("Window Size W: {} H: {}", size.x, size.y);
-			renderer->Resize(size.x, size.y);
-		}
-		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_R) {
-			window.Resize(300,300);
-			Point size = window.GetSize();
-			std::println("Window Size W: {} H: {}", size.x, size.y);
-			renderer->Resize(size.x, size.y);
-		}
-		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_U) {
-			window.Resize(1280, 720);
-			Point size = window.GetSize();
-			std::println("Window Size W: {} H: {}", size.x, size.y);
-			renderer->Resize(size.x, size.y);
-		}
 		Exit();
 	}
 	Global::inputDelay++;
@@ -98,6 +74,22 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
+	renderer->RenderCopyPart({ 10,10,40,40 }, atlasOne.sourceRectangles["tree1"], atlasOne.tex);
+	renderer->RenderCopyPart({ 10,110,40,40 }, atlasOne.sourceRectangles["granite"], atlasOne.tex);
+	renderer->RenderCopyPart({ 10,220,40,40 }, atlasOne.sourceRectangles["water"], atlasOne.tex);
+
+	renderer->RenderCopy({ 300,300,static_cast<int>(atlasOne.tex->w), static_cast<int>(atlasOne.tex->h) }, atlasOne.tex);
+	renderer->RenderBorder({ 300,300,static_cast<int>(atlasOne.tex->w), static_cast<int>(atlasOne.tex->h) }, { 30,30,30 }, 5);
+
+
+	renderer->RenderCopyPart({ 200,10,40,40 }, atlasTwo.sourceRectangles["tree1"], atlasTwo.tex);
+	renderer->RenderCopyPart({ 200,110,40,40 }, atlasTwo.sourceRectangles["granite"], atlasTwo.tex);
+	renderer->RenderCopyPart({ 200,220,40,40 }, atlasTwo.sourceRectangles["water"], atlasTwo.tex);
+
+	renderer->RenderCopy({ 700,300,static_cast<int>(atlasTwo.tex->w), static_cast<int>(atlasTwo.tex->h) }, atlasTwo.tex);
+	renderer->RenderBorder({ 700,300,static_cast<int>(atlasTwo.tex->w), static_cast<int>(atlasTwo.tex->h) }, { 30,30,30 }, 5);
+
+
 	ui->Render();
 	renderer->Present();
 
