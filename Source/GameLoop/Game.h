@@ -11,9 +11,6 @@ private:
 	MT::Renderer *renderer = nullptr;
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui = nullptr;
-	MT::Atlas atlasOne{};
-	MT::Atlas atlasTwo{};
-
 
 public:
 	void Start();

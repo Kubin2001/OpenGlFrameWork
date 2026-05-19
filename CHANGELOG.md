@@ -182,3 +182,7 @@ was removed or the new one was added to folder
 - Exprerimental custom shader implementation
 - SDL Window Wrapper MT::window
 - MT::Atlas creation is about 8 times faster and much more flexible
+
+
+2.03
+- New optional logger class

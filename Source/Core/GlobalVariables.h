@@ -10,6 +10,5 @@ namespace Global {
 	extern unsigned int TickTimer;
 	extern unsigned int LogicTimeEnd;
 	extern unsigned int RenderingTimeEnd;
-	extern unsigned char defaultDrawColor[3];
 	extern unsigned int inputDelay;
 }

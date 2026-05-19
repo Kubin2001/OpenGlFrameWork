@@ -9,6 +9,7 @@
 #include "SceneManager.h"
 #include "Addons.h"
 #include "Files.h"
+#include "Logger.h"
 
 #include "PathMaker.h"
 
@@ -27,9 +28,6 @@ void Game::Start() {
 	renderer = new MT::Renderer();
 	renderer->Start(window);
 
-	Global::defaultDrawColor[0] = 255;
-	Global::defaultDrawColor[1] = 255;
-	Global::defaultDrawColor[2] = 255;
 
 	TexMan::Start(renderer);
 	TexMan::DeepLoad("Textures");
@@ -44,13 +42,14 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
-	std::vector<std::string> texturesNames = { "tree1", "granite", "water" };
-	MT::Timer::Tic();
-	atlasOne = TexMan::CreateAtlas("atlas1", 40, texturesNames);
-	std::println("Old time : {}us", MT::Timer::Tac<std::chrono::microseconds>());
-	MT::Timer::Tic();
-	atlasTwo = TexMan::CreateAtlasNew("atlas2", 40, texturesNames);
-	std::println("New time : {}us", MT::Timer::Tac<std::chrono::microseconds>());
+	if (!Logger::SetUp("",LogOutput::File)) {
+		std::println("No setup logger");
+	}
+
+	Logger::Log(std::format("Some msg1"), LogType::Error);
+	Logger::Log(std::format("Some msg2"), LogType::Critical);
+	Logger::Log(std::format("Some msg3"), LogType::Info);
+	Logger::Log(std::format("Some msg4"));
 
 }
 
@@ -73,23 +72,7 @@ void Game::Input() {
 }
 
 void Game::Render() {
-	renderer->ClearFrame(Global::defaultDrawColor[0], Global::defaultDrawColor[1], Global::defaultDrawColor[2]);
-	renderer->RenderCopyPart({ 10,10,40,40 }, atlasOne.sourceRectangles["tree1"], atlasOne.tex);
-	renderer->RenderCopyPart({ 10,110,40,40 }, atlasOne.sourceRectangles["granite"], atlasOne.tex);
-	renderer->RenderCopyPart({ 10,220,40,40 }, atlasOne.sourceRectangles["water"], atlasOne.tex);
-
-	renderer->RenderCopy({ 300,300,static_cast<int>(atlasOne.tex->w), static_cast<int>(atlasOne.tex->h) }, atlasOne.tex);
-	renderer->RenderBorder({ 300,300,static_cast<int>(atlasOne.tex->w), static_cast<int>(atlasOne.tex->h) }, { 30,30,30 }, 5);
-
-
-	renderer->RenderCopyPart({ 200,10,40,40 }, atlasTwo.sourceRectangles["tree1"], atlasTwo.tex);
-	renderer->RenderCopyPart({ 200,110,40,40 }, atlasTwo.sourceRectangles["granite"], atlasTwo.tex);
-	renderer->RenderCopyPart({ 200,220,40,40 }, atlasTwo.sourceRectangles["water"], atlasTwo.tex);
-
-	renderer->RenderCopy({ 700,300,static_cast<int>(atlasTwo.tex->w), static_cast<int>(atlasTwo.tex->h) }, atlasTwo.tex);
-	renderer->RenderBorder({ 700,300,static_cast<int>(atlasTwo.tex->w), static_cast<int>(atlasTwo.tex->h) }, { 30,30,30 }, 5);
-
-
+	renderer->ClearFrame(255, 255, 255);
 	ui->Render();
 	renderer->Present();
 
@@ -111,6 +94,6 @@ Game::~Game() {
 	SceneMan::Clear();
 	renderer->Clear();
 	ui->ClearAll();
-
+	Logger::Close();
 	SDL_Quit();
 }
