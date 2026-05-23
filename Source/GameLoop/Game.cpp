@@ -42,15 +42,6 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
-	if (!Logger::SetUp("",LogOutput::File)) {
-		std::println("No setup logger");
-	}
-
-	Logger::Log(std::format("Some msg1"), LogType::Error);
-	Logger::Log(std::format("Some msg2"), LogType::Critical);
-	Logger::Log(std::format("Some msg3"), LogType::Info);
-	Logger::Log(std::format("Some msg4"));
-
 }
 
 void Game::LogicUpdate() {
@@ -74,6 +65,11 @@ void Game::Input() {
 void Game::Render() {
 	renderer->ClearFrame(255, 255, 255);
 	ui->Render();
+	MT::Timer::Tic();
+	for (size_t i = 0; i < 10000; i++) {
+		renderer->RenderRect({ 10,10,100,100 }, { 100,100,100 });
+	}
+	std::println("Time Taken: {}us",MT::Timer::Tac<std::chrono::microseconds>());
 	renderer->Present();
 
 }

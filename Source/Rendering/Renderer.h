@@ -270,9 +270,59 @@ namespace MT {
 
 		void RenderCopyPart(const Rect& rect, const Rect& source, const Texture* texture);
 
+		template<bool texNullCheck = true>
+		void RenderCopyEX(const Rect& rect, const Rect& source, const Texture* texture, const bool flip, const float rotation) {
+			if constexpr (texNullCheck) {
+				if (!texture) { return; }
+			}
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
+
+			if (currentProgram != renderCopyExId) {
+				Present(false);
+				glBindVertexArray(copyExVao);
+				currentProgram = renderCopyExId;
+				glUseProgram(currentProgram);
+			}
+			currentSize = renderCopyExSize;
+
+			const float sourceX = static_cast<float>(source.x) / texture->w;
+			const float sourceY = static_cast<float>(source.y) / texture->h;
+			const float sourceW = static_cast<float>(source.w) / texture->w;
+			const float sourceH = static_cast<float>(source.h) / texture->h;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			if (flip) {
+				ptr[4] = sourceX + sourceW;
+				ptr[6] = -sourceW;
+			}
+			else {
+				ptr[4] = sourceX;
+				ptr[6] = sourceW;
+			}
+			ptr[5] = sourceY;
+			ptr[7] = sourceH;
+			ptr[8] = texture->alpha;
+			ptr[9] = rotation;
+
+			currentIndex += currentSize;
+		}
+
 		void RenderCopyEX(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f) {
+			if (!texture) { return; }
 			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
-			RenderCopyEX(rect, fullSource, texture, flip, rotation);
+			RenderCopyEX<false>(rect, fullSource, texture, flip, rotation);
 		}
 
 		void RenderCopyEX(const Rect& rect, const Rect& source, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
@@ -285,12 +335,66 @@ namespace MT {
 
 		void RenderCopyRounded(const Rect& rect, const Texture* texture, int roundingSize = 8);
 
-		void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter) {
-			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
-			RenderCopyFiltered(rect, fullSource, texture, filter);
+		template<bool texNullCheck = true>
+		void RenderCopyFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter) {
+			if constexpr(texNullCheck) {
+				if (!texture) { return; }
+			}
+
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			if (currentProgram != renderCopyFilterId) {
+				Present(false);
+				glBindVertexArray(filteredVao);
+				currentProgram = renderCopyFilterId;
+				glUseProgram(renderCopyFilterId);
+			}
+
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
+
+
+			uint16_t iRG = filter.R;
+			iRG <<= 8;
+			iRG += filter.G;
+			uint16_t iBA = filter.B;
+			iBA <<= 8;
+			iBA += static_cast<unsigned char>(texture->alpha * 255);
+
+			currentSize = renderFilteredSize;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			const float sourceX = static_cast<float>(source.x) / texture->w;
+			const float sourceY = static_cast<float>(source.y) / texture->h;
+			const float sourceW = static_cast<float>(source.w) / texture->w;
+			const float sourceH = static_cast<float>(source.h) / texture->h;
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = sourceX;
+			ptr[5] = sourceY;
+			ptr[6] = sourceW;
+			ptr[7] = sourceH;
+			ptr[8] = static_cast<float>(iRG);
+			ptr[9] = static_cast<float>(iBA);
+
+			currentIndex += currentSize;
 		}
 
-		void RenderCopyFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
+		void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter) {
+			if (!texture) { return; }
+			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
+			RenderCopyFiltered<false>(rect, fullSource, texture, filter);
+		}
 
 		void RenderBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
 
@@ -312,12 +416,55 @@ namespace MT {
 
 		void RenderCopyPartUPR(const Rect& rect, const Rect& source, const Texture* texture);
 
-		void RenderCopyEXUPR(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f) {
-			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
-			RenderCopyEXUPR(rect, fullSource, texture, flip, rotation);
+		template<bool texNullCheck = true>
+		void RenderCopyEXUPR(const Rect& rect, const Rect& source, const Texture* texture, const bool flip, const float rotation) {
+			if constexpr (texNullCheck) {
+				if (!texture) { return; }
+			}
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			CheckUPRProgram();
+
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
+
+
+			const float sourceX = static_cast<float>(source.x) / texture->w;
+			const float sourceY = static_cast<float>(source.y) / texture->h;
+			const float sourceW = static_cast<float>(source.w) / texture->w;
+			const float sourceH = static_cast<float>(source.h) / texture->h;
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+
+			if (flip) {
+				ptr[4] = sourceX + sourceW;
+				ptr[6] = -sourceW;
+			}
+			else {
+				ptr[4] = sourceX;
+				ptr[6] = sourceW;
+			}
+			ptr[5] = sourceY;
+			ptr[7] = sourceH;
+			ptr[8] = static_cast<float>(texture->alpha); ptr[9] = rotation; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[12] = 0.0f;
+			ptr[13] = 4.0f; //ShaderID
+
+			currentIndex += currentSize;
 		}
 
-		void RenderCopyEXUPR(const Rect& rect, const Rect& source, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
+		void RenderCopyEXUPR(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f) {
+			if (!texture) { return; }
+			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
+			RenderCopyEXUPR<false>(rect, fullSource, texture, flip, rotation);
+		}
 
 		void RenderCopyCircleUPR(const Rect& rect, const Texture* texture, const float radius = 0.5f);
 
@@ -327,12 +474,51 @@ namespace MT {
 
 		void RenderCopyRoundedUPR(const Rect& rect, const Texture* texture, int roundingSize = 8);
 
-		void RenderCopyFilteredUPR(const Rect& rect, const Texture* texture, const Color& filter) {
-			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
-			RenderCopyFilteredUPR(rect, fullSource, texture, filter);
+		template<bool texNullCheck = true>
+		void RenderCopyFilteredUPR(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter) {
+			if constexpr(texNullCheck) {
+				if (!texture) { return; }
+			}
+
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			CheckUPRProgram();
+
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
+
+
+			const float sourceX = static_cast<float>(source.x) / texture->w;
+			const float sourceY = static_cast<float>(source.y) / texture->h;
+			const float sourceW = static_cast<float>(source.w) / texture->w;
+			const float sourceH = static_cast<float>(source.h) / texture->h;
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+
+			ptr[4] = sourceX; ptr[5] = sourceY; ptr[6] = sourceW; ptr[7] = sourceH;
+			ptr[8] = static_cast<float>(filter.R);
+			ptr[9] = static_cast<float>(filter.G);
+			ptr[10] = static_cast<float>(filter.B);
+			ptr[11] = texture->alpha;
+
+			ptr[12] = 0.0f;
+			ptr[13] = 9.0f; //ShaderID
+
+			currentIndex += currentSize;
 		}
 
-		void RenderCopyFilteredUPR(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter);
+		void RenderCopyFilteredUPR(const Rect& rect, const Texture* texture, const Color& filter) {
+			if (!texture) { return; }
+			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
+			RenderCopyFilteredUPR<false>(rect, fullSource, texture, filter);
+		}
 
 		void RenderBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
 
