@@ -57,6 +57,14 @@ void Game::FrameUpdate() {
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
+		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_R) {
+			Mix_Chunk* sound = SoundMan::GetSound("click");
+			MT::Timer::Tic();
+			SoundMan::PlayRawSound(nullptr);
+			std::println("Nullptr sound took: {}us", MT::Timer::Tac<std::chrono::microseconds>());
+			SoundMan::PlayRawSound(sound);
+			std::println("Normal sound took: {}us", MT::Timer::Tac<std::chrono::microseconds>());
+		}
 		Exit();
 	}
 	Global::inputDelay++;
@@ -64,23 +72,7 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(255, 255, 255);
-	MT::Texture* tex1 = TexMan::GetTex("water");
-	MT::Texture* tex2 = TexMan::GetTex("tree1");
 	ui->Render();
-	MT::Timer::Tic();
-	if (Global::frameCounter > 5) {
-		for (size_t i = 0; i < 5000; i++) {
-			renderer->FLatRenderCopy({ 10,10,100,100 }, tex1);
-			renderer->FLatRenderCopy({ 10,10,300,100 }, tex2);
-		}
-		renderer->FLatRenderCopyPresent();
-		totalTime += MT::Timer::Tac<std::chrono::microseconds>();
-		if (Global::frameCounter > 100) {
-			Global::status = false;
-			std::println("Time Taken: {}us", totalTime / 95);
-		}
-	}
-
 	renderer->Present();
 }
 

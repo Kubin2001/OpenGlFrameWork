@@ -66,6 +66,7 @@ void SoundMan::PlaySound(const std::string& name, int volume) {
 }
 
 void SoundMan::PlayRawSound(Mix_Chunk* sound, int volume) {
+	if (!sound) { return; }
 	if (volume < 1) { return; } // Good for conserving cpu when sound is to far in some map
 	int channel = Mix_PlayChannel(-1, sound, 0);
 	if (channel == -1) { return; }
@@ -85,6 +86,7 @@ void SoundMan::PlaySoundStereo(const std::string& name, int left, int right, int
 }
 
 void SoundMan::PlayRawSoundStereo(Mix_Chunk* sound, int left, int right, int volume) {
+	if (!sound) { return; }
 	if (volume < 1) { return; }
 	int channel = Mix_PlayChannel(-1, sound, 0);
 	if (channel == -1) { return; }
