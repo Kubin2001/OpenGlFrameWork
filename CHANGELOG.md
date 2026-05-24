@@ -187,3 +187,5 @@ was removed or the new one was added to folder
 2.03
 - New optional logger class
 - RenderCopyEx and RenderCopyFiltered without sourceRectangle and when texture is nullptr will no longer cause seg fault
+- All rendering functions are now inlined (Performance boost by about 30 %) 
+- Minor rendering functions fixes

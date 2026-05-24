@@ -236,8 +236,6 @@ namespace MT {
 		//Agressive Batching Rendering
 		std::vector<FlatRenderLayer> flatRenderVec = {};
 
-		void ExpandUpr(float* vertices);
-
 		inline void CheckUPRProgram() {
 			if (currentProgram != uprId) {
 				Present(false);
@@ -257,9 +255,32 @@ namespace MT {
 
 		bool Start(const MT::Window& mtWindow);
 
-		void ClearFrame(const unsigned char R, const unsigned char G, const unsigned char B);
+		inline void Present(bool switchContext = true) {
+			if (currentIndex == 0) {
+				if (switchContext) { SDL_GL_SwapWindow(window); }
+				return;
+			}
+			float* start = &globalVertices[0];
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			glBufferData(GL_ARRAY_BUFFER, currentIndex * sizeof(float), start, GL_DYNAMIC_DRAW);
 
-		inline void RenderRect(const Rect& rect, const Color& col, const int alpha = 255) {
+			const GLsizei instanceCount = currentIndex / currentSize;
+			glDrawArraysInstanced(GL_TRIANGLES, 0, 6, instanceCount);
+
+			currentIndex = 0;
+
+			if (switchContext) { SDL_GL_SwapWindow(window); }
+		}
+
+		inline void ClearFrame(const unsigned char R, const unsigned char G, const unsigned char B) {
+			const float fR = float(R) / 255;
+			const float fG = float(G) / 255;
+			const float fB = float(B) / 255;
+			glClearColor(fR, fG, fB, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+		}
+
+		inline void RenderRect(const Rect& rect, const Color& col, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) {
 				return;
 			}
@@ -293,7 +314,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderRectEX(const Rect& rect, const Color& col, const float rotation, const int alpha = 255) {
+		inline void RenderRectEX(const Rect& rect, const Color& col, const float rotation, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) {
 				return;
 			}
@@ -624,10 +645,41 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		void RenderCopyRounded(const Rect& rect, const Texture* texture, int roundingSize = 8);
+		inline void RenderCopyRounded(const Rect& rect, const Texture* texture, int roundingSize = 8) {
+			if (!texture) { return; }
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			if (currentProgram != renderCopyRoundedId) {
+				Present(false);
+				glBindVertexArray(roundedCopyVao);
+				currentProgram = renderCopyRoundedId;
+				glUseProgram(currentProgram);
+			}
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
+
+			currentSize = renderCopyRoundedSize;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = texture->alpha;
+			ptr[5] = static_cast<float>(roundingSize);
+
+			currentIndex += currentSize;
+		}
 
 		template<bool texNullCheck = true>
-		void RenderCopyFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter) {
+		inline void RenderCopyFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter) {
 			if constexpr(texNullCheck) {
 				if (!texture) { return; }
 			}
@@ -681,34 +733,330 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter) {
+		inline void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter) {
 			if (!texture) { return; }
 			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
 			RenderCopyFiltered<false>(rect, fullSource, texture, filter);
 		}
 
-		void RenderBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
+		inline void RenderBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255) {
+			if (!vievPort.IsColliding(rect)) { return; }
 
-		void RenderRoundedBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
+			if (currentProgram != renderBorderId) {
+				Present(false);
+				glBindVertexArray(borderVao);
+				currentProgram = renderBorderId;
+				glUseProgram(currentProgram);
+			}
 
-		void RenderMaskedOverlay(const Rect& rect, const Rect &source, const Texture* tex1, const Texture* tex2);
+			uint16_t iRG = col.R;
+			iRG <<= 8;
+			iRG += col.G;
+			uint16_t iBA = col.B;
+			iBA <<= 8;
+			iBA += alpha;
 
-		void RenderDoubleMaskedOverlay(const Rect& rect, const Rect& source, const Rect& source2, const Texture* tex1, const Texture* tex2);
+			currentSize = renderBorderSize;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(iRG);
+			ptr[5] = static_cast<float>(iBA);
+			ptr[6] = static_cast<float>(width);
+
+			currentIndex += currentSize;
+		}
+
+		inline void RenderRoundedBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255) {
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			if (currentProgram != renderRoundedBorderId) {
+				Present(false);
+				glBindVertexArray(roundedBorderVao);
+				currentProgram = renderRoundedBorderId;
+				glUseProgram(currentProgram);
+			}
+
+			uint16_t iRG = col.R;
+			iRG <<= 8;
+			iRG += col.G;
+			uint16_t iBA = col.B;
+			iBA <<= 8;
+			iBA += alpha;
+
+			currentSize = renderRoundedBorderSize;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(iRG);
+			ptr[5] = static_cast<float>(iBA);
+			ptr[6] = static_cast<float>(width);
+
+			currentIndex += currentSize;
+		}
+
+		inline void RenderMaskedOverlay(const Rect& rect, const Rect& source, const Texture* tex1, const Texture* tex2) {
+			if (!tex1 || !tex2) { return; }
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			if (currentTexture != tex1->texture) {
+				Present(false);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, tex1->texture);
+				currentTexture = tex1->texture;
+			}
+			if (currentMaskTexture != tex2->texture) {
+				Present(false);
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, tex2->texture);
+				currentMaskTexture = tex2->texture;
+			}
+
+			if (currentProgram != renderMaskedId) {
+				Present(false);
+				glBindVertexArray(maskedVao);
+				currentProgram = renderMaskedId;
+				glUseProgram(currentProgram);
+			}
+
+			const float sourceX = static_cast<float>(source.x) / tex1->w;
+			const float sourceY = static_cast<float>(source.y) / tex1->h;
+			const float sourceW = static_cast<float>(source.w) / tex1->w;
+			const float sourceH = static_cast<float>(source.h) / tex1->h;
+
+			currentSize = renderMaskedSize;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = sourceX;
+			ptr[5] = sourceY;
+			ptr[6] = sourceW;
+			ptr[7] = sourceH;
+			ptr[8] = tex1->alpha;
+
+			currentIndex += currentSize;
+
+			glActiveTexture(GL_TEXTURE0);
+		}
+
+		inline void RenderDoubleMaskedOverlay(const Rect& rect, const Rect& source, const Rect& source2, const Texture* tex1, const Texture* tex2) {
+			if (!tex1 || !tex2) { return; }
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			if (currentTexture != tex1->texture) {
+				Present(false);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, tex1->texture);
+				currentTexture = tex1->texture;
+			}
+			if (currentMaskTexture != tex2->texture) {
+				Present(false);
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, tex2->texture);
+				currentMaskTexture = tex2->texture;
+			}
+
+			if (currentProgram != renderDoubleMaskedId) {
+				Present(false);
+				glBindVertexArray(doubleMaskedVao);
+				currentProgram = renderDoubleMaskedId;
+				glUseProgram(currentProgram);
+			}
+
+			const float sourceX = static_cast<float>(source.x) / tex1->w;
+			const float sourceY = static_cast<float>(source.y) / tex1->h;
+			const float sourceW = static_cast<float>(source.w) / tex1->w;
+			const float sourceH = static_cast<float>(source.h) / tex1->h;
+
+			const float source2X = static_cast<float>(source2.x) / tex2->w;
+			const float source2Y = static_cast<float>(source2.y) / tex2->h;
+			const float source2W = static_cast<float>(source2.w) / tex2->w;
+			const float source2H = static_cast<float>(source2.h) / tex2->h;
+
+			currentSize = renderDoubleMaskedSize;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = sourceX;
+			ptr[5] = sourceY;
+			ptr[6] = sourceW;
+			ptr[7] = sourceH;
+			ptr[8] = source2X;
+			ptr[9] = source2Y;
+			ptr[10] = source2W;
+			ptr[11] = source2H;
+			ptr[12] = tex1->alpha;
+
+			currentIndex += currentSize;
+
+			glActiveTexture(GL_TEXTURE0);
+		}
 
 		//UPR Universal Pipeline Render does not change shader ever so it is much faster in shader switch rendering but slower overall
-		void RenderRectUPR(const Rect& rect, const Color& col, const int alpha = 255);
+		inline void RenderRectUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255) {
+			if (!vievPort.IsColliding(rect)) { return; }
 
-		void RenderRectEXUPR(const Rect& rect, const Color& col, const float rotation, const int alpha = 255);
+			CheckUPRProgram();
 
-		void DrawLineUPR(const int x1, const int y1, const int x2, const int y2, const int thickness,
-			const Color& col, const unsigned char alpha = 255);
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(col.R); ptr[5] = static_cast<float>(col.G);
+			ptr[6] = static_cast<float>(col.B); ptr[7] = static_cast<float>(alpha);
+			ptr[8] = 0.0f; ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[12] = 0.0f;
+			ptr[13] = 0.0f; //ShaderID
 
-		void RenderCopyUPR(const Rect& rect, const Texture* texture);
+			currentIndex += currentSize;
+		}
 
-		void RenderCopyPartUPR(const Rect& rect, const Rect& source, const Texture* texture);
+		inline void RenderRectEXUPR(const Rect& rect, const Color& col, const float rotation, const unsigned char alpha = 255) {
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			CheckUPRProgram();
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(col.R); ptr[5] = static_cast<float>(col.G);
+			ptr[6] = static_cast<float>(col.B); ptr[7] = static_cast<float>(alpha);
+			ptr[8] = rotation; ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[12] = 0.0f;
+			ptr[13] = 1.0f; //ShaderID
+
+			currentIndex += currentSize;
+		}
+
+		inline void DrawLineUPR(const int x1, const int y1, const int x2, const int y2, const int thickness,
+			const Color& col, const unsigned char alpha = 255) {
+			CheckUPRProgram();
+
+			const float fx1 = static_cast<float>(x1);
+			const float fy1 = static_cast<float>(y1);
+			const float fx2 = static_cast<float>(x2);
+			const float fy2 = static_cast<float>(y2);
+
+			const float dx = fx2 - fx1;
+			const float dy = fy2 - fy1;
+			const float w = std::sqrt(dx * dx + dy * dy);
+
+			if (w < 1e-4f) { return; }
+
+			const float radRot = std::atan2(dy, dx);
+			const float rotation = glm::degrees(radRot);
+
+			const float centerX = (fx1 + fx2) * 0.5f;
+			const float centerY = (fy1 + fy2) * 0.5f;
+			const float h = static_cast<float>(thickness);
+
+			const float rectX = centerX - (w * 0.5f);
+			const float rectY = centerY - (h * 0.5f);
+
+			float* ptr = globalVertices.data() + currentIndex;
+			ptr[0] = rectX;
+			ptr[1] = rectY;
+			ptr[2] = w;
+			ptr[3] = h;
+			ptr[4] = static_cast<float>(col.R); ptr[5] = static_cast<float>(col.G);
+			ptr[6] = static_cast<float>(col.B); ptr[7] = static_cast<float>(alpha);
+			ptr[8] = rotation; ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[12] = 0.0f;
+			ptr[13] = 1.0f; //ShaderID
+
+			currentIndex += currentSize;
+		}
+
+		inline void RenderCopyUPR(const Rect& rect, const Texture* texture) {
+			if (!texture) { return; }
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			CheckUPRProgram();
+
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(texture->alpha); ptr[5] = 0.0f; ptr[6] = 0.0f; ptr[7] = 0.0f;
+			ptr[8] = 0.0f; ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[12] = 0.0f;
+			ptr[13] = 2.0f; //ShaderID
+
+			currentIndex += currentSize;
+		}
+
+		inline void RenderCopyPartUPR(const Rect& rect, const Rect& source, const Texture* texture) {
+			if (!texture) { return; }
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			CheckUPRProgram();
+
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
+
+
+			const float sourceX = static_cast<float>(source.x) / texture->w;
+			const float sourceY = static_cast<float>(source.y) / texture->h;
+			const float sourceW = static_cast<float>(source.w) / texture->w;
+			const float sourceH = static_cast<float>(source.h) / texture->h;
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+
+			ptr[4] = sourceX; ptr[5] = sourceY; ptr[6] = sourceW; ptr[7] = sourceH;
+			ptr[8] = static_cast<float>(texture->alpha); ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[12] = 0.0f;
+			ptr[13] = 3.0f; //ShaderID
+
+			currentIndex += currentSize;
+		}
 
 		template<bool texNullCheck = true>
-		void RenderCopyEXUPR(const Rect& rect, const Rect& source, const Texture* texture, const bool flip, const float rotation) {
+		inline void RenderCopyEXUPR(const Rect& rect, const Rect& source, const Texture* texture, const bool flip, const float rotation) {
 			if constexpr (texNullCheck) {
 				if (!texture) { return; }
 			}
@@ -751,22 +1099,112 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		void RenderCopyEXUPR(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f) {
+		inline void RenderCopyEXUPR(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f) {
 			if (!texture) { return; }
 			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
 			RenderCopyEXUPR<false>(rect, fullSource, texture, flip, rotation);
 		}
 
-		void RenderCopyCircleUPR(const Rect& rect, const Texture* texture, const float radius = 0.5f);
+		void RenderCopyCircleUPR(const Rect& rect, const Texture* texture, const float radius = 0.5f) {
+			if (!texture) { return; }
+			if (!vievPort.IsColliding(rect)) { return; }
 
-		void RenderCircleUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f);
+			CheckUPRProgram();
 
-		void RenderRoundedRectUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255, int roundingSize = 8);
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
 
-		void RenderCopyRoundedUPR(const Rect& rect, const Texture* texture, int roundingSize = 8);
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = radius;
+			ptr[5] = texture->alpha;
+			ptr[6] = 0.0f; ptr[7] = 0.0f;
+			ptr[8] = 0.0f; ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[12] = 0.0f;
+			ptr[13] = 5.0f; //ShaderID
+
+			currentIndex += currentSize;
+		}
+
+		inline void RenderCircleUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f) {
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			CheckUPRProgram();
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(col.R);
+			ptr[5] = static_cast<float>(col.G);
+			ptr[6] = static_cast<float>(col.B);
+			ptr[7] = static_cast<float>(alpha);
+			ptr[8] = radius;
+			ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[12] = 0.0f;
+			ptr[13] = 6.0f; //ShaderID
+
+			currentIndex += currentSize;
+		}
+
+		inline void RenderRoundedRectUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255, int roundingSize = 8) {
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			CheckUPRProgram();
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(col.R);
+			ptr[5] = static_cast<float>(col.G);
+			ptr[6] = static_cast<float>(col.B);
+			ptr[7] = static_cast<float>(alpha);
+			ptr[8] = static_cast<float>(roundingSize);
+			ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[12] = 0.0f;
+			ptr[13] = 7.0f; //ShaderID
+
+			currentIndex += currentSize;
+		}
+
+		inline void RenderCopyRoundedUPR(const Rect& rect, const Texture* texture, int roundingSize = 8) {
+			if (!texture) { return; }
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			CheckUPRProgram();
+
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(texture->alpha);
+			ptr[5] = static_cast<float>(roundingSize);
+			ptr[6] = 0.0f; ptr[7] = 0.0f;
+			ptr[8] = 0.0f; ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[12] = 0.0f;
+			ptr[13] = 8.0f; //ShaderID
+
+			currentIndex += currentSize;
+		}
 
 		template<bool texNullCheck = true>
-		void RenderCopyFilteredUPR(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter) {
+		inline void RenderCopyFilteredUPR(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter) {
 			if constexpr(texNullCheck) {
 				if (!texture) { return; }
 			}
@@ -805,23 +1243,148 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		void RenderCopyFilteredUPR(const Rect& rect, const Texture* texture, const Color& filter) {
+		inline void RenderCopyFilteredUPR(const Rect& rect, const Texture* texture, const Color& filter) {
 			if (!texture) { return; }
 			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
 			RenderCopyFilteredUPR<false>(rect, fullSource, texture, filter);
 		}
 
-		void RenderBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
+		inline void RenderBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255) {
+			if (!vievPort.IsColliding(rect)) { return; }
 
-		void RenderRoundedBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255);
+			CheckUPRProgram();
 
-		void RenderMaskedOverlayUPR(const Rect& rect, const Rect &source, const Texture* tex1, const Texture* tex2);
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(col.R); ptr[5] = static_cast<float>(col.G);
+			ptr[6] = static_cast<float>(col.B); ptr[7] = static_cast<float>(alpha);
+			ptr[8] = static_cast<float>(width);
+			ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[12] = 0.0f;
+			ptr[13] = 10.0f; //ShaderID
 
-		void RenderDoubleMaskedOverlayUPR(const Rect& rect, const Rect& source, const Rect& source2, const Texture* tex1, const Texture* tex2);
+			currentIndex += currentSize;
+		}
+
+		inline void RenderRoundedBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255) {
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			CheckUPRProgram();
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(col.R);
+			ptr[5] = static_cast<float>(col.G);
+			ptr[6] = static_cast<float>(col.B);
+			ptr[7] = static_cast<float>(alpha);
+			ptr[8] = static_cast<float>(width);
+			ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[12] = 0.0f;
+			ptr[13] = 11.0f; //ShaderID
+
+			currentIndex += currentSize;
+		}
+
+		inline void RenderMaskedOverlayUPR(const Rect& rect, const Rect& source, const Texture* tex1, const Texture* tex2) {
+			if (!tex1 || !tex2) { return; }
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			CheckUPRProgram();
+
+			if (currentTexture != tex1->texture) {
+				Present(false);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, tex1->texture);
+				currentTexture = tex1->texture;
+			}
+			if (currentMaskTexture != tex2->texture) {
+				Present(false);
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, tex2->texture);
+				currentMaskTexture = tex2->texture;
+			}
+
+			const float sourceX = static_cast<float>(source.x) / tex1->w;
+			const float sourceY = static_cast<float>(source.y) / tex1->h;
+			const float sourceW = static_cast<float>(source.w) / tex1->w;
+			const float sourceH = static_cast<float>(source.h) / tex1->h;
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = sourceX;
+			ptr[5] = sourceY;
+			ptr[6] = sourceW;
+			ptr[7] = sourceH;
+			ptr[8] = tex1->alpha;
+			ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[12] = 0.0f;
+			ptr[13] = 12.0f; //ShaderID
+
+			currentIndex += currentSize;
+
+			glActiveTexture(GL_TEXTURE0);
+		}
+
+		inline void RenderDoubleMaskedOverlayUPR(const Rect& rect, const Rect& source, const Rect& source2, const Texture* tex1, const Texture* tex2) {
+			if (!tex1 || !tex2) { return; }
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			CheckUPRProgram();
+
+			if (currentTexture != tex1->texture) {
+				Present(false);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, tex1->texture);
+				currentTexture = tex1->texture;
+			}
+			if (currentMaskTexture != tex2->texture) {
+				Present(false);
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, tex2->texture);
+				currentMaskTexture = tex2->texture;
+			}
+
+			const float sourceX = static_cast<float>(source.x) / tex1->w;
+			const float sourceY = static_cast<float>(source.y) / tex1->h;
+			const float sourceW = static_cast<float>(source.w) / tex1->w;
+			const float sourceH = static_cast<float>(source.h) / tex1->h;
+
+			const float source2X = static_cast<float>(source2.x) / tex2->w;
+			const float source2Y = static_cast<float>(source2.y) / tex2->h;
+			const float source2W = static_cast<float>(source2.w) / tex2->w;
+			const float source2H = static_cast<float>(source2.h) / tex2->h;
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = sourceX;
+			ptr[5] = sourceY;
+			ptr[6] = sourceW;
+			ptr[7] = sourceH;
+			ptr[8] = source2X;
+			ptr[9] = source2Y;
+			ptr[10] = source2W;
+			ptr[11] = source2H;
+			ptr[12] = tex1->alpha;
+			ptr[13] = 13.0f; //ShaderID
+
+			currentIndex += currentSize;
+
+			glActiveTexture(GL_TEXTURE0);
+		}
 
 		//UPR
-
-		void Present(bool switchContext = true);
 
 		void Clear();
 
@@ -836,11 +1399,42 @@ namespace MT {
 		//Neds to be called at least once after texture load and after every texture quantity change
 		void FLatRenderCopySetUp();
 
-		void FLatRenderCopy(const Rect& rect, const Texture* texture);
+		inline void FLatRenderCopy(const Rect& rect, const Texture* texture) {
+			if (!texture) { return; }
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			constexpr int N = 4;
+			std::vector<float>& vec = flatRenderVec[texture->batchIndex].vertices;
+			const size_t old = vec.size();
+			vec.resize(old + N);
+
+			float* ptr = &vec[old];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+		}
 
 		// Needs to be called after all flat operations are finisched 
 		// NORMAL RENDER PRESENT WILL NOT DRAW ANYTHING !!!
-		void FLatRenderCopyPresent();
+		inline void FLatRenderCopyPresent() {
+			Present(false);
+			currentProgram = flatRenderCopyId;
+			glBindVertexArray(flatVao);
+			glUseProgram(flatRenderCopyId);
+
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			for (auto& entry : flatRenderVec) {
+				auto& vec = entry.vertices;
+				if (vec.empty()) { continue; }
+				glBindTexture(GL_TEXTURE_2D, entry.textureID);
+				currentTexture = entry.textureID;
+				glBufferData(GL_ARRAY_BUFFER, vec.size() * sizeof(float), vec.data(), GL_DYNAMIC_DRAW);
+				const GLsizei instanceCount = vec.size() / flatSize;
+				glDrawArraysInstanced(GL_TRIANGLES, 0, 6, instanceCount);
+				vec.clear();
+			}
+		}
 
 		void SetClipSize(const Rect& rect);
 
