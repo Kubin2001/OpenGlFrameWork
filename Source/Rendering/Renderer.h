@@ -259,19 +259,208 @@ namespace MT {
 
 		void ClearFrame(const unsigned char R, const unsigned char G, const unsigned char B);
 
-		void RenderRect(const Rect& rect, const Color& col, const int alpha = 255);
+		inline void RenderRect(const Rect& rect, const Color& col, const int alpha = 255) {
+			if (!vievPort.IsColliding(rect)) {
+				return;
+			}
+			if (currentProgram != renderRectId) {
+				Present(false);
+				glBindVertexArray(rectVao);
+				currentProgram = renderRectId;
+				glUseProgram(renderRectId);
+			}
+			currentSize = Renderer::renderRectSize;
 
-		void RenderRectEX(const Rect& rect, const Color& col, const float rotation, const int alpha = 255);
+			uint16_t iRG = col.R;
+			iRG <<= 8;
+			iRG += col.G;
+			uint16_t iBA = col.B;
+			iBA <<= 8;
+			iBA += alpha;
 
-		void DrawLine(const int x1, const int y1, const int x2, const int y2, const int thickness,
-			const Color& col, const unsigned char alpha = 255);
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
 
-		void RenderCopy(const Rect& rect, const Texture* texture);
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(iRG);
+			ptr[5] = static_cast<float>(iBA);
 
-		void RenderCopyPart(const Rect& rect, const Rect& source, const Texture* texture);
+			currentIndex += currentSize;
+		}
+
+		inline void RenderRectEX(const Rect& rect, const Color& col, const float rotation, const int alpha = 255) {
+			if (!vievPort.IsColliding(rect)) {
+				return;
+			}
+
+			if (currentProgram != renderRectExId) {
+				Present(false);
+				currentProgram = renderRectExId;
+				glUseProgram(currentProgram);
+				glBindVertexArray(rectExVao);
+			}
+
+			currentSize = Renderer::renderRectExSize;
+
+			uint16_t iRG = col.R;
+			iRG <<= 8;
+			iRG += col.G;
+			uint16_t iBA = col.B;
+			iBA <<= 8;
+			iBA += alpha;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(iRG);
+			ptr[5] = static_cast<float>(iBA);
+			ptr[6] = rotation;
+
+			currentIndex += currentSize;
+		}
+
+		inline void DrawLine(const int x1, const int y1, const int x2, const int y2, const int thickness,
+			const Color& col, const unsigned char alpha = 255) {
+				if (currentProgram != renderRectExId) {
+					Present(false);
+					currentProgram = renderRectExId;
+					glUseProgram(currentProgram);
+					glBindVertexArray(rectExVao);
+				}
+
+				currentSize = Renderer::renderRectExSize;
+
+				const float fx1 = static_cast<float>(x1);
+				const float fy1 = static_cast<float>(y1);
+				const float fx2 = static_cast<float>(x2);
+				const float fy2 = static_cast<float>(y2);
+
+				const float dx = fx2 - fx1;
+				const float dy = fy2 - fy1;
+				const float w = std::sqrt(dx * dx + dy * dy);
+
+				if (w < 1e-4f) { return; }
+
+				const float radRot = std::atan2(dy, dx);
+				const float rotation = glm::degrees(radRot);
+
+				const float centerX = (fx1 + fx2) * 0.5f;
+				const float centerY = (fy1 + fy2) * 0.5f;
+				const float h = static_cast<float>(thickness);
+
+				const float rectX = centerX - (w * 0.5f);
+				const float rectY = centerY - (h * 0.5f);
+
+				uint16_t iRG = col.R;
+				iRG <<= 8;
+				iRG += col.G;
+				uint16_t iBA = col.B;
+				iBA <<= 8;
+				iBA += alpha;
+
+				if (currentIndex + currentSize > Renderer::batchSize) {
+					Present(false);
+				}
+
+				float* ptr = globalVertices.data() + currentIndex;
+				ptr[0] = rectX;
+				ptr[1] = rectY;
+				ptr[2] = w;
+				ptr[3] = h;
+				ptr[4] = static_cast<float>(iRG);
+				ptr[5] = static_cast<float>(iBA);
+				ptr[6] = rotation;
+
+				currentIndex += currentSize;
+		}
+
+		inline void RenderCopy(const Rect& rect, const Texture* texture) {
+			if (!texture) { return; }
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
+
+			if (currentProgram != renderCopyId) {
+				Present(false);
+				currentProgram = renderCopyId;
+				glUseProgram(currentProgram);
+				glBindVertexArray(copyVao);
+			}
+			currentSize = renderCopySize;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(texture->alpha);
+
+			currentIndex += currentSize;
+		}
+
+		inline void RenderCopyPart(const Rect& rect, const Rect& source, const Texture* texture) {
+			if (!texture) { return; }
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
+
+			if (currentProgram != renderCopyPartId) {
+				Present(false);
+				glBindVertexArray(copyPartVao);
+				currentProgram = renderCopyPartId;
+				glUseProgram(currentProgram);
+			}
+
+			const float sourceX = static_cast<float>(source.x) / texture->w;
+			const float sourceY = static_cast<float>(source.y) / texture->h;
+			const float sourceW = static_cast<float>(source.w) / texture->w;
+			const float sourceH = static_cast<float>(source.h) / texture->h;
+
+			currentSize = renderCopyPartSize;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = sourceX;
+			ptr[5] = sourceY;
+			ptr[6] = sourceW;
+			ptr[7] = sourceH;
+			ptr[8] = texture->alpha;
+
+			currentIndex += currentSize;
+		}
 
 		template<bool texNullCheck = true>
-		void RenderCopyEX(const Rect& rect, const Rect& source, const Texture* texture, const bool flip, const float rotation) {
+		inline void RenderCopyEX(const Rect& rect, const Rect& source, const Texture* texture, const bool flip = false, const float rotation = 0.0f) {
 			if constexpr (texNullCheck) {
 				if (!texture) { return; }
 			}
@@ -319,19 +508,121 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		void RenderCopyEX(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f) {
+		inline void RenderCopyEX(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f) {
 			if (!texture) { return; }
 			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
 			RenderCopyEX<false>(rect, fullSource, texture, flip, rotation);
 		}
 
-		void RenderCopyEX(const Rect& rect, const Rect& source, const Texture* texture, const bool flip = false, const float rotation = 0.0f);
+		inline void RenderCopyCircle(const Rect& rect, const Texture* texture, const float radius = 0.5f) {
+			if (!texture) { return; }
+			if (!vievPort.IsColliding(rect)) { return; }
 
-		void RenderCopyCircle(const Rect& rect, const Texture* texture, const float radius = 0.5f);
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
 
-		void RenderCircle(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f);
+			if (currentProgram != renderCopyCircleId) {
+				Present(false);
+				glBindVertexArray(copyCircleVao);
+				currentProgram = renderCopyCircleId;
+				glUseProgram(currentProgram);
+			}
 
-		void RenderRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha = 255, int roundingSize = 8);
+
+			currentSize = renderCopyCircleSize;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = radius;
+			ptr[5] = texture->alpha;
+
+			currentIndex += currentSize;
+		}
+
+		inline void RenderCircle(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f) {
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			if (currentProgram != renderCircleId) {
+				Present(false);
+				glBindVertexArray(circleVao);
+				currentProgram = renderCircleId;
+				glUseProgram(currentProgram);
+			}
+
+			uint16_t iRG = col.R;
+			iRG <<= 8;
+			iRG += col.G;
+			uint16_t iBA = col.B;
+			iBA <<= 8;
+			iBA += alpha;
+			const float fRG = iRG;
+			const float fBA = iBA;
+
+			currentSize = renderCircleSize;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = radius;
+			ptr[5] = fRG;
+			ptr[6] = fBA;
+
+			currentIndex += currentSize;
+		}
+
+		inline void RenderRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha = 255, int roundingSize = 8) {
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			if (currentProgram != renderRoundedId) {
+				Present(false);
+				glBindVertexArray(roundedVao);
+				currentProgram = renderRoundedId;
+				glUseProgram(currentProgram);
+			}
+
+
+			uint16_t iRG = col.R;
+			iRG <<= 8;
+			iRG += col.G;
+			uint16_t iBA = col.B;
+			iBA <<= 8;
+			iBA += alpha;
+			const float fRG = iRG;
+			const float fBA = iBA;
+
+			currentSize = renderRoundedSize;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = fRG;
+			ptr[5] = fBA;
+			ptr[6] = static_cast<float>(roundingSize);
+
+			currentIndex += currentSize;
+		}
 
 		void RenderCopyRounded(const Rect& rect, const Texture* texture, int roundingSize = 8);
 

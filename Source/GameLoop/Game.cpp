@@ -64,14 +64,23 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(255, 255, 255);
+	MT::Texture* tex1 = TexMan::GetTex("water");
 	ui->Render();
 	MT::Timer::Tic();
-	for (size_t i = 0; i < 10000; i++) {
-		renderer->RenderRect({ 10,10,100,100 }, { 100,100,100 });
+	if (Global::frameCounter > 5) {
+		for (size_t i = 0; i < 10000; i++) {
+			renderer->RenderRoundedRect({ 10,10,100,100 }, { 100,100,100 });
+			//renderer->DrawLine(10, 10, 100, 100, 5, { 255,0,0 });
+			//renderer->RenderCopyCircle({ 10,10,100,100 }, tex1);
+		}
+		totalTime += MT::Timer::Tac<std::chrono::microseconds>();
+		if (Global::frameCounter > 100) {
+			Global::status = false;
+			std::println("Time Taken: {}us", totalTime / 95);
+		}
 	}
-	std::println("Time Taken: {}us",MT::Timer::Tac<std::chrono::microseconds>());
-	renderer->Present();
 
+	renderer->Present();
 }
 
 
@@ -90,6 +99,5 @@ Game::~Game() {
 	SceneMan::Clear();
 	renderer->Clear();
 	ui->ClearAll();
-	Logger::Close();
 	SDL_Quit();
 }
