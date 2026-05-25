@@ -58,12 +58,6 @@ void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
 		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_R) {
-			Mix_Chunk* sound = SoundMan::GetSound("click");
-			MT::Timer::Tic();
-			SoundMan::PlayRawSound(nullptr);
-			std::println("Nullptr sound took: {}us", MT::Timer::Tac<std::chrono::microseconds>());
-			SoundMan::PlayRawSound(sound);
-			std::println("Normal sound took: {}us", MT::Timer::Tac<std::chrono::microseconds>());
 		}
 		Exit();
 	}
@@ -72,6 +66,18 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(255, 255, 255);
+	renderer->RenderRoundedRect({ 10,10,100,100 }, { 30,30,30 });
+	renderer->RenderRoundedBorder({ 10,10,100,100 }, { 255,30,30 },10);
+
+	renderer->RenderRoundedBorder({ 10,400,100,100 }, { 255,30,30 }, 30,35);
+	renderer->RenderBorder({ 10,600,100,100 }, { 255,30,30 }, 30);
+
+
+	renderer->RenderRoundedRectUPR({ 400,10,100,100 }, { 30,30,30 });
+	renderer->RenderRoundedBorderUPR({ 400,10,100,100 }, { 255,30,30 }, 10);
+
+	renderer->RenderRoundedBorderUPR({ 400,400,100,100 }, { 255,30,30 }, 30, 35);
+	renderer->RenderBorderUPR({ 400,600,100,100 }, { 255,30,30 }, 30);
 	ui->Render();
 	renderer->Present();
 }

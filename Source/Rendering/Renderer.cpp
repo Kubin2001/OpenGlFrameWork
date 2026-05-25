@@ -192,7 +192,7 @@ bool MT::Renderer::Start(const MT::Window &mtWindow) {
 
     DefineAtributes(VBO, borderVao, renderBorderSize, { 4,2,1 });
 
-    DefineAtributes(VBO, roundedBorderVao, renderRoundedBorderSize, { 4,2,1 });
+    DefineAtributes(VBO, roundedBorderVao, renderRoundedBorderSize, { 4,2,1,1 });
 
     DefineAtributes(VBO, maskedVao, renderMaskedSize, { 4,4,1 });
 

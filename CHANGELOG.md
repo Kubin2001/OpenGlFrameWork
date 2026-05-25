@@ -190,3 +190,4 @@ was removed or the new one was added to folder
 - All rendering functions are now inlined (Performance boost by about 30 %) 
 - Minor rendering functions fixes
 - Nullptr check when playing sounds
+- Rounded border now has custom rounding size like rounded rectangle

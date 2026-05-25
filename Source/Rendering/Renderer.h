@@ -223,7 +223,7 @@ namespace MT {
 		inline static constexpr unsigned int renderCopyRoundedSize = 6;
 		inline static constexpr unsigned int renderFilteredSize = 10;
 		inline static constexpr unsigned int renderBorderSize = 7;
-		inline static constexpr unsigned int renderRoundedBorderSize = 7;
+		inline static constexpr unsigned int renderRoundedBorderSize = 8;
 		inline static constexpr unsigned int renderMaskedSize = 9;
 		inline static constexpr unsigned int renderDoubleMaskedSize = 13;
 		inline static constexpr unsigned int UPRSize = 14;
@@ -774,7 +774,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderRoundedBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255) {
+		inline void RenderRoundedBorder(const Rect& rect, const Color& col, const int width,  const int roundingSize = 8, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			if (currentProgram != renderRoundedBorderId) {
@@ -805,6 +805,7 @@ namespace MT {
 			ptr[4] = static_cast<float>(iRG);
 			ptr[5] = static_cast<float>(iBA);
 			ptr[6] = static_cast<float>(width);
+			ptr[7] = static_cast<float>(roundingSize);
 
 			currentIndex += currentSize;
 		}
@@ -1269,7 +1270,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderRoundedBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255) {
+		inline void RenderRoundedBorderUPR(const Rect& rect, const Color& col, const int width, const int roundingSize = 8, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			CheckUPRProgram();
@@ -1284,7 +1285,8 @@ namespace MT {
 			ptr[6] = static_cast<float>(col.B);
 			ptr[7] = static_cast<float>(alpha);
 			ptr[8] = static_cast<float>(width);
-			ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[9] = static_cast<float>(roundingSize); 
+			ptr[10] = 0.0f; ptr[11] = 0.0f;
 			ptr[12] = 0.0f;
 			ptr[13] = 11.0f; //ShaderID
 

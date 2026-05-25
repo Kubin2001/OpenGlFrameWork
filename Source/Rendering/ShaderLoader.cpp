@@ -1131,11 +1131,13 @@ void ShaderLoader::LoadSavedShaders() {
         layout(location = 0) in vec4 aRect;
         layout(location = 1) in vec2 aColorPacked;
         layout(location = 2) in float aWidth;
+        layout(location = 3) in float aRoundingSize;
 
         out vec4 oColor;
         out vec2 oUV;
         out vec2 oRectSize;
         out float oWidth;
+        out float oRoundingSize;
 
         uniform vec2 uVievPort;
 
@@ -1183,6 +1185,7 @@ void ShaderLoader::LoadSavedShaders() {
             oUV.xy = uvs[gl_VertexID % 6];
             oRectSize = aRect.zw;
             oWidth = aWidth;
+            oRoundingSize = aRoundingSize;
         }
         )glsl";
 
@@ -1193,6 +1196,7 @@ void ShaderLoader::LoadSavedShaders() {
         in vec2 oUV;
         in vec2 oRectSize;
         in float oWidth;
+        in float oRoundingSize;
 
         out vec4 FragColor;
 
@@ -1205,7 +1209,7 @@ void ShaderLoader::LoadSavedShaders() {
         void main(){
             vec2 pPX = oUV * oRectSize;
 
-            float d = roundedBoxSDF(pPX, oRectSize, 8.0); // 8.0 is the size of a curve if nedded the change uniform is requied
+            float d = roundedBoxSDF(pPX, oRectSize, oRoundingSize);
 
             float alphaOuter = 1.0 - smoothstep(0.0, 1.0, d);
 
@@ -1567,6 +1571,7 @@ void ShaderLoader::LoadSavedShaders() {
                     oVecOne.zw = aRect.zw; // Rect width and Height
                     oVecTwo = aVecOne / 255.0; //Color + alpha
                     oVecThree.x = aVecTwo.x; // width
+                    oVecThree.y = aVecTwo.y; // rounding size
                     break;
                 }
                 case 12:{ // Render Masked
@@ -1713,7 +1718,7 @@ void ShaderLoader::LoadSavedShaders() {
                 case 11:{ // Render Rounded Border
                     vec2 pPX = oVecOne.xy *  oVecOne.zw;
                     float width = oVecThree.x;
-                    float d = roundedBoxBorderSDF(pPX, oVecOne.zw, 8.0); // 8.0 is the size of a curve if nedded the change uniform is requied
+                    float d = roundedBoxBorderSDF(pPX, oVecOne.zw, oVecThree.y); // 8.0 is the size of a curve if nedded the change uniform is requied
 
                     float alphaOuter = 1.0 - smoothstep(0.0, 1.0, d);
 
