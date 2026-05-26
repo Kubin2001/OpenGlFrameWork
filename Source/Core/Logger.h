@@ -21,16 +21,6 @@ enum class LogOutput {
 	File
 };
 
-struct LogPack {
-	LogType type = LogType::Undefinded;
-	std::string message{};
-
-	LogPack(LogType type, const std::string& message) {
-		this->type = type;
-		this->message = message;
-	}
-};
-
 
 class Logger {
 	private:
@@ -47,7 +37,7 @@ class Logger {
 	inline static std::string CriticalPrefix = "[CRITICAL]";
 
 	inline static std::ofstream outputFile{};
-	inline static std::queue<LogPack> LogQueue{};
+	inline static std::queue<std::string> LogQueue{};
 	inline static std::thread worker{};
  
 	static void LogLoop(LogOutput outType);
@@ -56,6 +46,8 @@ class Logger {
 	static bool SetUp(const std::string &outFolder = "", LogOutput debugOutput = LogOutput::Console, LogOutput releaseOutput = LogOutput::File);
 
 	static bool Log(const std::string &msg, LogType type = LogType::Undefinded);
+
+	static void SetPrefix(LogType type, const std::string& prefix);
 
 	static void  Close();
 

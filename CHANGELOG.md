@@ -191,3 +191,4 @@ was removed or the new one was added to folder
 - Minor rendering functions fixes
 - Nullptr check when playing sounds
 - Rounded border now has custom rounding size like rounded rectangle
+- Logger prefixes can now be modified
