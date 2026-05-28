@@ -11,6 +11,7 @@ private:
 	MT::Renderer *renderer = nullptr;
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui = nullptr;
+	int val = 0;
 
 public:
 	void Start();

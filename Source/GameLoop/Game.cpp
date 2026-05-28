@@ -42,6 +42,8 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
+	MapPos::FedData(4000, 4000, 40, 15, 200, 200);
+
 }
 
 void Game::LogicUpdate() {
@@ -66,18 +68,6 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(255, 255, 255);
-	renderer->RenderRoundedRect({ 10,10,100,100 }, { 30,30,30 });
-	renderer->RenderRoundedBorder({ 10,10,100,100 }, { 255,30,30 },10);
-
-	renderer->RenderRoundedBorder({ 10,400,100,100 }, { 255,30,30 }, 30,35);
-	renderer->RenderBorder({ 10,600,100,100 }, { 255,30,30 }, 30);
-
-
-	renderer->RenderRoundedRectUPR({ 400,10,100,100 }, { 30,30,30 });
-	renderer->RenderRoundedBorderUPR({ 400,10,100,100 }, { 255,30,30 }, 10);
-
-	renderer->RenderRoundedBorderUPR({ 400,400,100,100 }, { 255,30,30 }, 30, 35);
-	renderer->RenderBorderUPR({ 400,600,100,100 }, { 255,30,30 }, 30);
 	ui->Render();
 	renderer->Present();
 }

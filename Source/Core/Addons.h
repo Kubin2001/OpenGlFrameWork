@@ -18,46 +18,6 @@ struct MapPos {
 	int absTileRows = 0; // Absolute Tile Pos in whole map
 	int absTileColumn = 0;
 
-	MapPos();
-
-	MapPos(int x, int y);
-
-	void CalcRegTile(int x, int y);
-
-	void CalcRegion(int x, int y);
-
-	void CalcAbsTile(int x, int y);
-
-	void CalcAll(int x, int y);
-
-	void RecalculateFromAbs();
-
-
-	// It will never work with automaitic check cause like with mouse cause it always is between 0 and tile per region
-	// it is for manual change
-	bool CorrectnessRegionTile() const;
-
-	bool CorrectnessRegion() const;
-
-	bool CorrectnessAbsTile() const;
-
-	bool CorrectnesAbsCol() const;
-
-	bool CorrectnesAbsRow() const;
-
-	//Silent checks without cout
-
-	bool CorrectnessRegionTileS() const;
-
-	bool CorrectnessRegionS() const;
-
-	bool CorrectnessAbsTileS() const;
-
-	bool CorrectnesAbsColS() const;
-
-	bool CorrectnesAbsRowS() const;
-
-
 
 	inline static int minX = 0;
 	inline static int minY = 0;
@@ -69,7 +29,243 @@ struct MapPos {
 	inline static int maxX = 0;
 	inline static int maxY = 0;
 
-	static void FedData(int mX, int mY, int tSize, int tilesPerReg, int regionsW, int regionsH) noexcept;
+	inline MapPos() = default;
+
+	inline MapPos(int x, int y) {
+		CalcAll(x, y);
+	}
+
+	inline MapPos(const Point& p) {
+		CalcAll(p.x, p.y);
+	}
+
+	inline void CalcRegTile(int x, int y) {
+		int localY = (y - MapPos::minY) % MapPos::regionSize;
+		if (localY < 0) {
+			localY += MapPos::regionSize;
+		}
+		rowsTile = localY / MapPos::tileSize;
+
+		int localX = (x - MapPos::minX) % MapPos::regionSize;
+		if (localX < 0) {
+			localX += MapPos::regionSize;
+		}
+		columnTile = localX / MapPos::tileSize;
+	}
+
+	inline void CalcRegion(int x, int y) {
+		rows = (y - MapPos::minY) / MapPos::regionSize;
+		if ((y - MapPos::minY) < 0) {
+			rows -= 1;
+		}
+
+		column = (x - MapPos::minX) / MapPos::regionSize;
+		if ((x - MapPos::minX) < 0) {
+			column -= 1;
+		}
+	}
+
+	inline void CalcAbsTile(int x, int y) {
+		absTileRows = (y - MapPos::minY) / MapPos::tileSize;
+		if ((y - MapPos::minY) < 0) {
+			absTileRows -= 1;
+		}
+
+		absTileColumn = (x - MapPos::minX) / MapPos::tileSize;
+		if ((x - MapPos::minX) < 0) {
+			absTileColumn -= 1;
+		}
+	}
+
+	inline void CalcAll(int x, int y) {
+		CalcRegTile(x, y);
+		CalcRegion(x, y);
+		CalcAbsTile(x, y);
+	}
+
+	inline void RecalculateFromAbs() {
+		rows = absTileRows / MapPos::tilesPerRegion;
+		if (absTileRows < 0) { --rows; }
+
+		column = absTileColumn / MapPos::tilesPerRegion;
+		if (absTileColumn < 0) { --column; }
+
+		rowsTile = absTileRows % MapPos::tilesPerRegion;
+		if (rowsTile < 0) {
+			rowsTile += MapPos::tilesPerRegion;
+		}
+		columnTile = absTileColumn % MapPos::tilesPerRegion;
+		if (columnTile < 0) {
+			columnTile += MapPos::tilesPerRegion;
+		}
+	}
+
+
+
+	inline bool CorrectnessRegionTile() const {
+		if (rowsTile >= MapPos::tilesPerRegion) {
+			std::println("MapPos Incorrect tile rows too big");
+			return false;
+		}
+		if (rowsTile < 0) {
+			std::println("MapPos Incorrect tile rows too small");
+			return false;
+		}
+		if (columnTile >= MapPos::tilesPerRegion) {
+			std::println("MapPos Incorrect tile columns too big");
+			return false;
+		}
+		if (columnTile < 0) {
+			std::println("MapPos Incorrect tile columns too small");
+			return false;
+		}
+		return true;
+	}
+
+	inline bool CorrectnessRegion() const {
+		if (rows > MapPos::regionsCountHeight - 1) {
+			std::println("MapPos Incorrect rows too big");
+			return false;
+		}
+		if (rows < 0) {
+			std::println("MapPos Incorrect rows too small");
+			return false;
+		}
+		if (column > MapPos::regionsCountWidth - 1) {
+			std::println("MapPos Incorrect columns too big");
+			return false;
+		}
+		if (column < 0) {
+			std::println("MapPos Incorrect columns too small");
+			return false;
+		}
+		return true;
+	}
+
+	inline bool CorrectnessAbsTile() const {
+		int countWidth = MapPos::regionsCountWidth * MapPos::tilesPerRegion;
+		int countHeight = MapPos::regionsCountHeight * MapPos::tilesPerRegion;
+		if (absTileRows >= countHeight) {
+			std::println("MapPos Incorrect abs tile rows too big");
+			return false;
+		}
+		if (absTileRows < 0) {
+			std::println("MapPos Incorrect abs tile rows too small");
+			return false;
+		}
+		if (absTileColumn >= countWidth) {
+			std::println("MapPos Incorrect abs tile columns too big");
+			return false;
+		}
+		if (absTileColumn < 0) {
+			std::println("MapPos Incorrect abs tile columns too small");
+			return false;
+		}
+		return true;
+	}
+
+	inline bool CorrectnesAbsCol() const {
+		int countWidth = MapPos::regionsCountWidth * MapPos::tilesPerRegion;
+		if (absTileColumn >= countWidth) {
+			std::println("MapPos Incorrect abs tile columns too big");
+			return false;
+		}
+		if (absTileColumn < 0) {
+			std::println("MapPos Incorrect abs tile columns too small");
+			return false;
+		}
+		return true;
+	}
+
+	inline bool CorrectnesAbsRow() const {
+		int countHeight = MapPos::regionsCountHeight * MapPos::tilesPerRegion;
+		if (absTileRows >= countHeight) {
+			std::println("MapPos Incorrect abs tile rows too big");
+			return false;
+		}
+		if (absTileRows < 0) {
+			std::println("MapPos Incorrect abs tile rows too small");
+			return false;
+		}
+		return true;
+	}
+
+	//Silent checks without printing
+
+	inline bool CorrectnessRegionTileS() const {
+		if (rowsTile >= MapPos::tilesPerRegion) {
+			return false;
+		}
+		if (rowsTile < 0) {
+			return false;
+		}
+		if (columnTile >= MapPos::tilesPerRegion) {
+			return false;
+		}
+		if (columnTile < 0) {
+			return false;
+		}
+		return true;
+	}
+
+	inline bool CorrectnessRegionS() const {
+		if (rows > MapPos::regionsCountHeight - 1) {
+			return false;
+		}
+		if (rows < 0) {
+			return false;
+		}
+		if (column > MapPos::regionsCountWidth - 1) {
+			return false;
+		}
+		if (column < 0) {
+			return false;
+		}
+		return true;
+	}
+
+	inline bool CorrectnessAbsTileS() const {
+		int countWidth = MapPos::regionsCountWidth * MapPos::tilesPerRegion;
+		int countHeight = MapPos::regionsCountHeight * MapPos::tilesPerRegion;
+		if (absTileRows >= countHeight) {
+			return false;
+		}
+		if (absTileRows < 0) {
+			return false;
+		}
+		if (absTileColumn >= countWidth) {
+			return false;
+		}
+		if (absTileColumn < 0) {
+			return false;
+		}
+		return true;
+	}
+
+	inline bool CorrectnesAbsColS() const {
+		int countWidth = MapPos::regionsCountWidth * MapPos::tilesPerRegion;
+		if (absTileColumn >= countWidth) {
+			return false;
+		}
+		if (absTileColumn < 0) {
+			return false;
+		}
+		return true;
+	}
+
+	inline bool CorrectnesAbsRowS() const {
+		int countHeight = MapPos::regionsCountHeight * MapPos::tilesPerRegion;
+		if (absTileRows >= countHeight) {
+			return false;
+		}
+		if (absTileRows < 0) {
+			;
+			return false;
+		}
+		return true;
+	}
+
+	static void FedData(int minX, int minY, int tSize, int tilesPerReg, int regionsW, int regionsH) noexcept;
 
 
 };
