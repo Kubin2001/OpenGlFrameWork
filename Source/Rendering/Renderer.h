@@ -264,7 +264,7 @@ namespace MT {
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			glBufferData(GL_ARRAY_BUFFER, currentIndex * sizeof(float), start, GL_DYNAMIC_DRAW);
 
-			const GLsizei instanceCount = currentIndex / currentSize;
+			const GLsizei instanceCount = static_cast<GLsizei>(currentIndex / currentSize);
 			glDrawArraysInstanced(GL_TRIANGLES, 0, 6, instanceCount);
 
 			currentIndex = 0;
@@ -1432,7 +1432,7 @@ namespace MT {
 				glBindTexture(GL_TEXTURE_2D, entry.textureID);
 				currentTexture = entry.textureID;
 				glBufferData(GL_ARRAY_BUFFER, vec.size() * sizeof(float), vec.data(), GL_DYNAMIC_DRAW);
-				const GLsizei instanceCount = vec.size() / flatSize;
+				const GLsizei instanceCount = static_cast<GLsizei>(vec.size() / flatSize);
 				glDrawArraysInstanced(GL_TRIANGLES, 0, 6, instanceCount);
 				vec.clear();
 			}

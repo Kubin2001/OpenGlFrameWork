@@ -17,6 +17,7 @@
 
 void Game::Start() {
 	MethaneVersion();
+	MT::SetSeed(static_cast<unsigned int>(time(0)));
 
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 
@@ -27,7 +28,6 @@ void Game::Start() {
 
 	renderer = new MT::Renderer();
 	renderer->Start(window);
-
 
 	TexMan::Start(renderer);
 	TexMan::DeepLoad("Textures");
@@ -41,8 +41,6 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	renderer->FLatRenderCopySetUp();
-
-	MapPos::FedData(4000, 4000, 40, 15, 200, 200);
 
 }
 
@@ -59,8 +57,6 @@ void Game::FrameUpdate() {
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
-		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_R) {
-		}
 		Exit();
 	}
 	Global::inputDelay++;

@@ -193,3 +193,7 @@ was removed or the new one was added to folder
 - Rounded border now has custom rounding size like rounded rectangle
 - Logger prefixes can now be modified
 - MapPos has been inlined
+- Rand Int is using xor shift instead of Rand
+- Srand will no longer work you need to use MT::SetSeed
+- A lot of micro optimalizations in addons and Camera
+- Render copy rounded texture orientation fix

@@ -54,9 +54,9 @@ protected:
 
 	MT::ColorA buttonColor{ 255,255,255,255 };
 
-	MT::ColorA borderRGB{ 255,255,255,255 };
+	MT::ColorA borderColor{ 255,255,255,255 };
 
-	MT::ColorA fontRGB{ 255,255,255,255 };
+	MT::ColorA fontColor{ 255,255,255,255 };
 
 	Font* font = nullptr;
 
@@ -108,10 +108,10 @@ public:
 
 	void SetBorder(const int width, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255) {
 		borderThickness = width;
-		borderRGB.R = R;
-		borderRGB.G = G;
-		borderRGB.B = B;
-		borderRGB.A = A;
+		borderColor.R = R;
+		borderColor.G = G;
+		borderColor.B = B;
+		borderColor.A = A;
 	}
 
 	void SetColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255) {
@@ -123,21 +123,17 @@ public:
 
 
 	void SetBorderColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255) {
-		borderRGB.R = R;
-		borderRGB.G = G;
-		borderRGB.B = B;
-		borderRGB.A = A;
+		borderColor.R = R;
+		borderColor.G = G;
+		borderColor.B = B;
+		borderColor.A = A;
 	}
 
 	void SetFontColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255) {
-		if (font != nullptr) {
-			if (font->GetTexture() != nullptr) {
-				fontRGB.R = R;
-				fontRGB.G = G;
-				fontRGB.B = B;
-				fontRGB.A = A;
-			}
-		}
+		fontColor.R = R;
+		fontColor.G = G;
+		fontColor.B = B;
+		fontColor.A = A;
 	}
 
 	// Use Enum RenderType::
@@ -497,8 +493,7 @@ class UI{
 
 		void Render();
 
-		void RenderRawText(Font* font, const int x, const int y, const std::string& text,const int interline,
-			const unsigned char R, const unsigned char G, const unsigned char B);
+		void RenderRawText(Font* font, const int x, const int y, const std::string& text,const int interline, const MT::Color &color);
 
 		// This function should be called only once at the Game::Start function since it is slow because it needs to recrate all ui rendering
 		// If you use z layer from now on you should create new elements with CreateLayered (old way still works but it would be slower)

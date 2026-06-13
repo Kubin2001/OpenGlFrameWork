@@ -2,8 +2,11 @@
 #include <print>
 #include <chrono>
 #include <vector>
+#include <SDL_mouse.h>
+
 #include "GlobalVariables.h"
 #include "Rectangle.h"
+
 
 
 void MethaneVersion();
@@ -270,19 +273,47 @@ struct MapPos {
 
 };
 
-float CalculateEuclidean(int x1, int x2, int y1, int y2)  noexcept;
+inline float CalculateEuclidean(int x1, int x2, int y1, int y2) noexcept {
+	const float x = ((float)x2 - (float)x1) * ((float)x2 - (float)x1);
+	const float y = ((float)y2 - (float)y1) * ((float)y2 - (float)y1);
+	return std::sqrt(x + y);
+}
 
-float CalculateEuclidean(const Point &target, const Point &dest)  noexcept;
+inline float CalculateEuclidean(const Point& target, const Point& dest) noexcept {
+	const float x = ((float)dest.x - (float)target.x) * ((float)dest.x - (float)target.x);
+	const float y = ((float)dest.y - (float)target.y) * ((float)dest.y - (float)target.y);
+	return std::sqrt(x + y);
+}
 
-float FastEuclidean(int x1, int x2, int y1, int y2)  noexcept;
 
-float FastEuclidean(const Point& target, const Point& dest)  noexcept;
+inline float FastEuclidean(int x1, int x2, int y1, int y2) noexcept {
+	const float x = ((float)x2 - (float)x1) * ((float)x2 - (float)x1);
+	const float y = ((float)y2 - (float)y1) * ((float)y2 - (float)y1);
+	return x + y;
+}
 
-Point GetRectangleCenter(const MT::Rect rect);
+inline float FastEuclidean(const Point& target, const Point& dest) noexcept {
+	const float x = ((float)dest.x - (float)target.x) * ((float)dest.x - (float)target.x);
+	const float y = ((float)dest.y - (float)target.y) * ((float)dest.y - (float)target.y);
+	return x + y;
+}
 
-unsigned int RectanglePointDistance(const MT::Rect rect, const Point point);
+inline Point GetRectangleCenter(const MT::Rect rect) {
+	Point point;
+	point.x = rect.x + (int)(rect.w * 0.5);
+	point.y = rect.y + (int)(rect.h * 0.5);
+	return point;
 
-unsigned int PointsDistance(const Point point, const Point point2);
+}
+
+inline unsigned int RectanglePointDistance(const MT::Rect rect, const Point point) {
+	return std::abs(rect.x - point.x) + std::abs(rect.y - point.y);
+
+}
+
+inline unsigned int PointsDistance(const Point point, const Point point2) {
+	return std::abs(point.x - point2.x) + std::abs(point.y - point2.y);
+}
 
 
 class AnyData {
@@ -339,9 +370,30 @@ void ScaleRectanglesToScreen(std::vector<MT::Rect>& vec, int count, int desiredY
 
 std::vector<std::string> SplitString(const std::string &str, const char seperator, const bool keepSep = false);
 
-int RandInt(int min, int max);
+namespace MT {
+	inline thread_local unsigned int genSeed = 1;
 
-Point GetMousePos();
+	inline void SetSeed(unsigned int seed) {
+		if (seed == 0) {
+			seed++;
+		}
+		genSeed = seed;
+	}
+}
+
+inline int RandInt(int min, int max) {
+	MT::genSeed ^= MT::genSeed << 13;
+	MT::genSeed ^= MT::genSeed >> 17;
+	MT::genSeed ^= MT::genSeed << 5;
+
+	return min + (MT::genSeed % (max - min + 1));
+}
+
+inline Point GetMousePos() {
+	int x, y;
+	SDL_GetMouseState(&x, &y);
+	return { x,y };
+}
 
 namespace MT {
 	class Timer {

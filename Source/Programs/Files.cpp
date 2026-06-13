@@ -245,7 +245,7 @@ void FileExplorer::Input() {
 		if (cb->IsHovered() && !retPath.empty()) {
 			Point mouse = GetMousePos();
 			std::string breakPath = BreakLines(retPath,35);
-			ui->RenderRawText(ui->GetFont("arial12px"), mouse.x, mouse.y, breakPath, 15, 200, 200, 200);
+			ui->RenderRawText(ui->GetFont("arial12px"), mouse.x, mouse.y, breakPath, 15, { 200, 200, 200 });
 		}
 	}
 }

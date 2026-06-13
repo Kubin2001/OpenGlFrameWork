@@ -17,8 +17,8 @@ void UIElemBase::Render(UIElemBase* elem, MT::Renderer* renderer) {
 			renderer->RenderCopyUPR(elem->rectangle, elem->texture);
 		}
 		if (elem->GetBorderThickness() > 0) {
-			renderer->RenderBorderUPR(elem->rectangle, { elem->borderRGB.R, elem->borderRGB.G, elem->borderRGB.B }
-			,elem->borderThickness, elem->borderRGB.A);
+			renderer->RenderBorderUPR(elem->rectangle, { elem->borderColor.R, elem->borderColor.G, elem->borderColor.B }
+			,elem->borderThickness, elem->borderColor.A);
 		}
 		if (elem->hovered && elem->hoverable) {
 			renderer->RenderRectUPR(elem->rectangle,
@@ -37,8 +37,8 @@ void UIElemBase::RenderRounded(UIElemBase* elem, MT::Renderer* renderer) {
 			renderer->RenderCopyRoundedUPR(elem->rectangle, elem->texture);
 		}
 		if (elem->GetBorderThickness() > 0) {
-			renderer->RenderRoundedBorderUPR(elem->rectangle, { elem->borderRGB.R, elem->borderRGB.G, elem->borderRGB.B }
-			, elem->borderThickness, elem->borderRGB.A);
+			renderer->RenderRoundedBorderUPR(elem->rectangle, { elem->borderColor.R, elem->borderColor.G, elem->borderColor.B }
+			, elem->borderThickness, elem->borderColor.A);
 		}
 		if (elem->hovered && elem->hoverable) {
 			renderer->RenderRoundedRectUPR(elem->rectangle,
@@ -52,26 +52,26 @@ void UIElemBase::RenderRounded(UIElemBase* elem, MT::Renderer* renderer) {
 void UIElemBase::RenderText(MT::Renderer* renderer) {
 	if (font == nullptr || font->GetTexture() == nullptr || text.empty()) { return; }
 
-	font->SetFilter(fontRGB.R, fontRGB.G, fontRGB.B);
-	font->GetTexture()->SetAlphaBending(fontRGB.A);
+	font->GetTexture()->SetAlphaBending(fontColor.A);
+	MT::Color color{ fontColor.R, fontColor.G, fontColor.B };
 	switch (textRenderType) {
 		case TextRenderType::Standard:
-			font->RenderText(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
+			font->RenderText(renderer, text, rectangle, color, textScale, interLine, textStartX, textStartY);
 			break;
 		case TextRenderType::Centered:
-			font->RenderTextCenter(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
+			font->RenderTextCenter(renderer, text, rectangle, color, textScale, interLine, textStartX, textStartY);
 			break;
 		case TextRenderType::FromRight:
-			font->RenderTextFromRight(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
+			font->RenderTextFromRight(renderer, text, rectangle, color, textScale, interLine, textStartX, textStartY);
 			break;
 		case TextRenderType::CenteredX:
-			font->RenderTextCenterX(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
+			font->RenderTextCenterX(renderer, text, rectangle, color, textScale, interLine, textStartX, textStartY);
 			break;
 		case TextRenderType::CenteredY:
-			font->RenderTextCenterY(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
+			font->RenderTextCenterY(renderer, text, rectangle, color, textScale, interLine, textStartX, textStartY);
 			break;
 		default: // Standardowa opcja
-			font->RenderText(renderer, text, rectangle, textScale, interLine, textStartX, textStartY);
+			font->RenderText(renderer, text, rectangle, color, textScale, interLine, textStartX, textStartY);
 			break;
 	}
 	font->GetTexture()->SetAlphaBending(255);
@@ -115,9 +115,8 @@ void UI::Render() {
 }
 
 
-void UI::RenderRawText(Font* font, const int x, const int y, const std::string& text,const int interline,
-		const unsigned char R, const unsigned char G, const unsigned char B) {
-	font->RenderRawText(renderer, x, y, text, interline, R, G, B);
+void UI::RenderRawText(Font* font, const int x, const int y, const std::string& text,const int interline, const MT::Color& color) {
+	font->RenderRawText(renderer, x, y, text, interline, color);
 }
 
 void UI::UseLayerInRendering(bool use) {
@@ -891,13 +890,13 @@ void UI::DumpButton(nlohmann::ordered_json& json, UIElemBase* elem) {
 	jsonElem["ColorB"] = elem->buttonColor.B;
 	jsonElem["ColorA"] = elem->buttonColor.A;
 
-	jsonElem["BorderR"] = elem->borderRGB.R;
-	jsonElem["BorderG"] = elem->borderRGB.G;
-	jsonElem["BorderB"] = elem->borderRGB.B;
+	jsonElem["BorderR"] = elem->borderColor.R;
+	jsonElem["BorderG"] = elem->borderColor.G;
+	jsonElem["BorderB"] = elem->borderColor.B;
 
-	jsonElem["FontR"] = elem->fontRGB.R;
-	jsonElem["FontG"] = elem->fontRGB.G;
-	jsonElem["FontB"] = elem->fontRGB.B;
+	jsonElem["FontR"] = elem->fontColor.R;
+	jsonElem["FontG"] = elem->fontColor.G;
+	jsonElem["FontB"] = elem->fontColor.B;
 
 	std::string fontName = "";
 	for (auto& font : fontManager->fonts) {
@@ -1048,13 +1047,13 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		elem->buttonColor.B = val["ColorB"];
 		elem->buttonColor.A = val["ColorA"];
 
-		elem->borderRGB.R = val["BorderR"];
-		elem->borderRGB.G = val["BorderG"];
-		elem->borderRGB.B = val["BorderB"];
+		elem->borderColor.R = val["BorderR"];
+		elem->borderColor.G = val["BorderG"];
+		elem->borderColor.B = val["BorderB"];
 
-		elem->fontRGB.R = val["FontR"];
-		elem->fontRGB.G = val["FontG"];
-		elem->fontRGB.B = val["FontB"];
+		elem->fontColor.R = val["FontR"];
+		elem->fontColor.G = val["FontG"];
+		elem->fontColor.B = val["FontB"];
 		if (val.contains("Font")) {
 			elem->font = GetFont(val["Font"]);
 		}

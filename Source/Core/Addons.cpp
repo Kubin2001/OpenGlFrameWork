@@ -1,10 +1,5 @@
 #include "Addons.h"
 
-
-#include <SDL_mouse.h>
-#include <chrono>
-#include <print>
-
 void MethaneVersion() {
 	std::println("Using Methane SDL OpenGL Framework v2.03");
 }
@@ -22,46 +17,6 @@ void MapPos::FedData(int minX, int minY, int tSize, int tilesPerReg, int regions
 	MapPos::maxY = minY + (tSize * tilesPerReg * regionsH);
 }
 
-float CalculateEuclidean(int x1,int x2,int y1,int y2) noexcept{
-	const float x = ((float)x2 - (float)x1) * ((float)x2 - (float)x1);
-	const float y = ((float)y2 - (float)y1) * ((float)y2 - (float)y1);
-	return std::sqrt(x+y);
-}
-
-float CalculateEuclidean(const Point& target, const Point& dest) noexcept {
-	const float x = ((float)dest.x - (float)target.x) * ((float)dest.x - (float)target.x);
-	const float y = ((float)dest.y - (float)target.y) * ((float)dest.y - (float)target.y);
-	return std::sqrt(x + y);
-}
-
-float FastEuclidean(int x1, int x2, int y1, int y2) noexcept {
-	const float x = ((float)x2 - (float)x1) * ((float)x2 - (float)x1);
-	const float y = ((float)y2 - (float)y1) * ((float)y2 - (float)y1);
-	return x + y;
-}
-
-float FastEuclidean(const Point& target, const Point& dest) noexcept {
-	const float x = ((float)dest.x - (float)target.x) * ((float)dest.x - (float)target.x);
-	const float y = ((float)dest.y - (float)target.y) * ((float)dest.y - (float)target.y);
-	return x + y;
-}
-
-Point GetRectangleCenter(const MT::Rect rect) {
-	Point point;
-	point.x = rect.x + (int)(rect.w * 0.5);
-	point.y = rect.y + (int)(rect.h * 0.5);
-	return point;
-
-}
-
-unsigned int RectanglePointDistance(const MT::Rect rect, const Point point) {
-	return std::abs(rect.x - point.x) + std::abs(rect.y - point.y);
-
-}
-
-unsigned int PointsDistance(const Point point, const Point point2) {
-	return std::abs(point.x - point2.x) + std::abs(point.y - point2.y);
-}
 
 
 void ScaleRectanglesToScreen(std::vector<MT::Rect>& vec, int count, int desiredY, int width, int height, int xSpace, bool clearVec) {
@@ -119,12 +74,3 @@ std::vector<std::string> SplitString(const std::string& str, const char seperato
 	return outVec;
 }
 
-int RandInt(int min, int max) {
-	return min + rand() % (max - min + 1);
-}
-
-Point GetMousePos() {
-	int x, y;
-	SDL_GetMouseState(&x, &y);
-	return { x,y };
-}

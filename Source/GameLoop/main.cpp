@@ -2,8 +2,6 @@
 #include "GlobalVariables.h"
 
 int main(int argv, char* argc[]){
-	//srand(time(0));
-	srand(0);
 	Game game;
 
 	game.Start();

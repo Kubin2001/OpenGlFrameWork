@@ -338,7 +338,7 @@ void PathMaker::Render() {
 			}
 			break;
 	}
-	ui->RenderRawText(ui->GetFont("arial12px"), 10, 10, statusText, 0, 230, 230, 230);
+	ui->RenderRawText(ui->GetFont("arial12px"), 10, 10, statusText, 0, { 230, 230, 230 });
 	ui->Render();
 	ren->Present();
 }

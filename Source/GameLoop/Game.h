@@ -4,6 +4,7 @@
 
 #include "UI.h"
 #include "Window.h"
+#include "Camera.h"
 
 class Game {
 private:
@@ -11,7 +12,7 @@ private:
 	MT::Renderer *renderer = nullptr;
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui = nullptr;
-	int val = 0;
+	Camera* cam = nullptr;
 
 public:
 	void Start();

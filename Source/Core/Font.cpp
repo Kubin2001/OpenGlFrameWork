@@ -72,7 +72,7 @@ void Font::LoadTextCharset(const std::string& charset ,std::vector<MT::Rect> &re
 
 
 void Font::RenderRawText(MT::Renderer* renderer, const int x, const int y, const std::string& text, const int interline,
-	const unsigned char R, const unsigned char G, const unsigned char B) {
+	const MT::Color& color) {
 	rectangle.x = x;
 	rectangle.y = y;
 	rectangle.w = 0;
@@ -83,8 +83,7 @@ void Font::RenderRawText(MT::Renderer* renderer, const int x, const int y, const
 			if (text[i] != '\n') {
 				rectangle.w = (int)(sourceRectangles[text[i]].w);
 				rectangle.h = (int)(sourceRectangles[text[i]].h);
-				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture,
-					{ R,G,B });
+				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture, color);
 				rectangle.x += (int)(sourceRectangles[text[i]].w) + 1;
 			}
 			else {
@@ -96,7 +95,8 @@ void Font::RenderRawText(MT::Renderer* renderer, const int x, const int y, const
 }
 
 // Basic text rendering with possition in left up corner of the button
-void Font::RenderText(MT::Renderer* renderer, const std::string &text, MT::Rect &btnRect, float scale, int interline, int textStartX, int textStartY) {
+void Font::RenderText(MT::Renderer* renderer, const std::string &text, MT::Rect &btnRect, const MT::Color& color,
+	float scale, int interline, int textStartX, int textStartY) {
 	rectangle.x = btnRect.x + textStartX;
 	rectangle.y = btnRect.y + textStartY;
 	rectangle.w = 0;
@@ -107,8 +107,7 @@ void Font::RenderText(MT::Renderer* renderer, const std::string &text, MT::Rect 
 			if (text[i] != '\n') {
 				rectangle.w = (int)(sourceRectangles[text[i]].w * scale);
 				rectangle.h = (int)(sourceRectangles[text[i]].h * scale);
-				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture,
-					{ rFilter,gFilter,bFilter });
+				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture, color);
 				rectangle.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else{
@@ -119,7 +118,8 @@ void Font::RenderText(MT::Renderer* renderer, const std::string &text, MT::Rect 
 	}
 }
 
-void Font::RenderTextCenter(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect, float scale, int interline, int textStartX, int textStartY) {
+void Font::RenderTextCenter(MT::Renderer* renderer, const std::string& text, MT::Rect &btnRect, const MT::Color& color,
+	float scale, int interline, int textStartX, int textStartY) {
 	Point textSizes = CalculatePredefinedSize(text,interline,scale);
 
 	Point center = GetRectangleCenter(btnRect);
@@ -133,8 +133,7 @@ void Font::RenderTextCenter(MT::Renderer* renderer, const std::string& text, MT:
 			if (text[i] != '\n') {
 				rectangle.w = (int)(sourceRectangles[text[i]].w * scale);
 				rectangle.h = (int)(sourceRectangles[text[i]].h * scale);
-				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture,
-					{ rFilter,gFilter,bFilter });
+				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture, color);
 				rectangle.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else{
@@ -146,7 +145,8 @@ void Font::RenderTextCenter(MT::Renderer* renderer, const std::string& text, MT:
 }
 
 
-void Font::RenderTextFromRight(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, float scale, int interline, int textStartX, int textStartY) {
+void Font::RenderTextFromRight(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, const MT::Color& color,
+	float scale, int interline, int textStartX, int textStartY) {
 	const Point textSizes = CalculatePredefinedSize(text, interline, scale);
 
 	rectangle.x = btnRect.x + btnRect.w - textSizes.x + textStartX;
@@ -159,8 +159,7 @@ void Font::RenderTextFromRight(MT::Renderer* renderer, const std::string& text, 
 			if (text[i] != '\n') {
 				rectangle.w = (int)(sourceRectangles[text[i]].w * scale);
 				rectangle.h = (int)(sourceRectangles[text[i]].h * scale);
-				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture,
-					{ rFilter,gFilter,bFilter });
+				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture, color);
 				rectangle.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else {
@@ -171,7 +170,8 @@ void Font::RenderTextFromRight(MT::Renderer* renderer, const std::string& text, 
 	}
 }
 
-void Font::RenderTextCenterX(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, float scale, int interline, int textStartX, int textStartY) {
+void Font::RenderTextCenterX(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, const MT::Color& color,
+	float scale, int interline, int textStartX, int textStartY) {
 	Point textSizes = CalculatePredefinedSize(text, interline, scale);
 
 	Point center = GetRectangleCenter(btnRect);
@@ -185,8 +185,7 @@ void Font::RenderTextCenterX(MT::Renderer* renderer, const std::string& text, MT
 			if (text[i] != '\n') {
 				rectangle.w = (int)(sourceRectangles[text[i]].w * scale);
 				rectangle.h = (int)(sourceRectangles[text[i]].h * scale);
-				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture,
-					{ rFilter,gFilter,bFilter });
+				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture, color);
 				rectangle.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else {
@@ -197,7 +196,8 @@ void Font::RenderTextCenterX(MT::Renderer* renderer, const std::string& text, MT
 	}
 }
 
-void Font::RenderTextCenterY(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, float scale, int interline, int textStartX, int textStartY) {
+void Font::RenderTextCenterY(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, const MT::Color& color,
+	float scale, int interline, int textStartX, int textStartY) {
 	Point textSizes = CalculatePredefinedSize(text, interline, scale);
 
 	Point center = GetRectangleCenter(btnRect);
@@ -211,8 +211,7 @@ void Font::RenderTextCenterY(MT::Renderer* renderer, const std::string& text, MT
 			if (text[i] != '\n') {
 				rectangle.w = (int)(sourceRectangles[text[i]].w * scale);
 				rectangle.h = (int)(sourceRectangles[text[i]].h * scale);
-				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture,
-					{ rFilter,gFilter,bFilter });
+				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture, color);
 				rectangle.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else {
@@ -256,13 +255,6 @@ int Font::GetStandardInterline() {
 void Font::SetStandardInterline(int temp) {
 	standardInterLine = temp;
 }
-
-void Font::SetFilter(const unsigned char r, const unsigned char g, const unsigned char b) {
-	this->rFilter = r;
-	this->gFilter = g;
-	this->bFilter = b;
-}
-
 
 /// //////////////////
 
