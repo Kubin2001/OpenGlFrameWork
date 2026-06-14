@@ -4,7 +4,7 @@
 #include <filesystem>
 
 void SoundMan::Init() {
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
 		std::println("Failed to sound manager (sdl_mixer error): {}", Mix_GetError());
 	}
 	Mix_AllocateChannels(32);
@@ -59,13 +59,13 @@ void SoundMan::DeepLoad(const std::string& directory) {
 void SoundMan::PlaySound(const std::string& name, int volume) {
 	auto it = Sounds.find(name);
 	if (it != Sounds.end()) {
-		PlayRawSound(it->second,volume);
+		PlaySound(it->second,volume);
 		return;
 	}
 	std::println("Sound not found: {}", name);
 }
 
-void SoundMan::PlayRawSound(Mix_Chunk* sound, int volume) {
+void SoundMan::PlaySound(Mix_Chunk* sound, int volume) {
 	if (!sound) { return; }
 	if (volume < 1) { return; } // Good for conserving cpu when sound is to far in some map
 	int channel = Mix_PlayChannel(-1, sound, 0);
@@ -81,11 +81,11 @@ void SoundMan::PlaySoundStereo(const std::string& name, int left, int right, int
 		std::println("Sound not found: {}", name);
 		return;
 	}
-	PlayRawSoundStereo(sound->second, left, right,volume);
+	PlaySoundStereo(sound->second, left, right,volume);
 	return;
 }
 
-void SoundMan::PlayRawSoundStereo(Mix_Chunk* sound, int left, int right, int volume) {
+void SoundMan::PlaySoundStereo(Mix_Chunk* sound, int left, int right, int volume) {
 	if (!sound) { return; }
 	if (volume < 1) { return; }
 	int channel = Mix_PlayChannel(-1, sound, 0);
@@ -186,4 +186,6 @@ void SoundMan::Clear() {
 		Mix_FreeChunk(pair.second);
 	}
 	Sounds.clear();
+	Mix_CloseAudio();
+	Mix_Quit();
 }

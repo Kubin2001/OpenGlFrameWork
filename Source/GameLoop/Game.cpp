@@ -56,6 +56,18 @@ void Game::FrameUpdate() {
 
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
+		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_S) {
+			MT::Timer::Tic();
+			SoundMan::PlaySound("click");
+			auto total = MT::Timer::Tac<std::chrono::microseconds>();
+			std::println("Time sound: {} us", total);
+		}
+		else if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_E) {
+			MT::Timer::Tic();
+			SoundMan::PlaySoundStereo("click",100,100);
+			auto total = MT::Timer::Tac<std::chrono::microseconds>();
+			std::println("Time sound stereo: {} us", total);
+		}
 		ui->ManageInput(event);
 		Exit();
 	}

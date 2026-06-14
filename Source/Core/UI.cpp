@@ -493,7 +493,7 @@ void UI::CheckHover(UIElemBase *elem, bool &hoverStop) {
 	if (elem->GetHoverSound() == nullptr) { return; }
 
 	if (!SimpleCollision(lastMousePos, elem->GetRectangle())) {
-		SoundMan::PlayRawSound(elem->GetHoverSound());
+		SoundMan::PlaySound(elem->GetHoverSound());
 	}
 }
 

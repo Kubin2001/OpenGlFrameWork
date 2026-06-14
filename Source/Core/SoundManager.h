@@ -5,8 +5,7 @@
 #include <unordered_set>
 #include <string>
 
-class SoundMan
-{
+class SoundMan{
 	private:
 		inline static std::unordered_map<std::string, Mix_Chunk*> Sounds;
 
@@ -25,11 +24,11 @@ class SoundMan
 
 		static void PlaySound(const std::string& name, int volume = 100);
 
-		static void PlayRawSound(Mix_Chunk* sound, int volume = 100);
+		static void PlaySound(Mix_Chunk* sound, int volume = 100);
 
 		static void PlaySoundStereo(const std::string& name, int left, int right, int volume = 100);
 
-		static void PlayRawSoundStereo(Mix_Chunk* sound, int left, int right, int volume = 100);
+		static void PlaySoundStereo(Mix_Chunk* sound, int left, int right, int volume = 100);
 
 		static Mix_Chunk* GetSound(const std::string& name);
 
