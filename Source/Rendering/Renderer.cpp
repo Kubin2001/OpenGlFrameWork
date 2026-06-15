@@ -172,7 +172,7 @@ bool MT::Renderer::Start(const MT::Window &mtWindow) {
 
     DefineAtributes(VBO, rectVao, renderRectSize, { 4,2 });
 
-    DefineAtributes(VBO, rectExVao, renderRectExSize, { 4,3 });
+    DefineAtributes(VBO, rectExVao, renderRectExSize, { 4,3,2 });
 
     DefineAtributes(VBO, copyVao, renderCopySize, { 4,1 });
 

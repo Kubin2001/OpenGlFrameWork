@@ -265,6 +265,7 @@ void ShaderLoader::LoadSavedShaders() {
         #version 330 core
         layout(location = 0) in vec4 aRect;
         layout(location = 1) in vec3 aColorRot;
+        layout(location = 2) in vec2 aRotCenter;
 
         out vec4 ourColor;
         out float vAlpha;
@@ -272,39 +273,39 @@ void ShaderLoader::LoadSavedShaders() {
         uniform vec2 uVievPort;
 
         vec2 unpackHalfColor(float packedColor){
-	        int col = int(packedColor);
-	        float r  = float((col >> 8) & 255); // in RG it would be R
-	        float g = float(col & 255); // This would be B
-	        r /=255.0;
-	        g /=255.0;
-	        return vec2(r, g);
+            int col = int(round(packedColor)); 
+            float r  = float((col >> 8) & 255); 
+            float g = float(col & 255); 
+            r /= 255.0;
+            g /= 255.0;
+            return vec2(r, g);
         }
 
         vec2 indexPos[6] = vec2[](
-            vec2(-0.5, -0.5), // Left Down
-            vec2(-0.5,  0.5), // Left Up
-            vec2( 0.5, -0.5), // Right Down
-            vec2(-0.5,  0.5), // Left Up
-            vec2( 0.5,  0.5), // Right Up
-            vec2( 0.5, -0.5)  // Right Down
+            vec2(0.0, 0.0), // Left Down
+            vec2(0.0, 1.0), // Left Up
+            vec2(1.0, 0.0), // Right Down
+            vec2(0.0, 1.0), // Left Up
+            vec2(1.0, 1.0), // Right Up
+            vec2(1.0, 0.0)  // Right Down
         );
 
         void main() {
-            vec2 vertexOffset = indexPos[gl_VertexID % 6];
-    
-            vec2 localPos = vertexOffset * aRect.zw;
+            vec2 normalizedOffset = indexPos[gl_VertexID % 6];
+
+            vec2 absolutePos = aRect.xy + (normalizedOffset * aRect.zw);
+
+            vec2 posRelToPivot = absolutePos - aRotCenter;
 
             float rad = radians(aColorRot.z);
             float cosA = cos(rad);
             float sinA = sin(rad);
     
-            // 2D Rotation Matrix
             vec2 rotatedPos;
-            rotatedPos.x = localPos.x * cosA - localPos.y * sinA;
-            rotatedPos.y = localPos.x * sinA + localPos.y * cosA;
+            rotatedPos.x = posRelToPivot.x * cosA - posRelToPivot.y * sinA;
+            rotatedPos.y = posRelToPivot.x * sinA + posRelToPivot.y * cosA;
 
-            vec2 centerPos = aRect.xy + (aRect.zw * 0.5);
-            vec2 worldPos = centerPos + rotatedPos;
+            vec2 worldPos = aRotCenter + rotatedPos;
 
             float ndcX = (worldPos.x / uVievPort.x) * 2.0 - 1.0;
             float ndcY = 1.0 - (worldPos.y / uVievPort.y) * 2.0;

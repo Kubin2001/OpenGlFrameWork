@@ -213,7 +213,7 @@ namespace MT {
 		//Veretex Sizes
 		unsigned int currentSize = 0;
 		inline static constexpr unsigned int renderRectSize = 6;
-		inline static constexpr unsigned int renderRectExSize = 7;
+		inline static constexpr unsigned int renderRectExSize = 9;
 		inline static constexpr unsigned int renderCopySize = 5;
 		inline static constexpr unsigned int renderCopyPartSize = 9;
 		inline static constexpr unsigned int renderCopyExSize = 10;
@@ -314,7 +314,8 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderRectEX(const Rect& rect, const Color& col, const float rotation, const unsigned char alpha = 255) {
+		inline void RenderRectEX(const Rect& rect, const Color& col, const float rotation, 
+			std::optional<Point> rotCenter, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) {
 				return;
 			}
@@ -335,6 +336,21 @@ namespace MT {
 			iBA <<= 8;
 			iBA += alpha;
 
+			float centerX = 0;
+			float centerY = 0;
+
+			float ndcX = (float)rect.x / W - 1;
+			float ndcY = ((float)rect.y / H - 1) * -1;
+
+			if (!rotCenter) {
+				centerX = static_cast<float>(rect.x + (rect.w >> 1));
+				centerY = static_cast<float>(rect.y + (rect.h >> 1));
+			}
+			else {
+				centerX = static_cast<float>(rotCenter->x);
+				centerY = static_cast<float>(rotCenter->y);
+			}
+
 			if (currentIndex + currentSize > Renderer::batchSize) {
 				Present(false);
 			}
@@ -347,6 +363,8 @@ namespace MT {
 			ptr[4] = static_cast<float>(iRG);
 			ptr[5] = static_cast<float>(iBA);
 			ptr[6] = rotation;
+			ptr[7] = centerX;
+			ptr[8] = centerY;
 
 			currentIndex += currentSize;
 		}

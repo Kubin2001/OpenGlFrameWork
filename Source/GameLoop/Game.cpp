@@ -76,6 +76,9 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(255, 255, 255);
+	renderer->RenderRect({ 300,300,50,50 }, {30,30,30});
+	Point pivot = MT::Rect{ 300,300,50,50 }.GetCenter();
+	renderer->RenderRectEX({ 100,100,50,50 }, { 255,0,0 }, (float)Global::frameCounter, std::nullopt);
 	ui->Render();
 	renderer->Present();
 }
