@@ -319,7 +319,7 @@ void PathMaker::Render() {
 			for (size_t i = 0; i < path.size(); i++) {
 
 				if (i + 1 < path.size() - 1) {
-					ren->DrawLine(curPoint.x, curPoint.y, curPoint.x + path[i + 1].x, curPoint.y + path[i + 1].y, 3, { 100,255,100 });
+					ren->DrawLine(curPoint, {curPoint.x + path[i + 1].x, curPoint.y + path[i + 1].y}, 3, { 100,255,100 });
 					curPoint.x += path[i + 1].x;
 					curPoint.y += path[i + 1].y;
 				}
@@ -331,7 +331,7 @@ void PathMaker::Render() {
 			for (size_t i = 0; i < path.size(); i++) {
 
 				if (i + 1 < path.size() - 1) {
-					ren->DrawLine(curPoint.x, curPoint.y, curPoint.x + path[i + 1].x, curPoint.y + path[i + 1].y, 3, { 100,255,100 });
+					ren->DrawLine(curPoint, { curPoint.x + path[i + 1].x, curPoint.y + path[i + 1].y }, 3, { 100,255,100 });
 					curPoint.x += path[i + 1].x;
 					curPoint.y += path[i + 1].y;
 				}

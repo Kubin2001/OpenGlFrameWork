@@ -543,6 +543,8 @@ void ShaderLoader::LoadSavedShaders() {
         layout(location = 0) in vec4 aRect;
         layout(location = 1) in vec4 aSourceRect;
         layout(location = 2) in vec2 aAlphaRot;
+        layout(location = 3) in vec2 aRotCenter;
+
 
         out vec2 outTexCoord;
         out float outAlpha;
@@ -550,25 +552,28 @@ void ShaderLoader::LoadSavedShaders() {
         uniform vec2 uVievPort;
 
         const vec2 uvs[6] = vec2[6](
-            vec2(0.0, 1.0), // 0: Top-Left
-            vec2(0.0, 0.0), // 1: Bottom-Left
-            vec2(1.0, 0.0), // 2: Bottom-Right
-            vec2(0.0, 1.0), // 3: Top-Left
-            vec2(1.0, 0.0), // 4: Bottom-Right
-            vec2(1.0, 1.0)  // 5: Top-Right
+            vec2(0.0, 1.0), // 0:
+            vec2(0.0, 0.0), // 1
+            vec2(1.0, 1.0), // 2: 
+            vec2(0.0, 0.0), // 3: 
+            vec2(1.0, 0.0), // 4: 
+            vec2(1.0, 1.0)  // 5:
         );
 
-        const vec2 indexPos[6] = vec2[6](
-            vec2(-0.5, -0.5), // p0: Left Down
-            vec2(-0.5,  0.5), // p1: Left Up
-            vec2( 0.5,  0.5), // p2: Right Up
-            vec2(-0.5, -0.5), // p3: Left Down
-            vec2( 0.5,  0.5), // p4: Right Up
-            vec2( 0.5, -0.5)  // p5: Right Down
+        vec2 indexPos[6] = vec2[](
+            vec2(0.0, 0.0), // Left Down
+            vec2(0.0, 1.0), // Left Up
+            vec2(1.0, 0.0), // Right Down
+            vec2(0.0, 1.0), // Left Up
+            vec2(1.0, 1.0), // Right Up
+            vec2(1.0, 0.0)  // Right Down
         );
 
         void main() {   
-            vec2 localPos = indexPos[gl_VertexID % 6] * aRect.zw;
+            vec2 localPos = indexPos[gl_VertexID % 6];
+            vec2 absolutePos = aRect.xy + (localPos * aRect.zw);
+
+            vec2 posRelToPivot = absolutePos - aRotCenter;
 
             float rad = radians(aAlphaRot.y);
             float cosA = cos(rad);
@@ -576,11 +581,10 @@ void ShaderLoader::LoadSavedShaders() {
     
             // 2D Rotation Matrix
             vec2 rotatedPos;
-            rotatedPos.x = localPos.x * cosA - localPos.y * sinA;
-            rotatedPos.y = localPos.x * sinA + localPos.y * cosA;
+            rotatedPos.x = posRelToPivot.x * cosA - posRelToPivot.y * sinA;
+            rotatedPos.y = posRelToPivot.x * sinA + posRelToPivot.y * cosA;
 
-            vec2 centerPos = aRect.xy + (aRect.zw * 0.5);
-            vec2 worldPos = centerPos + rotatedPos;
+            vec2 worldPos = aRotCenter + rotatedPos;
 
             float ndcX = (worldPos.x / uVievPort.x) * 2.0 - 1.0;
             float ndcY = 1.0 - (worldPos.y / uVievPort.y) * 2.0;
@@ -588,9 +592,8 @@ void ShaderLoader::LoadSavedShaders() {
             gl_Position = vec4(ndcX, ndcY, 0.0, 1.0);
 
             vec2 texUvs = uvs[gl_VertexID % 6];
-            float u = aSourceRect.x + texUvs.x * aSourceRect.z;
-            float v0 = 1.0 - aSourceRect.y - aSourceRect.w; 
-            float v = v0 + texUvs.y * aSourceRect.w;        
+            float u = aSourceRect.x + (texUvs.x * aSourceRect.z);
+            float v = aSourceRect.y + (texUvs.y * aSourceRect.w);  
 
             outTexCoord = vec2(u, v);
             outAlpha = aAlphaRot.x;
@@ -1419,22 +1422,14 @@ void ShaderLoader::LoadSavedShaders() {
         );
 
         vec2 indexPos[6] = vec2[](
-            vec2(0.0, -1.0), // Left Down
-            vec2(0.0, 0.0),  // Left Up
-            vec2(1.0, -1.0), // Right Down
-            vec2(0.0, 0.0),  // Left Up
-            vec2(1.0, 0.0),  // Right Up
-            vec2(1.0, -1.0)  // Right Down
+            vec2(0.0, 1.0), // Left Down
+            vec2(0.0, 0.0), // Left Up
+            vec2(1.0, 1.0), // Right Down
+            vec2(0.0, 0.0), // Left Up
+            vec2(1.0, 0.0), // Right Up
+            vec2(1.0, 1.0)  // Right Down
         );
 
-        vec2 indexPosRotCen[6] = vec2[](
-            vec2(-0.5, -0.5), // Left Down
-            vec2(-0.5,  0.5), // Left Up
-            vec2( 0.5, -0.5), // Right Down
-            vec2(-0.5,  0.5), // Left Up
-            vec2( 0.5,  0.5), // Right Up
-            vec2( 0.5, -0.5)  // Right Down
-        );
 
         vec2 unpackHalfColor(float packedColor){
 	        int col = int(packedColor);
@@ -1446,19 +1441,20 @@ void ShaderLoader::LoadSavedShaders() {
         }
 
         vec4 GetStandardPos(vec4 aRect){
-            float ndcX = (aRect.x / uVievPort.x) * 2.0 - 1.0;
-            float ndcY = 1.0 - (aRect.y / uVievPort.y) * 2.0;
-            float ndcW = (aRect.z / uVievPort.x) * 2.0;
-            float ndcH = (aRect.w / uVievPort.y) * 2.0;
-	        vec2 localPos = indexPos[gl_VertexID % 6];
-            vec2 finalPos = vec2(ndcX + localPos.x * ndcW, ndcY + localPos.y * ndcH);
-            return vec4(finalPos, 0.0, 1.0);
+            vec2 localPos = indexPos[gl_VertexID % 6];
+            vec2 absolutePos = aRect.xy + (localPos * aRect.zw);
+            float ndcX = (absolutePos.x / uVievPort.x) * 2.0 - 1.0;
+            float ndcY = 1.0 - (absolutePos.y / uVievPort.y) * 2.0;
+    
+            return vec4(ndcX, ndcY, 0.0, 1.0);
         }
 
-        vec4 GetRotPos(vec4 aRect, float rot){
-            vec2 vertexOffset = indexPosRotCen[gl_VertexID % 6];
+        vec4 GetRotPos(vec4 aRect, float rot, vec2 rotCenter){
+            vec2 localPos = indexPos[gl_VertexID % 6];
     
-            vec2 localPos = vertexOffset * aRect.zw;
+            vec2 absolutePos = aRect.xy + (localPos * aRect.zw);
+
+            vec2 posRelToPivot = absolutePos - rotCenter;
 
             float rad = radians(rot);
             float cosA = cos(rad);
@@ -1466,11 +1462,10 @@ void ShaderLoader::LoadSavedShaders() {
     
             // 2D Rotation Matrix
             vec2 rotatedPos;
-            rotatedPos.x = localPos.x * cosA - localPos.y * sinA;
-            rotatedPos.y = localPos.x * sinA + localPos.y * cosA;
+            rotatedPos.x = posRelToPivot.x * cosA - posRelToPivot.y * sinA;
+            rotatedPos.y = posRelToPivot.x * sinA + posRelToPivot.y * cosA;
 
-            vec2 centerPos = aRect.xy + (aRect.zw * 0.5);
-            vec2 worldPos = centerPos + rotatedPos;
+            vec2 worldPos = rotCenter + rotatedPos;
 
             float ndcX = (worldPos.x / uVievPort.x) * 2.0 - 1.0;
             float ndcY = 1.0 - (worldPos.y / uVievPort.y) * 2.0;
@@ -1479,12 +1474,12 @@ void ShaderLoader::LoadSavedShaders() {
         }
 
         vec2 CalcUVS(vec4 source){
-            vec2 texUvs = uvs[gl_VertexID % 6];
-            float u = source.x + texUvs.x * source.z; 
+            vec2 texUvs = uvs[gl_VertexID % 6]; 
+            float u = source.x + (texUvs.x * source.z);
             float v0 = 1.0 - source.y - source.w; 
-            float v = v0 + texUvs.y * source.w;  
+            float v = v0 + (texUvs.y * source.w);
 
-            return vec2(u,v);
+            return vec2(u, v);
         }
 
 
@@ -1498,7 +1493,7 @@ void ShaderLoader::LoadSavedShaders() {
                     break;
                 }
                 case 1:{ // Render Rect EX
-                    gl_Position = GetRotPos(aRect,aVecTwo.x);
+                    gl_Position = GetRotPos(aRect,aVecTwo.x, vec2(aVecTwo.y, aVecTwo.z));
                     oVecOne = aVecOne / 255.0;
                     break;
                 }
@@ -1515,7 +1510,7 @@ void ShaderLoader::LoadSavedShaders() {
                     break;
                 }
                 case 4:{ // Render Copy Ex
-                    gl_Position = GetRotPos(aRect,aVecTwo.y);
+                    gl_Position = GetRotPos(aRect,aVecTwo.y, vec2(aVecTwo.z, aVecTwo.w));
                     oVecOne.xy = CalcUVS(aVecOne);
                     oVecOne.z = aVecTwo.x;
                     break;

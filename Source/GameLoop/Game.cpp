@@ -41,7 +41,6 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	renderer->FLatRenderCopySetUp();
-
 }
 
 void Game::LogicUpdate() {
@@ -76,9 +75,20 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(255, 255, 255);
-	renderer->RenderRect({ 300,300,50,50 }, {30,30,30});
 	Point pivot = MT::Rect{ 300,300,50,50 }.GetCenter();
-	renderer->RenderRectEX({ 100,100,50,50 }, { 255,0,0 }, (float)Global::frameCounter, std::nullopt);
+
+	MT::Texture* tex1 = TexMan::GetTex("tree1");
+	MT::Texture* tex2 = TexMan::GetTex("RetryIcon");
+
+	MT::Rect rect1 = { 10,10,100,100 };
+	MT::Rect rect2 = { 400,10,100,100 };
+
+	MT::Color color1 = { 0,0,0};
+	MT::Color color2 = { 30,30,30};
+
+	renderer->RenderRect({ 10,10,100,100 }, color1);
+	renderer->RenderRectUPR({ 400,10,100,100 }, color2);
+
 	ui->Render();
 	renderer->Present();
 }

@@ -178,7 +178,7 @@ bool MT::Renderer::Start(const MT::Window &mtWindow) {
 
     DefineAtributes(VBO, copyPartVao, renderCopyPartSize, { 4,4,1 });
 
-    DefineAtributes(VBO, copyExVao, renderCopyExSize, { 4,4,2 });
+    DefineAtributes(VBO, copyExVao, renderCopyExSize, { 4,4,2,2});
 
     DefineAtributes(VBO, copyCircleVao, renderCopyCircleSize, { 4,2 });
 

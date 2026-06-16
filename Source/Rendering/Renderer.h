@@ -216,7 +216,7 @@ namespace MT {
 		inline static constexpr unsigned int renderRectExSize = 9;
 		inline static constexpr unsigned int renderCopySize = 5;
 		inline static constexpr unsigned int renderCopyPartSize = 9;
-		inline static constexpr unsigned int renderCopyExSize = 10;
+		inline static constexpr unsigned int renderCopyExSize = 12;
 		inline static constexpr unsigned int renderCopyCircleSize = 6;
 		inline static constexpr unsigned int renderCircleSize = 7;
 		inline static constexpr unsigned int renderRoundedSize = 7;
@@ -339,9 +339,6 @@ namespace MT {
 			float centerX = 0;
 			float centerY = 0;
 
-			float ndcX = (float)rect.x / W - 1;
-			float ndcY = ((float)rect.y / H - 1) * -1;
-
 			if (!rotCenter) {
 				centerX = static_cast<float>(rect.x + (rect.w >> 1));
 				centerY = static_cast<float>(rect.y + (rect.h >> 1));
@@ -369,7 +366,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void DrawLine(const int x1, const int y1, const int x2, const int y2, const int thickness,
+		inline void DrawLine(const Point &p1, const Point& p2, const int thickness,
 			const Color& col, const unsigned char alpha = 255) {
 				if (currentProgram != renderRectExId) {
 					Present(false);
@@ -380,10 +377,10 @@ namespace MT {
 
 				currentSize = Renderer::renderRectExSize;
 
-				const float fx1 = static_cast<float>(x1);
-				const float fy1 = static_cast<float>(y1);
-				const float fx2 = static_cast<float>(x2);
-				const float fy2 = static_cast<float>(y2);
+				const float fx1 = static_cast<float>(p1.x);
+				const float fy1 = static_cast<float>(p1.y);
+				const float fx2 = static_cast<float>(p2.x);
+				const float fy2 = static_cast<float>(p2.y);
 
 				const float dx = fx2 - fx1;
 				const float dy = fy2 - fy1;
@@ -420,6 +417,8 @@ namespace MT {
 				ptr[4] = static_cast<float>(iRG);
 				ptr[5] = static_cast<float>(iBA);
 				ptr[6] = rotation;
+				ptr[7] = centerX;
+				ptr[8] = centerY;
 
 				currentIndex += currentSize;
 		}
@@ -499,7 +498,7 @@ namespace MT {
 		}
 
 		template<bool texNullCheck = true>
-		inline void RenderCopyEX(const Rect& rect, const Rect& source, const Texture* texture, const bool flip = false, const float rotation = 0.0f) {
+		inline void RenderCopyEX(const Rect& rect, const Rect& source, const Texture* texture, const float rotation = 0.0f, const bool flip = false, std::optional<Point> rotCenter = std::nullopt) {
 			if constexpr (texNullCheck) {
 				if (!texture) { return; }
 			}
@@ -522,6 +521,17 @@ namespace MT {
 			const float sourceW = static_cast<float>(source.w) / texture->w;
 			const float sourceH = static_cast<float>(source.h) / texture->h;
 
+			float centerX = 0.0f;
+			float centerY = 0.0f;
+			if (!rotCenter) {
+				centerX = static_cast<float>(rect.x + (rect.w >> 1));
+				centerY = static_cast<float>(rect.y + (rect.h >> 1));
+			}
+			else {
+				centerX = static_cast<float>(rotCenter->x);
+				centerY = static_cast<float>(rotCenter->y);
+			}
+
 			if (currentIndex + currentSize > Renderer::batchSize) {
 				Present(false);
 			}
@@ -543,14 +553,16 @@ namespace MT {
 			ptr[7] = sourceH;
 			ptr[8] = texture->alpha;
 			ptr[9] = rotation;
+			ptr[10] = centerX;
+			ptr[11] = centerY;
 
 			currentIndex += currentSize;
 		}
 
-		inline void RenderCopyEX(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f) {
+		inline void RenderCopyEX(const Rect& rect, const Texture* texture, const float rotation = 0.0f, const bool flip = false, std::optional<Point> rotCenter = std::nullopt) {
 			if (!texture) { return; }
 			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
-			RenderCopyEX<false>(rect, fullSource, texture, flip, rotation);
+			RenderCopyEX<false>(rect, fullSource, texture, rotation, flip, rotCenter);
 		}
 
 		inline void RenderCopyCircle(const Rect& rect, const Texture* texture, const float radius = 0.5f) {
@@ -959,10 +971,22 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderRectEXUPR(const Rect& rect, const Color& col, const float rotation, const unsigned char alpha = 255) {
+		inline void RenderRectEXUPR(const Rect& rect, const Color& col, const float rotation, std::optional<Point> rotCenter,
+			const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			CheckUPRProgram();
+
+			float centerX = 0.0f;
+			float centerY = 0.0f;
+			if (!rotCenter) {
+				centerX = static_cast<float>(rect.x + (rect.w >> 1));
+				centerY = static_cast<float>(rect.y + (rect.h >> 1));
+			}
+			else {
+				centerX = static_cast<float>(rotCenter->x);
+				centerY = static_cast<float>(rotCenter->y);
+			}
 
 			float* ptr = &globalVertices[currentIndex];
 			ptr[0] = static_cast<float>(rect.x);
@@ -971,21 +995,23 @@ namespace MT {
 			ptr[3] = static_cast<float>(rect.h);
 			ptr[4] = static_cast<float>(col.R); ptr[5] = static_cast<float>(col.G);
 			ptr[6] = static_cast<float>(col.B); ptr[7] = static_cast<float>(alpha);
-			ptr[8] = rotation; ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[8] = rotation; 
+			ptr[9] = centerX; ptr[10] = centerY; 
+			ptr[11] = 0.0f;
 			ptr[12] = 0.0f;
 			ptr[13] = 1.0f; //ShaderID
 
 			currentIndex += currentSize;
 		}
 
-		inline void DrawLineUPR(const int x1, const int y1, const int x2, const int y2, const int thickness,
+		inline void DrawLineUPR(const Point &p1, const Point& p2, const int thickness,
 			const Color& col, const unsigned char alpha = 255) {
 			CheckUPRProgram();
 
-			const float fx1 = static_cast<float>(x1);
-			const float fy1 = static_cast<float>(y1);
-			const float fx2 = static_cast<float>(x2);
-			const float fy2 = static_cast<float>(y2);
+			const float fx1 = static_cast<float>(p1.x);
+			const float fy1 = static_cast<float>(p1.y);
+			const float fx2 = static_cast<float>(p2.x);
+			const float fy2 = static_cast<float>(p2.y);
 
 			const float dx = fx2 - fx1;
 			const float dy = fy2 - fy1;
@@ -1010,7 +1036,8 @@ namespace MT {
 			ptr[3] = h;
 			ptr[4] = static_cast<float>(col.R); ptr[5] = static_cast<float>(col.G);
 			ptr[6] = static_cast<float>(col.B); ptr[7] = static_cast<float>(alpha);
-			ptr[8] = rotation; ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[8] = rotation; 
+			ptr[9] = centerX; ptr[10] = centerY; ptr[11] = 0.0f;
 			ptr[12] = 0.0f;
 			ptr[13] = 1.0f; //ShaderID
 
@@ -1075,7 +1102,8 @@ namespace MT {
 		}
 
 		template<bool texNullCheck = true>
-		inline void RenderCopyEXUPR(const Rect& rect, const Rect& source, const Texture* texture, const bool flip, const float rotation) {
+		inline void RenderCopyEXUPR(const Rect& rect, const Texture* texture, const Rect& source, const float rotation = 0.0f,
+			const bool flip = false, std::optional<Point> rotCenter = std::nullopt) {
 			if constexpr (texNullCheck) {
 				if (!texture) { return; }
 			}
@@ -1095,6 +1123,17 @@ namespace MT {
 			const float sourceW = static_cast<float>(source.w) / texture->w;
 			const float sourceH = static_cast<float>(source.h) / texture->h;
 
+			float centerX = 0.0f;
+			float centerY = 0.0f;
+			if (!rotCenter) {
+				centerX = static_cast<float>(rect.x + (rect.w >> 1));
+				centerY = static_cast<float>(rect.y + (rect.h >> 1));
+			}
+			else {
+				centerX = static_cast<float>(rotCenter->x);
+				centerY = static_cast<float>(rotCenter->y);
+			}
+
 			float* ptr = &globalVertices[currentIndex];
 			ptr[0] = static_cast<float>(rect.x);
 			ptr[1] = static_cast<float>(rect.y);
@@ -1111,17 +1150,20 @@ namespace MT {
 			}
 			ptr[5] = sourceY;
 			ptr[7] = sourceH;
-			ptr[8] = static_cast<float>(texture->alpha); ptr[9] = rotation; ptr[10] = 0.0f; ptr[11] = 0.0f;
+			ptr[8] = static_cast<float>(texture->alpha); 
+			ptr[9] = rotation; 
+			ptr[10] = centerX; ptr[11] = centerY;
 			ptr[12] = 0.0f;
 			ptr[13] = 4.0f; //ShaderID
 
 			currentIndex += currentSize;
 		}
 
-		inline void RenderCopyEXUPR(const Rect& rect, const Texture* texture, const bool flip = false, const float rotation = 0.0f) {
+		inline void RenderCopyEXUPR(const Rect& rect, const Texture* texture, const float rotation = 0.0f, const bool flip = false,
+			std::optional<Point> rotCenter = std::nullopt) {
 			if (!texture) { return; }
 			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
-			RenderCopyEXUPR<false>(rect, fullSource, texture, flip, rotation);
+			RenderCopyEXUPR<false>(rect, texture, fullSource, rotation, flip, rotCenter);
 		}
 
 		void RenderCopyCircleUPR(const Rect& rect, const Texture* texture, const float radius = 0.5f) {

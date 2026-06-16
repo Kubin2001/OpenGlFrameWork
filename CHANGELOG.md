@@ -197,3 +197,6 @@ was removed or the new one was added to folder
 - Srand will no longer work you need to use MT::SetSeed
 - A lot of micro optimalizations in addons and Camera
 - Render copy rounded texture orientation fix
+
+2.04
+- Ex render function can now have any rotation center

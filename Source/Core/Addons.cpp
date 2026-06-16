@@ -1,7 +1,7 @@
 #include "Addons.h"
 
 void MethaneVersion() {
-	std::println("Using Methane SDL OpenGL Framework v2.03");
+	std::println("Using Methane SDL OpenGL Framework v2.04");
 }
 
 
