@@ -55,18 +55,6 @@ void Game::FrameUpdate() {
 
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
-		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_S) {
-			MT::Timer::Tic();
-			SoundMan::PlaySound("click");
-			auto total = MT::Timer::Tac<std::chrono::microseconds>();
-			std::println("Time sound: {} us", total);
-		}
-		else if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_E) {
-			MT::Timer::Tic();
-			SoundMan::PlaySoundStereo("click",100,100);
-			auto total = MT::Timer::Tac<std::chrono::microseconds>();
-			std::println("Time sound stereo: {} us", total);
-		}
 		ui->ManageInput(event);
 		Exit();
 	}
@@ -75,20 +63,6 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(255, 255, 255);
-	Point pivot = MT::Rect{ 300,300,50,50 }.GetCenter();
-
-	MT::Texture* tex1 = TexMan::GetTex("tree1");
-	MT::Texture* tex2 = TexMan::GetTex("RetryIcon");
-
-	MT::Rect rect1 = { 10,10,100,100 };
-	MT::Rect rect2 = { 400,10,100,100 };
-
-	MT::Color color1 = { 0,0,0};
-	MT::Color color2 = { 30,30,30};
-
-	renderer->RenderRect({ 10,10,100,100 }, color1);
-	renderer->RenderRectUPR({ 400,10,100,100 }, color2);
-
 	ui->Render();
 	renderer->Present();
 }

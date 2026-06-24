@@ -314,8 +314,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderRectEX(const Rect& rect, const Color& col, const float rotation, 
-			std::optional<Point> rotCenter, const unsigned char alpha = 255) {
+		inline void RenderRectEX(const Rect& rect, const Color& col, const float rotation, std::optional<Point> rotCenter, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) {
 				return;
 			}
@@ -1102,7 +1101,7 @@ namespace MT {
 		}
 
 		template<bool texNullCheck = true>
-		inline void RenderCopyEXUPR(const Rect& rect, const Texture* texture, const Rect& source, const float rotation = 0.0f,
+		inline void RenderCopyEXUPR(const Rect& rect,  const Rect& source, const Texture* texture, const float rotation = 0.0f,
 			const bool flip = false, std::optional<Point> rotCenter = std::nullopt) {
 			if constexpr (texNullCheck) {
 				if (!texture) { return; }
@@ -1163,7 +1162,7 @@ namespace MT {
 			std::optional<Point> rotCenter = std::nullopt) {
 			if (!texture) { return; }
 			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
-			RenderCopyEXUPR<false>(rect, texture, fullSource, rotation, flip, rotCenter);
+			RenderCopyEXUPR<false>(rect,  fullSource, texture, rotation, flip, rotCenter);
 		}
 
 		void RenderCopyCircleUPR(const Rect& rect, const Texture* texture, const float radius = 0.5f) {
