@@ -11,10 +11,6 @@
 #include "Files.h"
 #include "Logger.h"
 
-#include "PathMaker.h"
-
-#include <chrono>
-
 void Game::Start() {
 	MethaneVersion();
 	MT::SetSeed(static_cast<unsigned int>(time(0)));
@@ -40,6 +36,8 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
+	Logger::SetUp("",LogOutput::Console, LogOutput::Console);
+
 	renderer->FLatRenderCopySetUp();
 }
 
@@ -57,6 +55,14 @@ void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
 		Exit();
+
+		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_L) {
+			MT::Timer::Tic();
+			Logger::Log("Loging someting " + std::to_string(RandInt(0, 100)), LogType::Info);
+			std::println("Time: {}us", MT::Timer::Tac<std::chrono::microseconds>());
+			//std::println("Some text {}",0);
+
+		}
 	}
 	Global::inputDelay++;
 }
@@ -84,4 +90,5 @@ Game::~Game() {
 	renderer->Clear();
 	ui->ClearAll();
 	SDL_Quit();
+	Logger::Close();
 }

@@ -3,15 +3,19 @@
 #include <chrono>
 
 
-
 void Logger::LogLoop(LogOutput outType) {
 	std::vector<std::string> waitingLogs;
 	while (working) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		
+		{// Transfering data from queue to vector
+			std::unique_lock<std::mutex> lock(loggerMut);
+			cv.wait(lock, [] { 
+				if (!working || !LogQueue.empty()) {
+					return true;
+				}
+				return false;
+			});
 
-		// Transfering data from queue to vector
-		{
-			std::lock_guard<std::mutex> lock(loggerMut);
 			while (!LogQueue.empty()) {
 				std::string log = LogQueue.front();
 				LogQueue.pop();
@@ -106,8 +110,9 @@ bool Logger::Log(const std::string &msg, LogType type) {
 			return true;
 		}
 
-		LogQueue.push(std::format("{} {}", *logPrefix, msg));
+		LogQueue.emplace(std::format("{} {}", *logPrefix, msg));
 	}
+	cv.notify_one();
 	return true;
 }
 
@@ -137,7 +142,11 @@ void Logger::SetPrefix(LogType type, const std::string &prefix) {
 
 void Logger::Close() {
 	if (!working) { return; }
+
 	working = false;
+	cv.notify_all();
 	worker.join();
-	outputFile.close();
+	if (outputFile.is_open()) {
+		outputFile.close();
+	}
 }

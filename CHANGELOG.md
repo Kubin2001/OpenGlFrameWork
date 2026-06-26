@@ -201,3 +201,4 @@ was removed or the new one was added to folder
 2.04
 - Ex render function can now have any rotation center
 - Dependecies update
+- Logger consumes much less cpu in its own thread

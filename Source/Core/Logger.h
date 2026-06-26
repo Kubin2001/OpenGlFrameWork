@@ -7,6 +7,7 @@
 #include <fstream>
 #include <atomic>
 #include <queue>
+#include <condition_variable>
 
 enum class LogType{
 	Undefinded,
@@ -29,6 +30,7 @@ class Logger {
 	inline static LogOutput outputType = LogOutput::Console;
 	inline static std::mutex loggerMut{};
 	inline static std::mutex fileMut{};
+	inline static std::condition_variable cv{};
 
 	inline static std::string UndefinedPrefix = "";
 	inline static std::string InfoPrefix = "[INFO]";
