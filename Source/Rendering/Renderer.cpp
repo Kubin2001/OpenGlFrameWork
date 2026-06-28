@@ -198,6 +198,8 @@ bool MT::Renderer::Start(const MT::Window &mtWindow) {
 
     DefineAtributes(VBO, doubleMaskedVao, renderDoubleMaskedSize, { 4,4,4,1 });
 
+    DefineAtributes(VBO, shapeVao, renderShapeSize, { 4,2});
+
     DefineAtributes(VBO, uprVao, UPRSize, { 4,4,4,1,1});
 
     DefineAtributes(VBO, flatVao, flatSize, {4});
@@ -222,6 +224,8 @@ bool MT::Renderer::Start(const MT::Window &mtWindow) {
     renderRoundedBorderId = loader.GetProgram("RenderRoundedBorder");
     renderMaskedId = loader.GetProgram("RenderMasked");
     renderDoubleMaskedId = loader.GetProgram("RenderDoubleMasked");
+    renderShapeId = loader.GetProgram("RenderShape");
+
     uprId = loader.GetProgram("RenderUPR");
     flatRenderCopyId = loader.GetProgram("FlatRenderCopy");
 
@@ -264,6 +268,8 @@ bool MT::Renderer::Start(const MT::Window &mtWindow) {
     AssingVievPort(renderDoubleMaskedId, renderDoubleMaskedVievPort);
     glUniform1i(glGetUniformLocation(renderDoubleMaskedId, "texture1"), 0);
     glUniform1i(glGetUniformLocation(renderDoubleMaskedId, "texture2"), 1);
+
+    AssingVievPort(renderShapeId, renderShapeVievPort);
 
     AssingVievPort(uprId, uprVievPort);
     glUniform1i(glGetUniformLocation(uprId, "texture1"), 0);
@@ -346,6 +352,8 @@ void MT::Renderer::Resize(const unsigned int w, const unsigned int h) {
     AssingVievPort(renderMaskedId, renderMaskedVievPort);
 
     AssingVievPort(renderDoubleMaskedId, renderDoubleMaskedVievPort);
+
+    AssingVievPort(renderShapeId, renderShapeVievPort);
 
     AssingVievPort(uprId, uprVievPort);
 

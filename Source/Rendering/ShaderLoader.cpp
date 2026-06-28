@@ -1395,6 +1395,82 @@ void ShaderLoader::LoadSavedShaders() {
         CreateProgramStr("RenderDoubleMasked", vertexStr, fragmentStr);
     }
 
+    if (!IsProgram("RenderShape")) {
+        constexpr const char* vertexStr = R"glsl(
+        #version 330 core
+        layout(location = 0) in vec4 aRect;
+        layout(location = 1) in vec2 aColor;
+
+        out vec4 oFilter;
+        out vec2 oUV;
+
+        uniform vec2 uVievPort;
+
+        const vec2 uvs[6] = vec2[6](
+            vec2(0.0, 0.0), // 0
+            vec2(0.0, 1.0), // 1
+            vec2(1.0, 0.0), // 2
+            vec2(0.0, 1.0), // 3
+            vec2(1.0, 1.0), // 4
+            vec2(1.0, 0.0)  // 5
+        );
+
+        vec2 indexPos[6] = vec2[](
+            vec2(0.0, -1.0), // Left Down
+            vec2(0.0, 0.0),  // Left Up
+            vec2(1.0, -1.0), // Right Down
+            vec2(0.0, 0.0),  // Left Up
+            vec2(1.0, 0.0),  // Right Up
+            vec2(1.0, -1.0)  // Right Down
+        );
+
+        vec2 unpackHalfColor(float packedColor){
+	        int col = int(packedColor);
+	        float r  = float((col >> 8) & 255); // in RG it would be R
+	        float g = float(col & 255); // This would be B
+	        r /=255.0;
+	        g /=255.0;
+	        return vec2(r, g);
+        }
+
+        void main() {
+            float ndcX = (aRect.x / uVievPort.x) * 2.0 - 1.0;
+            float ndcY = 1.0 - (aRect.y / uVievPort.y) * 2.0;
+            float ndcW = (aRect.z / uVievPort.x) * 2.0;
+            float ndcH = (aRect.w / uVievPort.y) * 2.0;
+
+	        vec2 localPos = indexPos[gl_VertexID % 6];
+
+            vec2 finalPos = vec2(ndcX + localPos.x * ndcW, ndcY + localPos.y * ndcH);
+
+            gl_Position = vec4(finalPos, 0.0, 1.0);
+
+            vec2 texUvs = uvs[gl_VertexID % 6];
+
+            oFilter = vec4(unpackHalfColor(aColor.x),unpackHalfColor(aColor.y));
+            oUV = uvs[gl_VertexID % 6];
+        }
+        )glsl";
+
+        constexpr const char* fragmentStr = R"glsl(
+        #version 330 core
+        out vec4 FragColor;
+
+        in vec2 oUV;
+        in vec4 oFilter;
+
+        uniform sampler2D texture1;
+
+        void main(){
+	        vec4 texcolor = texture(texture1,oUV);
+	        vec4 finalColor = oFilter;
+	        finalColor.a = texcolor.a * oFilter.a;
+	        FragColor = finalColor;
+        }
+        )glsl";
+
+        CreateProgramStr("RenderShape", vertexStr, fragmentStr);
+    }
 
     if (!IsProgram("RenderUPR")) {
         constexpr const char* vertexStr = R"glsl(
@@ -1585,6 +1661,12 @@ void ShaderLoader::LoadSavedShaders() {
                     oVecTwo.x = aLastVal; // Alpha
                     break;
                 }
+                case 14:{ // Render Shape
+                    gl_Position = GetStandardPos(aRect);
+                    oVecOne.xy = uvs[gl_VertexID % 6]; //UV
+                    oVecTwo = aVecOne / 255.0;
+                    break;
+                }
             }
         }
         )glsl";
@@ -1743,6 +1825,13 @@ void ShaderLoader::LoadSavedShaders() {
 	                texcolor.a *= oVecTwo.x;
 	                FragColor = vec4(texcolor.r * texcolor2.r, texcolor.g * texcolor2.g, 
 		                texcolor.b * texcolor2.b, texcolor.a);
+                    break;
+                }
+                case 14:{ // Render Shape
+	                vec4 texColor = texture(texture1,oVecOne.xy);
+                    vec4 finalColor = oVecTwo;
+                    finalColor.a = texColor.a * oVecTwo.a;
+	                FragColor = finalColor;
                     break;
                 }
             }

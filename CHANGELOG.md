@@ -202,3 +202,4 @@ was removed or the new one was added to folder
 - Ex render function can now have any rotation center
 - Dependecies update
 - Logger consumes much less cpu in its own thread
+- New rendering function render shape

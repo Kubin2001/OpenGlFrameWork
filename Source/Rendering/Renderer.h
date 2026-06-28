@@ -164,6 +164,8 @@ namespace MT {
 		GLuint roundedBorderVao = 0;
 		GLuint maskedVao = 0;
 		GLuint doubleMaskedVao = 0;
+		GLuint shapeVao = 0;
+
 		GLuint uprVao = 0;
 		GLuint flatVao = 0;
 
@@ -184,6 +186,7 @@ namespace MT {
 		unsigned int renderRoundedBorderId = 0;
 		unsigned int renderMaskedId = 0;
 		unsigned int renderDoubleMaskedId = 0;
+		unsigned int renderShapeId = 0;
 
 		unsigned int flatRenderCopyId = 0;
 		unsigned int uprId = 0;
@@ -204,6 +207,7 @@ namespace MT {
 		unsigned int renderRoundedBorderVievPort = 0;
 		unsigned int renderMaskedVievPort = 0;
 		unsigned int renderDoubleMaskedVievPort = 0;
+		unsigned int renderShapeVievPort = 0;
 		unsigned int uprVievPort = 0;
 		unsigned int flatVievPort = 0;
 
@@ -226,6 +230,7 @@ namespace MT {
 		inline static constexpr unsigned int renderRoundedBorderSize = 8;
 		inline static constexpr unsigned int renderMaskedSize = 9;
 		inline static constexpr unsigned int renderDoubleMaskedSize = 13;
+		inline static constexpr unsigned int renderShapeSize = 6;
 		inline static constexpr unsigned int UPRSize = 14;
 		inline static constexpr unsigned int flatSize = 4;
 
@@ -950,6 +955,49 @@ namespace MT {
 			glActiveTexture(GL_TEXTURE0);
 		}
 
+		inline void RenderShape(const Rect& rect, Texture* texture, const ColorA& filter) {
+			if (!texture) { return; }
+
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			if (currentProgram != renderShapeId) {
+				Present(false);
+				glBindVertexArray(shapeVao);
+				currentProgram = renderShapeId;
+				glUseProgram(currentProgram);
+			}
+
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
+
+
+			uint16_t iRG = filter.R;
+			iRG <<= 8;
+			iRG += filter.G;
+			uint16_t iBA = filter.B;
+			iBA <<= 8;
+			iBA += filter.A;
+
+			currentSize = renderShapeSize;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(iRG);
+			ptr[5] = static_cast<float>(iBA);
+
+			currentIndex += currentSize;
+		}
+
 		//UPR Universal Pipeline Render does not change shader ever so it is much faster in shader switch rendering but slower overall
 		inline void RenderRectUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) { return; }
@@ -1443,6 +1491,36 @@ namespace MT {
 			currentIndex += currentSize;
 
 			glActiveTexture(GL_TEXTURE0);
+		}
+
+		inline void RenderShapeUPR(const Rect& rect, Texture* texture, const ColorA& filter) {
+			if (!texture) { return; }
+
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			CheckUPRProgram();
+
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+
+			ptr[4] = static_cast<float>(filter.R);
+			ptr[5] = static_cast<float>(filter.G);
+			ptr[6] = static_cast<float>(filter.B);
+			ptr[7] = static_cast<float>(filter.A);
+
+			ptr[8] = 0.0f; ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f; ptr[12] = 0.0f;
+			ptr[13] = 14.0f; //ShaderID
+
+			currentIndex += currentSize;
 		}
 
 		//UPR
