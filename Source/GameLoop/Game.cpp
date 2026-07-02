@@ -53,15 +53,21 @@ void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
 		Exit();
+		if (event.type == SDL_KEYUP  && event.key.keysym.scancode == SDL_SCANCODE_0) {
+			SoundMan::PlaySound("coin");
+		}
+		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_1) {
+			SoundMan::PlayMusic("testMus");
+		}
+		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_2) {
+			SoundMan::ToogleMusic();
+		}
 	}
 	Global::inputDelay++;
 }
 
 void Game::Render() {
-	MT::Texture* tex = TexMan::GetTex("tree1");
 	renderer->ClearFrame(255, 255, 255);
-	renderer->RenderShape({ 10,10,100,100 }, tex, { 0,0,0,30 });
-	renderer->RenderShapeUPR({ 10,300,100,100 }, tex, { 0,0,0,30 });
 	ui->Render();
 	renderer->Present();
 }

@@ -1,12 +1,14 @@
 #include <print>
 
 #include "SoundManager.h"
-#include <filesystem>
+
 
 void SoundMan::Init() {
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
 		std::println("Failed to sound manager (sdl_mixer error): {}", Mix_GetError());
+		throw std::runtime_error("Sound man critical error cannot innit systems");
 	}
+	Mix_Init(MIX_INIT_MP3 | MIX_INIT_OGG);
 	Mix_AllocateChannels(32);
 }
 
@@ -20,38 +22,53 @@ void SoundMan::Print() {
 	std::println("------------------------");
 }
 
-void SoundMan::LoadSound(const char* filePath, const std::string& name) {
-	auto sound = Sounds.find(name);
-	if (sound != Sounds.end()) {
-		std::println("Sound already loaded {} ", name);
-		return;
+void SoundMan::Load(const std::filesystem::directory_entry& entry) {
+
+	const std::string ext = entry.path().extension().string();
+	const std::string name = entry.path().stem().string();
+	if (ext == ".wav") { // Sound
+		auto sound = Sounds.find(name);
+		if (sound != Sounds.end()) {
+			std::println("Sound already loaded {} ", name);
+			return;
+		}
+		Mix_Chunk* lSound = Mix_LoadWAV(entry.path().string().c_str());
+		// When file is eiher non supported or just wrong format like txt or png
+		if (lSound) {
+			Sounds[name] = lSound;
+		}
 	}
-	Sounds[name] = Mix_LoadWAV(filePath);
+	else if (ext == ".mp3" || ext == ".ogg") { // Music
+		auto music = Musics.find(name);
+		if (music != Musics.end()) {
+			std::println("Music already loaded {} ", name);
+			return;
+		}
+		Mix_Music* lMusic = Mix_LoadMUS(entry.path().string().c_str());
+		if (lMusic) {
+			Musics[name] = lMusic;
+		}
+	}
 }
 
-void SoundMan::LoadSounds(const std::string& directory) {
+void SoundMan::LoadDir(const std::string& directory) {
 	try {
 		for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(directory)) {
-			if (entry.path().extension() == ".wav") {
-				std::string pathString = entry.path().string();
-				const char* path = pathString.c_str();
-				std::string name = entry.path().stem().string();
-				LoadSound(path, name);
-			}
+			Load(entry);
 		}
 	}
 	catch (std::exception& e) {
-		std::println(" SoundMan::LoadSounds Error loading directory: {}    {}", directory, e.what());
+		std::println("SoundMan::LoadSounds Error loading directory: {}    {}", directory, e.what());
 	}
 
 }
 
 void SoundMan::DeepLoad(const std::string& directory) {
-	LoadSounds(directory);
+	LoadDir(directory);
 	for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(directory)) {
 		if (entry.is_directory()) {
 			const std::string path = entry.path().string();
-			LoadSounds(path);
+			DeepLoad(path);
 		}
 	}
 }
@@ -98,6 +115,18 @@ void SoundMan::PlaySoundStereo(Mix_Chunk* sound, int left, int right, int volume
 	Mix_Volume(channel, SDL_Volume);
 }
 
+void SoundMan::PlayMusic(const std::string& name, int volume, MusicPlayType playType) {
+	auto music = Musics.find(name);
+	if (music == Musics.end()) {
+		std::println("No music with name {} loaded SoundMan::PlayMusic", name);
+		return;
+	}
+	Mix_PlayMusic(music->second,static_cast<int>(playType));
+
+	int SDL_Volume = (volume * MIX_MAX_VOLUME) / 100;
+	Mix_VolumeMusic(SDL_Volume);
+}
+
 Mix_Chunk *SoundMan::GetSound(const std::string& name) {
 	auto it = Sounds.find(name);
 	if (it != Sounds.end()) {
@@ -132,7 +161,7 @@ void SoundMan::RefreshSoundsInFolder(const std::string& directory, bool removeIn
 		else {
 			std::string stem = entry.path().stem().string();
 			if (Sounds.find(stem) == Sounds.end()) {
-				LoadSound(entry.path().string().c_str(), stem);
+				Load(entry);
 				if (removeInvalid) {
 					namesCollector.emplace(stem);
 				}
@@ -177,15 +206,31 @@ bool SoundMan::DeleteSound(const std::string& name) {
 		Sounds.erase(it);
 		return true;
 	}
-	std::println("Sound not found: {}", name);
+	std::println("Sound not found: {} SoundMan::DeleteSound", name);
+	return false;
+}
+
+bool SoundMan::DeleteMusic(const std::string& name) {
+	auto it = Musics.find(name);
+	if (it != Musics.end()) {
+		Mix_FreeMusic(it->second);
+		Musics.erase(it);
+		return true;
+	}
+	std::println("Music not found: {} SoundMan::DeleteMusic", name);
 	return false;
 }
 
 void SoundMan::Clear() {
+	Mix_HaltMusic();
 	for (auto& pair : Sounds) {
 		Mix_FreeChunk(pair.second);
 	}
+	for (auto& pair : Musics) {
+		Mix_FreeMusic(pair.second);
+	}
 	Sounds.clear();
+	Musics.clear();
 	Mix_CloseAudio();
 	Mix_Quit();
 }
