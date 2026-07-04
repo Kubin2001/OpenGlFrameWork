@@ -53,15 +53,6 @@ void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
 		Exit();
-		if (event.type == SDL_KEYUP  && event.key.keysym.scancode == SDL_SCANCODE_0) {
-			SoundMan::PlaySound("coin");
-		}
-		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_1) {
-			SoundMan::PlayMusic("testMus");
-		}
-		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_2) {
-			SoundMan::ToogleMusic();
-		}
 	}
 	Global::inputDelay++;
 }

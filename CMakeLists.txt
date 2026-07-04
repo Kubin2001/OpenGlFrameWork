@@ -19,6 +19,14 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
     "Source/*.hpp"
 )
 
+# Scanning source folder for inludes
+set(SOURCE_SUBDIRS "")
+foreach(FILE_PATH ${SOURCES})
+    get_filename_component(DIR_PATH ${FILE_PATH} DIRECTORY)
+    list(APPEND SOURCE_SUBDIRS ${DIR_PATH})
+endforeach()
+list(REMOVE_DUPLICATES SOURCE_SUBDIRS)
+
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Source" FILES ${SOURCES})
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
@@ -37,11 +45,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     "${LIBS_DIR}/SDL2_ttf/include"
     "${LIBS_DIR}/glad/include"  
     "${LIBS_DIR}/glm"
-	"Source/Core"
-    "Source/Rendering"
-    "Source/GameLoop"
-    "Source/Programs"
-    "Source/Externals"
+	${SOURCE_SUBDIRS}
 )
 
 target_link_directories(${PROJECT_NAME} PRIVATE
