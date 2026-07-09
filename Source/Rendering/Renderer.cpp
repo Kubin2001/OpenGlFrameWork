@@ -298,6 +298,8 @@ bool MT::Renderer::Start(const MT::Window &mtWindow) {
 
     glActiveTexture(GL_TEXTURE0);
 
+    renderTarget = std::make_unique<RenderTarget>(W, H);
+
     globalVertices.resize(batchSize);
     return true;
 }
@@ -379,6 +381,8 @@ void MT::Renderer::Resize(const unsigned int w, const unsigned int h) {
 
     currentProgram = 0;
     glUseProgram(0);
+
+    renderTarget->Resize(W, H);
 
     SDL_GL_GetDrawableSize(window, &W, &H);
     glViewport(0, 0, W, H);

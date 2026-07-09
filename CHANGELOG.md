@@ -204,3 +204,6 @@ was removed or the new one was added to folder
 - Logger consumes much less cpu in its own thread
 - New rendering function render shape
 - Sound manager now supports music (mp3, ogg)
+
+2.05
+- Basic framebuffer support

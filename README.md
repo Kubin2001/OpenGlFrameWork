@@ -2,7 +2,7 @@
 
 # OpenGLFramework
 
-![Version](https://img.shields.io/badge/version-2.0.4-blue)
+![Version](https://img.shields.io/badge/version-2.0.5-blue)
 ![C++](https://img.shields.io/badge/C++-23-orange)
 
 A lightweight C++ framework for building 2D games and tools with SDL2 and OpenGL.

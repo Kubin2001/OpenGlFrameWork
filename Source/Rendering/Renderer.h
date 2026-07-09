@@ -1,12 +1,16 @@
 #pragma once
 
-#include "glm.hpp"
 #include <SDL.h>
 #include <unordered_map>
 #include <filesystem>
+#include <memory>
+
+#include "glm.hpp"
+
 #include "ShaderLoader.h"
 #include "Rectangle.h"
 #include "Window.h"
+
 
 enum class ColorType {     
 	White,      
@@ -146,16 +150,80 @@ namespace MT {
 	class RenderTarget {
 		unsigned int FBO = 0;
 		MT::Texture* tex = nullptr;
-		Point size{ 0,0 };
+
+		public: 
 
 		RenderTarget(int W, int H) {
-			if (W > 4096 || H > 4096 || W < 2 || H < 2) {
+			if (W > 4096 || H > 4096 || W < 1 || H < 1) {
 				throw std::runtime_error("Render Target size is not between 1 and 4096");
 			}
 			glGenFramebuffers(1 ,&FBO);
 
+			tex = MT::GenEmptyTexture(W, H);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->texture, 0);
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+				throw std::runtime_error("Framebuffer is not complete");
+			}
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
+		void Resize(int W, int H) {
+			if (W > 4096 || H > 4096 || W < 1 || H < 1) {
+				throw std::runtime_error("Render Target size is not between 1 and 4096");
+			}
+			delete tex;
+			tex = MT::GenEmptyTexture(W, H);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->texture, 0);
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+				throw std::runtime_error("Framebuffer is not complete");
+			}
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+
+		void Bind() {
+			glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		}
+		void UnBind() {
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+
+		MT::Texture* GetTexture() const { return tex; }
+
+		RenderTarget(const RenderTarget& rt) = delete;
+		RenderTarget& operator = (const RenderTarget& rt) = delete;
+
+		RenderTarget(RenderTarget&& rt) noexcept{
+			if (this == &rt) {
+				return;
+			}
+			this->FBO = rt.FBO;
+			this->tex = rt.tex;
+			rt.tex = nullptr;
+			rt.FBO = 0;
+
+		}
+
+		RenderTarget& operator = (RenderTarget&& rt) noexcept{
+			if (this == &rt) {
+				return *this;
+			}
+			this->FBO = rt.FBO;
+			this->tex = rt.tex;
+			rt.tex = nullptr;
+			rt.FBO = 0;
+			return *this;
+		}
+
+		~RenderTarget() {
+			if (FBO != 0) { 
+				glDeleteFramebuffers(1,&FBO);
+			}
+			delete tex;
+		}
 	};
 
 	class Renderer {
@@ -257,6 +325,9 @@ namespace MT {
 		//Agressive Batching Rendering
 		std::vector<FlatRenderLayer> flatRenderVec = {};
 
+		//Single frame buffer in future could be improved but for now it is more than sufficient
+		std::unique_ptr<RenderTarget> renderTarget = nullptr;
+
 		inline void CheckUPRProgram() {
 			if (currentProgram != uprId) {
 				Present(false);
@@ -293,11 +364,12 @@ namespace MT {
 			if (switchContext) { SDL_GL_SwapWindow(window); }
 		}
 
-		inline void ClearFrame(const unsigned char R, const unsigned char G, const unsigned char B) {
+		inline void ClearFrame(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255) {
 			const float fR = float(R) / 255;
 			const float fG = float(G) / 255;
 			const float fB = float(B) / 255;
-			glClearColor(fR, fG, fB, 1.0f);
+			const float fA = float(A) / 255;
+			glClearColor(fR, fG, fB, fA);
 			glClear(GL_COLOR_BUFFER_BIT);
 		}
 
@@ -1594,6 +1666,19 @@ namespace MT {
 		void SetClipSize(const Rect& rect);
 
 		void ResetClipSize();
+
+		void BindFrameBuffer() {
+			Present(false);
+			renderTarget->Bind();
+		}
+		void UnBindFrameBuffer() {
+			Present(false);
+			renderTarget->UnBind();
+		}
+
+		MT::Texture* GetFrameBuffer() {
+			return renderTarget->GetTexture();
+		}
 
 		template<unsigned int size>
 		friend class CustomShader;

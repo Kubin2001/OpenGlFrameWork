@@ -59,6 +59,36 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(255, 255, 255);
+
+	// No buffer background
+	renderer->RenderRect({ 0,0,Global::windowWidth, Global::windowHeight }, { 30,30,30 });
+	renderer->RenderCopy({ 10,10,100,100 }, TexMan::GetTex("tree1"));
+	renderer->RenderCopy({ 10,300,100,100 }, TexMan::GetTex("tree1"));
+
+
+	renderer->BindFrameBuffer();
+	renderer->ClearFrame(0, 0, 0, 0);
+
+	glBlendEquation(GL_MAX);
+
+	int y = 200;
+	for (size_t i = 0; i < 5; i++) {
+		int x = 0;
+		for (size_t j = 0; j < 5; j++) {
+			renderer->RenderRect({ x,y,45,45 }, { 0,0,0 }, 100);
+			x += 40;
+		}
+		y += 40;
+	}
+
+	renderer->Present(false);
+
+	glBlendEquation(GL_FUNC_ADD);
+
+	renderer->UnBindFrameBuffer();
+
+	renderer->RenderCopy({ 0,0,Global::windowWidth, Global::windowHeight }, renderer->GetFrameBuffer());
+
 	ui->Render();
 	renderer->Present();
 }
