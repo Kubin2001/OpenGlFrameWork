@@ -24,6 +24,24 @@ SDL_Surface * FlipSurfaceVertical(SDL_Surface * surface) {
     return flipped;
 }
 
+MT::Texture* MT::GenEmptyTexture(int w, int h) {
+    unsigned int tex = 0;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    
+    MT::Texture* mtTex = new Texture();
+    mtTex->w = w;
+    mtTex->h = h;
+    mtTex->texture = tex;
+
+    return mtTex;
+}
+
 MT::Texture* MT::LoadTexture(const char* path) {
     unsigned int texture;
     glGenTextures(1, &texture);

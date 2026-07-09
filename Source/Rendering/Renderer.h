@@ -111,8 +111,9 @@ namespace MT {
 	};
 
 
-	Texture* LoadTexture(const char* path);
+	Texture* GenEmptyTexture(int w, int h);
 
+	Texture* LoadTexture(const char* path);
 
 	Texture* LoadTextureFromSurface(SDL_Surface* surf);
 
@@ -140,6 +141,21 @@ namespace MT {
 		FlatRenderLayer(int texID) {
 			this->textureID = texID;
 		}
+	};
+
+	class RenderTarget {
+		unsigned int FBO = 0;
+		MT::Texture* tex = nullptr;
+		Point size{ 0,0 };
+
+		RenderTarget(int W, int H) {
+			if (W > 4096 || H > 4096 || W < 2 || H < 2) {
+				throw std::runtime_error("Render Target size is not between 1 and 4096");
+			}
+			glGenFramebuffers(1 ,&FBO);
+
+		}
+
 	};
 
 	class Renderer {
