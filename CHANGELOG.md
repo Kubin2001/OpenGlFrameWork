@@ -208,3 +208,6 @@ was removed or the new one was added to folder
 2.05
 - Basic framebuffer support
 - Faster renderer resizing
+- Loading Textures allow to choose linear, or nearest filter
+- Most getters and setters from ui elements has been removed (most variables are now public)
+- GetButton renamed to GetLabel

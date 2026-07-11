@@ -36,8 +36,13 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
+	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 8, "arial8");
+
 	renderer->FLatRenderCopySetUp();
 	Label *lb = ui->CreateLabel("lab1", 10, 10, 300, 300, nullptr, ui->GetFont("arial12"), "some text\nmade from text");
+	lb->textScale = 3.0f;
+	lb->SetColor(30, 30, 30);
+	lb = ui->CreateLabel("lab2", 300, 10, 300, 300, nullptr, ui->GetFont("arial8"), "some text\nmade from text");
 	lb->SetColor(30, 30, 30);
 
 }

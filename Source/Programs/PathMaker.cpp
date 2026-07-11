@@ -9,14 +9,14 @@
 static void CreateErrorBox(UI* ui, const std::string& text) {
 	PopUpBox *pb =  ui->CreatePopUpBoxF("erroxBox" + std::to_string(RandInt(0, 1000)), 120, 200, 5, 100, 40,nullptr,"arial12px");
 	pb->SetColor(120, 120, 120);
-	pb->SetText(text);
+	pb->text = text;
 	pb->SetRenderTextType(TextRenderType::Centered);
 }
 
 static void CreateInfoBox(UI* ui, const std::string& text) {
 	PopUpBox* pb = ui->CreatePopUpBoxF("erroxBox" + std::to_string(RandInt(0, 1000)), 120, 200, 5, 100, 40, nullptr, "arial12px");
 	pb->SetColor(120, 120, 120);
-	pb->SetText(text);
+	pb->text = text;
 	pb->SetRenderTextType(TextRenderType::Centered);
 }
 
@@ -108,7 +108,7 @@ void PathMaker::InputSaveMenu() {
 }
 
 void PathMaker::SaveTxt() {
-	std::ofstream file(ui->GetTextBox("saveName")->GetText() + ".txt");
+	std::ofstream file(ui->GetTextBox("saveName")->text + ".txt");
 	if (!file.is_open()) {
 		CreateErrorBox(ui, "Cannot save to txt");
 		return;
@@ -121,7 +121,7 @@ void PathMaker::SaveTxt() {
 }
 
 void PathMaker::SaveCsv() {
-	std::ofstream file(ui->GetTextBox("saveName")->GetText() + ".csv");
+	std::ofstream file(ui->GetTextBox("saveName")->text + ".csv");
 	if (!file.is_open()) {
 		CreateErrorBox(ui, "Cannot save to csv");
 		return;
@@ -134,7 +134,7 @@ void PathMaker::SaveCsv() {
 
 void PathMaker::SaveBin() {
 	std::ofstream file(
-		ui->GetTextBox("saveName")->GetText() + ".bin",
+		ui->GetTextBox("saveName")->text + ".bin",
 		std::ios::binary
 	);
 

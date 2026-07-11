@@ -28,6 +28,11 @@ enum class ColorType {
 	DarkGray    
 };
 
+enum class TextureFilter {
+	Nearest,
+	Linear
+};
+
 namespace MT {
 
 	struct Color {
@@ -117,9 +122,9 @@ namespace MT {
 
 	Texture* GenEmptyTexture(int w, int h);
 
-	Texture* LoadTexture(const char* path);
+	Texture* LoadTexture(const char* path, TextureFilter filter = TextureFilter::Nearest);
 
-	Texture* LoadTextureFromSurface(SDL_Surface* surf);
+	Texture* LoadTextureFromSurface(SDL_Surface* surf, TextureFilter filter = TextureFilter::Nearest);
 
 	SDL_Surface* TextureToSurface(Texture* texture);
 

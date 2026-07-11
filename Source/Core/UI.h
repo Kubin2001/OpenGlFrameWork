@@ -41,25 +41,6 @@ enum class SliderSlide {
 class UIElemBase :public GameObject {
 protected:
 	std::string name = "";
-	CastType castType = CastType::Label;
-
-	std::string text = "";
-	float textScale = 1.0f;
-	int interLine = 20;
-
-	int borderThickness = 0;
-
-	int textStartX = 0;
-	int textStartY = 0;
-
-	MT::ColorA buttonColor{ 255,255,255,255 };
-
-	MT::ColorA borderColor{ 255,255,255,255 };
-
-	MT::ColorA fontColor{ 255,255,255,255 };
-
-	Font* font = nullptr;
-
 	void (*renderFunction)(UIElemBase* ,MT::Renderer*) = nullptr;
 
 	TextRenderType textRenderType = TextRenderType::Standard; // Base is left up corner
@@ -70,8 +51,6 @@ protected:
 
 	bool hoverable = false; // Is hover filter aplied with mouse collisojn
 
-	MT::ColorA hoverFilter{ 0,0,0,0 };
-
 	Mix_Chunk* hoverSound = nullptr;
 
 	int zLayer = 0; // Bazowo zawsze 0 
@@ -79,32 +58,26 @@ protected:
 	void RenderText(MT::Renderer* renderer);
 
 public:
-	std::string& GetName() {return name;}
 
-	CastType GetCastType() { return this->castType; }
+	// To change name use ui->renameElem
+	const std::string& GetName() const { return name; }
+	CastType castType = CastType::Label;
+	std::string text = "";
 
-	void SetText(const std::string& temptext) {text = temptext;}
+	float textScale = 1.0f;
+	int interLine = 20;
 
-	std::string& GetText() {return text;}
+	int borderThickness = 0;
 
-	float GetTextScale() {return textScale;}
-	void SetTextScale(float temp) {textScale = temp;}
-	int GetInterLine() {return interLine;}
-	void SetInterLine(int temp) {interLine = temp;}
+	int textStartX = 0;
+	int textStartY = 0;
 
-	Font* GetFont() {return font;}
+	Font* font = nullptr;
 
-	void SetFont(Font* font) {this->font = font;}
-
-	int GetBorderThickness() {return borderThickness;}
-
-	void SetBorderThickness(const int temp) {borderThickness = temp;}
-
-	int GetTextStartX() {return textStartX;}
-	void SetTextStartX(int temp) {textStartX = temp;}
-	int GetTextStartY() {return textStartY;}
-	void SetTextStartY(int temp) {textStartY = temp;}
-
+	MT::ColorA color{ 255,255,255,255 };
+	MT::ColorA borderColor{ 255,255,255,255 };
+	MT::ColorA fontColor{ 255,255,255,255 };
+	MT::ColorA hoverFilter{ 0,0,0,0 };
 
 	void SetBorder(const int width, const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255) {
 		borderThickness = width;
@@ -115,10 +88,10 @@ public:
 	}
 
 	void SetColor(const unsigned char R, const unsigned char G, const unsigned char B, const unsigned char A = 255) {
-		buttonColor.R = R;
-		buttonColor.G = G;
-		buttonColor.B = B;
-		buttonColor.A = A;
+		color.R = R;
+		color.G = G;
+		color.B = B;
+		color.A = A;
 	}
 
 
@@ -168,7 +141,7 @@ public:
 		hoverFilter.G = G;
 		hoverFilter.B = B;
 		hoverFilter.A = A;
-		if (sound == "") {
+		if (sound.empty()) {
 			hoverSound = nullptr;
 		}
 		else {
@@ -237,8 +210,9 @@ class TextBox : public UIElemBase {
 private:
 	bool isUsed = false;
 	bool turnedOn = true;
-	unsigned int maxTextLength = 1'000'000;
 public:
+	unsigned int maxTextLength = 1'000'000;
+
 	bool IsUsed() {return this->isUsed;}
 
 	void TurnOn() {turnedOn = true;}
@@ -248,18 +222,9 @@ public:
 		isUsed = false;
 	}
 
+
 	bool IsOn() {return turnedOn;}
 
-	void SetTextLength(unsigned int val) {
-		if (val > 1'000'000) {
-			this->maxTextLength = 1'000'000;
-		}
-		else {
-			this->maxTextLength = val;
-		}
-	}
-
-	unsigned int GetTextLength() {return this->maxTextLength;}
 
 	friend class UI;
 };
@@ -267,33 +232,18 @@ public:
 
 
 class PopUpBox : public UIElemBase {
-	private:
+	public:
 		int lifeTime = 0;
 
-	public:
 		friend class UI;
-
-		int GetLifeTime() {return this->lifeTime;}
-
-		void SetLifeTime(const int lifeTime) {this->lifeTime = lifeTime;}
 };
 
 class Slider : public UIElemBase {
-	private:
+	public:
+
 		SliderSlide slideType = SliderSlide::X; //Enmum class SliderSlide
 		int min = 0; // Min X or Y slider can go
 		int max = 0; // Max X or Y slider can go
-
-	public:
-		// Getters
-		SliderSlide GetSlideType() const { return slideType; }
-		int GetMin() const { return min; }
-		int GetMax() const { return max; }
-
-		// Setters
-		void SetSlideType(SliderSlide value) { slideType = value; }
-		void SetMin(int value) { min = value; }
-		void SetMax(int value) { max = value; }
 
 		float GetPercent() {
 			int radius = 0;
@@ -468,7 +418,7 @@ class UI{
 		void SlideSliders(Slider* slider, SDL_Event& event);
 
 		UIElemBase* GetElem(const std::string& name);
-		Label* GetButton(const std::string& name);
+		Label* GetLabel(const std::string& name);
 		TextBox* GetTextBox(const std::string& name);
 		ClickBox* GetClickBox(const std::string& name);
 		PopUpBox* GetPopUpBox(const std::string& name);

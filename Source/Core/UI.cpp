@@ -11,12 +11,12 @@
 void UIElemBase::Render(UIElemBase* elem, MT::Renderer* renderer) {
 	if (!elem->hidden) {
 		if (elem->GetTexture() == nullptr) {
-			renderer->RenderRectUPR(elem->rectangle, { elem->buttonColor.R, elem->buttonColor.G, elem->buttonColor.B }, elem->buttonColor.A);
+			renderer->RenderRectUPR(elem->rectangle, { elem->color.R, elem->color.G, elem->color.B }, elem->color.A);
 		}
 		else {
 			renderer->RenderCopyUPR(elem->rectangle, elem->texture);
 		}
-		if (elem->GetBorderThickness() > 0) {
+		if (elem->borderThickness > 0) {
 			renderer->RenderBorderUPR(elem->rectangle, { elem->borderColor.R, elem->borderColor.G, elem->borderColor.B }
 			,elem->borderThickness, elem->borderColor.A);
 		}
@@ -31,12 +31,12 @@ void UIElemBase::Render(UIElemBase* elem, MT::Renderer* renderer) {
 void UIElemBase::RenderRounded(UIElemBase* elem, MT::Renderer* renderer) {
 	if (!elem->hidden) {
 		if (elem->GetTexture() == nullptr) {
-			renderer->RenderRoundedRectUPR(elem->rectangle, { elem->buttonColor.R, elem->buttonColor.G, elem->buttonColor.B }, elem->buttonColor.A);
+			renderer->RenderRoundedRectUPR(elem->rectangle, { elem->color.R, elem->color.G, elem->color.B }, elem->color.A);
 		}
 		else {
 			renderer->RenderCopyRoundedUPR(elem->rectangle, elem->texture);
 		}
-		if (elem->GetBorderThickness() > 0) {
+		if (elem->borderThickness > 0) {
 			renderer->RenderRoundedBorderUPR(elem->rectangle, { elem->borderColor.R, elem->borderColor.G, elem->borderColor.B }
 			, elem->borderThickness, elem->borderColor.A);
 		}
@@ -77,9 +77,7 @@ void UIElemBase::RenderText(MT::Renderer* renderer) {
 	font->GetTexture()->SetAlphaBending(255);
 }
 
-
-//BUTTON
-
+// UI
 UI::UI(MT::Renderer* renderer) {
 	fontManager = new FontManager();
 	this->renderer = renderer;
@@ -157,14 +155,14 @@ void UI::FillElem(UIElemBase *elem ,const std::string& name, int x, int y, int w
 
 	elem->SetTexture(texture);
 
-	elem->SetText(text);
-	elem->SetTextScale(textScale);
-	elem->SetFont(font);
+	elem->text = text;
+	elem->textScale = textScale;
+	elem->font = font;
 	if (font != nullptr) {
-		elem->SetInterLine(font->GetStandardInterline());
+		elem->interLine = font->GetStandardInterline();
 	}
-	elem->SetTextStartX(textStartX);
-	elem->SetTextStartY(textStartY);
+	elem->textStartX = textStartX;
+	elem->textStartY = textStartY;
 }
 
 Label* UI::LCreateLabel(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
@@ -174,8 +172,8 @@ Label* UI::LCreateLabel(int layer, const std::string& name, int x, int y, int w,
 		throw std::exception("This should not be used without layer in rendering set on");
 	}
 
-	if (GetButton(name) != nullptr) {
-		std::println("Warning name collision Button with name: {} already exists addition abborted", name);
+	if (GetLabel(name) != nullptr) {
+		std::println("Warning name collision Label with name: {} already exists addition abborted", name);
 		return nullptr;
 	}
 
@@ -291,9 +289,9 @@ Slider* UI::LCreateSlider(int layer, const std::string& name, int x, int y, int 
 	sl->GetRectangle().Set(x, y, w, h);
 	sl->SetRenderType(RenderType::Standard);
 	sl->SetTexture(texture);
-	sl->SetSlideType(slideType);
-	sl->SetMin(min);
-	sl->SetMax(max);
+	sl->slideType = slideType;
+	sl->min = min;
+	sl->max = max;
 
 	return sl;
 }
@@ -301,8 +299,8 @@ Slider* UI::LCreateSlider(int layer, const std::string& name, int x, int y, int 
 Label* UI::CreateLabel(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
-	if (GetButton(name) != nullptr) {
-		std::println("Warning name collision Button with name: {} already exists addition abborted",name);
+	if (GetLabel(name) != nullptr) {
+		std::println("Warning name collision Label with name: {} already exists addition abborted",name);
 		return nullptr;
 	}
 
@@ -423,9 +421,9 @@ Slider* UI::CreateSlider(const std::string& name, int x, int y, int w, int h, Sl
 	sl->SetRenderType(RenderType::Standard);
 
 	sl->SetTexture(texture);
-	sl->SetSlideType(slideType);
-	sl->SetMin(min);
-	sl->SetMax(max);
+	sl->slideType = slideType;
+	sl->min = min;
+	sl->max = max;
 
 	UIElemMap.emplace(sl->name, sl);
 	return sl;
@@ -554,7 +552,7 @@ void UI::SlideSliders(Slider* slider, SDL_Event& event) {
 	MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
 	if (!slider->GetRectangle().IsColliding(temprect)) { return; }
 
-	if (slider->GetSlideType() == SliderSlide::X) {
+	if (slider->slideType == SliderSlide::X) {
 		slider->GetRectangle().x = temprect.x - slider->GetRectangle().w/2;
 		if (slider->GetRectangle().x < slider->min) {
 			slider->GetRectangle().x = slider->min;
@@ -635,7 +633,7 @@ UIElemBase* UI::GetElem(const std::string& name) {
 	return iter->second;
 }
 
-Label* UI::GetButton(const std::string& name) {
+Label* UI::GetLabel(const std::string& name) {
 	auto iter = UIElemMap.find(name);
 	if (iter == UIElemMap.end()) {
 		return nullptr;
@@ -885,10 +883,10 @@ void UI::DumpButton(nlohmann::ordered_json& json, UIElemBase* elem) {
 	jsonElem["TextStartX"] = elem->textStartX;
 	jsonElem["TextStartY"] = elem->textStartY;
 
-	jsonElem["ColorR"] = elem->buttonColor.R;
-	jsonElem["ColorG"] = elem->buttonColor.G;
-	jsonElem["ColorB"] = elem->buttonColor.B;
-	jsonElem["ColorA"] = elem->buttonColor.A;
+	jsonElem["ColorR"] = elem->color.R;
+	jsonElem["ColorG"] = elem->color.G;
+	jsonElem["ColorB"] = elem->color.B;
+	jsonElem["ColorA"] = elem->color.A;
 
 	jsonElem["BorderR"] = elem->borderColor.R;
 	jsonElem["BorderG"] = elem->borderColor.G;
@@ -1042,10 +1040,10 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		elem->borderThickness = val["BorderThinkness"];
 		elem->textStartX = val["TextStartX"];
 		elem->textStartY = val["TextStartY"];
-		elem->buttonColor.R = val["ColorR"];
-		elem->buttonColor.G = val["ColorG"];
-		elem->buttonColor.B = val["ColorB"];
-		elem->buttonColor.A = val["ColorA"];
+		elem->color.R = val["ColorR"];
+		elem->color.G = val["ColorG"];
+		elem->color.B = val["ColorB"];
+		elem->color.A = val["ColorA"];
 
 		elem->borderColor.R = val["BorderR"];
 		elem->borderColor.G = val["BorderG"];

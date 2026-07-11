@@ -632,7 +632,7 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 		SDL_BlitSurface(surfaces[i], nullptr, atlas, &tempRect);
 	}
 	
-	MT::Texture *tex = MT::LoadTextureFromSurface(atlas);
+	MT::Texture *tex = MT::LoadTextureFromSurface(atlas,TextureFilter::Linear);
 	
 	if (localTexMan == nullptr) {
 		if (!TexMan::AddTexture(tex, name)) {
@@ -646,6 +646,7 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 			cleanUp(surfaces, atlas, font);
 			std::println("Texture name alrady taken use other name FontManager::CrateTempFontFromTTF for {} ", name);
 		}
+		return false;
 	}
 
 
