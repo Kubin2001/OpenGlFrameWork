@@ -253,7 +253,7 @@ namespace MT {
 		GLuint uprVao = 0;
 		GLuint flatVao = 0;
 
-		ShaderLoader loader;
+		ShaderLoader loader{};
 		//Shaders IDs
 		unsigned int currentProgram = 0;
 		unsigned int renderRectId = 0;
@@ -275,26 +275,9 @@ namespace MT {
 		unsigned int flatRenderCopyId = 0;
 		unsigned int uprId = 0;
 
+		// VievPort
+		unsigned int uVievPort = 0;
 		//Uniforms Ids
-		// VievPorts
-		unsigned int renderRectVievPort = 0;
-		unsigned int renderRectExVievPort = 0;
-		unsigned int renderCopyVievPort = 0;
-		unsigned int renderCopyPartVievPort = 0;
-		unsigned int renderCopyExVievPort = 0;
-		unsigned int renderCopyCircleVievPort = 0;
-		unsigned int renderCircleVievPort = 0;
-		unsigned int renderRoundedVievPort = 0;
-		unsigned int renderCopyRoundedVievPort = 0;
-		unsigned int renderFilterVievPort = 0;
-		unsigned int renderBorderVievPort = 0;
-		unsigned int renderRoundedBorderVievPort = 0;
-		unsigned int renderMaskedVievPort = 0;
-		unsigned int renderDoubleMaskedVievPort = 0;
-		unsigned int renderShapeVievPort = 0;
-		unsigned int uprVievPort = 0;
-		unsigned int flatVievPort = 0;
-
 		unsigned int currentTexture = 0;
 		unsigned int currentMaskTexture = 0;
 

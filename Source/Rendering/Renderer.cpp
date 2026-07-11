@@ -60,7 +60,7 @@ MT::Texture* MT::LoadTexture(const char* path) {
     MT::Texture* metTex = new MT::Texture;
     metTex->texture = texture;
     if (!surf) {
-        std::cout << "Failed to load image MT::LoadTexture: " << IMG_GetError() << "\n";
+        std::println("Failed to load image MT::LoadTexture: {}", IMG_GetError());
         return metTex;
     }
     else {
@@ -162,6 +162,15 @@ bool MT::Renderer::Start(const MT::Window &mtWindow) {
     // Bindowanie VBO - od tego momentu wszystkie operacje na VBO będą dotyczyć tego bufora
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
+    // Binding uniform block fo viev port size (screen size or renderer size)
+    glGenBuffers(1, &uVievPort);
+    glBindBuffer(GL_UNIFORM_BUFFER, uVievPort);
+    glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, uVievPort);
+    float initialViewport[2] = { static_cast<float>(W), static_cast<float>(H) };
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(initialViewport), initialViewport);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 
     // Konfiguracja atrybutu wierzchołka - mówi OpenGL, jak interpretować dane w buforze
     // 0 - indeks atrybutu (w shaderze odpowiada location = 0)
@@ -247,53 +256,54 @@ bool MT::Renderer::Start(const MT::Window &mtWindow) {
     uprId = loader.GetProgram("RenderUPR");
     flatRenderCopyId = loader.GetProgram("FlatRenderCopy");
 
-    const GLfloat fW = static_cast<GLfloat>(W);
-    const GLfloat fH = static_cast<GLfloat>(H);
-
-    auto AssingVievPort = [&](unsigned int shaderID, unsigned int& uniformID) {
-        glUseProgram(shaderID);
-        uniformID = glGetUniformLocation(shaderID, "uVievPort");
-        glUniform2f(uniformID, fW, fH);
+    auto AssingVievPort = [&](unsigned int shaderID) {
+        unsigned int blockIndex = glGetUniformBlockIndex(shaderID, "ViewportBlock");
+        if (blockIndex != GL_INVALID_INDEX) {
+            glUniformBlockBinding(shaderID, blockIndex, 0);
+        }
     };
 
-    AssingVievPort(renderRectId, renderRectVievPort);
+    AssingVievPort(renderRectId);
 
-    AssingVievPort(renderRectExId, renderRectExVievPort);
+    AssingVievPort(renderRectExId);
 
-    AssingVievPort(renderCopyId, renderCopyVievPort);
+    AssingVievPort(renderCopyId);
 
-    AssingVievPort(renderCopyPartId, renderCopyPartVievPort);
+    AssingVievPort(renderCopyPartId);
 
-    AssingVievPort(renderCopyExId, renderCopyExVievPort);
+    AssingVievPort(renderCopyExId);
 
-    AssingVievPort(renderCopyCircleId, renderCopyCircleVievPort);
+    AssingVievPort(renderCopyCircleId);
 
-    AssingVievPort(renderCircleId, renderCircleVievPort);
+    AssingVievPort(renderCircleId);
 
-    AssingVievPort(renderRoundedId, renderRoundedVievPort);
+    AssingVievPort(renderRoundedId);
 
-    AssingVievPort(renderCopyRoundedId, renderCopyRoundedVievPort);
+    AssingVievPort(renderCopyRoundedId);
 
-    AssingVievPort(renderCopyFilterId, renderFilterVievPort);
+    AssingVievPort(renderCopyFilterId);
 
-    AssingVievPort(renderBorderId, renderBorderVievPort);
-    AssingVievPort(renderRoundedBorderId, renderRoundedBorderVievPort);
+    AssingVievPort(renderBorderId);
+    AssingVievPort(renderRoundedBorderId);
 
-    AssingVievPort(renderMaskedId, renderMaskedVievPort);
+    AssingVievPort(renderMaskedId);
+    glUseProgram(renderMaskedId);
     glUniform1i(glGetUniformLocation(renderMaskedId, "texture1"), 0);
     glUniform1i(glGetUniformLocation(renderMaskedId, "texture2"), 1);
 
-    AssingVievPort(renderDoubleMaskedId, renderDoubleMaskedVievPort);
+    AssingVievPort(renderDoubleMaskedId);
+    glUseProgram(renderDoubleMaskedId);
     glUniform1i(glGetUniformLocation(renderDoubleMaskedId, "texture1"), 0);
     glUniform1i(glGetUniformLocation(renderDoubleMaskedId, "texture2"), 1);
 
-    AssingVievPort(renderShapeId, renderShapeVievPort);
+    AssingVievPort(renderShapeId);
 
-    AssingVievPort(uprId, uprVievPort);
+    AssingVievPort(uprId);
+    glUseProgram(uprId);
     glUniform1i(glGetUniformLocation(uprId, "texture1"), 0);
     glUniform1i(glGetUniformLocation(uprId, "texture2"), 1);
 
-    AssingVievPort(flatRenderCopyId, flatVievPort);
+    AssingVievPort(flatRenderCopyId);
 
 
     glActiveTexture(GL_TEXTURE0);
@@ -311,8 +321,10 @@ void MT::Renderer::Clear() {
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &uVievPort);
     VAO = 0;
     VBO = 0;
+    uVievPort = 0;
 
     currentProgram = 0;
     currentTexture = 0;
@@ -325,67 +337,36 @@ void MT::Renderer::Clear() {
 
 
     globalVertices.clear();
-    globalVertices.shrink_to_fit();
     flatRenderVec.clear();
 }
 
 void MT::Renderer::Resize(const unsigned int w, const unsigned int h) {
+    if (this->W == static_cast<int>(w) && this->H == static_cast<int>(h)) {
+        return;
+    }
     Present(false);
     W = w;
     H = h;
     vievPort.w = W;
     vievPort.h = H;
 
-    const GLfloat fW = static_cast<GLfloat>(W);
-    const GLfloat fH = static_cast<GLfloat>(H);
-
-    auto AssingVievPort = [&](unsigned int shaderID, unsigned int& uniformID) {
-        glUseProgram(shaderID);
-        uniformID = glGetUniformLocation(shaderID, "uVievPort");
-        glUniform2f(uniformID, fW, fH);
-        };
-
-    AssingVievPort(renderRectId, renderRectVievPort);
-
-    AssingVievPort(renderRectExId, renderRectExVievPort);
-
-    AssingVievPort(renderCopyId, renderCopyVievPort);
-
-    AssingVievPort(renderCopyPartId, renderCopyPartVievPort);
-
-    AssingVievPort(renderCopyExId, renderCopyExVievPort);
-
-    AssingVievPort(renderCopyCircleId, renderCopyCircleVievPort);
-
-    AssingVievPort(renderCircleId, renderCircleVievPort);
-
-    AssingVievPort(renderRoundedId, renderRoundedVievPort);
-
-    AssingVievPort(renderCopyRoundedId, renderCopyRoundedVievPort);
-
-    AssingVievPort(renderCopyFilterId, renderFilterVievPort);
-
-    AssingVievPort(renderBorderId, renderBorderVievPort);
-
-    AssingVievPort(renderRoundedBorderId, renderRoundedBorderVievPort);
-
-    AssingVievPort(renderMaskedId, renderMaskedVievPort);
-
-    AssingVievPort(renderDoubleMaskedId, renderDoubleMaskedVievPort);
-
-    AssingVievPort(renderShapeId, renderShapeVievPort);
-
-    AssingVievPort(uprId, uprVievPort);
-
-    AssingVievPort(flatRenderCopyId, flatVievPort);
-
     currentProgram = 0;
+    currentTexture = 0;
+    currentMaskTexture = 0;
     glUseProgram(0);
 
     renderTarget->Resize(W, H);
 
-    SDL_GL_GetDrawableSize(window, &W, &H);
-    glViewport(0, 0, W, H);
+    int tempW, tempH;
+    SDL_GL_GetDrawableSize(window, &tempW, &tempH);
+    glViewport(0, 0, tempW, tempH);
+
+    // Updating shader viec ports
+    float newViewport[2] = { static_cast<float>(W), static_cast<float>(H) };
+
+    glBindBuffer(GL_UNIFORM_BUFFER, uVievPort);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(newViewport), newViewport);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void MT::Renderer::FLatRenderCopySetUp() {

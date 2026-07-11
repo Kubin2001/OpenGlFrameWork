@@ -8,16 +8,6 @@
 class LocalTexMan;
 
 
-constexpr std::array<char32_t, 200> MakeCharset() {
-	std::array<char32_t, 200> cs{};
-	for (size_t i = 0; i < cs.size(); i++) {
-		cs[i] = (char32_t)(i);
-	}
-	return cs;
-}
-
-static constexpr std::array<char32_t, 200> globalCharset = MakeCharset();
-
 class Font : public GameObject{
 private:
 	std::string name;

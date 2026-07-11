@@ -10,7 +10,7 @@
 class ShaderLoader {
 	private:
 		int success = 0;
-		char infoLog[512];
+		char infoLog[512]{};
 		std::unordered_map<std::string,unsigned int> shaders;
 		std::unordered_map<std::string, unsigned int> shaderPrograms;
 

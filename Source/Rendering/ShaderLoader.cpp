@@ -206,7 +206,9 @@ void ShaderLoader::LoadSavedShaders() {
         out vec4 ourColor;
         out float vAlpha;
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
 
         vec2 unpackHalfColor(float packedColor){
 	        int col = int(packedColor);
@@ -270,7 +272,10 @@ void ShaderLoader::LoadSavedShaders() {
         out vec4 ourColor;
         out float vAlpha;
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
+
 
         vec2 unpackHalfColor(float packedColor){
             int col = int(round(packedColor)); 
@@ -339,7 +344,10 @@ void ShaderLoader::LoadSavedShaders() {
 
         out vec2 oUV;
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
+
 
         const vec2 uvs[6] = vec2[6](
             vec2(0.0, 0.0), // 0
@@ -402,7 +410,10 @@ void ShaderLoader::LoadSavedShaders() {
         out vec2 outTexCoord;
         out float outAlpha;
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
+
 
         const vec2 uvs[6] = vec2[6](
             vec2(0.0, 0.0), // 0
@@ -471,7 +482,10 @@ void ShaderLoader::LoadSavedShaders() {
         out vec2 outTexCoord;
         out float outAlpha;
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
+
 
         const vec2 uvs[6] = vec2[6](
             vec2(0.0, 0.0), // 0
@@ -549,7 +563,10 @@ void ShaderLoader::LoadSavedShaders() {
         out vec2 outTexCoord;
         out float outAlpha;
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
+
 
         const vec2 uvs[6] = vec2[6](
             vec2(0.0, 1.0), // 0:
@@ -630,7 +647,10 @@ void ShaderLoader::LoadSavedShaders() {
         out vec2 oTexCord;
         out vec2 oRadiusAlpha; 
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
+
 
         const vec2 uvs[6] = vec2[6](
             vec2(0.0, 0.0), // 0
@@ -698,7 +718,10 @@ void ShaderLoader::LoadSavedShaders() {
         out vec2 oUV;
         out float oRadius; 
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
+
 
         vec2 indexPos[6] = vec2[](
             vec2(0.0, -1.0), // Left Down
@@ -776,7 +799,10 @@ void ShaderLoader::LoadSavedShaders() {
         out vec2 oTexCord;
         out vec4 oFilter;
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
+
 
         const vec2 uvs[6] = vec2[6](
             vec2(0.0, 0.0), // 0
@@ -862,7 +888,10 @@ void ShaderLoader::LoadSavedShaders() {
         out vec2 oWH;
         out float oRounding;
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
+
 
         vec2 unpackHalfColor(float packedColor){
 	        int col = int(packedColor);
@@ -958,7 +987,10 @@ void ShaderLoader::LoadSavedShaders() {
         out float oAlpha;
         out float oRounding;
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
+
 
         vec2 indexPos[6] = vec2[](
             vec2(0.0, -1.0), // Left Down
@@ -1048,7 +1080,10 @@ void ShaderLoader::LoadSavedShaders() {
         out vec2 oRectSize;
         out float oWidth;
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
+
 
         vec2 unpackHalfColor(float packedColor){
 	        int col = int(packedColor);
@@ -1143,7 +1178,9 @@ void ShaderLoader::LoadSavedShaders() {
         out float oWidth;
         out float oRoundingSize;
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
 
         vec2 unpackHalfColor(float packedColor){
 	        int col = int(packedColor);
@@ -1242,7 +1279,10 @@ void ShaderLoader::LoadSavedShaders() {
         out vec4 oTexCoord;
         out float oAlpha;
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
+
 
         const vec2 uvs[6] = vec2[6](
             vec2(0.0, 0.0), // 0
@@ -1322,7 +1362,10 @@ void ShaderLoader::LoadSavedShaders() {
         out vec4 oTexCoord;
         out float oAlpha;
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
+
 
         const vec2 uvs[6] = vec2[6](
             vec2(0.0, 0.0), // 0
@@ -1404,7 +1447,10 @@ void ShaderLoader::LoadSavedShaders() {
         out vec4 oFilter;
         out vec2 oUV;
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
+
 
         const vec2 uvs[6] = vec2[6](
             vec2(0.0, 0.0), // 0
@@ -1486,7 +1532,10 @@ void ShaderLoader::LoadSavedShaders() {
         out vec2 oVecThree;
         flat out int oShaderId;
 
-        uniform vec2 uVievPort;
+        layout(std140) uniform ViewportBlock {
+            vec2 uVievPort;
+        };
+
 
         const vec2 uvs[6] = vec2[6](
             vec2(0.0, 0.0), 

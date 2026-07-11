@@ -207,3 +207,4 @@ was removed or the new one was added to folder
 
 2.05
 - Basic framebuffer support
+- Faster renderer resizing

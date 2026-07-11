@@ -10,6 +10,16 @@
 #include "TextureManager.h"
 #include "json.hpp"
 
+constexpr std::array<char32_t, 200> MakeCharset() {
+	std::array<char32_t, 200> cs{};
+	for (size_t i = 0; i < cs.size(); i++) {
+		cs[i] = (char32_t)(i);
+	}
+	return cs;
+}
+
+static constexpr std::array<char32_t, 200> globalCharset = MakeCharset();
+
 struct Pixel {
 	unsigned char R;
 	unsigned char G;
@@ -430,11 +440,11 @@ void CrateFontFromTTF(const char* ttfPath, const int size, const std::string& na
 	strCharset.reserve(100); // Nie wiem ile w sumie bo jeszcze nie wiem ile znaków trzymaæ
 
 	for (size_t i = 32; i < 127; i++) { // od 31 do 127 bo od 31 w dól znaki kontrolne i 127 do 159 tak samo
-		strCharset += globalCharset[i];
+		strCharset += static_cast<unsigned char>(globalCharset[i]);
 	}
 
 	for (size_t i = 160; i < 199; i++) { // dziwne znaki czy to wogóle zachowaæ nie wiem mo¿e opcja w funkcji?
-		strCharset += globalCharset[i];
+		strCharset += static_cast<unsigned char>(globalCharset[i]);
 	}
 
 
@@ -561,11 +571,11 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 	strCharset.reserve(100); // Nie wiem ile w sumie bo jeszcze nie wiem ile znaków trzymaæ
 
 	for (size_t i = 32; i < 127; i++) { // od 31 do 127 bo od 31 w dól znaki kontrolne i 127 do 159 tak samo
-		strCharset += globalCharset[i];
+		strCharset += static_cast<unsigned char>(globalCharset[i]);
 	}
 
 	for (size_t i = 160; i < 199; i++) { // dziwne znaki czy to wogóle zachowaæ nie wiem mo¿e opcja w funkcji?
-		strCharset += globalCharset[i];
+		strCharset += static_cast<unsigned char>(globalCharset[i]);
 	}
 
 
