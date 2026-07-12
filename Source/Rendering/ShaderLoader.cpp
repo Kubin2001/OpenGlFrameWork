@@ -1518,6 +1518,108 @@ void ShaderLoader::LoadSavedShaders() {
         CreateProgramStr("RenderShape", vertexStr, fragmentStr);
     }
 
+    if (!IsProgram("RenderShadow")) {
+        constexpr const char* vertexStr = R"glsl(
+#version 330 core
+layout(location = 0) in vec4 aRect;
+layout(location = 1) in vec2 aColor;
+layout(location = 2) in vec3 aLightPos;
+
+out vec4 oFilter;
+out vec2 oUV;
+
+layout(std140) uniform ViewportBlock {
+    vec2 uVievPort;
+};
+
+
+const vec2 uvs[6] = vec2[6](
+    vec2(0.0, 0.0), // 0
+    vec2(0.0, 1.0), // 1
+    vec2(1.0, 0.0), // 2
+    vec2(0.0, 1.0), // 3
+    vec2(1.0, 1.0), // 4
+    vec2(1.0, 0.0)  // 5
+);
+
+vec2 indexPos[6] = vec2[](
+    vec2(0.0, -1.0), // Left Down
+    vec2(0.0, 0.0),  // Left Up
+    vec2(1.0, -1.0), // Right Down
+    vec2(0.0, 0.0),  // Left Up
+    vec2(1.0, 0.0),  // Right Up
+    vec2(1.0, -1.0)  // Right Down
+);
+
+vec2 unpackHalfColor(float packedColor){
+	int col = int(packedColor);
+	float r  = float((col >> 8) & 255); // in RG it would be R
+	float g = float(col & 255); // This would be B
+	r /=255.0;
+	g /=255.0;
+	return vec2(r, g);
+}
+
+void main() {
+    float x = aRect.x;
+    float y = aRect.y;
+    float w = aRect.z;
+    float h = aRect.w;
+
+    vec2 centerDown = vec2(x + (aRect.z *0.5), y + h);
+    vec2 dir = centerDown - aLightPos.xy;
+    float len = length(dir);
+
+    vec2 dirNorm = vec2(0.0);
+    if (length(dir) > 0.001) {
+        dirNorm = normalize(dir); 
+    }
+
+    vec2 localPos = indexPos[gl_VertexID % 6];
+    float isTop = 1.0 - abs(localPos.y); // Only top verticles are moved down ones (one the feet stay in place)
+
+    float shadowLen = h / max(0.1 , aLightPos.z); // To remember rect.w is rect.h
+    vec2 shadowOffset = dirNorm * shadowLen * isTop;
+
+    vec2 flatPos = vec2(x + localPos.x * w, y + h);
+
+    // A teraz przesuwamy po ziemi
+    vec2 worldPos = flatPos + shadowOffset;
+
+
+    float ndcX = (worldPos.x / uVievPort.x) * 2.0 - 1.0;
+    float ndcY = 1.0 - (worldPos.y / uVievPort.y) * 2.0;
+   
+
+    gl_Position = vec4(ndcX, ndcY, 0.0, 1.0);
+
+    vec2 texUvs = uvs[gl_VertexID % 6];
+
+    oFilter = vec4(unpackHalfColor(aColor.x),unpackHalfColor(aColor.y));
+    oUV = uvs[gl_VertexID % 6];
+}
+        )glsl";
+
+        constexpr const char* fragmentStr = R"glsl(
+        #version 330 core
+        out vec4 FragColor;
+
+        in vec2 oUV;
+        in vec4 oFilter;
+
+        uniform sampler2D texture1;
+
+        void main(){
+	        vec4 texcolor = texture(texture1,oUV);
+	        vec4 finalColor = oFilter;
+	        finalColor.a = texcolor.a * oFilter.a;
+	        FragColor = finalColor;
+        }
+        )glsl";
+
+        CreateProgramStr("RenderShadow", vertexStr, fragmentStr);
+    }
+
     if (!IsProgram("RenderUPR")) {
         constexpr const char* vertexStr = R"glsl(
         #version 330 core

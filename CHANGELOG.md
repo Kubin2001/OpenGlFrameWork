@@ -211,3 +211,6 @@ was removed or the new one was added to folder
 - Loading Textures allow to choose linear, or nearest filter
 - Most getters and setters from ui elements has been removed (most variables are now public)
 - GetButton renamed to GetLabel
+
+2.06
+- New rendering function for advanced 2D shadows

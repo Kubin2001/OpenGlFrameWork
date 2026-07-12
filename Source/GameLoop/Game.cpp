@@ -39,12 +39,6 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 8, "arial8");
 
 	renderer->FLatRenderCopySetUp();
-	Label *lb = ui->CreateLabel("lab1", 10, 10, 300, 300, nullptr, ui->GetFont("arial12"), "some text\nmade from text");
-	lb->textScale = 3.0f;
-	lb->SetColor(30, 30, 30);
-	lb = ui->CreateLabel("lab2", 300, 10, 300, 300, nullptr, ui->GetFont("arial8"), "some text\nmade from text");
-	lb->SetColor(30, 30, 30);
-
 }
 
 void Game::LogicUpdate() {
@@ -67,6 +61,10 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(255, 255, 255);
+	MT::Rect rect{ 200,200,100,100 };
+	Point mousePos = GetMousePos();
+	renderer->RenderShadow(rect, TexMan::GetTex("PawnLeft"), {0,0,0,120},{(float)mousePos.x,(float)mousePos.y,0.5f});
+	renderer->RenderCopy(rect, TexMan::GetTex("PawnLeft"));
 	ui->Render();
 	renderer->Present();
 }

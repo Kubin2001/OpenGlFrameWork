@@ -245,7 +245,9 @@ bool MT::Renderer::Start(const MT::Window &mtWindow) {
 
     DefineAtributes(VBO, doubleMaskedVao, renderDoubleMaskedSize, { 4,4,4,1 });
 
-    DefineAtributes(VBO, shapeVao, renderShapeSize, { 4,2});
+    DefineAtributes(VBO, shapeVao, renderShapeSize, { 4,2 });
+
+    DefineAtributes(VBO, shadowVao, renderShapeSize, { 4,2,3 });
 
     DefineAtributes(VBO, uprVao, UPRSize, { 4,4,4,1,1});
 
@@ -272,6 +274,7 @@ bool MT::Renderer::Start(const MT::Window &mtWindow) {
     renderMaskedId = loader.GetProgram("RenderMasked");
     renderDoubleMaskedId = loader.GetProgram("RenderDoubleMasked");
     renderShapeId = loader.GetProgram("RenderShape");
+    renderShadowId = loader.GetProgram("RenderShadow");
 
     uprId = loader.GetProgram("RenderUPR");
     flatRenderCopyId = loader.GetProgram("FlatRenderCopy");
@@ -317,6 +320,7 @@ bool MT::Renderer::Start(const MT::Window &mtWindow) {
     glUniform1i(glGetUniformLocation(renderDoubleMaskedId, "texture2"), 1);
 
     AssingVievPort(renderShapeId);
+    AssingVievPort(renderShadowId);
 
     AssingVievPort(uprId);
     glUseProgram(uprId);

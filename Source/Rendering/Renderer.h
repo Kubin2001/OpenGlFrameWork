@@ -254,6 +254,7 @@ namespace MT {
 		GLuint maskedVao = 0;
 		GLuint doubleMaskedVao = 0;
 		GLuint shapeVao = 0;
+		GLuint shadowVao = 0;
 
 		GLuint uprVao = 0;
 		GLuint flatVao = 0;
@@ -276,6 +277,7 @@ namespace MT {
 		unsigned int renderMaskedId = 0;
 		unsigned int renderDoubleMaskedId = 0;
 		unsigned int renderShapeId = 0;
+		unsigned int renderShadowId = 0;
 
 		unsigned int flatRenderCopyId = 0;
 		unsigned int uprId = 0;
@@ -303,6 +305,7 @@ namespace MT {
 		inline static constexpr unsigned int renderMaskedSize = 9;
 		inline static constexpr unsigned int renderDoubleMaskedSize = 13;
 		inline static constexpr unsigned int renderShapeSize = 6;
+		inline static constexpr unsigned int renderShadowSize = 9;
 		inline static constexpr unsigned int UPRSize = 14;
 		inline static constexpr unsigned int flatSize = 4;
 
@@ -1070,6 +1073,52 @@ namespace MT {
 			ptr[3] = static_cast<float>(rect.h);
 			ptr[4] = static_cast<float>(iRG);
 			ptr[5] = static_cast<float>(iBA);
+
+			currentIndex += currentSize;
+		}
+
+		inline void RenderShadow(const Rect& rect, Texture* texture, const ColorA& filter, glm::vec3 lightPos) {
+			if (!texture) { return; }
+
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			if (currentProgram != renderShadowId) {
+				Present(false);
+				glBindVertexArray(shadowVao);
+				currentProgram = renderShadowId;
+				glUseProgram(currentProgram);
+			}
+
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
+
+
+			uint16_t iRG = filter.R;
+			iRG <<= 8;
+			iRG += filter.G;
+			uint16_t iBA = filter.B;
+			iBA <<= 8;
+			iBA += filter.A;
+
+			currentSize = renderShadowSize;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(iRG);
+			ptr[5] = static_cast<float>(iBA);
+			ptr[6] = static_cast<float>(lightPos.x);
+			ptr[7] = static_cast<float>(lightPos.y);
+			ptr[8] = static_cast<float>(lightPos.z);
 
 			currentIndex += currentSize;
 		}
