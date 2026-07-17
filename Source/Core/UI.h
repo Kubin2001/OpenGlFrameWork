@@ -514,7 +514,7 @@ public:
 		Elements.reserve(texts.size());
 		MT::Rect& rect = mainElement->GetRectangle();
 		int y = rect.y + rect.h + space;
-		Font* font = mainElement->GetFont();
+		Font* font = mainElement->font;
 		const std::string& name = mainElement->GetName();
 		for (size_t i = 0; i < texts.size(); i++) {
 			T* elem = nullptr;
