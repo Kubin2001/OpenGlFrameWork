@@ -1648,6 +1648,37 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
+		inline void RenderShadowUPR(const Rect& rect, Texture* texture, const ColorA& filter, glm::vec3 lightPos) {
+			if (!texture) { return; }
+
+			if (!vievPort.IsColliding(rect)) { return; }
+
+			CheckUPRProgram();
+
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = static_cast<float>(filter.R);
+			ptr[5] = static_cast<float>(filter.G);
+			ptr[6] = static_cast<float>(filter.B);
+			ptr[7] = static_cast<float>(filter.A);
+			ptr[8] = static_cast<float>(lightPos.x);
+			ptr[9] = static_cast<float>(lightPos.y);
+			ptr[10] = static_cast<float>(lightPos.z);
+			ptr[11] = 0.0f; ptr[12] = 0.0f;
+			ptr[13] = 15.0f; //ShaderID
+
+			currentIndex += currentSize;
+		}
+
 		//UPR
 
 		void Clear();

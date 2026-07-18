@@ -63,8 +63,8 @@ void Game::Render() {
 	renderer->ClearFrame(255, 255, 255);
 	MT::Rect rect{ 200,200,100,100 };
 	Point mousePos = GetMousePos();
-	renderer->RenderShadow(rect, TexMan::GetTex("PawnLeft"), {0,0,0,120},{(float)mousePos.x,(float)mousePos.y,0.5f});
-	renderer->RenderCopy(rect, TexMan::GetTex("PawnLeft"));
+	renderer->RenderShadowUPR(rect, TexMan::GetTex("tree1"), {0,0,0,120},{(float)mousePos.x,(float)mousePos.y,0.5f});
+	renderer->RenderCopyUPR(rect, TexMan::GetTex("tree1"));
 	ui->Render();
 	renderer->Present();
 }
