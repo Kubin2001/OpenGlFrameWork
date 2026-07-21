@@ -36,17 +36,21 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
-	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 8, "arial8");
+	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 10, "arial10");
 
 	renderer->FLatRenderCopySetUp();
 
-	cam = new Camera(false);
+	Label* lb = ui->CreateLabel("test",0,0,500,500, nullptr, ui->GetFont("arial10"),"Some shitty long very long text");
+	lb->SetColor(30,30,30);
+
+	lb = ui->CreateLabel("test2", 500, 0, 500, 500, nullptr, ui->GetFont("arial20"), "Some shitty long very long text");
+	lb->SetColor(30, 30, 30);
+
 }
 
 void Game::LogicUpdate() {
 	Global::frameCounter++;
 	const Uint8* state = SDL_GetKeyboardState(nullptr);
-	cam->UpdatePosition(state);
 }
 
 void Game::FrameUpdate() {
@@ -58,7 +62,6 @@ void Game::FrameUpdate() {
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
-		cam->UpdateZoom(event);
 		Exit();
 	}
 	Global::inputDelay++;
@@ -66,18 +69,6 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(255, 255, 255);
-	MT::Rect rect{ 200,200,100,100 };
-	Point mousePos = GetMousePos();
-	MT::Rect rect1{ 10,10,100,100 };
-	MT::Rect rect2{ 300,300,100,100 };
-	MT::Rect rect3{ 500,500,20,20 };
-	MT::Texture* tex = TexMan::GetTex("tree1");
-	rect1 = cam->Transform(rect1);
-	rect2 = cam->Transform(rect2);
-	rect3 = cam->Transform(rect3);
-	renderer->RenderCopy(rect1, tex);
-	renderer->RenderCopy(rect2, tex);
-	renderer->RenderCopy(rect3, tex);
 	ui->Render();
 	renderer->Present();
 }
