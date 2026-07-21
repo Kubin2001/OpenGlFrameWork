@@ -215,3 +215,4 @@ was removed or the new one was added to folder
 2.06
 - New rendering function for advanced 2D shadows
 - Upr version for advanced shadows
+- Camera interace and math has been improved

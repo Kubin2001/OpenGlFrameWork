@@ -5,13 +5,7 @@
 
 class Camera {
 	private:
-		MT::Rect rectangle{ 0,0,Global::windowWidth,Global::windowHeight };
 		float zoom = 1.0f; // Base zoom =1 (or no zoom)
-		float zoomRelativeMoveSpeed = 1.0f;
-		float zoomValue = 0.05f; // Since 0.05f does not give white lines between objects
-		float zoomMin = 1.0f;
-		float zoomMax = 0.25f;
-		int moveSpeed = 3;
 		bool enabled = true;
 
 		bool useBorders = false;
@@ -22,19 +16,28 @@ class Camera {
 		int minY = 0;
 		int maxY = 0;
 
+		// Move Keys
+		SDL_Scancode left = SDL_SCANCODE_A;
+		SDL_Scancode right = SDL_SCANCODE_D;
+		SDL_Scancode up = SDL_SCANCODE_W;
+		SDL_Scancode down = SDL_SCANCODE_S;
+
 	public:
+		MT::CompositeRect rectangle{ 0.0f,0.0f,Global::windowWidth,Global::windowHeight };
+		float moveSpeed = 15.0f;
+		// Determines how hard zoom changes
+		float zoomStrength = 0.05f;
+		float zoomMin = 0.5f;
+		float zoomMax = 2.0f;
+
 		inline Camera(bool useBorders) {
 			this->useBorders = useBorders;
-
 		}
 
 		inline float GetZoom() {
 			return zoom;
 		}
 
-		inline MT::Rect& GetRectangle() {
-			return rectangle;
-		}
 
 		inline void UseBorders(bool temp) {
 			this->useBorders = temp;
@@ -48,31 +51,33 @@ class Camera {
 			this->maxY = maxY;
 		}
 
-		inline void SetZoomValue(const float val) {
-			zoomValue = val;
+		inline void SetControls(SDL_Scancode left, SDL_Scancode right, SDL_Scancode up, SDL_Scancode down) {
+			this->left = left;
+			this->right = right;
+			this->up = up;
+			this->down = down;
 		}
 
-		inline void SetMaxMinZoom(const float min, const float max) {
-			zoomMin = min;
-			zoomMax = max;
-		}
 
 		inline void Enable() {enabled = true;}
 
 		inline void Disable() {enabled = false;}
 
+		inline void Toggle() { 
+			enabled = !enabled;
+		}
+
 		inline SDL_Rect TransformFlat(const SDL_Rect& rect) {
-			return { rect.x - rectangle.x ,rect.y - rectangle.y ,rect.w,rect.h };
+			return { static_cast<int>(rect.x - rectangle.x) ,static_cast<int>(rect.y - rectangle.y) ,rect.w,rect.h };
 		}
 		inline MT::Rect TransformFlat(const MT::Rect& rect) {
-			return { rect.x - rectangle.x ,rect.y - rectangle.y ,rect.w,rect.h };
+			return { rect.x - static_cast<int>(rectangle.x) ,rect.y - static_cast<int>(rectangle.y) ,rect.w,rect.h };
 		}
 		inline MT::RectF TransformFlat(const MT::RectF& rect) {
-			return { (float)(rect.x - rectangle.x) ,(float)(rect.y - rectangle.y)
-				,(float)(rect.w),(rect.h) };
+			return { rect.x - rectangle.x , rect.y - rectangle.y ,static_cast<float>(rect.w), static_cast<float>(rect.h) };
 		}
 		inline MT::CompositeRect TransformFlat(const MT::CompositeRect& rect) {
-			return { (float)(rect.x - rectangle.x) ,(float)(rect.y - rectangle.y) ,rect.w,rect.h };
+			return { rect.x - rectangle.x, rect.y - rectangle.y, rect.w, rect.h };
 		}
 
 		inline SDL_Rect Transform(const SDL_Rect& rect) {
@@ -113,7 +118,7 @@ class Camera {
 		}
 
 		inline Point UntransformFlat(int x, int y) {
-			return { x + rectangle.x,y + rectangle.y };
+			return { x + static_cast<int>(rectangle.x) ,y + static_cast<int>(rectangle.y) };
 		}
 
 		inline Point Untransform(int x, int y) {
@@ -141,15 +146,9 @@ class Camera {
 		}
 
 
-		inline void SetMoveSpeed(const int temp) {
-			this->moveSpeed = temp;
-		}
-
-		inline int& GetMoveSpeed() { return this->moveSpeed; }
-
 		inline void Focus(const int x, const int y) {
-			rectangle.x = x - (int)((rectangle.w / zoom) / 2);
-			rectangle.y = y - (int)((rectangle.h / zoom) / 2);
+			rectangle.x = x - ((rectangle.w / zoom) / 2);
+			rectangle.y = y - ((rectangle.h / zoom) / 2);
 		}
 
 		void UpdatePosition(const Uint8* state);
