@@ -243,8 +243,9 @@ Point Font::CalculatePredefinedSize(const std::string& fontText, const int inter
 			predSize.y += interline;
 			if (currentLenght > longest) {
 				longest = currentLenght;
-				currentLenght = 0;
+
 			}
+			currentLenght = 0;
 			continue;
 		}
 
@@ -257,7 +258,6 @@ Point Font::CalculatePredefinedSize(const std::string& fontText, const int inter
 	predSize.x = longest;
 	return predSize;
 }
-
 int Font::GetStandardInterline() {
 	return standardInterLine;
 }

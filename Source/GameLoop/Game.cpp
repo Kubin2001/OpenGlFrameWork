@@ -40,10 +40,10 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
-	Label* lb = ui->CreateLabel("test",0,0,500,500, nullptr, ui->GetFont("arial10"),"Some shitty long very long text");
+	Label* lb = ui->CreateLabel("test",0,0,500,500, nullptr, ui->GetFont("arial10"),"Some long very long text");
 	lb->SetColor(30,30,30);
 
-	lb = ui->CreateLabel("test2", 500, 0, 500, 500, nullptr, ui->GetFont("arial20"), "Some shitty long very long text");
+	lb = ui->CreateLabel("test2", 500, 0, 500, 500, nullptr, ui->GetFont("arial20"), "Some long very long text");
 	lb->SetColor(30, 30, 30);
 
 }
