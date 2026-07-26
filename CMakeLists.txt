@@ -1,4 +1,4 @@
-# cmake -S . -B build
+# cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="DiscPath.../vcpkg/scripts/buildsystems/vcpkg.cmake"
 cmake_minimum_required(VERSION 3.20)
 
 project(OpenGlFrameWork)
@@ -39,39 +39,26 @@ target_include_directories(${PROJECT_NAME} PRIVATE Source)
 set(LIBS_DIR "${CMAKE_SOURCE_DIR}/Libs")
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-    "${LIBS_DIR}/SDL2/include"
-    "${LIBS_DIR}/SDL2Image/include"
-    "${LIBS_DIR}/SDL2Mixer/include"
-    "${LIBS_DIR}/SDL2_ttf/include"
     "${LIBS_DIR}/glad/include"  
     "${LIBS_DIR}/glm"
 	${SOURCE_SUBDIRS}
 )
 
-target_link_directories(${PROJECT_NAME} PRIVATE
-    "${LIBS_DIR}/SDL2/lib/"
-    "${LIBS_DIR}/SDL2Image/lib/"
-    "${LIBS_DIR}/SDL2Mixer/lib/"
-    "${LIBS_DIR}/SDL2_ttf/lib/"
-)
+
+find_package(SDL2 CONFIG REQUIRED)
+find_package(SDL2_image CONFIG REQUIRED)
+find_package(SDL2_mixer CONFIG REQUIRED)
+find_package(SDL2_ttf CONFIG REQUIRED)
+find_package(OpenGL REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    SDL2
-    SDL2main
-    SDL2_image
-    SDL2_mixer
-    SDL2_ttf
-    opengl32  
+	$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+    SDL2::SDL2
+    SDL2_image::SDL2_image
+    SDL2_mixer::SDL2_mixer
+    SDL2_ttf::SDL2_ttf
+    OpenGL::GL
 )
-
-file(GLOB ALL_DLLS "${CMAKE_SOURCE_DIR}/DLLS/*.dll")
-foreach(DLL ${ALL_DLLS})
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${DLL}"
-        "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
-    )
-endforeach()
 
 #For knowing when Textures Fonts on so on are
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")

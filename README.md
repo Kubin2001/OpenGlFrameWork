@@ -75,9 +75,11 @@ The framework is under active development and intended primarily for:
 
 1: Get Cmake If it is not already installed on your PC https://cmake.org/download/
 
+2: Get vcpkg https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell
+
 2: Open Terminal in clonned folder
 
-3: Type cmake -S . -B build
+3: Type cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="DiscPath.../vcpkg/scripts/buildsystems/vcpkg.cmake"
 
 If you have visual studio it should work i am not sure about other IDE/Compilers
 
