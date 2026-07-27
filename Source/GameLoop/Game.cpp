@@ -40,11 +40,9 @@ void Game::Start() {
 
 	renderer->FLatRenderCopySetUp();
 
-	Label* lb = ui->CreateLabel("test",0,0,500,500, nullptr, ui->GetFont("arial10"),"Some long very long text");
-	lb->SetColor(30,30,30);
+	sl = ui->CreateSlider("test", 300,300,40,40,SliderSlide::X, 100,500);
+	sl->SetColor(30,30,30);
 
-	lb = ui->CreateLabel("test2", 500, 0, 500, 500, nullptr, ui->GetFont("arial20"), "Some long very long text");
-	lb->SetColor(30, 30, 30);
 
 }
 
@@ -60,9 +58,22 @@ void Game::FrameUpdate() {
 }
 
 void Game::Input() {
+	std::println("Percent: {}", sl->GetPercent());
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
 		Exit();
+		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_1) {
+			sl->SetPosAtPercent(0.1f);
+		}
+		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_5) {
+			sl->SetPosAtPercent(0.5f);
+		}
+		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_8) {
+			sl->SetPosAtPercent(0.8f);
+		}
+		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_0) {
+			sl->SetPosAtPercent(1.0f);
+		}
 	}
 	Global::inputDelay++;
 }

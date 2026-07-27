@@ -259,6 +259,19 @@ class Slider : public UIElemBase {
 			return (float)pos / radius;
 		}
 
+		void SetPosAtPercent(float percent) {
+			percent = std::clamp(percent, 0.0f, 1.0f);
+
+			if (slideType == SliderSlide::X) {
+				int radius = max - min - GetRectangle().w;
+				GetRectangle().x = min + static_cast<int>(radius * percent);
+			}
+			else {
+				int radius = max - min - GetRectangle().h;
+				GetRectangle().y = min + static_cast<int>(radius * percent);
+			}
+		}
+
 		friend class UI;
 };
 
@@ -613,6 +626,8 @@ class UISection {
 
 		std::vector<PopUpBox*> popUpBoxes = {};
 
+		std::vector<Slider*> sliders = {};
+
 		UI* ui = nullptr;
 
 	public:
@@ -650,30 +665,32 @@ class UISection {
 			}
 			popUpBoxes.emplace_back(popUpBox);
 		}
+		void Add(Slider* sl) {
+			if (ui == nullptr) {
+				throw std::runtime_error("UI is nullptr section is not inicialized");
+			}
+			sliders.emplace_back(sl);
+		}
 
 		void Clear() {
-			for (auto& elem: labels) {
-				ui->DeleteElement(elem->GetName());
-			}
-			for (auto& elem : clickBoxes) {
-				ui->DeleteElement(elem->GetName());
-			}
-			for (auto& elem : textBoxes) {
-				ui->DeleteElement(elem->GetName());
-			}
-			for (auto& elem : popUpBoxes) {
-				ui->DeleteElement(elem->GetName());
-			}
-			labels.clear();
-			textBoxes.clear();
-			clickBoxes.clear();
-			popUpBoxes.clear();
+			auto clearVec = [](auto& vec, UI *ui) {
+				for (auto& elem : vec) {
+					ui->DeleteElement(elem->GetName());
+				}
+				vec.clear();
+			};
+			clearVec(labels, ui);
+			clearVec(clickBoxes, ui);
+			clearVec(textBoxes, ui);
+			clearVec(popUpBoxes, ui);
+			clearVec(sliders, ui);
 		}	
 
-		std::vector<Label*>& GetButtons() { return labels; }
+		std::vector<Label*>& GetLabels() { return labels; }
 		std::vector<TextBox*>& GetTextBoxes() { return textBoxes; }
 		std::vector<ClickBox*>& GetClickBoxes() { return clickBoxes; }
 		std::vector<PopUpBox*>& GetPopUpBoxes() { return popUpBoxes; }
+		std::vector<Slider*>& GetSliders() { return sliders; }
 };
 
 // Designed for managing large interfaces WARING it is up to you to cast to corret type one tag should has only one type for safety
