@@ -293,6 +293,8 @@ Slider* UI::LCreateSlider(int layer, const std::string& name, int x, int y, int 
 	sl->min = min;
 	sl->max = max;
 
+	UIElemMap.emplace(sl->name, sl);
+
 	return sl;
 }
 
