@@ -756,7 +756,6 @@ void UI::FrameUpdate() {
 		for (auto layerIter = LayerVec.rbegin(); layerIter != LayerVec.rend(); layerIter++) {
 			for (auto elemIt = layerIter->elements.rbegin(); elemIt != layerIter->elements.rend(); elemIt++) {
 				if ((*elemIt)->castType != CastType::PopUpBox) {
-					++elemIt;
 					continue;
 				}
 				PopUpBox* pb = static_cast<PopUpBox*>(*elemIt);
@@ -764,9 +763,6 @@ void UI::FrameUpdate() {
 				if (pb->lifeTime < 1) {
 					DeleteElement(pb->name);
 					return;
-				}
-				else {
-					++elemIt;
 				}
 			}
 		}
