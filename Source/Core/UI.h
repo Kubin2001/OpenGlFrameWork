@@ -38,7 +38,7 @@ enum class SliderSlide {
 
 
 // Basic non interactive button
-class UIElemBase :public GameObject {
+class UIElemBase{
 protected:
 	std::string name = "";
 	void (*renderFunction)(UIElemBase* ,MT::Renderer*) = nullptr;
@@ -58,6 +58,9 @@ protected:
 	void RenderText(MT::Renderer* renderer);
 
 public:
+	MT::Rect rect{};
+	MT::Texture* texture = nullptr;
+
 
 	// To change name use ui->renameElem
 	const std::string& GetName() const { return name; }
@@ -249,12 +252,12 @@ class Slider : public UIElemBase {
 			int radius = 0;
 			int pos = 0;
 			if (slideType == SliderSlide::X) {
-				radius = max - min - GetRectangle().w;
-				pos = GetRectangle().x - min;
+				radius = max - min - rect.w;
+				pos = rect.x - min;
 			}
 			else {
-				radius = max - min - GetRectangle().h;
-				pos = GetRectangle().y - min;
+				radius = max - min - rect.h;
+				pos = rect.y - min;
 			}
 			return (float)pos / radius;
 		}
@@ -263,12 +266,12 @@ class Slider : public UIElemBase {
 			percent = std::clamp(percent, 0.0f, 1.0f);
 
 			if (slideType == SliderSlide::X) {
-				int radius = max - min - GetRectangle().w;
-				GetRectangle().x = min + static_cast<int>(radius * percent);
+				int radius = max - min - rect.w;
+				rect.x = min + static_cast<int>(radius * percent);
 			}
 			else {
-				int radius = max - min - GetRectangle().h;
-				GetRectangle().y = min + static_cast<int>(radius * percent);
+				int radius = max - min - rect.h;
+				rect.y = min + static_cast<int>(radius * percent);
 			}
 		}
 
@@ -525,7 +528,7 @@ public:
 		this->ui = ui;
 		mainElement = mainBtn;
 		Elements.reserve(texts.size());
-		MT::Rect& rect = mainElement->GetRectangle();
+		MT::Rect& rect = mainElement->rect;
 		int y = rect.y + rect.h + space;
 		Font* font = mainElement->font;
 		const std::string& name = mainElement->GetName();

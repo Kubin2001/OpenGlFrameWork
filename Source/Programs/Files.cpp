@@ -165,23 +165,23 @@ void FileExplorer::Input() {
 			if (event.wheel.y > 0 && absoluteY < 50) { // up
 				absoluteY += scroolSpeed;
 				for (auto &it:folderElements) {
-					it->GetRectangle().y+= scroolSpeed;
+					it->rect.y+= scroolSpeed;
 				}
 				for (auto& it : folderElementsNames) {
-					it->GetRectangle().y += scroolSpeed;
+					it->rect.y += scroolSpeed;
 				}
-				selectedBox->GetRectangle().y += scroolSpeed;
+				selectedBox->rect.y += scroolSpeed;
 			}
-			else if (event.wheel.y < 0 && std::abs(absoluteY) < (folderElements.back()->GetRectangle().y +
-				folderElements.back()->GetRectangle().h)) { //down
+			else if (event.wheel.y < 0 && std::abs(absoluteY) < (folderElements.back()->rect.y +
+				folderElements.back()->rect.h)) { //down
 				absoluteY -= scroolSpeed;
 				for (auto& it : folderElements) {
-					it->GetRectangle().y-= scroolSpeed;
+					it->rect.y-= scroolSpeed;
 				}
 				for (auto& it : folderElementsNames) {
-					it->GetRectangle().y -= scroolSpeed;
+					it->rect.y -= scroolSpeed;
 				}
-				selectedBox->GetRectangle().y -= scroolSpeed;
+				selectedBox->rect.y -= scroolSpeed;
 			}
 		}
 		if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE) {
@@ -216,7 +216,7 @@ void FileExplorer::Input() {
 			if (selectedElement == nullptr) {
 				selectedElement = folderElements[i];
 				selectedBox->Show();
-				selectedBox->GetRectangle().y = selectedElement->GetRectangle().y;
+				selectedBox->rect.y = selectedElement->rect.y;
 				retPath = temp;
 				break;
 			}
@@ -235,7 +235,7 @@ void FileExplorer::Input() {
 			}
 			if (selectedElement != nullptr) {
 				selectedElement = folderElements[i];
-				selectedBox->GetRectangle().y = selectedElement->GetRectangle().y;
+				selectedBox->rect.y = selectedElement->rect.y;
 				selectedBox->Show();
 				retPath = temp;
 			}

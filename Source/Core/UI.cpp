@@ -10,19 +10,18 @@
 
 void UIElemBase::Render(UIElemBase* elem, MT::Renderer* renderer) {
 	if (!elem->hidden) {
-		if (elem->GetTexture() == nullptr) {
-			renderer->RenderRectUPR(elem->rectangle, { elem->color.R, elem->color.G, elem->color.B }, elem->color.A);
+		if (elem->texture == nullptr) {
+			renderer->RenderRectUPR(elem->rect, { elem->color.R, elem->color.G, elem->color.B }, elem->color.A);
 		}
 		else {
-			renderer->RenderCopyUPR(elem->rectangle, elem->texture);
+			renderer->RenderCopyUPR(elem->rect, elem->texture);
 		}
 		if (elem->borderThickness > 0) {
-			renderer->RenderBorderUPR(elem->rectangle, { elem->borderColor.R, elem->borderColor.G, elem->borderColor.B }
+			renderer->RenderBorderUPR(elem->rect, { elem->borderColor.R, elem->borderColor.G, elem->borderColor.B }
 			,elem->borderThickness, elem->borderColor.A);
 		}
 		if (elem->hovered && elem->hoverable) {
-			renderer->RenderRectUPR(elem->rectangle,
-				{ elem->hoverFilter.R, elem->hoverFilter.G, elem->hoverFilter.B }, elem->hoverFilter.A);
+			renderer->RenderRectUPR(elem->rect, { elem->hoverFilter.R, elem->hoverFilter.G, elem->hoverFilter.B }, elem->hoverFilter.A);
 		}
 		elem->RenderText(renderer);
 	}
@@ -30,19 +29,18 @@ void UIElemBase::Render(UIElemBase* elem, MT::Renderer* renderer) {
 
 void UIElemBase::RenderRounded(UIElemBase* elem, MT::Renderer* renderer) {
 	if (!elem->hidden) {
-		if (elem->GetTexture() == nullptr) {
-			renderer->RenderRoundedRectUPR(elem->rectangle, { elem->color.R, elem->color.G, elem->color.B }, elem->color.A);
+		if (elem->texture == nullptr) {
+			renderer->RenderRoundedRectUPR(elem->rect, { elem->color.R, elem->color.G, elem->color.B }, elem->color.A);
 		}
 		else {
-			renderer->RenderCopyRoundedUPR(elem->rectangle, elem->texture);
+			renderer->RenderCopyRoundedUPR(elem->rect, elem->texture);
 		}
 		if (elem->borderThickness > 0) {
-			renderer->RenderRoundedBorderUPR(elem->rectangle, { elem->borderColor.R, elem->borderColor.G, elem->borderColor.B }
+			renderer->RenderRoundedBorderUPR(elem->rect, { elem->borderColor.R, elem->borderColor.G, elem->borderColor.B }
 			, elem->borderThickness, elem->borderColor.A);
 		}
 		if (elem->hovered && elem->hoverable) {
-			renderer->RenderRoundedRectUPR(elem->rectangle,
-				{ elem->hoverFilter.R, elem->hoverFilter.G, elem->hoverFilter.B }, elem->hoverFilter.A);
+			renderer->RenderRoundedRectUPR(elem->rect, { elem->hoverFilter.R, elem->hoverFilter.G, elem->hoverFilter.B }, elem->hoverFilter.A);
 		}
 		elem->RenderText(renderer);
 	}
@@ -56,22 +54,22 @@ void UIElemBase::RenderText(MT::Renderer* renderer) {
 	MT::Color color{ fontColor.R, fontColor.G, fontColor.B };
 	switch (textRenderType) {
 		case TextRenderType::Standard:
-			font->RenderText(renderer, text, rectangle, color, textScale, interLine, textStartX, textStartY);
+			font->RenderText(renderer, text, rect, color, textScale, interLine, textStartX, textStartY);
 			break;
 		case TextRenderType::Centered:
-			font->RenderTextCenter(renderer, text, rectangle, color, textScale, interLine, textStartX, textStartY);
+			font->RenderTextCenter(renderer, text, rect, color, textScale, interLine, textStartX, textStartY);
 			break;
 		case TextRenderType::FromRight:
-			font->RenderTextFromRight(renderer, text, rectangle, color, textScale, interLine, textStartX, textStartY);
+			font->RenderTextFromRight(renderer, text, rect, color, textScale, interLine, textStartX, textStartY);
 			break;
 		case TextRenderType::CenteredX:
-			font->RenderTextCenterX(renderer, text, rectangle, color, textScale, interLine, textStartX, textStartY);
+			font->RenderTextCenterX(renderer, text, rect, color, textScale, interLine, textStartX, textStartY);
 			break;
 		case TextRenderType::CenteredY:
-			font->RenderTextCenterY(renderer, text, rectangle, color, textScale, interLine, textStartX, textStartY);
+			font->RenderTextCenterY(renderer, text, rect, color, textScale, interLine, textStartX, textStartY);
 			break;
 		default: // Standardowa opcja
-			font->RenderText(renderer, text, rectangle, color, textScale, interLine, textStartX, textStartY);
+			font->RenderText(renderer, text, rect, color, textScale, interLine, textStartX, textStartY);
 			break;
 	}
 	font->GetTexture()->SetAlphaBending(255);
@@ -150,10 +148,10 @@ void UI::FillElem(UIElemBase *elem ,const std::string& name, int x, int y, int w
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	elem->name = name;
-	elem->GetRectangle().Set(x, y, w, h);
+	elem->rect.Set(x, y, w, h);
 	elem->SetRenderType(RenderType::Standard);
 
-	elem->SetTexture(texture);
+	elem->texture = texture;
 
 	elem->text = text;
 	elem->textScale = textScale;
@@ -286,9 +284,9 @@ Slider* UI::LCreateSlider(int layer, const std::string& name, int x, int y, int 
 
 	sl->castType = CastType::Slider;
 	sl->name = name;
-	sl->GetRectangle().Set(x, y, w, h);
+	sl->rect.Set(x, y, w, h);
 	sl->SetRenderType(RenderType::Standard);
-	sl->SetTexture(texture);
+	sl->texture = texture;
 	sl->slideType = slideType;
 	sl->min = min;
 	sl->max = max;
@@ -419,10 +417,10 @@ Slider* UI::CreateSlider(const std::string& name, int x, int y, int w, int h, Sl
 	sl->castType = CastType::Slider;
 	sl->castType = CastType::Slider;
 	sl->name = name;
-	sl->GetRectangle().Set(x, y, w, h);
+	sl->rect.Set(x, y, w, h);
 	sl->SetRenderType(RenderType::Standard);
 
-	sl->SetTexture(texture);
+	sl->texture = texture;
 	sl->slideType = slideType;
 	sl->min = min;
 	sl->max = max;
@@ -479,7 +477,7 @@ void UI::CheckHover(UIElemBase *elem, bool &hoverStop) {
 	}
 	Point p = GetMousePos();
 	MT::Rect rect{ p.x,p.y,1,1 };
-	if (!SimpleCollision(elem->GetRectangle(), rect)) {
+	if (!SimpleCollision(elem->rect, rect)) {
 		elem->hovered = false;
 		return;
 	}
@@ -492,7 +490,7 @@ void UI::CheckHover(UIElemBase *elem, bool &hoverStop) {
 	// patrzenie czy mo¿e byæ wydany dŸwiêk tylko wtedy zadzia³a gdy mysz pierwszy raz jest na przycisku
 	if (elem->GetHoverSound() == nullptr) { return; }
 
-	if (!SimpleCollision(lastMousePos, elem->GetRectangle())) {
+	if (!SimpleCollision(lastMousePos, elem->rect)) {
 		SoundMan::PlaySound(elem->GetHoverSound());
 	}
 }
@@ -501,7 +499,7 @@ void UI::CheckTextBoxInteraction(TextBox *tb, SDL_Event& event) {
 	if (!tb->turnedOn) { return; }
 	if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
 		MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
-		if (SimpleCollision(tb->GetRectangle(), temprect)) {
+		if (SimpleCollision(tb->rect, temprect)) {
 			tb->isUsed = true;
 		}
 		else {
@@ -537,7 +535,7 @@ void UI::CheckClickBoxes(ClickBox *cb, unsigned int eventType, bool &forceStop, 
 		if (!cb->IsOn()) { return; }
 
 		MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
-		if (!SimpleCollision(cb->GetRectangle(), temprect)) { return; }
+		if (!SimpleCollision(cb->rect, temprect)) { return; }
 		cb->SetStatus(true);
 
 		if (cb->GetClickSound() != "") { 
@@ -552,27 +550,27 @@ void UI::SlideSliders(Slider* slider, SDL_Event& event) {
 	if (event.button.button != SDL_BUTTON_LEFT) { return; }
 
 	MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
-	if (!slider->GetRectangle().IsColliding(temprect)) { return; }
+	if (!slider->rect.IsColliding(temprect)) { return; }
 
 	if (slider->slideType == SliderSlide::X) {
-		slider->GetRectangle().x = temprect.x - slider->GetRectangle().w/2;
-		if (slider->GetRectangle().x < slider->min) {
-			slider->GetRectangle().x = slider->min;
+		slider->rect.x = temprect.x - slider->rect.w/2;
+		if (slider->rect.x < slider->min) {
+			slider->rect.x = slider->min;
 			return;
 		}
-		if (slider->GetRectangle().x > slider->max - slider->GetRectangle().w) {
-			slider->GetRectangle().x = slider->max - slider->GetRectangle().w;
+		if (slider->rect.x > slider->max - slider->rect.w) {
+			slider->rect.x = slider->max - slider->rect.w;
 			return;
 		}
 	}
 	else {
-		slider->GetRectangle().y = temprect.y - slider->GetRectangle().h / 2;
-		if (slider->GetRectangle().y < slider->min) {
-			slider->GetRectangle().y = slider->min;
+		slider->rect.y = temprect.y - slider->rect.h / 2;
+		if (slider->rect.y < slider->min) {
+			slider->rect.y = slider->min;
 			return;
 		}
-		if (slider->GetRectangle().y > slider->max - slider->GetRectangle().w) {
-			slider->GetRectangle().y = slider->max - slider->GetRectangle().w;
+		if (slider->rect.y > slider->max - slider->rect.w) {
+			slider->rect.y = slider->max - slider->rect.w;
 			return;
 		}
 	}
@@ -859,10 +857,10 @@ void UI::DumpButton(nlohmann::ordered_json& json, UIElemBase* elem) {
 	auto& jsonElem = json[elem->GetName()];
 
 	jsonElem["Type"] = elem->castType;
-	jsonElem["X"] = elem->GetRectangle().x;
-	jsonElem["Y"] = elem->GetRectangle().y;
-	jsonElem["W"] = elem->GetRectangle().w;
-	jsonElem["H"] = elem->GetRectangle().h;
+	jsonElem["X"] = elem->rect.x;
+	jsonElem["Y"] = elem->rect.y;
+	jsonElem["W"] = elem->rect.w;
+	jsonElem["H"] = elem->rect.h;
 
 	std::string textureName = "";
 	for (auto& texture : TexMan::GetAllTex()) {
@@ -1026,10 +1024,10 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		}
 
 		elem->name = key;
-		elem->GetRectangle().x = val["X"];
-		elem->GetRectangle().y = val["Y"];
-		elem->GetRectangle().w = val["W"];
-		elem->GetRectangle().h = val["H"];
+		elem->rect.x = val["X"];
+		elem->rect.y = val["Y"];
+		elem->rect.w = val["W"];
+		elem->rect.h = val["H"];
 		if (val.contains("Texture")) {
 			elem->texture = TexMan::GetTex(val["Texture"]);
 		}
