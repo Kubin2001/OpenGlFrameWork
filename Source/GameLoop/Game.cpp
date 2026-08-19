@@ -63,7 +63,10 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(255, 255, 255);
-	ui->Render();
+	for (size_t i = 0; i < 1000; i++) {
+		renderer->RenderRect({ 0,0,100,100 }, { 30,30,30 }, 50);
+	}
+	//ui->Render();
 	renderer->Present();
 }
 

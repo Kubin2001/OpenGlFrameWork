@@ -2,19 +2,21 @@
 #include <vector>
 #include <array>
 
-#include "Basics.h"
 #include "Renderer.h"
 
 class LocalTexMan;
 
 
-class Font : public GameObject{
+class Font{
 private:
 	std::string name;
 	std::vector<MT::Rect> sourceRectangles;
 	int standardInterLine = 0;
 
 public:
+	MT::Rect rect{};
+	MT::Texture* texture = nullptr;
+
 	Font(const std::string& name, MT::Texture* texture, const std::string& jsonPath);
 
 	Font(const std::string& name, MT::Texture* texture, const std::string &charset, std::vector<MT::Rect>& rectangles);

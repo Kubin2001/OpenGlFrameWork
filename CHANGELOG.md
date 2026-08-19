@@ -217,3 +217,4 @@ was removed or the new one was added to folder
 - Upr version for advanced shadows
 - Camera interace and math has been improved
 - Improved UiElemBase infrastructure
+- Removed "Basics.h" and "Basics.cpp" file and contents

@@ -1,7 +1,7 @@
 # cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="DiscPath.../vcpkg/scripts/buildsystems/vcpkg.cmake"
 cmake_minimum_required(VERSION 3.20)
 
-project(OpenGlFrameWork)
+project(FrameworkPracDyp)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

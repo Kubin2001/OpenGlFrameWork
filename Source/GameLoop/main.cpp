@@ -8,8 +8,7 @@ int main(int argv, char* argc[]){
 	Global::TickTimer = SDL_GetTicks();
 	Global::LogicTimeEnd = Global::TickTimer + Global::frameDelay;
 	Global::RenderingTimeEnd = Global::TickTimer + 16;
-	while (Global::status)
-	{
+	while (Global::status){
 		SDL_Delay(1);
 		Global::TickTimer = SDL_GetTicks();
 		if (Global::TickTimer > Global::LogicTimeEnd) {
@@ -22,6 +21,5 @@ int main(int argv, char* argc[]){
 			game.FrameUpdate();
 		}
 	}
-
 	return 0;
 }

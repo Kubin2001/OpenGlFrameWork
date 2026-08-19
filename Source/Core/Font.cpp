@@ -10,6 +10,7 @@
 #include "TextureManager.h"
 #include "json.hpp"
 
+
 constexpr std::array<char32_t, 200> MakeCharset() {
 	std::array<char32_t, 200> cs{};
 	for (size_t i = 0; i < cs.size(); i++) {
@@ -83,22 +84,22 @@ void Font::LoadTextCharset(const std::string& charset ,std::vector<MT::Rect> &re
 
 void Font::RenderRawText(MT::Renderer* renderer, const int x, const int y, const std::string& text, const int interline,
 	const MT::Color& color) {
-	rectangle.x = x;
-	rectangle.y = y;
-	rectangle.w = 0;
-	rectangle.h = 0;
-	int temp = rectangle.x;
+	rect.x = x;
+	rect.y = y;
+	rect.w = 0;
+	rect.h = 0;
+	int temp = rect.x;
 	for (int i = 0; i < text.length(); i++) {
 		if (text[i] < sourceRectangles.size()) {
 			if (text[i] != '\n') {
-				rectangle.w = (int)(sourceRectangles[text[i]].w);
-				rectangle.h = (int)(sourceRectangles[text[i]].h);
-				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture, color);
-				rectangle.x += (int)(sourceRectangles[text[i]].w) + 1;
+				rect.w = (int)(sourceRectangles[text[i]].w);
+				rect.h = (int)(sourceRectangles[text[i]].h);
+				renderer->RenderCopyFilteredUPR(rect, sourceRectangles[text[i]], texture, color);
+				rect.x += (int)(sourceRectangles[text[i]].w) + 1;
 			}
 			else {
-				rectangle.y += (int)(interline);
-				rectangle.x = temp;
+				rect.y += (int)(interline);
+				rect.x = temp;
 			}
 		}
 	}
@@ -107,22 +108,22 @@ void Font::RenderRawText(MT::Renderer* renderer, const int x, const int y, const
 // Basic text rendering with possition in left up corner of the button
 void Font::RenderText(MT::Renderer* renderer, const std::string &text, MT::Rect &btnRect, const MT::Color& color,
 	float scale, int interline, int textStartX, int textStartY) {
-	rectangle.x = btnRect.x + textStartX;
-	rectangle.y = btnRect.y + textStartY;
-	rectangle.w = 0;
-	rectangle.h = 0;
-	int temp = rectangle.x;
+	rect.x = btnRect.x + textStartX;
+	rect.y = btnRect.y + textStartY;
+	rect.w = 0;
+	rect.h = 0;
+	int temp = rect.x;
 	for (int i = 0; i < text.length(); i++){
 		if (text[i] < sourceRectangles.size()) {
 			if (text[i] != '\n') {
-				rectangle.w = (int)(sourceRectangles[text[i]].w * scale);
-				rectangle.h = (int)(sourceRectangles[text[i]].h * scale);
-				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture, color);
-				rectangle.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
+				rect.w = (int)(sourceRectangles[text[i]].w * scale);
+				rect.h = (int)(sourceRectangles[text[i]].h * scale);
+				renderer->RenderCopyFilteredUPR(rect, sourceRectangles[text[i]], texture, color);
+				rect.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else{
-				rectangle.y += (int)(interline * scale);
-				rectangle.x = temp;
+				rect.y += (int)(interline * scale);
+				rect.x = temp;
 			}
 		}
 	}
@@ -133,22 +134,22 @@ void Font::RenderTextCenter(MT::Renderer* renderer, const std::string& text, MT:
 	Point textSizes = CalculatePredefinedSize(text,interline,scale);
 
 	Point center = GetRectangleCenter(btnRect);
-	rectangle.x = center.x - (int)(textSizes.x * 0.5f) + textStartX;
-	rectangle.y = center.y - (int)(textSizes.y * 0.5f) + textStartY;
-	int temp = rectangle.x;
+	rect.x = center.x - (int)(textSizes.x * 0.5f) + textStartX;
+	rect.y = center.y - (int)(textSizes.y * 0.5f) + textStartY;
+	int temp = rect.x;
 
 
 	for (int i = 0; i < text.length(); i++){
 		if (text[i] < sourceRectangles.size()) {
 			if (text[i] != '\n') {
-				rectangle.w = (int)(sourceRectangles[text[i]].w * scale);
-				rectangle.h = (int)(sourceRectangles[text[i]].h * scale);
-				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture, color);
-				rectangle.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
+				rect.w = (int)(sourceRectangles[text[i]].w * scale);
+				rect.h = (int)(sourceRectangles[text[i]].h * scale);
+				renderer->RenderCopyFilteredUPR(rect, sourceRectangles[text[i]], texture, color);
+				rect.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else{
-				rectangle.y += (int)(interline * scale);
-				rectangle.x = temp;
+				rect.y += (int)(interline * scale);
+				rect.x = temp;
 			}
 		}
 	}
@@ -159,22 +160,22 @@ void Font::RenderTextFromRight(MT::Renderer* renderer, const std::string& text, 
 	float scale, int interline, int textStartX, int textStartY) {
 	const Point textSizes = CalculatePredefinedSize(text, interline, scale);
 
-	rectangle.x = btnRect.x + btnRect.w - textSizes.x + textStartX;
-	rectangle.y = btnRect.y + textStartY;
-	const int temp = rectangle.x;
+	rect.x = btnRect.x + btnRect.w - textSizes.x + textStartX;
+	rect.y = btnRect.y + textStartY;
+	const int temp = rect.x;
 
 
 	for (int i = 0; i < text.length(); ++i) {
 		if (text[i] < sourceRectangles.size()) {
 			if (text[i] != '\n') {
-				rectangle.w = (int)(sourceRectangles[text[i]].w * scale);
-				rectangle.h = (int)(sourceRectangles[text[i]].h * scale);
-				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture, color);
-				rectangle.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
+				rect.w = (int)(sourceRectangles[text[i]].w * scale);
+				rect.h = (int)(sourceRectangles[text[i]].h * scale);
+				renderer->RenderCopyFilteredUPR(rect, sourceRectangles[text[i]], texture, color);
+				rect.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else {
-				rectangle.y += (int)(interline * scale);
-				rectangle.x = temp;
+				rect.y += (int)(interline * scale);
+				rect.x = temp;
 			}
 		}
 	}
@@ -185,22 +186,22 @@ void Font::RenderTextCenterX(MT::Renderer* renderer, const std::string& text, MT
 	Point textSizes = CalculatePredefinedSize(text, interline, scale);
 
 	Point center = GetRectangleCenter(btnRect);
-	rectangle.x = center.x - (int)(textSizes.x * 0.5f) + textStartX;
-	rectangle.y = btnRect.y + textStartY;
-	int temp = rectangle.x;
+	rect.x = center.x - (int)(textSizes.x * 0.5f) + textStartX;
+	rect.y = btnRect.y + textStartY;
+	int temp = rect.x;
 
 
 	for (int i = 0; i < text.length(); i++) {
 		if (text[i] < sourceRectangles.size()) {
 			if (text[i] != '\n') {
-				rectangle.w = (int)(sourceRectangles[text[i]].w * scale);
-				rectangle.h = (int)(sourceRectangles[text[i]].h * scale);
-				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture, color);
-				rectangle.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
+				rect.w = (int)(sourceRectangles[text[i]].w * scale);
+				rect.h = (int)(sourceRectangles[text[i]].h * scale);
+				renderer->RenderCopyFilteredUPR(rect, sourceRectangles[text[i]], texture, color);
+				rect.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else {
-				rectangle.y += (int)(interline * scale);
-				rectangle.x = temp;
+				rect.y += (int)(interline * scale);
+				rect.x = temp;
 			}
 		}
 	}
@@ -211,22 +212,22 @@ void Font::RenderTextCenterY(MT::Renderer* renderer, const std::string& text, MT
 	Point textSizes = CalculatePredefinedSize(text, interline, scale);
 
 	Point center = GetRectangleCenter(btnRect);
-	rectangle.x = btnRect.x + textStartX;
-	rectangle.y = center.y - (int)(textSizes.y * 0.5f) + textStartY;
-	int temp = rectangle.x;
+	rect.x = btnRect.x + textStartX;
+	rect.y = center.y - (int)(textSizes.y * 0.5f) + textStartY;
+	int temp = rect.x;
 
 
 	for (int i = 0; i < text.length(); i++) {
 		if (text[i] < sourceRectangles.size()) {
 			if (text[i] != '\n') {
-				rectangle.w = (int)(sourceRectangles[text[i]].w * scale);
-				rectangle.h = (int)(sourceRectangles[text[i]].h * scale);
-				renderer->RenderCopyFilteredUPR(rectangle, sourceRectangles[text[i]], texture, color);
-				rectangle.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
+				rect.w = (int)(sourceRectangles[text[i]].w * scale);
+				rect.h = (int)(sourceRectangles[text[i]].h * scale);
+				renderer->RenderCopyFilteredUPR(rect, sourceRectangles[text[i]], texture, color);
+				rect.x += (int)(sourceRectangles[text[i]].w * scale) + 1;
 			}
 			else {
-				rectangle.y += (int)(interline * scale);
-				rectangle.x = temp;
+				rect.y += (int)(interline * scale);
+				rect.x = temp;
 			}
 		}
 	}
