@@ -14,7 +14,7 @@ struct Point {
 
 struct FPoint {
 	float x = 0.0f;
-	float y = 0.0;
+	float y = 0.0f;
 	FPoint();
 	FPoint(float x, float y);
 
@@ -60,6 +60,16 @@ namespace MT {
 		bool IsColliding(const RectF& rect) const noexcept;
 		bool IsColliding(const CompositeRect& rect) const noexcept;
 
+		inline bool IsColliding(const Point& p) const noexcept {
+			if (p.x >= x &&
+				p.x - w <= x &&
+				p.y >= y &&
+				p.y - h <= y) {
+				return true;
+			}
+			return false;
+		}
+
 		Rect& operator=(const SDL_Rect& rect) noexcept;
 		Rect& operator=(const RectF& rect) noexcept;
 		Rect& operator=(const CompositeRect& rect) noexcept;
@@ -91,6 +101,16 @@ namespace MT {
 		bool IsColliding(const RectF& rect) const noexcept;
 		bool IsColliding(const CompositeRect& rect) const noexcept;
 
+		inline bool IsColliding(const Point& p) const noexcept {
+			if (p.x >= x &&
+				p.x - w <= x &&
+				p.y >= y &&
+				p.y - h <= y) {
+				return true;
+			}
+			return false;
+		}
+
 		RectF& operator=(const SDL_Rect& rect) noexcept;
 		RectF& operator=(const Rect& rect) noexcept;
 		RectF& operator=(const CompositeRect& rect) noexcept;
@@ -121,6 +141,16 @@ namespace MT {
 		bool IsColliding(const Rect& rect) const noexcept;
 		bool IsColliding(const RectF& rect) const noexcept;
 		bool IsColliding(const CompositeRect& rect) const noexcept;
+
+		inline bool IsColliding(const Point& p) const noexcept {
+			if (p.x >= x &&
+				p.x - w <= x &&
+				p.y >= y &&
+				p.y - h <= y) {
+				return true;
+			}
+			return false;
+		}
 
 		CompositeRect& operator=(const SDL_Rect& rect) noexcept;
 		CompositeRect& operator=(const RectF& rect) noexcept;

@@ -218,3 +218,4 @@ was removed or the new one was added to folder
 - Camera interace and math has been improved
 - Improved UiElemBase infrastructure
 - Removed "Basics.h" and "Basics.cpp" file and contents
+- Build in rectangle-point collision

@@ -63,9 +63,12 @@ void Game::Input() {
 
 void Game::Render() {
 	renderer->ClearFrame(255, 255, 255);
+	MT::CompositeRect rect{ 100,100,100,100 };
 	for (size_t i = 0; i < 1000; i++) {
-		renderer->RenderRect({ 0,0,100,100 }, { 30,30,30 }, 50);
+		renderer->RenderRect(rect.ToRect(), {30,30,30}, 50);
 	}
+	MT::Rect mouseRect({ GetMousePos().x, GetMousePos().y, 1,1 });
+	std::println("{}", rect.IsColliding(GetMousePos()));
 	//ui->Render();
 	renderer->Present();
 }
