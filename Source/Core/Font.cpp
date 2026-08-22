@@ -634,7 +634,7 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 		SDL_BlitSurface(surfaces[i], nullptr, atlas, &tempRect);
 	}
 	
-	MT::Texture *tex = MT::LoadTextureFromSurface(atlas,TextureFilter::Nearest);
+	MT::Texture *tex = MT::LoadTextureFromSurface(atlas,TextureFilter::Linear);
 	
 	if (localTexMan == nullptr) {
 		if (!TexMan::AddTexture(tex, name)) {

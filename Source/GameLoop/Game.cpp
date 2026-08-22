@@ -34,12 +34,17 @@ void Game::Start() {
 
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial12");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
-	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
+	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 48, "arial40");
+	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 24, "arial24");
 
-	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 10, "arial10");
 
 	renderer->FLatRenderCopySetUp();
 
+	Label *lb = ui->CreateLabel("1", 10, 10, 10, 10, nullptr, ui->GetFont("arial24"), "Some text rendered \nfor example", 0.5f);
+	lb->SetColor(0, 0, 0, 0);
+
+	lb = ui->CreateLabel("2", 10, 200, 10, 10, nullptr, ui->GetFont("arial12"), "Some text rendered \nfor example");
+	lb->SetColor(0, 0, 0, 0);
 }
 
 void Game::LogicUpdate() {
@@ -62,14 +67,8 @@ void Game::Input() {
 }
 
 void Game::Render() {
-	renderer->ClearFrame(255, 255, 255);
-	MT::CompositeRect rect{ 100,100,100,100 };
-	for (size_t i = 0; i < 1000; i++) {
-		renderer->RenderRect(rect.ToRect(), {30,30,30}, 50);
-	}
-	MT::Rect mouseRect({ GetMousePos().x, GetMousePos().y, 1,1 });
-	std::println("{}", rect.IsColliding(GetMousePos()));
-	//ui->Render();
+	renderer->ClearFrame(0, 0, 0);
+	ui->Render();
 	renderer->Present();
 }
 
