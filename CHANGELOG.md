@@ -219,3 +219,4 @@ was removed or the new one was added to folder
 - Improved UiElemBase infrastructure
 - Removed "Basics.h" and "Basics.cpp" file and contents
 - Build in rectangle-point collision
+- Fixed bug where hidden ui elements were checked for interaction

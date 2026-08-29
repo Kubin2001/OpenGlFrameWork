@@ -548,7 +548,6 @@ void UI::CheckClickBoxes(ClickBox *cb, unsigned int eventType, bool &forceStop, 
 
 void UI::SlideSliders(Slider* slider, SDL_Event& event) {
 	if (event.button.button != SDL_BUTTON_LEFT) { return; }
-
 	MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
 	if (!slider->rect.IsColliding(temprect)) { return; }
 
@@ -587,6 +586,8 @@ void UI::ManageInput(SDL_Event& event) {
 	
 
 	auto CheckElem = [&](UIElemBase* elem) {
+		if (elem->IsHidden()) {return;}
+
 		CheckHover(elem, hoverStopped);
 
 		if (elem->castType == CastType::ClickBox) {

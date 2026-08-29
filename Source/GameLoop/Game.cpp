@@ -34,17 +34,26 @@ void Game::Start() {
 
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial12");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
-	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 48, "arial40");
-	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 24, "arial24");
+	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
+
 
 
 	renderer->FLatRenderCopySetUp();
 
-	Label *lb = ui->CreateLabel("1", 10, 10, 10, 10, nullptr, ui->GetFont("arial24"), "Some text rendered \nfor example", 0.5f);
-	lb->SetColor(0, 0, 0, 0);
+	ui->settings.stopHoverAtFirst = true;
+	Label *lb = ui->CreateLabel("1", 10, 10, 100, 100, nullptr, ui->GetFont("arial12"), "Some text rendered \nfor example", 0.5f);
+	lb->SetColor(0, 0, 0, 255);
+	lb->SetHoverFilter(120, 120, 120, 120);
 
-	lb = ui->CreateLabel("2", 10, 200, 10, 10, nullptr, ui->GetFont("arial12"), "Some text rendered \nfor example");
-	lb->SetColor(0, 0, 0, 0);
+	lb = ui->CreateLabel("2", 50, 10, 100, 100, nullptr, ui->GetFont("arial12"), "Some text rendered \nfor example", 0.5f);
+	lb->SetColor(100, 100, 100, 255);
+	lb->SetHoverFilter(120, 120, 120, 120);
+	lb->Hide();
+	
+
+	lb = ui->CreateLabel("3", 10, 200, 100, 100, nullptr, ui->GetFont("arial12"), "Some text rendered \nfor example");
+	lb->SetColor(0, 0, 0, 255);
+	lb->SetHoverFilter(120, 120, 120, 120);
 }
 
 void Game::LogicUpdate() {
