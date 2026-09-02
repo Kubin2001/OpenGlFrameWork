@@ -220,3 +220,5 @@ was removed or the new one was added to folder
 - Removed "Basics.h" and "Basics.cpp" file and contents
 - Build in rectangle-point collision
 - Fixed bug where hidden ui elements were checked for interaction
+- Added new version of "Basics.h"
+- Renderer can be constructed without calling "Start" function

@@ -9,9 +9,10 @@
 class Game {
 private:
 	MT::Window window{};
-	MT::Renderer *renderer = nullptr;
+	std::unique_ptr<MT::Renderer> ren = nullptr;
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui = nullptr;
+
 
 public:
 	void Start();

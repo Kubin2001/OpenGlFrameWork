@@ -22,38 +22,20 @@ void Game::Start() {
 
 	window.Init("Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Global::windowWidth, Global::windowHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
-	renderer = new MT::Renderer();
-	renderer->Start(window);
+	ren = std::make_unique<MT::Renderer>(window);
 
-	TexMan::Start(renderer);
+	TexMan::Start(ren.get());
 	TexMan::DeepLoad("Textures");
 	SoundMan::Init();
 	SoundMan::DeepLoad("Sounds");
 
-	ui = std::make_unique<UI>(renderer);
+	ui = std::make_unique<UI>(ren.get());
 
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial12");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
-
-
-	renderer->FLatRenderCopySetUp();
-
-	ui->settings.stopHoverAtFirst = true;
-	Label *lb = ui->CreateLabel("1", 10, 10, 100, 100, nullptr, ui->GetFont("arial12"), "Some text rendered \nfor example", 0.5f);
-	lb->SetColor(0, 0, 0, 255);
-	lb->SetHoverFilter(120, 120, 120, 120);
-
-	lb = ui->CreateLabel("2", 50, 10, 100, 100, nullptr, ui->GetFont("arial12"), "Some text rendered \nfor example", 0.5f);
-	lb->SetColor(100, 100, 100, 255);
-	lb->SetHoverFilter(120, 120, 120, 120);
-	lb->Hide();
-	
-
-	lb = ui->CreateLabel("3", 10, 200, 100, 100, nullptr, ui->GetFont("arial12"), "Some text rendered \nfor example");
-	lb->SetColor(0, 0, 0, 255);
-	lb->SetHoverFilter(120, 120, 120, 120);
+	ren->FLatRenderCopySetUp();
 }
 
 void Game::LogicUpdate() {
@@ -76,9 +58,9 @@ void Game::Input() {
 }
 
 void Game::Render() {
-	renderer->ClearFrame(0, 0, 0);
+	ren->ClearFrame(30, 30, 30);
 	ui->Render();
-	renderer->Present();
+	ren->Present();
 }
 
 
@@ -95,7 +77,7 @@ Game::~Game() {
 	TexMan::Clear();
 	SoundMan::Clear();
 	SceneMan::Clear();
-	renderer->Clear();
+	ren->Clear();
 	ui->ClearAll();
 	SDL_Quit();
 }

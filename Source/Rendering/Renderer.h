@@ -336,6 +336,12 @@ namespace MT {
 		public:
 		int W = 0, H = 0;
 
+		Renderer() = default;
+
+		Renderer(const MT::Window& mtWindow) {
+			Start(mtWindow);
+		}
+
 		bool Start(const MT::Window& mtWindow);
 
 		inline void Present(bool switchContext = true) {
