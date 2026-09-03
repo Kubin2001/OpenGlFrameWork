@@ -17,7 +17,7 @@ enum class CastType {
 	Slider
 };
 
-enum class TextRenderType {
+enum class TextAligment {
 	Standard,
 	Centered,
 	FromRight,
@@ -25,7 +25,7 @@ enum class TextRenderType {
 	CenteredY
 };
 
-enum class RenderType {
+enum class ElemShape {
 	Standard,
 	Rounded
 };
@@ -42,7 +42,7 @@ protected:
 	std::string name = "";
 	void (*renderFunction)(UIElemBase* ,MT::Renderer*) = nullptr;
 
-	TextRenderType textRenderType = TextRenderType::Standard; // Base is left up corner
+	TextAligment textAligment = TextAligment::Standard; // Base is left up corner
 
 	bool hidden = false;
 
@@ -111,12 +111,12 @@ public:
 		fontColor.A = A;
 	}
 
-	// Use Enum RenderType::
-	void SetRenderType(RenderType renderType) {
-		if (renderType == RenderType::Standard) {
+	// Use Enum ElemShape
+	void SetShape(ElemShape shape) {
+		if (shape == ElemShape::Standard) {
 			renderFunction = &UIElemBase::Render;
 		}
-		else  if (renderType == RenderType::Rounded) {
+		else  if (shape == ElemShape::Rounded) {
 			renderFunction = &UIElemBase::RenderRounded;
 		}
 		else {
@@ -125,7 +125,7 @@ public:
 	}
 	
 	// Use Enum TextRenderType::
-	void SetRenderTextType(TextRenderType textRenderType) {this->textRenderType = textRenderType;}
+	void SetTextAligment(TextAligment textAligment) {this->textAligment = textAligment;}
 
 	bool IsHidden() {return hidden;}
 
@@ -458,7 +458,7 @@ class UI{
 
 		void Render();
 
-		void RenderRawText(Font* font, const int x, const int y, const std::string& text,const int interline, const MT::Color &color);
+		void DrawRawText(Font* font, const int x, const int y, const std::string& text,const int interline, const MT::Color &color);
 
 		// This function should be called only once at the Game::Start function since it is slow because it needs to recrate all ui rendering
 		// If you use z layer from now on you should create new elements with CreateLayered (old way still works but it would be slower)

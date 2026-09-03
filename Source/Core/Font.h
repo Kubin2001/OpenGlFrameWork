@@ -30,6 +30,8 @@ public:
 
 	void LoadTextCharset(const std::string& charset,std::vector<MT::Rect>& rectangles);
 
+	void RenderChars(MT::Renderer* ren, const std::string& text, const MT::Color& color, int interline, float scale);
+
 	void RenderRawText(MT::Renderer* renderer, const int x, const int y, const std::string& text, const int interline,
 		const MT::Color &color);
 
@@ -49,6 +51,8 @@ public:
 
 	void RenderTextCenterY(MT::Renderer* renderer, const std::string& text, MT::Rect& btnRect, const MT::Color& color, float scale = 1.0,
 		int interline = 20, int textStartX = 0, int textStartY = 0);
+
+
 
 	Point CalculatePredefinedSize(const std::string& fontText, const int interline, const float scale);
 };

@@ -222,3 +222,6 @@ was removed or the new one was added to folder
 - Fixed bug where hidden ui elements were checked for interaction
 - Added new version of "Basics.h"
 - Renderer can be constructed without calling "Start" function
+
+2.07
+- Simplified Text Rendering and naming conventions

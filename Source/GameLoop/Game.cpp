@@ -34,15 +34,35 @@ void Game::Start() {
 
 	ui = std::make_unique<UI>(ren.get());
 
-	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 8, "arial8");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 10, "arial10");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial12");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
-	ren->FLatRenderCopySetUp();
+	ren->FlatDrawSetUp();
 
+	Label* lb = ui->CreateLabel("1", 10, 10, 100, 100, nullptr, ui->GetFont("arial12"), "Some\ntext");
+	lb->SetColor(50, 50, 50);
+	lb->SetTextAligment(TextAligment::Standard);
+
+	lb = ui->CreateLabel("2", 10, 150, 100, 100, nullptr, ui->GetFont("arial12"), "Some\ntext");
+	lb->SetColor(50, 50, 50);
+	lb->SetTextAligment(TextAligment::Centered);
+
+	lb = ui->CreateLabel("3", 10, 260, 100, 100, nullptr, ui->GetFont("arial12"), "Some\ntext");
+	lb->SetColor(50, 50, 50);
+	lb->SetTextAligment(TextAligment::CenteredX);
+
+
+	lb = ui->CreateLabel("4", 10, 370, 100, 100, nullptr, ui->GetFont("arial12"), "Some\ntext");
+	lb->SetColor(50, 50, 50);
+	lb->SetTextAligment(TextAligment::CenteredY);
+
+	lb = ui->CreateLabel("5", 10, 480, 100, 100, nullptr, ui->GetFont("arial12"), "Some\ntext");
+	lb->SetColor(50, 50, 50);
+	lb->SetTextAligment(TextAligment::FromRight);
 	
+
 }
 
 void Game::LogicUpdate() {
@@ -66,17 +86,6 @@ void Game::Input() {
 
 void Game::Render() {
 	ren->ClearFrame(0, 0, 0);
-	ui->RenderRawText(ui->GetFont("arial8"), 10, 10, "Example Text", 20, { 255,255,255 });
-	ui->RenderRawText(ui->GetFont("arial10"), 10, 110, "Example Text", 20, { 255,255,255 });
-	ui->RenderRawText(ui->GetFont("arial12"), 10, 210, "Example Text", 20, { 255,255,255 });
-	ui->RenderRawText(ui->GetFont("arial20"), 10, 310, "Example Text", 20, { 255,255,255 });
-	ui->RenderRawText(ui->GetFont("arial40"), 10, 410, "Example Text", 20, { 255,255,255 });
-
-	ui->RenderRawText(ui->GetFont("2arial8"), 400, 10, "Example Text", 20, { 255,255,255 });
-	ui->RenderRawText(ui->GetFont("2arial10"), 400, 110, "Example Text", 20, { 255,255,255 });
-	ui->RenderRawText(ui->GetFont("2arial12"), 400, 210, "Example Text", 20, { 255,255,255 });
-	ui->RenderRawText(ui->GetFont("2arial20"), 400, 310, "Example Text", 20, { 255,255,255 });
-	ui->RenderRawText(ui->GetFont("2arial40"), 400, 410, "Example Text", 20, { 255,255,255 });
 	ui->Render();
 	ren->Present();
 }

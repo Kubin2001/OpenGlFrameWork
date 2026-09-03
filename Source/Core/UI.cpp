@@ -11,17 +11,17 @@
 void UIElemBase::Render(UIElemBase* elem, MT::Renderer* renderer) {
 	if (!elem->hidden) {
 		if (elem->texture == nullptr) {
-			renderer->RenderRectUPR(elem->rect, { elem->color.R, elem->color.G, elem->color.B }, elem->color.A);
+			renderer->DrawRectUPR(elem->rect, { elem->color.R, elem->color.G, elem->color.B }, elem->color.A);
 		}
 		else {
-			renderer->RenderCopyUPR(elem->rect, elem->texture);
+			renderer->DrawSpriteUPR(elem->rect, elem->texture);
 		}
 		if (elem->borderThickness > 0) {
-			renderer->RenderBorderUPR(elem->rect, { elem->borderColor.R, elem->borderColor.G, elem->borderColor.B }
+			renderer->DrawBorderUPR(elem->rect, { elem->borderColor.R, elem->borderColor.G, elem->borderColor.B }
 			,elem->borderThickness, elem->borderColor.A);
 		}
 		if (elem->hovered && elem->hoverable) {
-			renderer->RenderRectUPR(elem->rect, { elem->hoverFilter.R, elem->hoverFilter.G, elem->hoverFilter.B }, elem->hoverFilter.A);
+			renderer->DrawRectUPR(elem->rect, { elem->hoverFilter.R, elem->hoverFilter.G, elem->hoverFilter.B }, elem->hoverFilter.A);
 		}
 		elem->RenderText(renderer);
 	}
@@ -30,17 +30,17 @@ void UIElemBase::Render(UIElemBase* elem, MT::Renderer* renderer) {
 void UIElemBase::RenderRounded(UIElemBase* elem, MT::Renderer* renderer) {
 	if (!elem->hidden) {
 		if (elem->texture == nullptr) {
-			renderer->RenderRoundedRectUPR(elem->rect, { elem->color.R, elem->color.G, elem->color.B }, elem->color.A);
+			renderer->DrawRoundedRectUPR(elem->rect, { elem->color.R, elem->color.G, elem->color.B }, elem->color.A);
 		}
 		else {
-			renderer->RenderCopyRoundedUPR(elem->rect, elem->texture);
+			renderer->DrawRoundedSpriteUPR(elem->rect, elem->texture);
 		}
 		if (elem->borderThickness > 0) {
-			renderer->RenderRoundedBorderUPR(elem->rect, { elem->borderColor.R, elem->borderColor.G, elem->borderColor.B }
+			renderer->DrawRoundedBorderUPR(elem->rect, { elem->borderColor.R, elem->borderColor.G, elem->borderColor.B }
 			, elem->borderThickness, elem->borderColor.A);
 		}
 		if (elem->hovered && elem->hoverable) {
-			renderer->RenderRoundedRectUPR(elem->rect, { elem->hoverFilter.R, elem->hoverFilter.G, elem->hoverFilter.B }, elem->hoverFilter.A);
+			renderer->DrawRoundedRectUPR(elem->rect, { elem->hoverFilter.R, elem->hoverFilter.G, elem->hoverFilter.B }, elem->hoverFilter.A);
 		}
 		elem->RenderText(renderer);
 	}
@@ -52,20 +52,20 @@ void UIElemBase::RenderText(MT::Renderer* renderer) {
 
 	font->texture->SetAlphaBending(fontColor.A);
 	MT::Color color{ fontColor.R, fontColor.G, fontColor.B };
-	switch (textRenderType) {
-		case TextRenderType::Standard:
+	switch (textAligment) {
+		case TextAligment::Standard:
 			font->RenderText(renderer, text, rect, color, textScale, interLine, textStartX, textStartY);
 			break;
-		case TextRenderType::Centered:
+		case TextAligment::Centered:
 			font->RenderTextCenter(renderer, text, rect, color, textScale, interLine, textStartX, textStartY);
 			break;
-		case TextRenderType::FromRight:
+		case TextAligment::FromRight:
 			font->RenderTextFromRight(renderer, text, rect, color, textScale, interLine, textStartX, textStartY);
 			break;
-		case TextRenderType::CenteredX:
+		case TextAligment::CenteredX:
 			font->RenderTextCenterX(renderer, text, rect, color, textScale, interLine, textStartX, textStartY);
 			break;
-		case TextRenderType::CenteredY:
+		case TextAligment::CenteredY:
 			font->RenderTextCenterY(renderer, text, rect, color, textScale, interLine, textStartX, textStartY);
 			break;
 		default: // Standardowa opcja
@@ -111,7 +111,7 @@ void UI::Render() {
 }
 
 
-void UI::RenderRawText(Font* font, const int x, const int y, const std::string& text,const int interline, const MT::Color& color) {
+void UI::DrawRawText(Font* font, const int x, const int y, const std::string& text,const int interline, const MT::Color& color) {
 	if (!font) { return; }
 	font->RenderRawText(renderer, x, y, text, interline, color);
 }
@@ -150,7 +150,7 @@ void UI::FillElem(UIElemBase *elem ,const std::string& name, int x, int y, int w
 
 	elem->name = name;
 	elem->rect.Set(x, y, w, h);
-	elem->SetRenderType(RenderType::Standard);
+	elem->SetShape(ElemShape::Standard);
 
 	elem->texture = texture;
 
@@ -286,7 +286,7 @@ Slider* UI::LCreateSlider(int layer, const std::string& name, int x, int y, int 
 	sl->castType = CastType::Slider;
 	sl->name = name;
 	sl->rect.Set(x, y, w, h);
-	sl->SetRenderType(RenderType::Standard);
+	sl->SetShape(ElemShape::Standard);
 	sl->texture = texture;
 	sl->slideType = slideType;
 	sl->min = min;
@@ -419,7 +419,7 @@ Slider* UI::CreateSlider(const std::string& name, int x, int y, int w, int h, Sl
 	sl->castType = CastType::Slider;
 	sl->name = name;
 	sl->rect.Set(x, y, w, h);
-	sl->SetRenderType(RenderType::Standard);
+	sl->SetShape(ElemShape::Standard);
 
 	sl->texture = texture;
 	sl->slideType = slideType;
@@ -906,12 +906,12 @@ void UI::DumpButton(nlohmann::ordered_json& json, UIElemBase* elem) {
 		jsonElem["Font"] = fontName;
 	}
 	if (elem->renderFunction == &UIElemBase::Render) {
-		jsonElem["RenderType"] = (int)RenderType::Standard;
+		jsonElem["RenderType"] = (int)ElemShape::Standard;
 	}
 	else {
-		jsonElem["RenderType"] = (int)RenderType::Rounded;
+		jsonElem["RenderType"] = (int)ElemShape::Rounded;
 	}
-	jsonElem["TextRenderType"] = elem->textRenderType;
+	jsonElem["TextAligment"] = elem->textAligment;
 	jsonElem["Hidden"] = elem->hidden;
 	jsonElem["Hovered"] = elem->hovered;
 	jsonElem["Hoverable"] = elem->hoverable;
@@ -1054,9 +1054,9 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		if (val.contains("Font")) {
 			elem->font = GetFont(val["Font"]);
 		}
-		RenderType renderFunction = val["RenderType"];
-		elem->SetRenderType(renderFunction);
-		elem->textRenderType = val["TextRenderType"];
+		ElemShape renderFunction = val["RenderType"];
+		elem->SetShape(renderFunction);
+		elem->textAligment = val["TextAligment"];
 		elem->hidden = val["Hidden"];
 		elem->hovered = val["Hovered"];
 		elem->hoverable = val["Hoverable"];

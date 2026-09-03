@@ -393,7 +393,7 @@ void MT::Renderer::Resize(const unsigned int w, const unsigned int h) {
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void MT::Renderer::FLatRenderCopySetUp() {
+void MT::Renderer::FlatDrawSetUp() {
     flatRenderVec.clear();
     int i = 0;
     TexMan::GetDefaultTex()->batchIndex = i++;

@@ -76,7 +76,7 @@ void FileExplorer::CreateElement(int x, int y, const std::string& dirPath, const
 	cb = folderElementsNames.back();
 	cb->SetColor(255, 255, 255, 0);
 	cb->SetHoverFilter(true, 255, 255, 255, 70);
-	cb->SetRenderTextType(TextRenderType::CenteredY);
+	cb->SetTextAligment(TextAligment::CenteredY);
 }
 
 static std::unordered_map<std::string, MT::Texture*> LoadExtensionTextures(LocalTexMan *texMan) {
@@ -245,7 +245,7 @@ void FileExplorer::Input() {
 		if (cb->IsHovered() && !retPath.empty()) {
 			Point mouse = GetMousePos();
 			std::string breakPath = BreakLines(retPath,35);
-			ui->RenderRawText(ui->GetFont("arial12px"), mouse.x, mouse.y, breakPath, 15, { 200, 200, 200 });
+			ui->DrawRawText(ui->GetFont("arial12px"), mouse.x, mouse.y, breakPath, 15, { 200, 200, 200 });
 		}
 	}
 }

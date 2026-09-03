@@ -370,7 +370,7 @@ namespace MT {
 			glClear(GL_COLOR_BUFFER_BIT);
 		}
 
-		inline void RenderRect(const Rect& rect, const Color& col, const unsigned char alpha = 255) {
+		inline void DrawRect(const Rect& rect, const Color& col, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) {
 				return;
 			}
@@ -404,7 +404,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderRectEX(const Rect& rect, const Color& col, const float rotation, std::optional<Point> rotCenter, const unsigned char alpha = 255) {
+		inline void DrawRectEX(const Rect& rect, const Color& col, const float rotation, std::optional<Point> rotCenter, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) {
 				return;
 			}
@@ -512,7 +512,7 @@ namespace MT {
 				currentIndex += currentSize;
 		}
 
-		inline void RenderCopy(const Rect& rect, const Texture* texture) {
+		inline void DrawSprite(const Rect& rect, const Texture* texture) {
 			if (!texture) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
@@ -544,7 +544,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderCopyPart(const Rect& rect, const Rect& source, const Texture* texture) {
+		inline void DrawSpritePart(const Rect& rect, const Rect& source, const Texture* texture) {
 			if (!texture) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
@@ -587,7 +587,7 @@ namespace MT {
 		}
 
 		template<bool texNullCheck = true>
-		inline void RenderCopyEX(const Rect& rect, const Rect& source, const Texture* texture, const float rotation = 0.0f, const bool flip = false, std::optional<Point> rotCenter = std::nullopt) {
+		inline void DrawSpriteEX(const Rect& rect, const Rect& source, const Texture* texture, const float rotation = 0.0f, const bool flip = false, std::optional<Point> rotCenter = std::nullopt) {
 			if constexpr (texNullCheck) {
 				if (!texture) { return; }
 			}
@@ -648,13 +648,13 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderCopyEX(const Rect& rect, const Texture* texture, const float rotation = 0.0f, const bool flip = false, std::optional<Point> rotCenter = std::nullopt) {
+		inline void DrawSpriteEX(const Rect& rect, const Texture* texture, const float rotation = 0.0f, const bool flip = false, std::optional<Point> rotCenter = std::nullopt) {
 			if (!texture) { return; }
 			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
-			RenderCopyEX<false>(rect, fullSource, texture, rotation, flip, rotCenter);
+			DrawSpriteEX<false>(rect, fullSource, texture, rotation, flip, rotCenter);
 		}
 
-		inline void RenderCopyCircle(const Rect& rect, const Texture* texture, const float radius = 0.5f) {
+		inline void DrawCircleSprite(const Rect& rect, const Texture* texture, const float radius = 0.5f) {
 			if (!texture) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
@@ -689,7 +689,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderCircle(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f) {
+		inline void DrawCircle(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			if (currentProgram != renderCircleId) {
@@ -726,7 +726,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha = 255, int roundingSize = 8) {
+		inline void DrawRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha = 255, int roundingSize = 8) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			if (currentProgram != renderRoundedId) {
@@ -764,7 +764,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderCopyRounded(const Rect& rect, const Texture* texture, int roundingSize = 8) {
+		inline void DrawRoundedSprite(const Rect& rect, const Texture* texture, int roundingSize = 8) {
 			if (!texture) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
@@ -798,7 +798,7 @@ namespace MT {
 		}
 
 		template<bool texNullCheck = true>
-		inline void RenderCopyFiltered(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter) {
+		inline void DrawFilteredSprite(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter) {
 			if constexpr(texNullCheck) {
 				if (!texture) { return; }
 			}
@@ -852,13 +852,13 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderCopyFiltered(const Rect& rect, const Texture* texture, const Color& filter) {
+		inline void DrawFilteredSprite(const Rect& rect, const Texture* texture, const Color& filter) {
 			if (!texture) { return; }
 			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
-			RenderCopyFiltered<false>(rect, fullSource, texture, filter);
+			DrawFilteredSprite<false>(rect, fullSource, texture, filter);
 		}
 
-		inline void RenderBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255) {
+		inline void DrawBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			if (currentProgram != renderBorderId) {
@@ -893,7 +893,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderRoundedBorder(const Rect& rect, const Color& col, const int width,  const int roundingSize = 8, const unsigned char alpha = 255) {
+		inline void DrawRoundedBorder(const Rect& rect, const Color& col, const int width,  const int roundingSize = 8, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			if (currentProgram != renderRoundedBorderId) {
@@ -929,7 +929,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderMaskedOverlay(const Rect& rect, const Rect& source, const Texture* tex1, const Texture* tex2) {
+		inline void DrawMaskedOverlay(const Rect& rect, const Rect& source, const Texture* tex1, const Texture* tex2) {
 			if (!tex1 || !tex2) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
@@ -980,7 +980,7 @@ namespace MT {
 			glActiveTexture(GL_TEXTURE0);
 		}
 
-		inline void RenderDoubleMaskedOverlay(const Rect& rect, const Rect& source, const Rect& source2, const Texture* tex1, const Texture* tex2) {
+		inline void DrawDoubleMaskedOverlay(const Rect& rect, const Rect& source, const Rect& source2, const Texture* tex1, const Texture* tex2) {
 			if (!tex1 || !tex2) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
@@ -1040,7 +1040,7 @@ namespace MT {
 			glActiveTexture(GL_TEXTURE0);
 		}
 
-		inline void RenderShape(const Rect& rect, Texture* texture, const ColorA& filter) {
+		inline void DrawShape(const Rect& rect, Texture* texture, const ColorA& filter) {
 			if (!texture) { return; }
 
 			if (!vievPort.IsColliding(rect)) { return; }
@@ -1083,7 +1083,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderShadow(const Rect& rect, Texture* texture, const ColorA& filter, glm::vec3 lightPos) {
+		inline void DrawShadow(const Rect& rect, Texture* texture, const ColorA& filter, glm::vec3 lightPos) {
 			if (!texture) { return; }
 
 			if (!vievPort.IsColliding(rect)) { return; }
@@ -1130,7 +1130,7 @@ namespace MT {
 		}
 
 		//UPR Universal Pipeline Render does not change shader ever so it is much faster in shader switch rendering but slower overall
-		inline void RenderRectUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255) {
+		inline void DrawRectUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			CheckUPRProgram();
@@ -1149,7 +1149,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderRectEXUPR(const Rect& rect, const Color& col, const float rotation, std::optional<Point> rotCenter,
+		inline void DrawRectEXUPR(const Rect& rect, const Color& col, const float rotation, std::optional<Point> rotCenter,
 			const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
@@ -1222,7 +1222,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderCopyUPR(const Rect& rect, const Texture* texture) {
+		inline void DrawSpriteUPR(const Rect& rect, const Texture* texture) {
 			if (!texture) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
@@ -1247,7 +1247,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderCopyPartUPR(const Rect& rect, const Rect& source, const Texture* texture) {
+		inline void DrawSpritePartUPR(const Rect& rect, const Rect& source, const Texture* texture) {
 			if (!texture) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
@@ -1280,7 +1280,7 @@ namespace MT {
 		}
 
 		template<bool texNullCheck = true>
-		inline void RenderCopyEXUPR(const Rect& rect,  const Rect& source, const Texture* texture, const float rotation = 0.0f,
+		inline void DrawSpriteEXUPR(const Rect& rect,  const Rect& source, const Texture* texture, const float rotation = 0.0f,
 			const bool flip = false, std::optional<Point> rotCenter = std::nullopt) {
 			if constexpr (texNullCheck) {
 				if (!texture) { return; }
@@ -1337,14 +1337,14 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderCopyEXUPR(const Rect& rect, const Texture* texture, const float rotation = 0.0f, const bool flip = false,
+		inline void DrawSpriteEXUPR(const Rect& rect, const Texture* texture, const float rotation = 0.0f, const bool flip = false,
 			std::optional<Point> rotCenter = std::nullopt) {
 			if (!texture) { return; }
 			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
-			RenderCopyEXUPR<false>(rect,  fullSource, texture, rotation, flip, rotCenter);
+			DrawSpriteEXUPR<false>(rect,  fullSource, texture, rotation, flip, rotCenter);
 		}
 
-		void RenderCopyCircleUPR(const Rect& rect, const Texture* texture, const float radius = 0.5f) {
+		void DrawCircleSpriteUPR(const Rect& rect, const Texture* texture, const float radius = 0.5f) {
 			if (!texture) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
@@ -1371,7 +1371,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderCircleUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f) {
+		inline void DrawCircleUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			CheckUPRProgram();
@@ -1393,7 +1393,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderRoundedRectUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255, int roundingSize = 8) {
+		inline void DrawRoundedRectUPR(const Rect& rect, const Color& col, const unsigned char alpha = 255, int roundingSize = 8) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			CheckUPRProgram();
@@ -1415,7 +1415,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderCopyRoundedUPR(const Rect& rect, const Texture* texture, int roundingSize = 8) {
+		inline void DrawRoundedSpriteUPR(const Rect& rect, const Texture* texture, int roundingSize = 8) {
 			if (!texture) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
@@ -1443,7 +1443,7 @@ namespace MT {
 		}
 
 		template<bool texNullCheck = true>
-		inline void RenderCopyFilteredUPR(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter) {
+		inline void DrawFilteredSpriteUPR(const Rect& rect, const Rect& source, const Texture* texture, const Color& filter) {
 			if constexpr(texNullCheck) {
 				if (!texture) { return; }
 			}
@@ -1482,13 +1482,13 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderCopyFilteredUPR(const Rect& rect, const Texture* texture, const Color& filter) {
+		inline void DrawFilteredSpriteUPR(const Rect& rect, const Texture* texture, const Color& filter) {
 			if (!texture) { return; }
 			const Rect fullSource = { 0, 0, static_cast<int>(texture->w), static_cast<int>(texture->h) };
-			RenderCopyFilteredUPR<false>(rect, fullSource, texture, filter);
+			DrawFilteredSpriteUPR<false>(rect, fullSource, texture, filter);
 		}
 
-		inline void RenderBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255) {
+		inline void DrawBorderUPR(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			CheckUPRProgram();
@@ -1508,7 +1508,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderRoundedBorderUPR(const Rect& rect, const Color& col, const int width, const int roundingSize = 8, const unsigned char alpha = 255) {
+		inline void DrawRoundedBorderUPR(const Rect& rect, const Color& col, const int width, const int roundingSize = 8, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			CheckUPRProgram();
@@ -1531,7 +1531,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderMaskedOverlayUPR(const Rect& rect, const Rect& source, const Texture* tex1, const Texture* tex2) {
+		inline void DrawMaskedOverlayUPR(const Rect& rect, const Rect& source, const Texture* tex1, const Texture* tex2) {
 			if (!tex1 || !tex2) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
@@ -1574,7 +1574,7 @@ namespace MT {
 			glActiveTexture(GL_TEXTURE0);
 		}
 
-		inline void RenderDoubleMaskedOverlayUPR(const Rect& rect, const Rect& source, const Rect& source2, const Texture* tex1, const Texture* tex2) {
+		inline void DrawDoubleMaskedOverlayUPR(const Rect& rect, const Rect& source, const Rect& source2, const Texture* tex1, const Texture* tex2) {
 			if (!tex1 || !tex2) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
@@ -1624,7 +1624,7 @@ namespace MT {
 			glActiveTexture(GL_TEXTURE0);
 		}
 
-		inline void RenderShapeUPR(const Rect& rect, Texture* texture, const ColorA& filter) {
+		inline void DrawShapeUPR(const Rect& rect, Texture* texture, const ColorA& filter) {
 			if (!texture) { return; }
 
 			if (!vievPort.IsColliding(rect)) { return; }
@@ -1654,7 +1654,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void RenderShadowUPR(const Rect& rect, Texture* texture, const ColorA& filter, glm::vec3 lightPos) {
+		inline void DrawShadowUPR(const Rect& rect, Texture* texture, const ColorA& filter, glm::vec3 lightPos) {
 			if (!texture) { return; }
 
 			if (!vievPort.IsColliding(rect)) { return; }
@@ -1698,9 +1698,9 @@ namespace MT {
 		// not rememeber depth so new texture can be obscured by an old one 
 
 		//Neds to be called at least once after texture load and after every texture quantity change
-		void FLatRenderCopySetUp();
+		void FlatDrawSetUp();
 
-		inline void FLatRenderCopy(const Rect& rect, const Texture* texture) {
+		inline void FlatDrawSpirte(const Rect& rect, const Texture* texture) {
 			if (!texture) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
@@ -1718,7 +1718,7 @@ namespace MT {
 
 		// Needs to be called after all flat operations are finisched 
 		// NORMAL RENDER PRESENT WILL NOT DRAW ANYTHING !!!
-		inline void FLatRenderCopyPresent() {
+		inline void FlatDrawPresent() {
 			Present(false);
 			currentProgram = flatRenderCopyId;
 			glBindVertexArray(flatVao);
@@ -1831,7 +1831,7 @@ namespace MT {
 			return uniIter->second;
 		}
 
-		void Render(std::array<float,size> elements, MT::Texture* tex1 = nullptr, MT::Texture* tex2 = nullptr) {
+		void Draw(std::array<float,size> elements, MT::Texture* tex1 = nullptr, MT::Texture* tex2 = nullptr) {
 			if (ren->currentProgram != shaderID) {
 				ren->Present(false);
 				glBindVertexArray(VAO);
