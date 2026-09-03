@@ -112,6 +112,7 @@ void UI::Render() {
 
 
 void UI::RenderRawText(Font* font, const int x, const int y, const std::string& text,const int interline, const MT::Color& color) {
+	if (!font) { return; }
 	font->RenderRawText(renderer, x, y, text, interline, color);
 }
 
@@ -827,7 +828,8 @@ void UI::CreateFont(const std::string& name, MT::Texture* texture, const std::st
 }
 
 bool UI::CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name, LocalTexMan* localTexMan) {
-	return fontManager->CrateTempFontFromTTF(ttfPath, size, name,localTexMan);
+	fontManager->CrateTempFontFromTTF(ttfPath, size, name, localTexMan);
+	return true;
 }
 
 Font* UI::GetFont(const std::string& name) {

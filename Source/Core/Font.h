@@ -6,7 +6,6 @@
 
 class LocalTexMan;
 
-
 class Font{
 private:
 	std::string name;

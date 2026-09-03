@@ -11,6 +11,9 @@
 #include "Files.h"
 #include "Logger.h"
 
+
+#include "SDL_ttf.h"
+
 void Game::Start() {
 	MethaneVersion();
 	MT::SetSeed(static_cast<unsigned int>(time(0)));
@@ -31,11 +34,15 @@ void Game::Start() {
 
 	ui = std::make_unique<UI>(ren.get());
 
+	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 8, "arial8");
+	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 10, "arial10");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial12");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	ren->FLatRenderCopySetUp();
+
+	
 }
 
 void Game::LogicUpdate() {
@@ -58,7 +65,18 @@ void Game::Input() {
 }
 
 void Game::Render() {
-	ren->ClearFrame(30, 30, 30);
+	ren->ClearFrame(0, 0, 0);
+	ui->RenderRawText(ui->GetFont("arial8"), 10, 10, "Example Text", 20, { 255,255,255 });
+	ui->RenderRawText(ui->GetFont("arial10"), 10, 110, "Example Text", 20, { 255,255,255 });
+	ui->RenderRawText(ui->GetFont("arial12"), 10, 210, "Example Text", 20, { 255,255,255 });
+	ui->RenderRawText(ui->GetFont("arial20"), 10, 310, "Example Text", 20, { 255,255,255 });
+	ui->RenderRawText(ui->GetFont("arial40"), 10, 410, "Example Text", 20, { 255,255,255 });
+
+	ui->RenderRawText(ui->GetFont("2arial8"), 400, 10, "Example Text", 20, { 255,255,255 });
+	ui->RenderRawText(ui->GetFont("2arial10"), 400, 110, "Example Text", 20, { 255,255,255 });
+	ui->RenderRawText(ui->GetFont("2arial12"), 400, 210, "Example Text", 20, { 255,255,255 });
+	ui->RenderRawText(ui->GetFont("2arial20"), 400, 310, "Example Text", 20, { 255,255,255 });
+	ui->RenderRawText(ui->GetFont("2arial40"), 400, 410, "Example Text", 20, { 255,255,255 });
 	ui->Render();
 	ren->Present();
 }

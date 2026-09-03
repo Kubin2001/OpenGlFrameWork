@@ -546,6 +546,8 @@ void CrateFontFromTTF(const char* ttfPath, const int size, const std::string& na
 
 bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, const std::string& name, LocalTexMan* localTexMan) {
 	TTF_Init();
+	constexpr int fontSmallMaxSize = 12;
+
 
 	auto cleanUp = [](std::vector<SDL_Surface*>& surfaces, SDL_Surface* surf, TTF_Font *font) {
 		SDL_FreeSurface(surf);
@@ -562,7 +564,13 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 	}
 
 	TTF_Font* font = TTF_OpenFont(ttfPath, size);
-	TTF_SetFontHinting(font, TTF_HINTING_LIGHT);
+	if (size < fontSmallMaxSize) {
+		TTF_SetFontHinting(font, TTF_HINTING_NORMAL);
+	}
+	else {
+		TTF_SetFontHinting(font, TTF_HINTING_LIGHT);
+	}
+
 	if (font == nullptr) {
 		std::println("Cannot load font FontManager::CrateTempFontFromTTF for {} ", ttfPath);
 		return false;
@@ -592,7 +600,14 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 	int maxH = 0;
 	for (auto& it : strCharset) {
 
-		SDL_Surface* surf = TTF_RenderGlyph32_Blended(font, it, { 255,255,255,255 });
+		SDL_Surface* surf = nullptr;
+		if (size < fontSmallMaxSize) {
+			surf = TTF_RenderGlyph32_Solid(font, it, { 255,255,255,255 });
+		}
+		else {
+			surf = TTF_RenderGlyph32_Blended(font, it, { 255,255,255,255 });
+		}
+
 		if (!surf) continue;
 
 		SDL_Surface* newSurf = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_RGBA32, 0);
@@ -600,7 +615,6 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 		if (!newSurf) continue;
 
 		SDL_SetSurfaceBlendMode(newSurf, SDL_BLENDMODE_NONE);
-		SDL_SetColorKey(newSurf, SDL_FALSE, 0);
 		surfaces.emplace_back(newSurf);
 		sourceRectangles.emplace_back(0, 0, newSurf->w, newSurf->h);
 		w += newSurf->w + 1;
@@ -610,7 +624,7 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 	}
 
 	// Creating texture atlas from glyphs
-	constexpr int maxTextureWidth = 2000; // 2000 is quite small it can in theory be at most 4096 openGL max texture size
+	constexpr int maxTextureWidth = 2048; // 2048 is quite small it can in theory be at most 4096 openGL max texture size
 
 	// Fix texture
 	int x = 0;
@@ -634,7 +648,13 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 		SDL_BlitSurface(surfaces[i], nullptr, atlas, &tempRect);
 	}
 	
-	MT::Texture *tex = MT::LoadTextureFromSurface(atlas,TextureFilter::Linear);
+	MT::Texture* tex = nullptr;
+	if (size < fontSmallMaxSize) {
+		tex = MT::LoadTextureFromSurface(atlas, TextureFilter::Linear);
+	}
+	else {
+		tex = MT::LoadTextureFromSurface(atlas, TextureFilter::Linear);
+	}
 	
 	if (localTexMan == nullptr) {
 		if (!TexMan::AddTexture(tex, name)) {
