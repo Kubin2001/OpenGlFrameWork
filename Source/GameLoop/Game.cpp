@@ -29,6 +29,7 @@ void Game::Start() {
 
 	TexMan::Start(ren.get());
 	TexMan::DeepLoad("Textures");
+
 	SoundMan::Init();
 	SoundMan::DeepLoad("Sounds");
 
@@ -40,29 +41,7 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	ren->FlatDrawSetUp();
-
-	Label* lb = ui->CreateLabel("1", 10, 10, 100, 100, nullptr, ui->GetFont("arial12"), "Some\ntext");
-	lb->SetColor(50, 50, 50);
-	lb->SetTextAligment(TextAligment::Standard);
-
-	lb = ui->CreateLabel("2", 10, 150, 100, 100, nullptr, ui->GetFont("arial12"), "Some\ntext");
-	lb->SetColor(50, 50, 50);
-	lb->SetTextAligment(TextAligment::Centered);
-
-	lb = ui->CreateLabel("3", 10, 260, 100, 100, nullptr, ui->GetFont("arial12"), "Some\ntext");
-	lb->SetColor(50, 50, 50);
-	lb->SetTextAligment(TextAligment::CenteredX);
-
-
-	lb = ui->CreateLabel("4", 10, 370, 100, 100, nullptr, ui->GetFont("arial12"), "Some\ntext");
-	lb->SetColor(50, 50, 50);
-	lb->SetTextAligment(TextAligment::CenteredY);
-
-	lb = ui->CreateLabel("5", 10, 480, 100, 100, nullptr, ui->GetFont("arial12"), "Some\ntext");
-	lb->SetColor(50, 50, 50);
-	lb->SetTextAligment(TextAligment::FromRight);
 	
-
 }
 
 void Game::LogicUpdate() {
@@ -85,7 +64,8 @@ void Game::Input() {
 }
 
 void Game::Render() {
-	ren->ClearFrame(0, 0, 0);
+	ren->ClearFrame(255, 255, 255);
+	ren->DrawSprite({ 10,10,100,100 }, TexMan::GetTex("PawnLeft"));
 	ui->Render();
 	ren->Present();
 }

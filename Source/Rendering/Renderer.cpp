@@ -43,6 +43,12 @@ MT::Texture* MT::GenEmptyTexture(int w, int h) {
 }
 
 MT::Texture* MT::LoadTexture(const char* path, TextureFilter filter) {
+    SDL_Surface* surf = IMG_Load(path);
+    if (!surf) {
+        std::println("Failed to load image MT::LoadTexture: {}", IMG_GetError());
+        return nullptr;
+    }
+
     unsigned int texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -65,26 +71,19 @@ MT::Texture* MT::LoadTexture(const char* path, TextureFilter filter) {
         break;
     }
 
-    SDL_Surface* surf = IMG_Load(path);
-
     MT::Texture* metTex = new MT::Texture;
     metTex->texture = texture;
-    if (!surf) {
-        std::println("Failed to load image MT::LoadTexture: {}", IMG_GetError());
-        return metTex;
-    }
-    else {
-        SDL_Surface* formatted = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_RGBA32, 0); // Aby się nie crashowało jak jest zły format
-        SDL_FreeSurface(surf);
-        surf = formatted;
-        SDL_Surface *flipped = FlipSurfaceVertical(surf);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, flipped->w, flipped->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, flipped->pixels); // RGBA dla png
-        metTex->w = flipped->w;
-        metTex->h = flipped->h;
-        metTex->writeTime = std::filesystem::last_write_time(path);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        SDL_FreeSurface(flipped);
-    }
+
+    SDL_Surface* formatted = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_RGBA32, 0); // To prevent crash when format is wrong
+    SDL_FreeSurface(surf);
+    surf = formatted;
+    SDL_Surface *flipped = FlipSurfaceVertical(surf);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, flipped->w, flipped->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, flipped->pixels); // RGBA for png
+    metTex->w = flipped->w;
+    metTex->h = flipped->h;
+    metTex->writeTime = std::filesystem::last_write_time(path);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    SDL_FreeSurface(flipped);
     SDL_FreeSurface(surf);
 
     return metTex;

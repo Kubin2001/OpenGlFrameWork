@@ -61,13 +61,13 @@ bool TexMan::IsWorking() {
 }
 
 void TexMan::Print() {
-	std::cout << "------------------------\n";
-	std::cout << "Loaded Textures Names: \n";
-	std::cout << "------------------------\n";
-	for (auto it = Textures.begin(); it != Textures.end(); ++it) {
-		std::cout << it->first<<"\n";
+	std::println("------------------------");
+	std::println("Loaded Textures: ");
+	std::println("------------------------");
+	for (auto& [key, tex] : Textures) {
+		std::println("{}", key);
 	}
-	std::cout << "------------------------\n";
+	std::println("------------------------");
 }
 
 bool TexMan::IsFormatSupported(const std::string& format) {
@@ -86,12 +86,18 @@ bool TexMan::AddTexture(MT::Texture* tex, const std::string& name) {
 }
 
 void TexMan::LoadSingle(const char* filePath, const std::string& name) {
-	if (Textures.find(name) != Textures.end()) {
-		std::cout << "Texture: " << name << " is already loaded\n";
+	auto [iter, succes] = Textures.try_emplace(name);
+	if (!succes) {
+		std::println("Texture: {} is already loaded", name);
 		return;
 	}
-	MT::Texture* tex = MT::LoadTexture(filePath);
-	Textures[name] = std::unique_ptr<MT::Texture>(tex);
+	MT::Texture* texture = MT::LoadTexture(filePath);
+	if (texture) {
+		iter->second.reset(texture);
+	}
+	else {
+		Textures.erase(iter);
+	}
 }
 
 
