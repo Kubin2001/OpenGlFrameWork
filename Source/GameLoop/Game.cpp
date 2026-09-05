@@ -41,6 +41,21 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	ren->FlatDrawSetUp();
+
+	UIElemBase *lb = ui->CreateLabel("", 10, 10, 50, 50, nullptr);
+	lb->SetColor(30, 30, 30);
+	lb = ui->CreateClickBox("", 100, 10, 50, 50, nullptr);
+	lb->SetColor(30, 30, 30);
+	lb = ui->CreateLabel("", 200, 10, 50, 50, nullptr);
+	lb->SetColor(30, 30, 30);
+	lb = ui->CreateLabel("", 300, 10, 50, 50, nullptr);
+	lb->SetColor(30, 30, 30);
+	lb = ui->CreateLabel("", 400, 10, 50, 50, nullptr);
+	lb->SetColor(30, 30, 30);
+	lb = ui->CreateLabel("", 500, 10, 50, 50, nullptr);
+	lb->SetColor(30, 30, 30);
+	lb = ui->CreateLabel("", 600, 10, 50, 50, nullptr);
+	lb->SetColor(30, 30, 30);
 	
 }
 

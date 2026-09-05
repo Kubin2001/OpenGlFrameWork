@@ -6,6 +6,11 @@
 #include "Colision.h"
 #include "GlobalVariables.h"
 
+inline size_t uiAnonNum = 0;
+static std::string AnanonUIName() {
+	return std::to_string(uiAnonNum++);
+}
+
 //UIElemBase
 
 void UIElemBase::Render(UIElemBase* elem, MT::Renderer* renderer) {
@@ -145,10 +150,10 @@ void UI::UseLayerInRendering(bool use) {
 	}
 }
 
-void UI::FillElem(UIElemBase *elem ,const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+void UI::FillElem(UIElemBase *elem , std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
-	elem->name = name;
+	elem->name = std::move(name);
 	elem->rect.Set(x, y, w, h);
 	elem->SetShape(ElemShape::Standard);
 
@@ -164,127 +169,109 @@ void UI::FillElem(UIElemBase *elem ,const std::string& name, int x, int y, int w
 	elem->textStartY = textStartY;
 }
 
-Label* UI::LCreateLabel(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+bool UI::CreateHelper(std::string& name, const char* castName) {
+	if (name.empty()) {
+		name = AnanonUIName();
+	}
+
+	if (GetElem(name) != nullptr) {
+		std::println("Warning name collision {} with name: {} already exists addition abborted", castName, name);
+		return false;
+	}
+	return true;
+}
+
+Label* UI::LCreateLabel(unsigned int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	if (!settings.useLayersInRendering) {
-		throw std::exception("This should not be used without layer in rendering set on");
+		throw std::runtime_error("This should not be used without layer in rendering set on");
 	}
 
-	if (GetLabel(name) != nullptr) {
-		std::println("Warning name collision Label with name: {} already exists addition abborted", name);
-		return nullptr;
-	}
+	std::string trueName = name;
+	if (!CreateHelper(trueName, "Label")) { return nullptr; }
 
-	if (layer < 0) { layer = 0; }
-	if (layer > 100) { layer = 100; }
-	LayerVec[layer].elements.emplace_back(new Label());
-	Label* lb = static_cast<Label*>(LayerVec[layer].elements.back());
-	lb->zLayer = layer;;
+	Label* lb = AllocateInContainer<Label>(layer);
 
 	lb->castType = CastType::Label;
-	FillElem(lb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
+	FillElem(lb, trueName, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
 	UIElemMap.emplace(lb->name, lb);
 	return lb;
 }
 
-TextBox* UI::LCreateTextBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+TextBox* UI::LCreateTextBox(unsigned int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	if (!settings.useLayersInRendering) {
-		throw std::exception("This should not be used without layer in rendering set on");
+		throw std::runtime_error("This should not be used without layer in rendering set on");
 	}
 
-	if (GetTextBox(name) != nullptr) {
-		std::println("Warning name collision TextBox with name: {} already exists addition abborted", name);
-		return nullptr;
-	}
+	std::string trueName = name;
+	if (!CreateHelper(trueName, "Text Box")) { return nullptr; }
 
-	if (layer < 0) { layer = 0; }
-	if (layer > 100) { layer = 100; }
-	LayerVec[layer].elements.emplace_back(new TextBox());
-	TextBox* tb = static_cast<TextBox*>(LayerVec[layer].elements.back());
-	tb->zLayer = layer;
+	TextBox* tb = AllocateInContainer<TextBox>(layer);
 
 	tb->castType = CastType::TextBox;
-	FillElem(tb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
+	FillElem(tb, trueName, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
 	UIElemMap.emplace(tb->name, tb);
 	return tb;
 }
 
-ClickBox* UI::LCreateClickBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+ClickBox* UI::LCreateClickBox(unsigned int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	if (!settings.useLayersInRendering) {
-		throw std::exception("This should not be used without layer in rendering set on");
+		throw std::runtime_error("This should not be used without layer in rendering set on");
 	}
 
-	if (GetClickBox(name) != nullptr) {
-		std::println("Warning name collision Click Box with name: {} already exists addition abborted", name);
-		return nullptr;
-	}
+	std::string trueName = name;
+	if (!CreateHelper(trueName, "Click Box")) { return nullptr; }
 
-	if (layer < 0) { layer = 0; }
-	if (layer > 100) { layer = 100; }
-	LayerVec[layer].elements.emplace_back(new ClickBox());
-	ClickBox* cb = static_cast<ClickBox*>(LayerVec[layer].elements.back());
-	cb->zLayer = layer;
+	ClickBox* cb = AllocateInContainer<ClickBox>(layer);
 
 	cb->castType = CastType::ClickBox;
-	FillElem(cb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
+	FillElem(cb, trueName, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
 	UIElemMap.emplace(cb->name, cb);
 	return cb;
 }
 
-PopUpBox* UI::LCreatePopUpBox(int layer, const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture, Font* font,
+PopUpBox* UI::LCreatePopUpBox(unsigned int layer, const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
 	if (!settings.useLayersInRendering) {
-		throw std::exception("This should not be used without layer in rendering set on");
+		throw std::runtime_error("This should not be used without layer in rendering set on");
 	}
 
-	if (GetPopUpBox(name) != nullptr) {
-		std::cout << "Warning name collision PopUpBox with name: " << name << " already exists addition abborted\n";
-		return nullptr;
-	}
+	std::string trueName = name;
+	if (!CreateHelper(trueName, "Pop Up Box")) { return nullptr; }
 
-	if (layer < 0) { layer = 0; }
-	if (layer > 100) { layer = 100; }
-	LayerVec[layer].elements.emplace_back(new PopUpBox());
-	PopUpBox* pb = static_cast<PopUpBox*>(LayerVec[layer].elements.back());
-	pb->zLayer = layer;
+	PopUpBox* pb = AllocateInContainer<PopUpBox>(layer);
 
 	pb->castType = CastType::PopUpBox;
 	pb->lifeTime = lifeSpan;
-	FillElem(pb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
+	FillElem(pb, trueName, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
 	UIElemMap.emplace(pb->name, pb);
 	popupBoxesCount++;
 	return pb;
 }
 
-Slider* UI::LCreateSlider(int layer, const std::string& name, int x, int y, int w, int h, SliderSlide slideType, int min, int max, MT::Texture* texture) {
+Slider* UI::LCreateSlider(unsigned int layer, const std::string& name, int x, int y, int w, int h, SliderSlide slideType, int min, int max, MT::Texture* texture) {
 
 	if (!settings.useLayersInRendering) {
-		throw std::exception("This should not be used without layer in rendering set on");
+		throw std::runtime_error("This should not be used without layer in rendering set on");
 	}
 
-	if (GetSlider(name) != nullptr) {
-		std::cout << "Warning name collision Slider with name: " << name << " already exists addition abborted\n";
-		return nullptr;
-	}
+	std::string trueName = name;
+	if (!CreateHelper(trueName, "Slider")) { return nullptr; }
 
-	if (layer < 0) { layer = 0; }
-	if (layer > 100) { layer = 100; }
-	LayerVec[layer].elements.emplace_back(new Slider());
-	Slider* sl = static_cast<Slider*>(LayerVec[layer].elements.back());
-	sl->zLayer = layer;
+	Slider* sl = AllocateInContainer<Slider>(layer);
 
 	sl->castType = CastType::Slider;
-	sl->name = name;
+	sl->name = std::move(trueName);
 	sl->rect.Set(x, y, w, h);
 	sl->SetShape(ElemShape::Standard);
 	sl->texture = texture;
@@ -300,24 +287,13 @@ Slider* UI::LCreateSlider(int layer, const std::string& name, int x, int y, int 
 Label* UI::CreateLabel(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
-	if (GetLabel(name) != nullptr) {
-		std::println("Warning name collision Label with name: {} already exists addition abborted",name);
-		return nullptr;
-	}
+	std::string trueName = name;
+	if (!CreateHelper(trueName, "Label")) {return nullptr;}
 
-	Label* lb = nullptr;
-	if (settings.useLayersInRendering) {
-		LayerVec[0].elements.emplace_back(new Label());
-		lb = static_cast<Label*>(LayerVec[0].elements.back());
-	}
-	else {
-		UiElemVec.emplace_back(new Label());
-		lb = static_cast<Label*>(UiElemVec.back());
-
-	}
+	Label* lb = AllocateInContainer<Label>(0u);
 
 	lb->castType = CastType::Label;
-	FillElem(lb,name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
+	FillElem(lb,trueName, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
 	UIElemMap.emplace(lb->name, lb);
 	return lb;
@@ -326,23 +302,13 @@ Label* UI::CreateLabel(const std::string& name, int x, int y, int w, int h, MT::
 TextBox* UI::CreateTextBox(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
-	if (GetTextBox(name) != nullptr) {
-		std::println("Warning name collision TextBox with name: {} already exists addition abborted", name);
-		return nullptr;
-	}
+	std::string trueName = name;
+	if (!CreateHelper(trueName, "Text Box")) { return nullptr; }
 
-	TextBox* tb = nullptr;
-	if (settings.useLayersInRendering) {
-		LayerVec[0].elements.emplace_back(new TextBox());
-		tb = static_cast<TextBox*>(LayerVec[0].elements.back());
-	}
-	else {
-		UiElemVec.emplace_back(new TextBox());
-		tb = static_cast<TextBox*>(UiElemVec.back());
-	}
+	TextBox* tb = AllocateInContainer<TextBox>(0u);
 
 	tb->castType = CastType::TextBox;
-	FillElem(tb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
+	FillElem(tb, trueName, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
 	UIElemMap.emplace(tb->name, tb);
 	return tb;
@@ -351,23 +317,13 @@ TextBox* UI::CreateTextBox(const std::string& name, int x, int y, int w, int h, 
 ClickBox* UI::CreateClickBox(const std::string& name, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
 
-	if (GetClickBox(name) != nullptr) {
-		std::println("Warning name collision Click Box with name: {} already exists addition abborted", name);
-		return nullptr;
-	}
+	std::string trueName = name;
+	if (!CreateHelper(trueName, "Click Box")) { return nullptr; }
 
-	ClickBox* cb = nullptr;
-	if (settings.useLayersInRendering) {
-		LayerVec[0].elements.emplace_back(new ClickBox());
-		cb = static_cast<ClickBox*>(LayerVec[0].elements.back());
-	}
-	else {
-		UiElemVec.emplace_back(new ClickBox());
-		cb = static_cast<ClickBox*>(UiElemVec.back());
-	}
+	ClickBox* cb = AllocateInContainer<ClickBox>(0u);
 
 	cb->castType = CastType::ClickBox;
-	FillElem(cb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
+	FillElem(cb, trueName, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
 	UIElemMap.emplace(cb->name, cb);
 	return cb;
@@ -375,24 +331,15 @@ ClickBox* UI::CreateClickBox(const std::string& name, int x, int y, int w, int h
 
 PopUpBox* UI::CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture, Font* font,
 	const std::string& text, float textScale, int textStartX, int textStartY) {
-	if (GetPopUpBox(name) != nullptr) {
-		std::cout << "Warning name collision PopUpBox with name: " << name << " already exists addition abborted\n";
-		return nullptr;
-	}
 
-	PopUpBox* pb = nullptr;
-	if (settings.useLayersInRendering) {
-		LayerVec[0].elements.emplace_back(new PopUpBox());
-		pb = static_cast<PopUpBox*>(LayerVec[0].elements.back());
-	}
-	else {
-		UiElemVec.emplace_back(new PopUpBox());
-		pb = static_cast<PopUpBox*>(UiElemVec.back());
-	}
+	std::string trueName = name;
+	if (!CreateHelper(trueName, "Pop Up Box")) { return nullptr; }
+
+	PopUpBox* pb = AllocateInContainer<PopUpBox>(0u);
 
 	pb->castType = CastType::PopUpBox;
 	pb->lifeTime = lifeSpan;
-	FillElem(pb, name, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
+	FillElem(pb, trueName, x, y, w, h, texture, font, text, textScale, textStartX, textStartY);
 
 	UIElemMap.emplace(pb->name, pb);
 	popupBoxesCount++;
@@ -400,24 +347,14 @@ PopUpBox* UI::CreatePopUpBox(const std::string& name, int lifeSpan, int x, int y
 }
 
 Slider* UI::CreateSlider(const std::string& name, int x, int y, int w, int h, SliderSlide slideType, int min, int max, MT::Texture* texture){
-	if (GetSlider(name) != nullptr) {
-		std::cout << "Warning name collision PopUpBox with name: " << name << " already exists addition abborted\n";
-		return nullptr;
-	}
 
-	Slider* sl = nullptr;
-	if (settings.useLayersInRendering) {
-		LayerVec[0].elements.emplace_back(new Slider());
-		sl = static_cast<Slider*>(LayerVec[0].elements.back());
-	}
-	else {
-		UiElemVec.emplace_back(new Slider());
-		sl = static_cast<Slider*>(UiElemVec.back());
-	}
+	std::string trueName = name;
+	if (!CreateHelper(trueName, "Slider")) { return nullptr; }
+
+	Slider* sl = AllocateInContainer<Slider>(0u);
 
 	sl->castType = CastType::Slider;
-	sl->castType = CastType::Slider;
-	sl->name = name;
+	sl->name = std::move(trueName);
 	sl->rect.Set(x, y, w, h);
 	sl->SetShape(ElemShape::Standard);
 
@@ -729,9 +666,8 @@ void UI::SetElementZLayer(const std::string& name, int zlayer) {
 		return;
 	}
 	UIElemBase* elem = iter->second;
-	int prevLayer = elem->zLayer;
-	if (zlayer < 0) { zlayer = 0; }
-	else if (zlayer > 100) { zlayer = 100; }
+	unsigned int  prevLayer = elem->zLayer;
+	if (zlayer > 100) { zlayer = 100; }
 	elem->zLayer = zlayer;
 	if (settings.useLayersInRendering) {
 		auto elemIter = std::find_if(LayerVec[prevLayer].elements.begin(), LayerVec[prevLayer].elements.end(),
@@ -744,7 +680,7 @@ void UI::SetElementZLayer(const std::string& name, int zlayer) {
 }
 
 void UI::SetLayerClipTest(bool test, const MT::Rect& rect, int zlayer) {
-	if (zlayer > -1 && zlayer < LayerVec.size()) {
+	if (zlayer < LayerVec.size()) {
 		LayerVec[zlayer].clipTest = test;
 		LayerVec[zlayer].clipRect = rect;
 	}

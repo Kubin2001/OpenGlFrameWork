@@ -52,7 +52,7 @@ protected:
 
 	Mix_Chunk* hoverSound = nullptr;
 
-	int zLayer = 0; // Bazowo zawsze 0 
+	unsigned int zLayer = 0; // Bazowo zawsze 0 
 
 	void RenderText(MT::Renderer* renderer);
 
@@ -349,8 +349,28 @@ class UI{
 
 		void DumpSlider(nlohmann::ordered_json& json, Slider* sl);
 
-		void FillElem(UIElemBase* elem, const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
+		bool CreateHelper(std::string& name, const char* castName);
+
+		void FillElem(UIElemBase* elem, std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
+
+		template <typename ElemType>
+		ElemType* AllocateInContainer(unsigned int layer) {
+			ElemType* elem = nullptr;
+			if (settings.useLayersInRendering) {
+				if (layer > 100) { layer = 100; }
+				LayerVec[layer].elements.emplace_back(new ElemType());
+				elem = static_cast<ElemType*>(LayerVec[layer].elements.back());
+			}
+			else {
+				UiElemVec.emplace_back(new ElemType());
+				elem = static_cast<ElemType*>(UiElemVec.back());
+			}
+
+			elem->zLayer = layer;
+			return elem;
+
+		}
 
 		struct Settings {
 		private:
@@ -376,21 +396,21 @@ class UI{
 		friend class UIList;
 		UI(MT::Renderer* renderer);
 
-		Label* LCreateLabel(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture =nullptr, 
+		Label* LCreateLabel(unsigned int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture =nullptr,
 			Font* font = nullptr,const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
-		TextBox* LCreateTextBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr,
+		TextBox* LCreateTextBox(unsigned int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr,
 			Font* font = nullptr,
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
-		ClickBox* LCreateClickBox(int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr,
+		ClickBox* LCreateClickBox(unsigned int layer, const std::string& name, int x, int y, int w, int h, MT::Texture* texture = nullptr,
 			Font* font = nullptr,
 			const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
-		PopUpBox* LCreatePopUpBox(int layer, const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr,
+		PopUpBox* LCreatePopUpBox(unsigned int layer, const std::string& name, int lifeSpan, int x, int y, int w, int h, MT::Texture* texture = nullptr,
 			Font* font = nullptr, const std::string& text = "", float textScale = 1.0f, int textStartX = 0, int textStartY = 0);
 
-		Slider* LCreateSlider(int layer, const std::string& name, int x, int y, int w, int h, SliderSlide slideType, int min, int max,
+		Slider* LCreateSlider(unsigned int layer, const std::string& name, int x, int y, int w, int h, SliderSlide slideType, int min, int max,
 			MT::Texture* texture = nullptr);
 
 		Label* CreateLabel(const std::string &name, int x, int y, int w, int h, MT::Texture* texture = nullptr, Font* font = nullptr,
