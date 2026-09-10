@@ -2,11 +2,12 @@
 
 #include <iostream>
 #include <SDL_image.h>
-#include <SDL.h>
 #include <filesystem>
 #include <vector>
 #include <string>
 #include <format>
+
+#include "Logger.h"
 
 void TexMan::CreateDefaultTexture() {
 	SDL_Surface* surface = SDL_CreateRGBSurface(
@@ -61,13 +62,13 @@ bool TexMan::IsWorking() {
 }
 
 void TexMan::Print() {
-	std::println("------------------------");
-	std::println("Loaded Textures: ");
-	std::println("------------------------");
+	Logger::Log("------------------------");
+	Logger::Log("Loaded Textures: ");
+	Logger::Log("------------------------");
 	for (auto& [key, tex] : Textures) {
-		std::println("{}", key);
+		Logger::Log(std::format("{}", key));
 	}
-	std::println("------------------------");
+	Logger::Log("------------------------");
 }
 
 bool TexMan::IsFormatSupported(const std::string& format) {
@@ -88,7 +89,7 @@ bool TexMan::AddTexture(MT::Texture* tex, const std::string& name) {
 void TexMan::LoadSingle(const char* filePath, const std::string& name) {
 	auto [iter, succes] = Textures.try_emplace(name);
 	if (!succes) {
-		std::println("Texture: {} is already loaded", name);
+		Logger::Log(std::format("Texture: {} is already loaded", name), LogType::Warning);
 		return;
 	}
 	MT::Texture* texture = MT::LoadTexture(filePath);
@@ -184,7 +185,7 @@ void TexMan::RefreshTexturesInFolder(const std::string& directory, bool removeIn
 void TexMan::RefreshTextures(const std::string& directory, bool removeInvalid) {
 	namespace fs  = std::filesystem;
 	if (!fs::exists(directory)) {
-		std::println("TexMan::RefreshTextures incorrect start directory");
+		Logger::Log("TexMan::RefreshTextures incorrect start directory", LogType::Error);
 		return;
 	}
 	std::unordered_set<std::string> namesCollector;
@@ -211,7 +212,7 @@ Point TexMan::GetTextureSize(const std::string& name) {
 	Point p(-1, -1);
 	auto it = Textures.find(name);
 	if (it == Textures.end()) {
-		std::println("Texture not found: {}", name);
+		Logger::Log(std::format("Texture not found: {}", name),LogType::Warning);
 		return p;
 	}
 	p.x = it->second->w;
@@ -645,7 +646,7 @@ Point LocalTexMan::GetTextureSize(const std::string& name) {
 	Point p(-1, -1);
 	auto it = Textures.find(name);
 	if (it == Textures.end()) {
-		std::println("Texture not found: {}", name);
+		Logger::Log(std::format("Texture not found: {}", name), LogType::Warning);
 		return p;
 	}
 	p.x = it->second->w;

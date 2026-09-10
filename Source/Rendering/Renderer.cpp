@@ -45,7 +45,7 @@ MT::Texture* MT::GenEmptyTexture(int w, int h) {
 MT::Texture* MT::LoadTexture(const char* path, TextureFilter filter) {
     SDL_Surface* surf = IMG_Load(path);
     if (!surf) {
-        std::println("Failed to load image MT::LoadTexture: {}", IMG_GetError());
+        Logger::Log(std::format("Failed to load image MT::LoadTexture: {}", IMG_GetError()), LogType::Error);
         return nullptr;
     }
 
@@ -116,7 +116,7 @@ MT::Texture* MT::LoadTextureFromSurface(SDL_Surface* surf, TextureFilter filter)
     MT::Texture* metTex = new MT::Texture;
     metTex->texture = texture;
     if (!surf) {
-        std::println("Empty surface in MT::LoadTextureFromSurface: {}", IMG_GetError());
+        Logger::Log(std::format("Empty surface in MT::LoadTextureFromSurface: {}", IMG_GetError()), LogType::Error);
         return metTex;
     }
 

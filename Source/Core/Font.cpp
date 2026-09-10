@@ -1,7 +1,6 @@
 #include "Font.h"
 
 #include <fstream>
-#include <print>
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -455,10 +454,10 @@ void CrateFontFromTTF(const char* ttfPath, const int size, const std::string& na
 	if (file.is_open()) {
 		file << fontJSON.dump(4);
 		file.close();
-		std::println("Font {} JSON generated successfully", name);
+		Logger::Log(std::format("Font {} JSON generated successfully", name), LogType::Info);
 	}
 	else {
-		std::println("ERROR cannot generate font: {}", name);
+		Logger::Log(std::format("ERROR cannot generate font: {}", name), LogType::Info);
 	}
 
 	//Clean Up
@@ -485,7 +484,7 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 	};
 
 	if (!std::filesystem::exists(ttfPath)) {
-		std::println("Incorrect path in FontManager::CrateTempFontFromTTF for {} ", ttfPath);
+		Logger::Log(std::format("Incorrect path in FontManager::CrateTempFontFromTTF for {} ", ttfPath), LogType::Error);
 		return false;
 	}
 
@@ -498,7 +497,7 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 	}
 
 	if (font == nullptr) {
-		std::println("Cannot load font FontManager::CrateTempFontFromTTF for {} ", ttfPath);
+		Logger::Log(std::format("Cannot load font FontManager::CrateTempFontFromTTF for {} ", ttfPath),LogType::Error);
 		return false;
 	}
 
@@ -585,14 +584,16 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 	if (localTexMan == nullptr) {
 		if (!TexMan::AddTexture(tex, name)) {
 			cleanUp(surfaces, atlas, font);
-			std::println("Texture name alrady taken use other name FontManager::CrateTempFontFromTTF for {} ", name);
+			Logger::Log(std::format("Texture name alrady taken use other name FontManager::CrateTempFontFromTTF for {} "
+				, name), LogType::Error);
 			return false;
 		}
 	}
 	else {
 		if (!localTexMan->AddTexture(tex, name)) {
 			cleanUp(surfaces, atlas, font);
-			std::println("Texture name alrady taken use other name FontManager::CrateTempFontFromTTF for {} ", name);
+			Logger::Log(std::format("Texture name alrady taken use other name FontManager::CrateTempFontFromTTF for {} "
+				, name), LogType::Error);
 		}
 		return false;
 	}
@@ -602,7 +603,8 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 		for (auto& it : fonts) {
 			if (it->GetName() == name) {
 				cleanUp(surfaces, atlas, font);
-				std::println("Font with the same name already exist  FontManager::CrateTempFontFromTTF for {} ", name);
+				Logger::Log(std::format("Font with the same name already exist  FontManager::CrateTempFontFromTTF for {} "
+					, name), LogType::Error);
 				return false;
 			}
 		}

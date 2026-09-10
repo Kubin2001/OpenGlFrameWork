@@ -1,11 +1,11 @@
-#include <print>
-
 #include "SoundManager.h"
+
+#include "Logger.h"
 
 
 void SoundMan::Init() {
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
-		std::println("Failed to sound manager (sdl_mixer error): {}", Mix_GetError());
+		Logger::Log(std::format("Failed to sound manager (sdl_mixer error): {}", Mix_GetError()),LogType::Error);
 		throw std::runtime_error("Sound man critical error cannot innit systems");
 	}
 	Mix_Init(MIX_INIT_MP3 | MIX_INIT_OGG);
@@ -13,13 +13,13 @@ void SoundMan::Init() {
 }
 
 void SoundMan::Print() {
-	std::println("------------------------");
-	std::println("Loaded Sounds Names");
-	std::println("------------------------");
+	Logger::Log("------------------------");
+	Logger::Log("Loaded Sounds Names");
+	Logger::Log("------------------------");
 	for (auto& sound : Sounds) {
-		std::println("{}", sound.first);
+		Logger::Log(std::format("------------------------",sound.first));
 	}
-	std::println("------------------------");
+	Logger::Log("------------------------");
 }
 
 void SoundMan::Load(const std::filesystem::directory_entry& entry) {
@@ -29,7 +29,7 @@ void SoundMan::Load(const std::filesystem::directory_entry& entry) {
 	if (ext == ".wav") { // Sound
 		auto sound = Sounds.find(name);
 		if (sound != Sounds.end()) {
-			std::println("Sound already loaded {} ", name);
+			Logger::Log(std::format("Sound already loaded {} ", name), LogType::Warning);
 			return;
 		}
 		Mix_Chunk* lSound = Mix_LoadWAV(entry.path().string().c_str());
@@ -41,7 +41,7 @@ void SoundMan::Load(const std::filesystem::directory_entry& entry) {
 	else if (ext == ".mp3" || ext == ".ogg") { // Music
 		auto music = Musics.find(name);
 		if (music != Musics.end()) {
-			std::println("Music already loaded {} ", name);
+			Logger::Log(std::format("Music already loaded {} ", name), LogType::Warning);
 			return;
 		}
 		Mix_Music* lMusic = Mix_LoadMUS(entry.path().string().c_str());
@@ -58,7 +58,8 @@ void SoundMan::LoadDir(const std::string& directory) {
 		}
 	}
 	catch (std::exception& e) {
-		std::println("SoundMan::LoadSounds Error loading directory: {}    {}", directory, e.what());
+		Logger::Log(std::format("SoundMan::LoadSounds Cannot load directory: {}    {}",
+			directory, e.what()), LogType::Error);
 	}
 
 }
@@ -79,7 +80,7 @@ void SoundMan::PlaySound(const std::string& name, int volume) {
 		PlaySound(it->second,volume);
 		return;
 	}
-	std::println("Sound not found: {}", name);
+	Logger::Log(std::format("Sound not found: {}", name), LogType::Warning);
 }
 
 void SoundMan::PlaySound(Mix_Chunk* sound, int volume) {
@@ -95,7 +96,7 @@ void SoundMan::PlaySound(Mix_Chunk* sound, int volume) {
 void SoundMan::PlaySoundStereo(const std::string& name, int left, int right, int volume) {
 	auto sound = Sounds.find(name);
 	if (sound == Sounds.end()) {
-		std::println("Sound not found: {}", name);
+		Logger::Log(std::format("Sound not found: {}", name), LogType::Warning);
 		return;
 	}
 	PlaySoundStereo(sound->second, left, right,volume);
@@ -118,7 +119,7 @@ void SoundMan::PlaySoundStereo(Mix_Chunk* sound, int left, int right, int volume
 void SoundMan::PlayMusic(const std::string& name, int volume, MusicPlayType playType) {
 	auto music = Musics.find(name);
 	if (music == Musics.end()) {
-		std::println("No music with name {} loaded SoundMan::PlayMusic", name);
+		Logger::Log(std::format("No music with name {} loaded SoundMan::PlayMusic", name), LogType::Warning);
 		return;
 	}
 	Mix_PlayMusic(music->second,static_cast<int>(playType));
@@ -132,7 +133,7 @@ Mix_Chunk *SoundMan::GetSound(const std::string& name) {
 	if (it != Sounds.end()) {
 		return it->second;
 	}
-	std::println("Sound not found: {}", name);
+	Logger::Log(std::format("Sound not found: {}", name), LogType::Warning);
 	return nullptr;
 }
 
@@ -143,7 +144,7 @@ std::unordered_map<std::string, Mix_Chunk*> &SoundMan::GetSounds() {
 void SoundMan::SetVolume(const std::string& soundKey, unsigned char volume) {
 	auto sound = Sounds.find(soundKey);
 	if (sound == Sounds.end()) {
-		std::println("Wrong sound key in SoundMan::SetVolume function: {}",soundKey);
+		Logger::Log(std::format("Wrong sound key in SoundMan::SetVolume function: {}", soundKey), LogType::Warning);
 		return;
 	}
 	unsigned char newVolume = (volume * MIX_MAX_VOLUME) / 100;
@@ -176,7 +177,7 @@ void SoundMan::RefreshSoundsInFolder(const std::string& directory, bool removeIn
 void SoundMan::RefreshSounds(const std::string& directory, bool removeInvalid) {
 	namespace fs = std::filesystem;
 	if (!fs::exists(directory)) {
-		std::println("SoundMan::RefreshSounds incorrect start directory");
+		Logger::Log("SoundMan::RefreshSounds incorrect start directory", LogType::Error);
 		return;
 	}
 	std::unordered_set<std::string> namesCollector;
@@ -206,7 +207,7 @@ bool SoundMan::DeleteSound(const std::string& name) {
 		Sounds.erase(it);
 		return true;
 	}
-	std::println("Sound not found: {} SoundMan::DeleteSound", name);
+	Logger::Log(std::format("Sound not found: {} SoundMan::DeleteSound", name), LogType::Warning);
 	return false;
 }
 
@@ -217,7 +218,7 @@ bool SoundMan::DeleteMusic(const std::string& name) {
 		Musics.erase(it);
 		return true;
 	}
-	std::println("Music not found: {} SoundMan::DeleteMusic", name);
+	Logger::Log(std::format("Music not found: {} SoundMan::DeleteMusic", name), LogType::Warning);
 	return false;
 }
 

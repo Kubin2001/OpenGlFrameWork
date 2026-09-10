@@ -227,3 +227,5 @@ was removed or the new one was added to folder
 - Simplified Text Rendering and naming conventions
 - Loading Single Texture is now safer and will return base texture if failed not black box
 - Ui Elements can have anonymous name when name parameter is empty at creation
+- Logger is now fully integrated into framework
+- You can now set up minimum log message level

@@ -1,8 +1,9 @@
 #include "ShaderLoader.h"
 
-#include <print>
 #include <fstream>
 #include <sstream>
+
+#include "Logger.h"
 
 std::string LoadShaderFile(const char* fileName) {
     std::ifstream file;
@@ -13,10 +14,10 @@ std::string LoadShaderFile(const char* fileName) {
     if (file.is_open()) {
         buf << file.rdbuf();
         ret = buf.str();
-        std::println("Shader : {} loaded ", fileName);
+        Logger::Log(std::format("Shader : {} loaded ", fileName), LogType::Info);
     }
     else{
-        std::println("Error file: {} not openned ", fileName);
+        Logger::Log(std::format("Error cannot open file: {}", fileName), LogType::Error);
     }
     file.close();
 
@@ -38,11 +39,11 @@ void ShaderLoader::LoadShader(const std::string& name, const std::string& path, 
 
     if (!success) {
         glGetShaderInfoLog(shaderID, 512, nullptr, infoLog);
-        std::println("Error with shader compilation NAME: {} ERROR:{}", name,infoLog);
+        Logger::Log(std::format("Error with shader compilation NAME: {} ERROR:{}", name, infoLog), LogType::Error);
     }
     else{
         shaders[name] = shaderID;
-        std::println("Shader Compilation succesfull: {}",name);
+        Logger::Log(std::format("Shader Compilation succesfull: {}", name), LogType::Info);
     }
 }
 
@@ -61,11 +62,11 @@ void ShaderLoader::LoadShaderStr(const std::string& name, const std::string& sha
 
     if (!success) {
         glGetShaderInfoLog(shaderID, 512, nullptr, infoLog);
-        std::println("Error with shader compilation NAME: {} ERROR:{}", name, infoLog);
+        Logger::Log(std::format("Error with shader compilation NAME: {} ERROR:{}", name, infoLog), LogType::Error);
     }
     else {
         shaders[name] = shaderID;
-        std::println("Shader Compilation succesfull: {}", name);
+        Logger::Log(std::format("Shader Compilation succesfull: {}", name), LogType::Info);
     }
 }
 
@@ -82,7 +83,7 @@ unsigned int& ShaderLoader::GetShader(const std::string& name) {
 void ShaderLoader::CreateProgram(std::vector<std::string> &names, const std::string& programName, bool deleteShader) {
     for (auto& it : names) {
         if (shaders.find(it) == shaders.end()) {
-            std::println("Shader {} not found program creation stopped", it);
+            Logger::Log(std::format("Shader {} not found program creation stopped",it), LogType::Error);
             return;
         }
     }
@@ -101,10 +102,10 @@ void ShaderLoader::CreateProgram(std::vector<std::string> &names, const std::str
 
     if (!success) {
         glGetProgramInfoLog(shaderPrograms[programName], 512, nullptr, infoLog);
-        std::println ("Cannot create shader program: {} ERROR: {}",programName,infoLog);
+        Logger::Log(std::format("Cannot create shader program: {} ERROR: {}", programName, infoLog), LogType::Error);
     }
     else{
-        std::println("Linking succesfull");
+        Logger::Log("Linking succesfull",LogType::Info);
     }
 
     //Usuwanie shaderów bo z racji po³¹czenia w program s¹ niepotrzebne
@@ -131,10 +132,10 @@ unsigned int ShaderLoader::LoadShaderStrRaw(const char* shaderText, GLenum shade
 
     if (!success) {
         glGetShaderInfoLog(shaderID, 512, nullptr, infoLog);
-        std::println("Error with shader compilation  ERROR: {} in \n {}", infoLog, shaderText);
+        Logger::Log(std::format("Error with shader compilation  ERROR: {} in \n {}", infoLog, shaderText), LogType::Error);
         return 0;
     }
-    std::println("Raw Shader Compilation succesfull");
+    Logger::Log("Raw Shader Compilation succesfull", LogType::Info);
     return shaderID;
 }
 
@@ -158,10 +159,11 @@ bool ShaderLoader::CreateProgramStr(const std::string name, const char* vertexSt
 
     if (!success) {
         glGetProgramInfoLog(shaderPrograms[name], 512, nullptr, infoLog);
-        std::println ("Cannot create shader program: {} ERROR: {}",name,infoLog);
+        Logger::Log(std::format("Cannot create shader program: {} ERROR: {}", name, infoLog), LogType::Error);
+
     }
     else{
-        std::println("Linking succesfull");
+        Logger::Log("Linking succesfull", LogType::Info);
         created = true;
     }
 

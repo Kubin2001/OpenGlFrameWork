@@ -175,7 +175,8 @@ bool UI::CreateHelper(std::string& name, const char* castName) {
 	}
 
 	if (GetElem(name) != nullptr) {
-		std::println("Warning name collision {} with name: {} already exists addition abborted", castName, name);
+		Logger::Log(std::format("Warning name collision {} with name: {} already exists addition abborted"
+			,castName, name), LogType::Warning);
 		return false;
 	}
 	return true;

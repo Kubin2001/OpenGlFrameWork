@@ -15,6 +15,7 @@
 #include "SDL_ttf.h"
 
 void Game::Start() {
+	Logger::SetUp("", LogOutput::Console, LogOutput::Console);
 	MethaneVersion();
 	MT::SetSeed(static_cast<unsigned int>(time(0)));
 
@@ -26,6 +27,7 @@ void Game::Start() {
 	window.Init("Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Global::windowWidth, Global::windowHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
 	ren = std::make_unique<MT::Renderer>(window);
+
 
 	TexMan::Start(ren.get());
 	TexMan::DeepLoad("Textures");
@@ -41,22 +43,6 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	ren->FlatDrawSetUp();
-
-	UIElemBase *lb = ui->CreateLabel("", 10, 10, 50, 50, nullptr);
-	lb->SetColor(30, 30, 30);
-	lb = ui->CreateClickBox("", 100, 10, 50, 50, nullptr);
-	lb->SetColor(30, 30, 30);
-	lb = ui->CreateLabel("", 200, 10, 50, 50, nullptr);
-	lb->SetColor(30, 30, 30);
-	lb = ui->CreateLabel("", 300, 10, 50, 50, nullptr);
-	lb->SetColor(30, 30, 30);
-	lb = ui->CreateLabel("", 400, 10, 50, 50, nullptr);
-	lb->SetColor(30, 30, 30);
-	lb = ui->CreateLabel("", 500, 10, 50, 50, nullptr);
-	lb->SetColor(30, 30, 30);
-	lb = ui->CreateLabel("", 600, 10, 50, 50, nullptr);
-	lb->SetColor(30, 30, 30);
-	
 }
 
 void Game::LogicUpdate() {
@@ -80,7 +66,6 @@ void Game::Input() {
 
 void Game::Render() {
 	ren->ClearFrame(255, 255, 255);
-	ren->DrawSprite({ 10,10,100,100 }, TexMan::GetTex("PawnLeft"));
 	ui->Render();
 	ren->Present();
 }
@@ -99,6 +84,7 @@ Game::~Game() {
 	TexMan::Clear();
 	SoundMan::Clear();
 	SceneMan::Clear();
+	Logger::Close();
 	ren->Clear();
 	ui->ClearAll();
 	SDL_Quit();

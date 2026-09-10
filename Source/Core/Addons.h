@@ -1,11 +1,11 @@
 #pragma once
-#include <print>
 #include <chrono>
 #include <vector>
 #include <SDL_mouse.h>
 
 #include "GlobalVariables.h"
 #include "Rectangle.h"
+#include "Logger.h"
 
 
 
@@ -107,19 +107,19 @@ struct MapPos {
 
 	inline bool CorrectnessRegionTile() const {
 		if (rowsTile >= MapPos::tilesPerRegion) {
-			std::println("MapPos Incorrect tile rows too big");
+			Logger::Log("MapPos Incorrect tile rows too big", LogType::Warning);
 			return false;
 		}
 		if (rowsTile < 0) {
-			std::println("MapPos Incorrect tile rows too small");
+			Logger::Log("MapPos Incorrect tile rows too small", LogType::Warning);
 			return false;
 		}
 		if (columnTile >= MapPos::tilesPerRegion) {
-			std::println("MapPos Incorrect tile columns too big");
+			Logger::Log("MapPos Incorrect tile columns too big", LogType::Warning);
 			return false;
 		}
 		if (columnTile < 0) {
-			std::println("MapPos Incorrect tile columns too small");
+			Logger::Log("MapPos Incorrect tile columns too small", LogType::Warning);
 			return false;
 		}
 		return true;
@@ -127,19 +127,19 @@ struct MapPos {
 
 	inline bool CorrectnessRegion() const {
 		if (rows > MapPos::regionsCountHeight - 1) {
-			std::println("MapPos Incorrect rows too big");
+			Logger::Log("MapPos Incorrect rows too big", LogType::Warning);
 			return false;
 		}
 		if (rows < 0) {
-			std::println("MapPos Incorrect rows too small");
+			Logger::Log("MapPos Incorrect rows too small", LogType::Warning);
 			return false;
 		}
 		if (column > MapPos::regionsCountWidth - 1) {
-			std::println("MapPos Incorrect columns too big");
+			Logger::Log("MapPos Incorrect columns too big", LogType::Warning);
 			return false;
 		}
 		if (column < 0) {
-			std::println("MapPos Incorrect columns too small");
+			Logger::Log("MapPos Incorrect columns too small", LogType::Warning);
 			return false;
 		}
 		return true;
@@ -149,19 +149,19 @@ struct MapPos {
 		int countWidth = MapPos::regionsCountWidth * MapPos::tilesPerRegion;
 		int countHeight = MapPos::regionsCountHeight * MapPos::tilesPerRegion;
 		if (absTileRows >= countHeight) {
-			std::println("MapPos Incorrect abs tile rows too big");
+			Logger::Log("MapPos Incorrect abs tile rows too big", LogType::Warning);
 			return false;
 		}
 		if (absTileRows < 0) {
-			std::println("MapPos Incorrect abs tile rows too small");
+			Logger::Log("MapPos Incorrect abs tile rows too small", LogType::Warning);
 			return false;
 		}
 		if (absTileColumn >= countWidth) {
-			std::println("MapPos Incorrect abs tile columns too big");
+			Logger::Log("MapPos Incorrect abs tile columns too big", LogType::Warning);
 			return false;
 		}
 		if (absTileColumn < 0) {
-			std::println("MapPos Incorrect abs tile columns too small");
+			Logger::Log("MapPos Incorrect abs tile columns too small", LogType::Warning);
 			return false;
 		}
 		return true;
@@ -170,11 +170,11 @@ struct MapPos {
 	inline bool CorrectnesAbsCol() const {
 		int countWidth = MapPos::regionsCountWidth * MapPos::tilesPerRegion;
 		if (absTileColumn >= countWidth) {
-			std::println("MapPos Incorrect abs tile columns too big");
+			Logger::Log("MapPos Incorrect abs tile columns too big", LogType::Warning);
 			return false;
 		}
 		if (absTileColumn < 0) {
-			std::println("MapPos Incorrect abs tile columns too small");
+			Logger::Log("MapPos Incorrect abs tile columns too small", LogType::Warning);
 			return false;
 		}
 		return true;
@@ -183,11 +183,11 @@ struct MapPos {
 	inline bool CorrectnesAbsRow() const {
 		int countHeight = MapPos::regionsCountHeight * MapPos::tilesPerRegion;
 		if (absTileRows >= countHeight) {
-			std::println("MapPos Incorrect abs tile rows too big");
+			Logger::Log("MapPos Incorrect abs tile rows too big", LogType::Warning);
 			return false;
 		}
 		if (absTileRows < 0) {
-			std::println("MapPos Incorrect abs tile rows too small");
+			Logger::Log("MapPos Incorrect abs tile rows too small", LogType::Warning);
 			return false;
 		}
 		return true;
@@ -349,7 +349,7 @@ template <typename T>
 T& AnyData::Get() {
 	auto temp = static_cast<AnyContatiner<T>*>(this); // Can be static not dynamic cause only one class is using inheritance
 	if (!temp) {
-		std::println("Error: Wrong cast in AnyDataGet deafault value returned");
+		Logger::Log("Error: Wrong cast in AnyDataGet deafault value returned", LogType::Error);
 	}
 	return temp->data;
 }
@@ -359,7 +359,7 @@ template <typename T>
 void AnyData::Set(T tempData) {
 	auto temp = static_cast<AnyContatiner<T>*>(this); // Can be static not dynamic cause only one class is using inheritance
 	if (!temp) {
-		std::println("Error: Data set uncorrectly in any data");
+		Logger::Log("Data set uncorrectly in any data", LogType::Error);
 		return;
 	}
 	temp->data = tempData;

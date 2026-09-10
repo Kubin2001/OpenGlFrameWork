@@ -168,7 +168,7 @@ std::vector<Point> PathMaker::LoadTxt(const std::string& path){
 			retPath.back().y = std::stoi(line);
 		}
 		catch (const std::exception& e) {
-			std::println("Cannot convert this file to path vector {} ERROR: {}", path, e.what());
+			Logger::Log(std::format("Cannot convert this file to path vector {} ERROR: {}", path, e.what()),LogType::Error);
 			return{};
 		}
 	}
@@ -188,7 +188,7 @@ std::vector<Point> PathMaker::LoadCsv(const std::string& path) {
 		}
 	}
 	catch (const std::exception&) {
-		std::println("Cannot convert this file to path vector {}", path);
+		Logger::Log(std::format("Cannot convert this file to path vector {}", path), LogType::Error);
 		return{};
 	}
 	return retPath;
@@ -214,7 +214,7 @@ std::vector<Point> PathMaker::LoadBin(const std::string& path) {
 	file.read(reinterpret_cast<char*>(retPath.data()),sizeof(Point) * count);
 
 	if (!file) {
-		std::println("Cannot convert this file to path vector {}", path);
+		Logger::Log(std::format("Cannot convert this file to path vector {}", path), LogType::Error);
 		return {};
 	}
 

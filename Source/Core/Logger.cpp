@@ -72,6 +72,9 @@ bool Logger::SetUp(const std::string& outFolder, LogOutput debugOutput, LogOutpu
 
 bool Logger::Log(const std::string &msg, LogType type) {
 	if (!working) { return false; }
+	if (static_cast<int>(type) < static_cast<int>(minLogLevel)) {
+		return true;
+	}
 
 	{
 		std::lock_guard<std::mutex> lock(loggerMut);
@@ -98,19 +101,19 @@ bool Logger::Log(const std::string &msg, LogType type) {
 		}
 		if (type == LogType::Error || type == LogType::Critical) { // Program is in very bad state push log no matter what
 			if (outputType == LogOutput::Console) {
-				std::println("{} {}", *logPrefix, msg);
+				std::println("{}{}", *logPrefix, msg);
 			}
 			else {
 				if (!outputFile.is_open()) { return false; }
 				{
 					std::lock_guard<std::mutex> lock2(fileMut);
-					outputFile << std::format("{} {}\n", *logPrefix, msg);
+					outputFile << std::format("{}{}\n", *logPrefix, msg);
 				}
 			}
 			return true;
 		}
 
-		LogQueue.emplace(std::format("{} {}", *logPrefix, msg));
+		LogQueue.emplace(std::format("{}{}", *logPrefix, msg));
 	}
 	cv.notify_one();
 	return true;

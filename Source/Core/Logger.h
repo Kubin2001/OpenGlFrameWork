@@ -33,10 +33,12 @@ class Logger {
 	inline static std::condition_variable cv{};
 
 	inline static std::string UndefinedPrefix = "";
-	inline static std::string InfoPrefix = "[INFO]";
-	inline static std::string WarningPrefix = "[WARNING]";
-	inline static std::string ErrorPrefix = "[ERROR]";
-	inline static std::string CriticalPrefix = "[CRITICAL]";
+	inline static std::string InfoPrefix = "[INFO] ";
+	inline static std::string WarningPrefix = "[WARNING] " ;
+	inline static std::string ErrorPrefix = "[ERROR] ";
+	inline static std::string CriticalPrefix = "[CRITICAL] ";
+
+	inline static LogType minLogLevel = LogType::Undefinded;
 
 	inline static std::ofstream outputFile{};
 	inline static std::queue<std::string> LogQueue{};
@@ -51,6 +53,10 @@ class Logger {
 
 	static void SetPrefix(LogType type, const std::string& prefix);
 
-	static void  Close();
+	static void SetMinLogLevel(LogType minLevel) {
+		minLogLevel = minLevel;
+	}
+
+	static void Close();
 
 };
