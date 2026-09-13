@@ -12,6 +12,7 @@ private:
 	std::unique_ptr<MT::Renderer> ren = nullptr;
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui = nullptr;
+	MT::Rect rect{};
 
 
 public:

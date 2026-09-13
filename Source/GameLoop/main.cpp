@@ -1,23 +1,22 @@
 #include "Game.h"
 #include "GlobalVariables.h"
 
-int main(int argv, char* argc[]){
+int main(int argc, char* argv[]){
 	Game game;
-
 	game.Start();
-	Global::TickTimer = SDL_GetTicks();
-	Global::LogicTimeEnd = Global::TickTimer + Global::frameDelay;
-	Global::RenderingTimeEnd = Global::TickTimer + 16;
-	while (Global::status){
+	unsigned int ticks = SDL_GetTicks();
+	unsigned int nextLogicTick = ticks;
+	unsigned int nextFrameTick = ticks;
+	while (Global::running){
 		SDL_Delay(1);
-		Global::TickTimer = SDL_GetTicks();
-		if (Global::TickTimer > Global::LogicTimeEnd) {
-			Global::LogicTimeEnd = Global::TickTimer + Global::frameDelay;
+		ticks = SDL_GetTicks();
+		if (ticks >= nextLogicTick) {
+			nextLogicTick = ticks + Global::logicDelay;
 			game.LogicUpdate();
 		}
 
-		if (Global::TickTimer > Global::RenderingTimeEnd) {
-			Global::RenderingTimeEnd = Global::TickTimer + 16;
+		if (ticks >= nextFrameTick) {
+			nextFrameTick = ticks + Global::frameDelay;
 			game.FrameUpdate();
 		}
 	}

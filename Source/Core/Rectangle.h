@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL_rect.h>
 
+// Represents 2D position 
 struct Point {
 	int x = 0;
 	int y = 0;
@@ -12,6 +13,7 @@ struct Point {
 	}
 };
 
+// Represents 2D position 
 struct FPoint {
 	float x = 0.0f;
 	float y = 0.0f;
@@ -28,6 +30,7 @@ namespace MT {
 	struct RectF;
 	struct CompositeRect;
 
+	// Basic rectangle where all coordinated are integers used for rendering
 	struct Rect {
 		int x = 0;
 		int y = 0;
@@ -80,6 +83,8 @@ namespace MT {
 		bool operator==(const CompositeRect& rect) const noexcept;
 	};
 
+
+	// Floating point rectangle where all coordinated are float 
 	struct RectF {
 		float x;
 		float y;
@@ -121,6 +126,8 @@ namespace MT {
 		bool operator==(const CompositeRect& rect) const noexcept;
 	};
 
+
+	// Rectangle where position is in floating point numbers use it when you need precise movement
 	struct CompositeRect {
 		float x;
 		float y;

@@ -3,7 +3,7 @@
 #include "Logger.h"
 
 void MethaneVersion() {
-	Logger::Log("Using Methane SDL OpenGL Framework v2.07");
+	Logger::Log("Using Methane SDL OpenGL Framework v2.08");
 }
 
 

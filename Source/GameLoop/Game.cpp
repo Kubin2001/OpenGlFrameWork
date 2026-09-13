@@ -43,14 +43,22 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	ren->FlatDrawSetUp();
+
+	rect.Set(0, 200, 100, 100);
 }
 
 void Game::LogicUpdate() {
-	Global::frameCounter++;
+	Global::logicCount++;
+	rect.x++;
+	if (rect.x > 600) {
+		rect.x = 0;
+	}
 	const Uint8* state = SDL_GetKeyboardState(nullptr);
 }
 
 void Game::FrameUpdate() {
+	Global::frameCount++;
+
 	Input();
 	ui->FrameUpdate();
 	Render();
@@ -59,24 +67,44 @@ void Game::FrameUpdate() {
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
+		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_A) {
+			Global::logicDelay--;
+		}
+		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_D) {
+			Global::logicDelay++;
+		}
+
+		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_O) {
+			Global::frameDelay--;
+		}
+		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_P) {
+			Global::frameDelay++;
+		}
 		Exit();
 	}
-	Global::inputDelay++;
 }
 
 void Game::Render() {
+
 	ren->ClearFrame(255, 255, 255);
+	ren->DrawRect(rect, { 0,0,255 });
+	Font* font = ui->GetFont("arial12");
+	ui->DrawRawText(font, 10, 10, std::format("Logic Delay: {}", Global::logicDelay), 20, { 0,0,0 });
+	ui->DrawRawText(font, 200, 10, std::format("Frame Delay: {}", Global::frameDelay), 20, { 0,0,0 });
+	ui->DrawRawText(font, 10, 100, std::format("Logic Count: {}", Global::logicCount), 20, { 0,0,0 });
+	ui->DrawRawText(font, 200, 100, std::format("Frame Count: {}", Global::frameCount), 20, { 0,0,0 });
 	ui->Render();
 	ren->Present();
+
 }
 
 
 void Game::Exit() {
 	if (event.type == SDL_QUIT) {
-		Global::status = false; 
+		Global::running = false; 
 	}
 	else if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
-		Global::status = false;
+		Global::running = false;
 	}
 }
 

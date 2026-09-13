@@ -229,3 +229,8 @@ was removed or the new one was added to folder
 - Ui Elements can have anonymous name when name parameter is empty at creation
 - Logger is now fully integrated into framework
 - You can now set up minimum log message level
+
+2.08
+- Internal state managment in main loop has been vastly simplified.
+- Frame counter has been split to logic and frame count 
+- Frame delay can now be set up manually from global namespace
