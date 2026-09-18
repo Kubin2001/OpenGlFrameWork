@@ -234,3 +234,4 @@ was removed or the new one was added to folder
 - Internal state managment in main loop has been vastly simplified.
 - Frame counter has been split to logic and frame count 
 - Frame delay can now be set up manually from global namespace
+- Rendering is much faster when frequenty changing textures or shaders

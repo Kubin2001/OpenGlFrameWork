@@ -37,22 +37,15 @@ void Game::Start() {
 
 	ui = std::make_unique<UI>(ren.get());
 
-	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 10, "arial10");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial12");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	ren->FlatDrawSetUp();
-
-	rect.Set(0, 200, 100, 100);
 }
 
 void Game::LogicUpdate() {
 	Global::logicCount++;
-	rect.x++;
-	if (rect.x > 600) {
-		rect.x = 0;
-	}
 	const Uint8* state = SDL_GetKeyboardState(nullptr);
 }
 
@@ -67,34 +60,43 @@ void Game::FrameUpdate() {
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
-		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_A) {
-			Global::logicDelay--;
-		}
-		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_D) {
-			Global::logicDelay++;
-		}
-
-		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_O) {
-			Global::frameDelay--;
-		}
-		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_P) {
-			Global::frameDelay++;
-		}
 		Exit();
 	}
 }
 
 void Game::Render() {
-
+	MT::Texture* tex1 = TexMan::GetTex("grass");
+	MT::Texture* tex2 = TexMan::GetTex("stone");
 	ren->ClearFrame(255, 255, 255);
-	ren->DrawRect(rect, { 0,0,255 });
-	Font* font = ui->GetFont("arial12");
-	ui->DrawRawText(font, 10, 10, std::format("Logic Delay: {}", Global::logicDelay), 20, { 0,0,0 });
-	ui->DrawRawText(font, 200, 10, std::format("Frame Delay: {}", Global::frameDelay), 20, { 0,0,0 });
-	ui->DrawRawText(font, 10, 100, std::format("Logic Count: {}", Global::logicCount), 20, { 0,0,0 });
-	ui->DrawRawText(font, 200, 100, std::format("Frame Count: {}", Global::frameCount), 20, { 0,0,0 });
-	ui->Render();
+	//MT::Timer::Tic();
+	//for (size_t i = 0; i < 10'000; i++) {
+	//	ren->DrawRect({ 10,10,100,100 }, { 30,30,30 });
+	//}
+	//test1Time += MT::Timer::Tac<std::chrono::microseconds>();
+	//MT::Timer::Tic();
+	//for (size_t i = 0; i < 10'000; i++) {
+	//	ren->DrawSprite({ 200,10,100,100 },tex1);
+	//}
+	//test2Time += MT::Timer::Tac<std::chrono::microseconds>();
+	MT::Timer::Tic();
+	for (size_t i = 0; i < 5'000; i++) {
+		ren->DrawSprite({ 10,200,100,100 }, tex1);
+		ren->DrawSprite({ 200,200,100,100 }, tex2);
+	}
+
+
+
+
+	//ui->Render();
 	ren->Present();
+	test3Time += MT::Timer::Tac<std::chrono::microseconds>();
+
+	if (Global::frameCount % 100 == 0) {
+		std::println("Test 1: {}us    Test 2: {}us    Test 3: {}us", test1Time / 100, test2Time / 100, test3Time / 100);
+		test1Time = 0;
+		test2Time = 0;
+		test3Time = 0;
+	}
 
 }
 

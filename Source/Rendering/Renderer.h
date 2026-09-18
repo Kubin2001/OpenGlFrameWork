@@ -350,7 +350,6 @@ namespace MT {
 				return;
 			}
 			float* start = &globalVertices[0];
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			glBufferData(GL_ARRAY_BUFFER, currentIndex * sizeof(float), start, GL_DYNAMIC_DRAW);
 
 			const GLsizei instanceCount = static_cast<GLsizei>(currentIndex / currentSize);
