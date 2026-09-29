@@ -37,7 +37,7 @@ class TexMan {
 		inline static bool isInit = false;
 		inline static MT::Texture* defaultTex = nullptr;
 
-		static void RefreshTexturesInFolder(const std::string& directory, bool removeInvalid, std::unordered_set<std::string>& namesCollector);
+		static void ReloadTexturesInFolder(const std::string& directory, bool removeInvalid, std::unordered_set<std::string>& namesCollector);
 
 		static void CreateDefaultTexture();
 
@@ -70,9 +70,11 @@ class TexMan {
 
 		static bool DeleteTexture(const std::string& name);
 
-		// Loads new previously unloaded textures in slected folder and all recursive folders
-		// removeInvalid flag will remove textures that no longer exist WARNING this will break exsting pointers
-		static void RefreshTextures(const std::string& directory, bool removeInvalid = true);
+		// Loads new previously unloaded textures in selcted folder and all recursive folders
+		// and updates them if write time has changed
+		// removeInvalid flag will remove textures that no longer exist INCLUDING 
+		// already loaded ones in diffrent folders and invalidate pointers
+		static void ReloadTextures(const std::string& directory, bool removeInvalid = false);
 
 		static Point GetTextureSize(const std::string& name);
 

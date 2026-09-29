@@ -155,11 +155,11 @@ bool TexMan::DeleteTexture(const std::string& name) {
 	return false;
 }
 
-void TexMan::RefreshTexturesInFolder(const std::string& directory, bool removeInvalid, std::unordered_set<std::string>&namesCollector) {
+void TexMan::ReloadTexturesInFolder(const std::string& directory, bool removeInvalid, std::unordered_set<std::string>&namesCollector) {
 	namespace fs = std::filesystem;
 	for (fs::directory_entry entry : fs::directory_iterator(directory)) {
 		if (entry.is_directory()) {
-			RefreshTexturesInFolder(entry.path().string(),removeInvalid,namesCollector);
+			ReloadTexturesInFolder(entry.path().string(),removeInvalid,namesCollector);
 		}
 		else {
 			std::string stem = entry.path().stem().string();
@@ -170,9 +170,14 @@ void TexMan::RefreshTexturesInFolder(const std::string& directory, bool removeIn
 			}
 			else{ // Check if it needs to be refreshed
 				MT::Texture* tex = textureIter->second.get();
-				if (tex->writeTime != std::filesystem::last_write_time(path)) { //Refresh texture
-					tex = MT::LoadTexture(path.c_str());
-					textureIter->second = std::unique_ptr<MT::Texture>(tex);
+				std::filesystem::file_time_type writeTime = std::filesystem::last_write_time(path);
+				if (tex->writeTime != writeTime) { //Refresh texture
+					tex->writeTime = writeTime;
+					MT::Texture* newTex = MT::LoadTexture(path.c_str());
+					std::swap(tex->texture, newTex->texture);
+					std::swap(tex->w, newTex->w);
+					std::swap(tex->h, newTex->h);
+					delete newTex;
 				}
 			}
 			if (removeInvalid) { // Add to later check if it is missing in textures
@@ -182,10 +187,10 @@ void TexMan::RefreshTexturesInFolder(const std::string& directory, bool removeIn
 	}
 }
 
-void TexMan::RefreshTextures(const std::string& directory, bool removeInvalid) {
+void TexMan::ReloadTextures(const std::string& directory, bool removeInvalid) {
 	namespace fs  = std::filesystem;
 	if (!fs::exists(directory)) {
-		Logger::Log("TexMan::RefreshTextures incorrect start directory", LogType::Error);
+		Logger::Log("TexMan::ReloadTextures incorrect start directory", LogType::Error);
 		return;
 	}
 	std::unordered_set<std::string> namesCollector;
@@ -193,7 +198,7 @@ void TexMan::RefreshTextures(const std::string& directory, bool removeInvalid) {
 		namesCollector.reserve(Textures.size());
 	}
 
-	RefreshTexturesInFolder(directory,removeInvalid,namesCollector);
+	ReloadTexturesInFolder(directory,removeInvalid,namesCollector);
 
 	if (removeInvalid) {
 		std::vector<std::string> texturesToErase;
