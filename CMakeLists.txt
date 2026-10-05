@@ -1,7 +1,7 @@
-# cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="DiscPath.../vcpkg/scripts/buildsystems/vcpkg.cmake"
+# cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_PATH"
 cmake_minimum_required(VERSION 3.20)
 
-project(FrameworkPracDyp)
+project(FrameworkGL)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
