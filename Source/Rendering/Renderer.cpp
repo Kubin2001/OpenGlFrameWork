@@ -216,9 +216,9 @@ bool MT::Renderer::Start(const MT::Window &mtWindow) {
         glBindVertexArray(0);
     };
 
-    DefineAtributes(VBO, rectVao, renderRectSize, { 4,2 });
+    DefineAtributes(VBO, rectVao, renderRectSize, { 4,1 });
 
-    DefineAtributes(VBO, rectExVao, renderRectExSize, { 4,3,2 });
+    DefineAtributes(VBO, rectExVao, renderRectExSize, { 4,1,1,2 });
 
     DefineAtributes(VBO, copyVao, renderCopySize, { 4,1 });
 
@@ -228,25 +228,25 @@ bool MT::Renderer::Start(const MT::Window &mtWindow) {
 
     DefineAtributes(VBO, copyCircleVao, renderCopyCircleSize, { 4,2 });
 
-    DefineAtributes(VBO, circleVao, renderCircleSize, { 4,3 });
+    DefineAtributes(VBO, circleVao, renderCircleSize, { 4,1,1 });
 
-    DefineAtributes(VBO, roundedVao, renderRoundedSize, { 4,2,1});
+    DefineAtributes(VBO, roundedVao, renderRoundedSize, { 4,1,1});
 
     DefineAtributes(VBO, roundedCopyVao, renderCopyRoundedSize, { 4,1,1 });
 
-    DefineAtributes(VBO, filteredVao, renderFilteredSize, { 4,4,2 });
+    DefineAtributes(VBO, filteredVao, renderFilteredSize, { 4,4,1 });
 
-    DefineAtributes(VBO, borderVao, renderBorderSize, { 4,2,1 });
+    DefineAtributes(VBO, borderVao, renderBorderSize, { 4,1,1 });
 
-    DefineAtributes(VBO, roundedBorderVao, renderRoundedBorderSize, { 4,2,1,1 });
+    DefineAtributes(VBO, roundedBorderVao, renderRoundedBorderSize, { 4,1,1,1 });
 
     DefineAtributes(VBO, maskedVao, renderMaskedSize, { 4,4,1 });
 
     DefineAtributes(VBO, doubleMaskedVao, renderDoubleMaskedSize, { 4,4,4,1 });
 
-    DefineAtributes(VBO, shapeVao, renderShapeSize, { 4,2 });
+    DefineAtributes(VBO, shapeVao, renderShapeSize, { 4,1 });
 
-    DefineAtributes(VBO, shadowVao, renderShapeSize, { 4,2,3 });
+    DefineAtributes(VBO, shadowVao, renderShadowSize, { 4,1,3 });
 
     DefineAtributes(VBO, uprVao, UPRSize, { 4,4,4,1,1});
 

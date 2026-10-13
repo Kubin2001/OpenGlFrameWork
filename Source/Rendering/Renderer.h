@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <filesystem>
 #include <memory>
+#include <bit>
 
 #include "glm.hpp"
 
@@ -290,22 +291,22 @@ namespace MT {
 
 		//Veretex Sizes
 		unsigned int currentSize = 0;
-		inline static constexpr unsigned int renderRectSize = 6;
-		inline static constexpr unsigned int renderRectExSize = 9;
+		inline static constexpr unsigned int renderRectSize = 5;
+		inline static constexpr unsigned int renderRectExSize = 8;
 		inline static constexpr unsigned int renderCopySize = 5;
 		inline static constexpr unsigned int renderCopyPartSize = 9;
 		inline static constexpr unsigned int renderCopyExSize = 12;
 		inline static constexpr unsigned int renderCopyCircleSize = 6;
-		inline static constexpr unsigned int renderCircleSize = 7;
-		inline static constexpr unsigned int renderRoundedSize = 7;
+		inline static constexpr unsigned int renderCircleSize = 6;
+		inline static constexpr unsigned int renderRoundedSize = 6;
 		inline static constexpr unsigned int renderCopyRoundedSize = 6;
-		inline static constexpr unsigned int renderFilteredSize = 10;
-		inline static constexpr unsigned int renderBorderSize = 7;
-		inline static constexpr unsigned int renderRoundedBorderSize = 8;
+		inline static constexpr unsigned int renderFilteredSize = 9;
+		inline static constexpr unsigned int renderBorderSize = 6;
+		inline static constexpr unsigned int renderRoundedBorderSize = 7;
 		inline static constexpr unsigned int renderMaskedSize = 9;
 		inline static constexpr unsigned int renderDoubleMaskedSize = 13;
-		inline static constexpr unsigned int renderShapeSize = 6;
-		inline static constexpr unsigned int renderShadowSize = 9;
+		inline static constexpr unsigned int renderShapeSize = 5;
+		inline static constexpr unsigned int renderShadowSize = 8;
 		inline static constexpr unsigned int UPRSize = 14;
 		inline static constexpr unsigned int flatSize = 4;
 
@@ -331,6 +332,19 @@ namespace MT {
 			if (currentIndex + currentSize > Renderer::batchSize) {
 				Present(false);
 			}
+		}
+
+		// Cant be really used since it forces function call even when forcing inline making debug slower
+		inline float CompressRGBA(const MT::Color& color, unsigned char alpha) {
+			unsigned int RGBA = 0;
+			RGBA |= color.R;
+			RGBA <<= 8;
+			RGBA |= color.G;
+			RGBA <<= 8;
+			RGBA |= color.B;
+			RGBA <<= 8;
+			RGBA |= alpha;
+			return std::bit_cast<float>(RGBA);
 		}
 
 		public:
@@ -369,6 +383,7 @@ namespace MT {
 			glClear(GL_COLOR_BUFFER_BIT);
 		}
 
+
 		inline void DrawRect(const Rect& rect, const Color& col, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) {
 				return;
@@ -381,12 +396,14 @@ namespace MT {
 			}
 			currentSize = Renderer::renderRectSize;
 
-			uint16_t iRG = col.R;
-			iRG <<= 8;
-			iRG += col.G;
-			uint16_t iBA = col.B;
-			iBA <<= 8;
-			iBA += alpha;
+			unsigned int RGBA = 0;
+			RGBA |= col.R;
+			RGBA <<= 8;
+			RGBA |= col.G;
+			RGBA <<= 8;
+			RGBA |= col.B;
+			RGBA <<= 8;
+			RGBA |= alpha;
 
 			if (currentIndex + currentSize > Renderer::batchSize) {
 				Present(false);
@@ -397,8 +414,7 @@ namespace MT {
 			ptr[1] = static_cast<float>(rect.y);
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = static_cast<float>(iRG);
-			ptr[5] = static_cast<float>(iBA);
+			ptr[4] = std::bit_cast<float>(RGBA);
 
 			currentIndex += currentSize;
 		}
@@ -417,12 +433,14 @@ namespace MT {
 
 			currentSize = Renderer::renderRectExSize;
 
-			uint16_t iRG = col.R;
-			iRG <<= 8;
-			iRG += col.G;
-			uint16_t iBA = col.B;
-			iBA <<= 8;
-			iBA += alpha;
+			unsigned int RGBA = 0;
+			RGBA |= col.R;
+			RGBA <<= 8;
+			RGBA |= col.G;
+			RGBA <<= 8;
+			RGBA |= col.B;
+			RGBA <<= 8;
+			RGBA |= alpha;
 
 			float centerX = 0;
 			float centerY = 0;
@@ -445,11 +463,10 @@ namespace MT {
 			ptr[1] = static_cast<float>(rect.y);
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = static_cast<float>(iRG);
-			ptr[5] = static_cast<float>(iBA);
-			ptr[6] = rotation;
-			ptr[7] = centerX;
-			ptr[8] = centerY;
+			ptr[4] = std::bit_cast<float>(RGBA);
+			ptr[5] = rotation;
+			ptr[6] = centerX;
+			ptr[7] = centerY;
 
 			currentIndex += currentSize;
 		}
@@ -486,12 +503,14 @@ namespace MT {
 				const float rectX = centerX - (w * 0.5f);
 				const float rectY = centerY - (h * 0.5f);
 
-				uint16_t iRG = col.R;
-				iRG <<= 8;
-				iRG += col.G;
-				uint16_t iBA = col.B;
-				iBA <<= 8;
-				iBA += alpha;
+				unsigned int RGBA = 0;
+				RGBA |= col.R;
+				RGBA <<= 8;
+				RGBA |= col.G;
+				RGBA <<= 8;
+				RGBA |= col.B;
+				RGBA <<= 8;
+				RGBA |= alpha;
 
 				if (currentIndex + currentSize > Renderer::batchSize) {
 					Present(false);
@@ -502,11 +521,10 @@ namespace MT {
 				ptr[1] = rectY;
 				ptr[2] = w;
 				ptr[3] = h;
-				ptr[4] = static_cast<float>(iRG);
-				ptr[5] = static_cast<float>(iBA);
-				ptr[6] = rotation;
-				ptr[7] = centerX;
-				ptr[8] = centerY;
+				ptr[4] = std::bit_cast<float>(RGBA);
+				ptr[5] = rotation;
+				ptr[6] = centerX;
+				ptr[7] = centerY;
 
 				currentIndex += currentSize;
 		}
@@ -698,14 +716,14 @@ namespace MT {
 				glUseProgram(currentProgram);
 			}
 
-			uint16_t iRG = col.R;
-			iRG <<= 8;
-			iRG += col.G;
-			uint16_t iBA = col.B;
-			iBA <<= 8;
-			iBA += alpha;
-			const float fRG = iRG;
-			const float fBA = iBA;
+			unsigned int RGBA = 0;
+			RGBA |= col.R;
+			RGBA <<= 8;
+			RGBA |= col.G;
+			RGBA <<= 8;
+			RGBA |= col.B;
+			RGBA <<= 8;
+			RGBA |= alpha;
 
 			currentSize = renderCircleSize;
 
@@ -719,8 +737,7 @@ namespace MT {
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
 			ptr[4] = radius;
-			ptr[5] = fRG;
-			ptr[6] = fBA;
+			ptr[5] = std::bit_cast<float>(RGBA);
 
 			currentIndex += currentSize;
 		}
@@ -736,14 +753,14 @@ namespace MT {
 			}
 
 
-			uint16_t iRG = col.R;
-			iRG <<= 8;
-			iRG += col.G;
-			uint16_t iBA = col.B;
-			iBA <<= 8;
-			iBA += alpha;
-			const float fRG = iRG;
-			const float fBA = iBA;
+			unsigned int RGBA = 0;
+			RGBA |= col.R;
+			RGBA <<= 8;
+			RGBA |= col.G;
+			RGBA <<= 8;
+			RGBA |= col.B;
+			RGBA <<= 8;
+			RGBA |= alpha;
 
 			currentSize = renderRoundedSize;
 
@@ -756,9 +773,8 @@ namespace MT {
 			ptr[1] = static_cast<float>(rect.y);
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = fRG;
-			ptr[5] = fBA;
-			ptr[6] = static_cast<float>(roundingSize);
+			ptr[4] = std::bit_cast<float>(RGBA);
+			ptr[5] = static_cast<float>(roundingSize);
 
 			currentIndex += currentSize;
 		}
@@ -817,13 +833,14 @@ namespace MT {
 				currentTexture = texture->texture;
 			}
 
-
-			uint16_t iRG = filter.R;
-			iRG <<= 8;
-			iRG += filter.G;
-			uint16_t iBA = filter.B;
-			iBA <<= 8;
-			iBA += static_cast<unsigned char>(texture->alpha * 255);
+			unsigned int RGBA = 0;
+			RGBA |= filter.R;
+			RGBA <<= 8;
+			RGBA |= filter.G;
+			RGBA <<= 8;
+			RGBA |= filter.B;
+			RGBA <<= 8;
+			RGBA |= static_cast<unsigned char>(texture->alpha * 255);
 
 			currentSize = renderFilteredSize;
 
@@ -845,8 +862,7 @@ namespace MT {
 			ptr[5] = sourceY;
 			ptr[6] = sourceW;
 			ptr[7] = sourceH;
-			ptr[8] = static_cast<float>(iRG);
-			ptr[9] = static_cast<float>(iBA);
+			ptr[8] = std::bit_cast<float>(RGBA);
 
 			currentIndex += currentSize;
 		}
@@ -867,12 +883,14 @@ namespace MT {
 				glUseProgram(currentProgram);
 			}
 
-			uint16_t iRG = col.R;
-			iRG <<= 8;
-			iRG += col.G;
-			uint16_t iBA = col.B;
-			iBA <<= 8;
-			iBA += alpha;
+			unsigned int RGBA = 0;
+			RGBA |= col.R;
+			RGBA <<= 8;
+			RGBA |= col.G;
+			RGBA <<= 8;
+			RGBA |= col.B;
+			RGBA <<= 8;
+			RGBA |= alpha;
 
 			currentSize = renderBorderSize;
 
@@ -885,9 +903,8 @@ namespace MT {
 			ptr[1] = static_cast<float>(rect.y);
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = static_cast<float>(iRG);
-			ptr[5] = static_cast<float>(iBA);
-			ptr[6] = static_cast<float>(width);
+			ptr[4] = std::bit_cast<float>(RGBA);
+			ptr[5] = static_cast<float>(width);
 
 			currentIndex += currentSize;
 		}
@@ -902,12 +919,14 @@ namespace MT {
 				glUseProgram(currentProgram);
 			}
 
-			uint16_t iRG = col.R;
-			iRG <<= 8;
-			iRG += col.G;
-			uint16_t iBA = col.B;
-			iBA <<= 8;
-			iBA += alpha;
+			unsigned int RGBA = 0;
+			RGBA |= col.R;
+			RGBA <<= 8;
+			RGBA |= col.G;
+			RGBA <<= 8;
+			RGBA |= col.B;
+			RGBA <<= 8;
+			RGBA |= alpha;
 
 			currentSize = renderRoundedBorderSize;
 
@@ -920,10 +939,9 @@ namespace MT {
 			ptr[1] = static_cast<float>(rect.y);
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = static_cast<float>(iRG);
-			ptr[5] = static_cast<float>(iBA);
-			ptr[6] = static_cast<float>(width);
-			ptr[7] = static_cast<float>(roundingSize);
+			ptr[4] = std::bit_cast<float>(RGBA);
+			ptr[5] = static_cast<float>(width);
+			ptr[6] = static_cast<float>(roundingSize);
 
 			currentIndex += currentSize;
 		}
@@ -1039,7 +1057,7 @@ namespace MT {
 			glActiveTexture(GL_TEXTURE0);
 		}
 
-		inline void DrawShape(const Rect& rect, Texture* texture, const ColorA& filter) {
+		inline void DrawShape(const Rect& rect, Texture* texture, const ColorA& col) {
 			if (!texture) { return; }
 
 			if (!vievPort.IsColliding(rect)) { return; }
@@ -1058,12 +1076,14 @@ namespace MT {
 			}
 
 
-			uint16_t iRG = filter.R;
-			iRG <<= 8;
-			iRG += filter.G;
-			uint16_t iBA = filter.B;
-			iBA <<= 8;
-			iBA += filter.A;
+			unsigned int RGBA = 0;
+			RGBA |= col.R;
+			RGBA <<= 8;
+			RGBA |= col.G;
+			RGBA <<= 8;
+			RGBA |= col.B;
+			RGBA <<= 8;
+			RGBA |= col.A;
 
 			currentSize = renderShapeSize;
 
@@ -1076,13 +1096,12 @@ namespace MT {
 			ptr[1] = static_cast<float>(rect.y);
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = static_cast<float>(iRG);
-			ptr[5] = static_cast<float>(iBA);
+			ptr[4] = std::bit_cast<float>(RGBA);
 
 			currentIndex += currentSize;
 		}
 
-		inline void DrawShadow(const Rect& rect, Texture* texture, const ColorA& filter, glm::vec3 lightPos) {
+		inline void DrawShadow(const Rect& rect, Texture* texture, const ColorA& col, glm::vec3 lightPos) {
 			if (!texture) { return; }
 
 			if (!vievPort.IsColliding(rect)) { return; }
@@ -1101,12 +1120,14 @@ namespace MT {
 			}
 
 
-			uint16_t iRG = filter.R;
-			iRG <<= 8;
-			iRG += filter.G;
-			uint16_t iBA = filter.B;
-			iBA <<= 8;
-			iBA += filter.A;
+			unsigned int RGBA = 0;
+			RGBA |= col.R;
+			RGBA <<= 8;
+			RGBA |= col.G;
+			RGBA <<= 8;
+			RGBA |= col.B;
+			RGBA <<= 8;
+			RGBA |= col.A;
 
 			currentSize = renderShadowSize;
 
@@ -1119,11 +1140,10 @@ namespace MT {
 			ptr[1] = static_cast<float>(rect.y);
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = static_cast<float>(iRG);
-			ptr[5] = static_cast<float>(iBA);
-			ptr[6] = static_cast<float>(lightPos.x);
-			ptr[7] = static_cast<float>(lightPos.y);
-			ptr[8] = static_cast<float>(lightPos.z);
+			ptr[4] = std::bit_cast<float>(RGBA);
+			ptr[5] = static_cast<float>(lightPos.x);
+			ptr[6] = static_cast<float>(lightPos.y);
+			ptr[7] = static_cast<float>(lightPos.z);
 
 			currentIndex += currentSize;
 		}
@@ -1723,7 +1743,6 @@ namespace MT {
 			glBindVertexArray(flatVao);
 			glUseProgram(flatRenderCopyId);
 
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			for (auto& entry : flatRenderVec) {
 				auto& vec = entry.vertices;
 				if (vec.empty()) { continue; }

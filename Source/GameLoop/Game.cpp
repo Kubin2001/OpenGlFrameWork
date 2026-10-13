@@ -12,8 +12,6 @@
 #include "Logger.h"
 
 
-#include "SDL_ttf.h"
-
 void Game::Start() {
 	Logger::SetUp("", LogOutput::Console, LogOutput::Console);
 	MethaneVersion();
@@ -31,7 +29,6 @@ void Game::Start() {
 
 	TexMan::Start(ren.get());
 	TexMan::DeepLoad("Textures");
-	TexMan::DeepLoad("TestDir");
 
 	SoundMan::Init();
 	SoundMan::DeepLoad("Sounds");
@@ -63,20 +60,48 @@ void Game::FrameUpdate() {
 void Game::Input() {
 	while (SDL_PollEvent(&event)) {
 		ui->ManageInput(event);
-		if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_R) {
-			Logger::Log(std::format("Size: {}", TexMan::GetAllTex().size()));
-			TexMan::ReloadTextures("TestDir",false);
-			Logger::Log(std::format("Size: {}", TexMan::GetAllTex().size()));
-		}
 		Exit();
 	}
 }
 
 void Game::Render() {
 	ren->ClearFrame(255, 255, 255);
+
+	Point mouse = GetMousePos();
+
+	// Rozgrzewka
+	//for (size_t i = 0; i < 10'000; i++) {
+	//	ren->DrawRect({ 10,10,100,100 }, { 30,30,30 },100);
+	//}
+
+	MT::Timer::Tic();
+	//for (size_t i = 0; i < 10'000; i++) {
+		//ren->DrawRectEX({ 10,10,100,100 }, { 255,0,0 }, 0.0f, std::nullopt);
+		//ren->DrawLine({ 10,10 }, { 100,100 }, 10, { 255,0,0 });
+		//ren->DrawRoundedRect({ 10,10,100,100 }, { 255,0,0 },255,20);
+		ren->DrawShadow({ 10,10,100,100 }, TexMan::GetTex("tree1"), { 255,0,0,255 }, {mouse.x, mouse.y,1.0f});
+	//}
+
+	time1 += MT::Timer::Tac<std::chrono::microseconds>();
+
+	MT::Timer::Tic();
+	//for (size_t i = 0; i < 10'000; i++) {
+		//ren->DrawRectEX({ 10,200,100,100 }, { 0,0,0 }, (float)(Global::frameCount), center);
+		//ren->DrawLine({ 110,110 }, { 210,210 }, 5, { 0,0,0 });
+		//ren->DrawRoundedRect({ 10,200,100,100 }, { 0,0,0 },255, ((float)(Global::frameCount)) /100);
+		ren->DrawShadow({ 10,200,100,100 }, TexMan::GetTex("tree1"), { 255,0,0,100 }, { mouse.x, mouse.y,1.0f });
+
+	//}
+
+	time2 += MT::Timer::Tac<std::chrono::microseconds>();
+
+	if (Global::frameCount % 100 == 0) {
+		std::println("TimeOld: {}us TimeNew: {}us", static_cast<double>(time1)/100, static_cast<double>(time2) /100);
+		time1 = 0;
+		time2 = 0;
+	}
+
 	ui->Render();
-	ren->DrawSprite({ 10,10,100,100 }, tex);
-	ren->DrawSprite({ 10,300,100,100 }, tex);
 	ren->Present();
 }
 
