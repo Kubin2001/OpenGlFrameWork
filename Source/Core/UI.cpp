@@ -55,7 +55,7 @@ void UIElemBase::RenderRounded(UIElemBase* elem, MT::Renderer* renderer) {
 void UIElemBase::RenderText(MT::Renderer* renderer) {
 	if (font == nullptr || font->texture == nullptr || text.empty()) { return; }
 
-	font->texture->SetAlphaBending(fontColor.A);
+	font->texture->alpha = fontColor.A;
 	MT::Color color{ fontColor.R, fontColor.G, fontColor.B };
 	switch (textAligment) {
 		case TextAligment::Standard:
@@ -77,7 +77,7 @@ void UIElemBase::RenderText(MT::Renderer* renderer) {
 			font->RenderText(renderer, text, rect, color, textScale, interLine, textStartX, textStartY);
 			break;
 	}
-	font->texture->SetAlphaBending(255);
+	font->texture->alpha = 255;
 }
 
 // UI

@@ -238,3 +238,4 @@ was removed or the new one was added to folder
 - Updating textures based on write time no longer invalidates pointers
 - Remove flag when reloading textures is now false by default
 - Passing colors to rendering pipeline takes less memory
+- Texture now hols alpha as unsigned char instead of float

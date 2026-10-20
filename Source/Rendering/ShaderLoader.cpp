@@ -455,7 +455,7 @@ void ShaderLoader::LoadSavedShaders() {
 
             outTexCoord = uvs[gl_VertexID % 6];
 
-            outAlpha = aAlpha;
+            outAlpha = aAlpha / 255.0;
         }
         )glsl";
 
@@ -533,7 +533,7 @@ void ShaderLoader::LoadSavedShaders() {
             float v = v0 + texUvs.y * aSourceRect.w;        
 
             outTexCoord = vec2(u, v);
-            outAlpha = aAlpha;
+            outAlpha = aAlpha / 255.0;
         }
         )glsl";
 
@@ -621,7 +621,7 @@ void ShaderLoader::LoadSavedShaders() {
             float v = aSourceRect.y + (texUvs.y * aSourceRect.w);  
 
             outTexCoord = vec2(u, v);
-            outAlpha = aAlphaRot.x;
+            outAlpha = aAlphaRot.x / 255.0;
         }
         )glsl";
 
@@ -690,6 +690,7 @@ void ShaderLoader::LoadSavedShaders() {
             gl_Position = vec4(finalPos, 0.0, 1.0);
             oTexCord = uvs[gl_VertexID % 6];
             oRadiusAlpha = aRadiusAlpha;
+            oRadiusAlpha.y /= 255.0 ;
         }
         )glsl";
 
@@ -1046,7 +1047,7 @@ void ShaderLoader::LoadSavedShaders() {
 
             oUV = uvs[gl_VertexID % 6];
             oWH = aRect.zw;
-            oAlpha = aAlpha;
+            oAlpha = aAlpha / 255.0;
             oRounding = aRounding;
         }
         )glsl";
@@ -1354,7 +1355,7 @@ void ShaderLoader::LoadSavedShaders() {
             float v = v0 + texUvs.y * aSourceRect.w;        
 
             oTexCoord = vec4(vec2(u, v),uvs[gl_VertexID % 6]);
-            oAlpha = aAlpha;
+            oAlpha = aAlpha / 255.0;
         }
         )glsl";
 
@@ -1442,7 +1443,7 @@ void ShaderLoader::LoadSavedShaders() {
             float vTwo = v0Two + texUvs.y * aSourceRectTwo.w;  
 
             oTexCoord = vec4(vec2(u, v),vec2(uTwo, vTwo));
-            oAlpha = aAlpha;
+            oAlpha = aAlpha / 255.0;
         }
         )glsl";
 
@@ -1766,26 +1767,26 @@ void ShaderLoader::LoadSavedShaders() {
                 case 2:{ // Render Copy
                     gl_Position = GetStandardPos(aRect);
                     oVecOne.xy = uvs[gl_VertexID % 6]; //UV
-                    oVecOne.z = aVecOne.x; //ALpha
+                    oVecOne.z = aVecOne.x / 255.0; //Alpha
                     break;
                 }
                 case 3:{ // Render Copy Part 
                     gl_Position = GetStandardPos(aRect);
                     oVecOne.xy = CalcUVS(aVecOne);
-                    oVecOne.z = aVecTwo.x;
+                    oVecOne.z = aVecTwo.x / 255.0;  //Alpha
                     break;
                 }
                 case 4:{ // Render Copy Ex
                     gl_Position = GetRotPos(aRect,aVecTwo.y, vec2(aVecTwo.z, aVecTwo.w));
                     oVecOne.xy = CalcUVS(aVecOne);
-                    oVecOne.z = aVecTwo.x;
+                    oVecOne.z = aVecTwo.x / 255.0;  //Alpha
                     break;
                 }
                 case 5:{ // Render Copy Circle
                     gl_Position = GetStandardPos(aRect);
                     oVecOne.xy = uvs[gl_VertexID % 6]; //UV
                     oVecOne.z = aVecOne.x; // radius 
-                    oVecOne.w = aVecOne.y; // alpha 
+                    oVecOne.w = aVecOne.y / 255.0;  //Alpha
                     break;
                 }
                 case 6:{ // Render  Circle
@@ -1807,7 +1808,7 @@ void ShaderLoader::LoadSavedShaders() {
                     gl_Position = GetStandardPos(aRect);
                     oVecOne.xy = uvs[gl_VertexID % 6];
                     oVecOne.zw = aRect.zw; // Rect width and Height
-                    oVecTwo.x = aVecOne.x; // alpha
+                    oVecTwo.x = aVecOne.x / 255.0;  //Alpha
                     oVecTwo.y = aVecOne.y; // Rounding Radius
                     break;
                 }
@@ -1816,7 +1817,7 @@ void ShaderLoader::LoadSavedShaders() {
                     gl_Position = GetStandardPos(aRect);
                     oVecOne.xy = CalcUVS(aVecOne); // UV
                     oVecTwo.rgb = aVecTwo.rgb / 255.0;  // Color.rgb
-                    oVecTwo.a = aVecTwo.a; // tex alpha
+                    oVecTwo.a = aVecTwo.a / 255.0;  //Alpha
                     break;
                 }
                 case 10:{ // Render Border
@@ -1840,7 +1841,7 @@ void ShaderLoader::LoadSavedShaders() {
                     gl_Position = GetStandardPos(aRect);
                     vec2 firstTexCoord = CalcUVS(aVecOne); // UV of sourced tex
                     oVecOne = vec4(firstTexCoord,uvs[gl_VertexID % 6]);
-                    oVecTwo.x = aVecTwo.x; // Alpha
+                    oVecTwo.x = aVecTwo.x / 255.0;  //Alpha
                     break;
                 }
                 case 13:{ // Render Double Masked
@@ -1848,7 +1849,7 @@ void ShaderLoader::LoadSavedShaders() {
                     vec2 firstTexCoord = CalcUVS(aVecOne); // UV of sourced tex
                     vec2 secondTexCoord = CalcUVS(aVecTwo); // UV of sourced tex
                     oVecOne = vec4(firstTexCoord,secondTexCoord);
-                    oVecTwo.x = aLastVal; // Alpha
+                    oVecTwo.x = aLastVal / 255.0;  //Alpha
                     break;
                 }
                 case 14:{ // Render Shape

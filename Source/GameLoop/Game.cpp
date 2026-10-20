@@ -40,8 +40,6 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
 	ren->FlatDrawSetUp();
-
-	tex = TexMan::GetTex("test1");
 }
 
 void Game::LogicUpdate() {
@@ -66,41 +64,36 @@ void Game::Input() {
 
 void Game::Render() {
 	ren->ClearFrame(255, 255, 255);
+	MT::Texture* tex1 = TexMan::GetTex("tree1");
+	MT::Texture* tex2 = TexMan::GetTex("grass");
 
-	Point mouse = GetMousePos();
+	tex2->alpha = Global::frameCount % 255;
 
-	// Rozgrzewka
-	//for (size_t i = 0; i < 10'000; i++) {
-	//	ren->DrawRect({ 10,10,100,100 }, { 30,30,30 },100);
-	//}
+	//ren->DrawSpriteUPR({ 10,10,100,100 }, tex1);
+	//ren->DrawSpriteUPR({ 210,10,100,100 }, tex2);
 
-	MT::Timer::Tic();
-	//for (size_t i = 0; i < 10'000; i++) {
-		//ren->DrawRectEX({ 10,10,100,100 }, { 255,0,0 }, 0.0f, std::nullopt);
-		//ren->DrawLine({ 10,10 }, { 100,100 }, 10, { 255,0,0 });
-		//ren->DrawRoundedRect({ 10,10,100,100 }, { 255,0,0 },255,20);
-		ren->DrawShadow({ 10,10,100,100 }, TexMan::GetTex("tree1"), { 255,0,0,255 }, {mouse.x, mouse.y,1.0f});
-	//}
+	//ren->DrawSpritePartUPR({ 10,10,100,100 }, {0,0,tex1->w, tex1->h}, tex1);
+	//ren->DrawSpritePartUPR({ 210,10,100,100 }, { 0,0,tex2->w, tex2->h }, tex2);
 
-	time1 += MT::Timer::Tac<std::chrono::microseconds>();
+	//ren->DrawSpriteEXUPR({ 10,10,100,100 }, { 0,0,tex1->w, tex1->h }, tex1);
+	//ren->DrawSpriteEXUPR({ 210,10,100,100 }, { 0,0,tex2->w, tex2->h }, tex2);
 
-	MT::Timer::Tic();
-	//for (size_t i = 0; i < 10'000; i++) {
-		//ren->DrawRectEX({ 10,200,100,100 }, { 0,0,0 }, (float)(Global::frameCount), center);
-		//ren->DrawLine({ 110,110 }, { 210,210 }, 5, { 0,0,0 });
-		//ren->DrawRoundedRect({ 10,200,100,100 }, { 0,0,0 },255, ((float)(Global::frameCount)) /100);
-		ren->DrawShadow({ 10,200,100,100 }, TexMan::GetTex("tree1"), { 255,0,0,100 }, { mouse.x, mouse.y,1.0f });
+	//ren->DrawCircleSpriteUPR({ 10,10,100,100 }, tex1);
+	//ren->DrawCircleSpriteUPR({ 210,10,100,100 }, tex2);
 
-	//}
+	//ren->DrawFilteredSpriteUPR({ 10,10,100,100 }, tex1, {255,255,255});
+	//ren->DrawFilteredSpriteUPR({ 210,10,100,100 }, tex2, { 255,255,255 });
 
-	time2 += MT::Timer::Tac<std::chrono::microseconds>();
+	//ren->DrawRoundedSpriteUPR({ 10,10,100,100 }, tex1);
+	//ren->DrawRoundedSpriteUPR({ 210,10,100,100 }, tex2);
 
-	if (Global::frameCount % 100 == 0) {
-		std::println("TimeOld: {}us TimeNew: {}us", static_cast<double>(time1)/100, static_cast<double>(time2) /100);
-		time1 = 0;
-		time2 = 0;
-	}
+	//ren->DrawMaskedOverlayUPR({ 10,10,100,100 }, { 0,0,tex1->w, tex1->h }, tex1, tex2);
+	//ren->DrawMaskedOverlayUPR({210, 10, 100, 100}, { 0,0,tex2->w, tex2->h }, tex2, tex1);
 
+	//ren->DrawDoubleMaskedOverlayUPR({ 10,10,100,100 }, { 0,0,tex1->w, tex1->h }, { 0,0,tex2->w, tex2->h }, tex1, tex2);
+	//ren->DrawDoubleMaskedOverlayUPR({ 210, 10, 100, 100 }, { 0,0,tex2->w, tex2->h }, { 0,0,tex1->w, tex1->h }, tex2, tex1);
+
+	
 	ui->Render();
 	ren->Present();
 }

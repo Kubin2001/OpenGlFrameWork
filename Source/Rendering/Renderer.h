@@ -96,11 +96,13 @@ namespace MT {
 	}
 
 	class Texture {
-		private:
+	private:
 		unsigned int batchIndex = 0;
-		float alpha = 1.0f;
-		public:
-		unsigned int w = 0, h = 0, texture = 0;
+	public:
+		unsigned int texture = 0;
+		int w = 0;
+		int h = 0;
+		unsigned char alpha = 255;
 		std::filesystem::file_time_type writeTime;
 
 		Texture() = default;
@@ -108,9 +110,6 @@ namespace MT {
 		Texture(const Texture&) = delete;            
 		Texture& operator=(const Texture&) = delete; 
 
-		void SetAlphaBending(const unsigned char A) {
-			alpha = float(A) / 255;
-		}
 		friend class Renderer;
 
 		~Texture() {
@@ -471,8 +470,7 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void DrawLine(const Point &p1, const Point& p2, const int thickness,
-			const Color& col, const unsigned char alpha = 255) {
+		inline void DrawLine(const Point &p1, const Point& p2, const int thickness, const Color& col, const unsigned char alpha = 255) {
 				if (currentProgram != renderRectExId) {
 					Present(false);
 					currentProgram = renderRectExId;
@@ -598,7 +596,7 @@ namespace MT {
 			ptr[5] = sourceY;
 			ptr[6] = sourceW;
 			ptr[7] = sourceH;
-			ptr[8] = texture->alpha;
+			ptr[8] = static_cast<float>(texture->alpha);
 
 			currentIndex += currentSize;
 		}
@@ -657,7 +655,7 @@ namespace MT {
 			}
 			ptr[5] = sourceY;
 			ptr[7] = sourceH;
-			ptr[8] = texture->alpha;
+			ptr[8] = static_cast<float>(texture->alpha);
 			ptr[9] = rotation;
 			ptr[10] = centerX;
 			ptr[11] = centerY;
@@ -701,7 +699,7 @@ namespace MT {
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
 			ptr[4] = radius;
-			ptr[5] = texture->alpha;
+			ptr[5] = static_cast<float>(texture->alpha);
 
 			currentIndex += currentSize;
 		}
@@ -806,7 +804,7 @@ namespace MT {
 			ptr[1] = static_cast<float>(rect.y);
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = texture->alpha;
+			ptr[4] = static_cast<float>(texture->alpha);
 			ptr[5] = static_cast<float>(roundingSize);
 
 			currentIndex += currentSize;
@@ -840,7 +838,7 @@ namespace MT {
 			RGBA <<= 8;
 			RGBA |= filter.B;
 			RGBA <<= 8;
-			RGBA |= static_cast<unsigned char>(texture->alpha * 255);
+			RGBA |= texture->alpha;
 
 			currentSize = renderFilteredSize;
 
@@ -990,7 +988,7 @@ namespace MT {
 			ptr[5] = sourceY;
 			ptr[6] = sourceW;
 			ptr[7] = sourceH;
-			ptr[8] = tex1->alpha;
+			ptr[8] = static_cast<float>(tex1->alpha);
 
 			currentIndex += currentSize;
 
@@ -1050,7 +1048,7 @@ namespace MT {
 			ptr[9] = source2Y;
 			ptr[10] = source2W;
 			ptr[11] = source2H;
-			ptr[12] = tex1->alpha;
+			ptr[12] = static_cast<float>(tex1->alpha);
 
 			currentIndex += currentSize;
 
@@ -1381,7 +1379,7 @@ namespace MT {
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
 			ptr[4] = radius;
-			ptr[5] = texture->alpha;
+			ptr[5] = static_cast<float>(texture->alpha);
 			ptr[6] = 0.0f; ptr[7] = 0.0f;
 			ptr[8] = 0.0f; ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
 			ptr[12] = 0.0f;
@@ -1493,7 +1491,7 @@ namespace MT {
 			ptr[8] = static_cast<float>(filter.R);
 			ptr[9] = static_cast<float>(filter.G);
 			ptr[10] = static_cast<float>(filter.B);
-			ptr[11] = texture->alpha;
+			ptr[11] = static_cast<float>(texture->alpha);
 
 			ptr[12] = 0.0f;
 			ptr[13] = 9.0f; //ShaderID

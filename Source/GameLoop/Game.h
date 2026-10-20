@@ -12,9 +12,6 @@ private:
 	std::unique_ptr<MT::Renderer> ren = nullptr;
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui = nullptr;
-	MT::Texture* tex = nullptr;
-	unsigned int time1 = 0;
-	unsigned int time2 = 0;
 
 public:
 	void Start();
