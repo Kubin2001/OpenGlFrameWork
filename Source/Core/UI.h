@@ -241,6 +241,7 @@ class PopUpBox : public UIElemBase {
 };
 
 class Slider : public UIElemBase {
+	bool selected = false;
 	public:
 
 		SliderSlide slideType = SliderSlide::X; //Enmum class SliderSlide

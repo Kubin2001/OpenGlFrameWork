@@ -239,3 +239,4 @@ was removed or the new one was added to folder
 - Remove flag when reloading textures is now false by default
 - Passing colors to rendering pipeline takes less memory
 - Texture now hols alpha as unsigned char instead of float
+- Sliders stick to the mouse when LMB is still pressed

@@ -15,7 +15,7 @@
 void Game::Start() {
 	Logger::SetUp("", LogOutput::Console, LogOutput::Console);
 	MethaneVersion();
-	MT::SetSeed(static_cast<unsigned int>(time(0)));
+	MT::SetSeed(static_cast<unsigned int>(std::time(0)));
 
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 
@@ -38,6 +38,22 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 12, "arial12");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
+
+	Slider* sl = ui->CreateSlider("", 200, 200, 80, 40, SliderSlide::X, 100, 400, nullptr);
+	sl->SetColor(30, 30, 30);
+
+	sl = ui->CreateSlider("", 500, 200, 80, 40, SliderSlide::Y, 100, 400, nullptr);
+	sl->SetColor(30, 30, 30);
+
+	Label* lb = ui->CreateLabel("", 100 - 10, 200, 10, 10);
+	lb->SetColor(255, 0, 0);
+	lb = ui->CreateLabel("", 400, 200, 10, 10);
+	lb->SetColor(255, 0, 0);
+
+	lb = ui->CreateLabel("", 500, 100-10, 10, 10);
+	lb->SetColor(255, 0, 0);
+	lb = ui->CreateLabel("", 500, 400, 10, 10);
+	lb->SetColor(255, 0, 0);
 
 	ren->FlatDrawSetUp();
 }
@@ -64,36 +80,6 @@ void Game::Input() {
 
 void Game::Render() {
 	ren->ClearFrame(255, 255, 255);
-	MT::Texture* tex1 = TexMan::GetTex("tree1");
-	MT::Texture* tex2 = TexMan::GetTex("grass");
-
-	tex2->alpha = Global::frameCount % 255;
-
-	//ren->DrawSpriteUPR({ 10,10,100,100 }, tex1);
-	//ren->DrawSpriteUPR({ 210,10,100,100 }, tex2);
-
-	//ren->DrawSpritePartUPR({ 10,10,100,100 }, {0,0,tex1->w, tex1->h}, tex1);
-	//ren->DrawSpritePartUPR({ 210,10,100,100 }, { 0,0,tex2->w, tex2->h }, tex2);
-
-	//ren->DrawSpriteEXUPR({ 10,10,100,100 }, { 0,0,tex1->w, tex1->h }, tex1);
-	//ren->DrawSpriteEXUPR({ 210,10,100,100 }, { 0,0,tex2->w, tex2->h }, tex2);
-
-	//ren->DrawCircleSpriteUPR({ 10,10,100,100 }, tex1);
-	//ren->DrawCircleSpriteUPR({ 210,10,100,100 }, tex2);
-
-	//ren->DrawFilteredSpriteUPR({ 10,10,100,100 }, tex1, {255,255,255});
-	//ren->DrawFilteredSpriteUPR({ 210,10,100,100 }, tex2, { 255,255,255 });
-
-	//ren->DrawRoundedSpriteUPR({ 10,10,100,100 }, tex1);
-	//ren->DrawRoundedSpriteUPR({ 210,10,100,100 }, tex2);
-
-	//ren->DrawMaskedOverlayUPR({ 10,10,100,100 }, { 0,0,tex1->w, tex1->h }, tex1, tex2);
-	//ren->DrawMaskedOverlayUPR({210, 10, 100, 100}, { 0,0,tex2->w, tex2->h }, tex2, tex1);
-
-	//ren->DrawDoubleMaskedOverlayUPR({ 10,10,100,100 }, { 0,0,tex1->w, tex1->h }, { 0,0,tex2->w, tex2->h }, tex1, tex2);
-	//ren->DrawDoubleMaskedOverlayUPR({ 210, 10, 100, 100 }, { 0,0,tex2->w, tex2->h }, { 0,0,tex1->w, tex1->h }, tex2, tex1);
-
-	
 	ui->Render();
 	ren->Present();
 }

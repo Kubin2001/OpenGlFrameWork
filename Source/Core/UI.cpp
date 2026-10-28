@@ -486,31 +486,29 @@ void UI::CheckClickBoxes(ClickBox *cb, unsigned int eventType, bool &forceStop, 
 
 
 void UI::SlideSliders(Slider* slider, SDL_Event& event) {
-	if (event.button.button != SDL_BUTTON_LEFT) { return; }
+	if (event.button.button != SDL_BUTTON_LEFT) { 
+		slider->selected = false;
+		return; 
+	}
 	MT::Rect temprect{ event.button.x ,event.button.y,1,1 };
-	if (!slider->rect.IsColliding(temprect)) { return; }
-
-	if (slider->slideType == SliderSlide::X) {
-		slider->rect.x = temprect.x - slider->rect.w/2;
-		if (slider->rect.x < slider->min) {
-			slider->rect.x = slider->min;
-			return;
-		}
-		if (slider->rect.x > slider->max - slider->rect.w) {
-			slider->rect.x = slider->max - slider->rect.w;
+	if (!slider->rect.IsColliding(temprect)) {
+		if (!slider->selected) {
 			return;
 		}
 	}
+	slider->selected = true;
+	
+
+	if (slider->slideType == SliderSlide::X) {
+		slider->rect.x = temprect.x - slider->rect.w / 2;
+		slider->rect.x = std::max(slider->rect.x, slider->min);
+		slider->rect.x = std::min(slider->rect.x, slider->max - slider->rect.w);
+
+	}
 	else {
 		slider->rect.y = temprect.y - slider->rect.h / 2;
-		if (slider->rect.y < slider->min) {
-			slider->rect.y = slider->min;
-			return;
-		}
-		if (slider->rect.y > slider->max - slider->rect.w) {
-			slider->rect.y = slider->max - slider->rect.w;
-			return;
-		}
+		slider->rect.y = std::max(slider->rect.y, slider->min);
+		slider->rect.y = std::min(slider->rect.y, slider->max - slider->rect.h);
 	}
 }
 
@@ -961,6 +959,9 @@ std::vector<UIElemBase*> UI::LoadFromJson(const std::string& fileName) {
 		}
 		else if (type == (int)CastType::PopUpBox) {
 			elem = std::make_unique<PopUpBox>();
+		}
+		else if (type == (int)CastType::Slider) {
+			elem = std::make_unique<Slider>();
 		}
 
 		elem->name = key;

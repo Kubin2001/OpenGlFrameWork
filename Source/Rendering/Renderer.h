@@ -1790,7 +1790,7 @@ namespace MT {
 				return false;
 			}
 			this->ren = ren;
-			std::string strID = std::to_string(globalID);
+			std::string strID = std::to_string(globalID++);
 			if (!ren->loader.CreateProgramStr("Custom" + strID, vertexStr, fragmentStr)) {
 				return false;
 			}
@@ -1830,7 +1830,7 @@ namespace MT {
 			glUseProgram(shaderID);
 			int  uniformID = glGetUniformLocation(shaderID, name.c_str());
 			if (uniformID == -1) {
-				throw("Cannot get uniform in Custom Shader::AddUniform");
+				throw std::runtime_error("Cannot get uniform in Custom Shader::AddUniform");
 			}
 			uniforms[name] = uniformID;
 			return uniforms[name];

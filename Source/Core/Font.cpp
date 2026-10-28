@@ -66,7 +66,7 @@ bool Font::LoadTextInfo(const std::string& jsonPath) {
 
 	}
 	else{
-		std::cout << "Error font json not loaded correctly!\n";
+		Logger::Log("Error font json not loaded correctly", LogType::Warning);
 		return false;
 	}
 	return true;

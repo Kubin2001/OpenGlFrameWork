@@ -344,7 +344,7 @@ MT::Atlas TexMan::CreateAtlas(const std::string& atlasTexName, unsigned int tile
 			texturesToMap.emplace_back(texIter->second.get());
 		}
 		else {
-			errors.emplace_back(std::format(" Texture with name: {} is not loaded", texIter->first));
+			errors.emplace_back(std::format(" Texture with name: {} is not loaded", name));
 			return { errors };
 		}
 	}
