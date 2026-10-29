@@ -7,7 +7,8 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(MSVC) # For MSVC
-    add_compile_options(/W4 /MP /wd4458)
+    add_compile_options(/W4 /MP /wd4458 /Od)
+	add_compile_options("$<$<CONFIG:Debug>:/Od;/Ob1>")
 else() #For GCC or Clang
     add_compile_options(-Wall)
 endif()

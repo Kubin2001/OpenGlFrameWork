@@ -671,7 +671,7 @@ void UI::SetElementZLayer(const std::string& name, int zlayer) {
 	if (settings.useLayersInRendering) {
 		auto elemIter = std::find_if(LayerVec[prevLayer].elements.begin(), LayerVec[prevLayer].elements.end(),
 			[&](UIElemBase* itElem) {return elem == itElem; });
-		if (elemIter != LayerVec[prevLayer].elements.end()) { // If it is the end guess we are fucked
+		if (elemIter != LayerVec[prevLayer].elements.end()) {
 			LayerVec[prevLayer].elements.erase(elemIter);
 		}
 		LayerVec[elem->zLayer].elements.emplace_back(elem);

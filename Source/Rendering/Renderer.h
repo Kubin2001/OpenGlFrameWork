@@ -34,6 +34,14 @@ enum class TextureFilter {
 	Linear
 };
 
+#if defined(_MSC_VER)
+#define MT_FORCEINLINE __forceinline
+#elif defined(__GNUC__) || defined(__clang__)
+#define MT_FORCEINLINE __attribute__((always_inline)) inline
+#else
+#define MT_FORCEINLINE inline
+#endif
+
 namespace MT {
 
 	struct Color {
@@ -319,13 +327,8 @@ namespace MT {
 		//Single frame buffer in future could be improved but for now it is more than sufficient
 		std::unique_ptr<RenderTarget> renderTarget = nullptr;
 
-		inline void CheckUPRProgram() {
-			if (currentProgram != uprId) {
-				Present(false);
-				glBindVertexArray(uprVao);
-				currentProgram = uprId;
-				glUseProgram(currentProgram);
-			}
+		MT_FORCEINLINE void CheckUPRProgram() {
+			SwapProgram(uprId, uprVao);
 			currentSize = UPRSize;
 
 			if (currentIndex + currentSize > Renderer::batchSize) {
@@ -334,7 +337,7 @@ namespace MT {
 		}
 
 		// Cant be really used since it forces function call even when forcing inline making debug slower
-		inline float CompressRGBA(const MT::Color& color, unsigned char alpha) {
+		MT_FORCEINLINE float CompressRGBA(const MT::Color& color, unsigned char alpha) {
 			unsigned int RGBA = 0;
 			RGBA |= color.R;
 			RGBA <<= 8;
@@ -344,6 +347,23 @@ namespace MT {
 			RGBA <<= 8;
 			RGBA |= alpha;
 			return std::bit_cast<float>(RGBA);
+		}
+
+		MT_FORCEINLINE void SwapProgram(unsigned int program, unsigned int VAO) {
+			if (currentProgram != program) {
+				Present(false);
+				glBindVertexArray(VAO);
+				currentProgram = program;
+				glUseProgram(currentProgram);
+			}
+		}
+
+		MT_FORCEINLINE void BindTex0(const MT::Texture *texture) {
+			if (currentTexture != texture->texture) {
+				Present(false);
+				glBindTexture(GL_TEXTURE_2D, texture->texture);
+				currentTexture = texture->texture;
+			}
 		}
 
 		public:
@@ -387,22 +407,9 @@ namespace MT {
 			if (!vievPort.IsColliding(rect)) {
 				return;
 			}
-			if (currentProgram != renderRectId) {
-				Present(false);
-				glBindVertexArray(rectVao);
-				currentProgram = renderRectId;
-				glUseProgram(renderRectId);
-			}
-			currentSize = Renderer::renderRectSize;
+			SwapProgram(renderRectId, rectVao);
 
-			unsigned int RGBA = 0;
-			RGBA |= col.R;
-			RGBA <<= 8;
-			RGBA |= col.G;
-			RGBA <<= 8;
-			RGBA |= col.B;
-			RGBA <<= 8;
-			RGBA |= alpha;
+			currentSize = Renderer::renderRectSize;
 
 			if (currentIndex + currentSize > Renderer::batchSize) {
 				Present(false);
@@ -413,7 +420,29 @@ namespace MT {
 			ptr[1] = static_cast<float>(rect.y);
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = std::bit_cast<float>(RGBA);
+			ptr[4] = CompressRGBA(col, alpha);
+
+			currentIndex += currentSize;
+		}
+
+		inline void DrawRectNew(const Rect& rect, const Color& col, const unsigned char alpha = 255) {
+			if (!vievPort.IsColliding(rect)) {
+				return;
+			}
+			SwapProgram(renderRectId, rectVao);
+
+			currentSize = Renderer::renderRectSize;
+
+			if (currentIndex + currentSize > Renderer::batchSize) {
+				Present(false);
+			}
+
+			float* ptr = &globalVertices[currentIndex];
+			ptr[0] = static_cast<float>(rect.x);
+			ptr[1] = static_cast<float>(rect.y);
+			ptr[2] = static_cast<float>(rect.w);
+			ptr[3] = static_cast<float>(rect.h);
+			ptr[4] = CompressRGBA(col, alpha);
 
 			currentIndex += currentSize;
 		}
@@ -423,23 +452,9 @@ namespace MT {
 				return;
 			}
 
-			if (currentProgram != renderRectExId) {
-				Present(false);
-				currentProgram = renderRectExId;
-				glUseProgram(currentProgram);
-				glBindVertexArray(rectExVao);
-			}
+			SwapProgram(renderRectExId, rectExVao);
 
 			currentSize = Renderer::renderRectExSize;
-
-			unsigned int RGBA = 0;
-			RGBA |= col.R;
-			RGBA <<= 8;
-			RGBA |= col.G;
-			RGBA <<= 8;
-			RGBA |= col.B;
-			RGBA <<= 8;
-			RGBA |= alpha;
 
 			float centerX = 0;
 			float centerY = 0;
@@ -462,7 +477,7 @@ namespace MT {
 			ptr[1] = static_cast<float>(rect.y);
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = std::bit_cast<float>(RGBA);
+			ptr[4] = CompressRGBA(col, alpha);
 			ptr[5] = rotation;
 			ptr[6] = centerX;
 			ptr[7] = centerY;
@@ -471,12 +486,7 @@ namespace MT {
 		}
 
 		inline void DrawLine(const Point &p1, const Point& p2, const int thickness, const Color& col, const unsigned char alpha = 255) {
-				if (currentProgram != renderRectExId) {
-					Present(false);
-					currentProgram = renderRectExId;
-					glUseProgram(currentProgram);
-					glBindVertexArray(rectExVao);
-				}
+				SwapProgram(renderRectExId, rectExVao);
 
 				currentSize = Renderer::renderRectExSize;
 
@@ -501,15 +511,6 @@ namespace MT {
 				const float rectX = centerX - (w * 0.5f);
 				const float rectY = centerY - (h * 0.5f);
 
-				unsigned int RGBA = 0;
-				RGBA |= col.R;
-				RGBA <<= 8;
-				RGBA |= col.G;
-				RGBA <<= 8;
-				RGBA |= col.B;
-				RGBA <<= 8;
-				RGBA |= alpha;
-
 				if (currentIndex + currentSize > Renderer::batchSize) {
 					Present(false);
 				}
@@ -519,7 +520,7 @@ namespace MT {
 				ptr[1] = rectY;
 				ptr[2] = w;
 				ptr[3] = h;
-				ptr[4] = std::bit_cast<float>(RGBA);
+				ptr[4] = CompressRGBA(col, alpha);
 				ptr[5] = rotation;
 				ptr[6] = centerX;
 				ptr[7] = centerY;
@@ -531,18 +532,10 @@ namespace MT {
 			if (!texture) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
+			BindTex0(texture);
 
-			if (currentProgram != renderCopyId) {
-				Present(false);
-				currentProgram = renderCopyId;
-				glUseProgram(currentProgram);
-				glBindVertexArray(copyVao);
-			}
+			SwapProgram(renderCopyId, copyVao);
+
 			currentSize = renderCopySize;
 
 			if (currentIndex + currentSize > Renderer::batchSize) {
@@ -563,18 +556,9 @@ namespace MT {
 			if (!texture) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
+			BindTex0(texture);
 
-			if (currentProgram != renderCopyPartId) {
-				Present(false);
-				glBindVertexArray(copyPartVao);
-				currentProgram = renderCopyPartId;
-				glUseProgram(currentProgram);
-			}
+			SwapProgram(renderCopyPartId, copyPartVao);
 
 			const float sourceX = static_cast<float>(source.x) / texture->w;
 			const float sourceY = static_cast<float>(source.y) / texture->h;
@@ -606,18 +590,9 @@ namespace MT {
 			if constexpr (texNullCheck) {
 				if (!texture) { return; }
 			}
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
+			BindTex0(texture);
 
-			if (currentProgram != renderCopyExId) {
-				Present(false);
-				glBindVertexArray(copyExVao);
-				currentProgram = renderCopyExId;
-				glUseProgram(currentProgram);
-			}
+			SwapProgram(renderCopyExId, copyExVao);
 			currentSize = renderCopyExSize;
 
 			const float sourceX = static_cast<float>(source.x) / texture->w;
@@ -673,19 +648,9 @@ namespace MT {
 			if (!texture) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
+			BindTex0(texture);
 
-			if (currentProgram != renderCopyCircleId) {
-				Present(false);
-				glBindVertexArray(copyCircleVao);
-				currentProgram = renderCopyCircleId;
-				glUseProgram(currentProgram);
-			}
-
+			SwapProgram(renderCopyCircleId, copyCircleVao);
 
 			currentSize = renderCopyCircleSize;
 
@@ -707,21 +672,7 @@ namespace MT {
 		inline void DrawCircle(const Rect& rect, const Color& col, const unsigned char alpha = 255, const float radius = 0.5f) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
-			if (currentProgram != renderCircleId) {
-				Present(false);
-				glBindVertexArray(circleVao);
-				currentProgram = renderCircleId;
-				glUseProgram(currentProgram);
-			}
-
-			unsigned int RGBA = 0;
-			RGBA |= col.R;
-			RGBA <<= 8;
-			RGBA |= col.G;
-			RGBA <<= 8;
-			RGBA |= col.B;
-			RGBA <<= 8;
-			RGBA |= alpha;
+			SwapProgram(renderCircleId, circleVao);
 
 			currentSize = renderCircleSize;
 
@@ -735,7 +686,7 @@ namespace MT {
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
 			ptr[4] = radius;
-			ptr[5] = std::bit_cast<float>(RGBA);
+			ptr[5] = CompressRGBA(col, alpha);
 
 			currentIndex += currentSize;
 		}
@@ -743,22 +694,7 @@ namespace MT {
 		inline void DrawRoundedRect(const Rect& rect, const Color& col, const unsigned char alpha = 255, int roundingSize = 8) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
-			if (currentProgram != renderRoundedId) {
-				Present(false);
-				glBindVertexArray(roundedVao);
-				currentProgram = renderRoundedId;
-				glUseProgram(currentProgram);
-			}
-
-
-			unsigned int RGBA = 0;
-			RGBA |= col.R;
-			RGBA <<= 8;
-			RGBA |= col.G;
-			RGBA <<= 8;
-			RGBA |= col.B;
-			RGBA <<= 8;
-			RGBA |= alpha;
+			SwapProgram(renderRoundedId, roundedVao);
 
 			currentSize = renderRoundedSize;
 
@@ -771,7 +707,7 @@ namespace MT {
 			ptr[1] = static_cast<float>(rect.y);
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = std::bit_cast<float>(RGBA);
+			ptr[4] = CompressRGBA(col, alpha);
 			ptr[5] = static_cast<float>(roundingSize);
 
 			currentIndex += currentSize;
@@ -781,17 +717,9 @@ namespace MT {
 			if (!texture) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
-			if (currentProgram != renderCopyRoundedId) {
-				Present(false);
-				glBindVertexArray(roundedCopyVao);
-				currentProgram = renderCopyRoundedId;
-				glUseProgram(currentProgram);
-			}
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
+			SwapProgram(renderCopyRoundedId, roundedCopyVao);
+
+			BindTex0(texture);
 
 			currentSize = renderCopyRoundedSize;
 
@@ -818,27 +746,9 @@ namespace MT {
 
 			if (!vievPort.IsColliding(rect)) { return; }
 
-			if (currentProgram != renderCopyFilterId) {
-				Present(false);
-				glBindVertexArray(filteredVao);
-				currentProgram = renderCopyFilterId;
-				glUseProgram(renderCopyFilterId);
-			}
+			SwapProgram(renderCopyFilterId, filteredVao);
 
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
-
-			unsigned int RGBA = 0;
-			RGBA |= filter.R;
-			RGBA <<= 8;
-			RGBA |= filter.G;
-			RGBA <<= 8;
-			RGBA |= filter.B;
-			RGBA <<= 8;
-			RGBA |= texture->alpha;
+			BindTex0(texture);
 
 			currentSize = renderFilteredSize;
 
@@ -860,7 +770,7 @@ namespace MT {
 			ptr[5] = sourceY;
 			ptr[6] = sourceW;
 			ptr[7] = sourceH;
-			ptr[8] = std::bit_cast<float>(RGBA);
+			ptr[8] = CompressRGBA(filter, texture->alpha);
 
 			currentIndex += currentSize;
 		}
@@ -874,21 +784,7 @@ namespace MT {
 		inline void DrawBorder(const Rect& rect, const Color& col, const int width, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
-			if (currentProgram != renderBorderId) {
-				Present(false);
-				glBindVertexArray(borderVao);
-				currentProgram = renderBorderId;
-				glUseProgram(currentProgram);
-			}
-
-			unsigned int RGBA = 0;
-			RGBA |= col.R;
-			RGBA <<= 8;
-			RGBA |= col.G;
-			RGBA <<= 8;
-			RGBA |= col.B;
-			RGBA <<= 8;
-			RGBA |= alpha;
+			SwapProgram(renderBorderId, borderVao);
 
 			currentSize = renderBorderSize;
 
@@ -901,7 +797,7 @@ namespace MT {
 			ptr[1] = static_cast<float>(rect.y);
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = std::bit_cast<float>(RGBA);
+			ptr[4] = CompressRGBA(col, alpha);
 			ptr[5] = static_cast<float>(width);
 
 			currentIndex += currentSize;
@@ -910,21 +806,7 @@ namespace MT {
 		inline void DrawRoundedBorder(const Rect& rect, const Color& col, const int width,  const int roundingSize = 8, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) { return; }
 
-			if (currentProgram != renderRoundedBorderId) {
-				Present(false);
-				glBindVertexArray(roundedBorderVao);
-				currentProgram = renderRoundedBorderId;
-				glUseProgram(currentProgram);
-			}
-
-			unsigned int RGBA = 0;
-			RGBA |= col.R;
-			RGBA <<= 8;
-			RGBA |= col.G;
-			RGBA <<= 8;
-			RGBA |= col.B;
-			RGBA <<= 8;
-			RGBA |= alpha;
+			SwapProgram(renderRoundedBorderId, roundedBorderVao);
 
 			currentSize = renderRoundedBorderSize;
 
@@ -937,7 +819,7 @@ namespace MT {
 			ptr[1] = static_cast<float>(rect.y);
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = std::bit_cast<float>(RGBA);
+			ptr[4] = CompressRGBA(col, alpha);
 			ptr[5] = static_cast<float>(width);
 			ptr[6] = static_cast<float>(roundingSize);
 
@@ -948,25 +830,16 @@ namespace MT {
 			if (!tex1 || !tex2) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
-			if (currentTexture != tex1->texture) {
-				Present(false);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, tex1->texture);
-				currentTexture = tex1->texture;
-			}
+			BindTex0(tex1);
 			if (currentMaskTexture != tex2->texture) {
 				Present(false);
 				glActiveTexture(GL_TEXTURE1);
 				glBindTexture(GL_TEXTURE_2D, tex2->texture);
 				currentMaskTexture = tex2->texture;
+				glActiveTexture(GL_TEXTURE0);
 			}
 
-			if (currentProgram != renderMaskedId) {
-				Present(false);
-				glBindVertexArray(maskedVao);
-				currentProgram = renderMaskedId;
-				glUseProgram(currentProgram);
-			}
+			SwapProgram(renderMaskedId, maskedVao);
 
 			const float sourceX = static_cast<float>(source.x) / tex1->w;
 			const float sourceY = static_cast<float>(source.y) / tex1->h;
@@ -991,33 +864,22 @@ namespace MT {
 			ptr[8] = static_cast<float>(tex1->alpha);
 
 			currentIndex += currentSize;
-
-			glActiveTexture(GL_TEXTURE0);
 		}
 
 		inline void DrawDoubleMaskedOverlay(const Rect& rect, const Rect& source, const Rect& source2, const Texture* tex1, const Texture* tex2) {
 			if (!tex1 || !tex2) { return; }
 			if (!vievPort.IsColliding(rect)) { return; }
 
-			if (currentTexture != tex1->texture) {
-				Present(false);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, tex1->texture);
-				currentTexture = tex1->texture;
-			}
+			BindTex0(tex1);
 			if (currentMaskTexture != tex2->texture) {
 				Present(false);
 				glActiveTexture(GL_TEXTURE1);
 				glBindTexture(GL_TEXTURE_2D, tex2->texture);
 				currentMaskTexture = tex2->texture;
+				glActiveTexture(GL_TEXTURE0);
 			}
 
-			if (currentProgram != renderDoubleMaskedId) {
-				Present(false);
-				glBindVertexArray(doubleMaskedVao);
-				currentProgram = renderDoubleMaskedId;
-				glUseProgram(currentProgram);
-			}
+			SwapProgram(renderDoubleMaskedId, doubleMaskedVao);
 
 			const float sourceX = static_cast<float>(source.x) / tex1->w;
 			const float sourceY = static_cast<float>(source.y) / tex1->h;
@@ -1051,8 +913,6 @@ namespace MT {
 			ptr[12] = static_cast<float>(tex1->alpha);
 
 			currentIndex += currentSize;
-
-			glActiveTexture(GL_TEXTURE0);
 		}
 
 		inline void DrawShape(const Rect& rect, Texture* texture, const ColorA& col) {
@@ -1060,28 +920,9 @@ namespace MT {
 
 			if (!vievPort.IsColliding(rect)) { return; }
 
-			if (currentProgram != renderShapeId) {
-				Present(false);
-				glBindVertexArray(shapeVao);
-				currentProgram = renderShapeId;
-				glUseProgram(currentProgram);
-			}
+			SwapProgram(renderShapeId, shapeVao);
 
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
-
-
-			unsigned int RGBA = 0;
-			RGBA |= col.R;
-			RGBA <<= 8;
-			RGBA |= col.G;
-			RGBA <<= 8;
-			RGBA |= col.B;
-			RGBA <<= 8;
-			RGBA |= col.A;
+			BindTex0(texture);
 
 			currentSize = renderShapeSize;
 
@@ -1094,7 +935,7 @@ namespace MT {
 			ptr[1] = static_cast<float>(rect.y);
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = std::bit_cast<float>(RGBA);
+			ptr[4] = CompressRGBA({col.R, col.G, col.B}, col.A);
 
 			currentIndex += currentSize;
 		}
@@ -1104,28 +945,9 @@ namespace MT {
 
 			if (!vievPort.IsColliding(rect)) { return; }
 
-			if (currentProgram != renderShadowId) {
-				Present(false);
-				glBindVertexArray(shadowVao);
-				currentProgram = renderShadowId;
-				glUseProgram(currentProgram);
-			}
+			SwapProgram(renderShadowId, shadowVao);
 
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
-
-
-			unsigned int RGBA = 0;
-			RGBA |= col.R;
-			RGBA <<= 8;
-			RGBA |= col.G;
-			RGBA <<= 8;
-			RGBA |= col.B;
-			RGBA <<= 8;
-			RGBA |= col.A;
+			BindTex0(texture);
 
 			currentSize = renderShadowSize;
 
@@ -1138,7 +960,7 @@ namespace MT {
 			ptr[1] = static_cast<float>(rect.y);
 			ptr[2] = static_cast<float>(rect.w);
 			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = std::bit_cast<float>(RGBA);
+			ptr[4] = CompressRGBA({ col.R, col.G, col.B }, col.A);
 			ptr[5] = static_cast<float>(lightPos.x);
 			ptr[6] = static_cast<float>(lightPos.y);
 			ptr[7] = static_cast<float>(lightPos.z);
@@ -1244,12 +1066,7 @@ namespace MT {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			CheckUPRProgram();
-
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
+			BindTex0(texture);
 
 			float* ptr = &globalVertices[currentIndex];
 			ptr[0] = static_cast<float>(rect.x);
@@ -1269,12 +1086,7 @@ namespace MT {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			CheckUPRProgram();
-
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
+			BindTex0(texture);
 
 
 			const float sourceX = static_cast<float>(source.x) / texture->w;
@@ -1305,12 +1117,7 @@ namespace MT {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			CheckUPRProgram();
-
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
+			BindTex0(texture);
 
 
 			const float sourceX = static_cast<float>(source.x) / texture->w;
@@ -1366,12 +1173,7 @@ namespace MT {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			CheckUPRProgram();
-
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
+			BindTex0(texture);
 
 			float* ptr = &globalVertices[currentIndex];
 			ptr[0] = static_cast<float>(rect.x);
@@ -1437,12 +1239,7 @@ namespace MT {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			CheckUPRProgram();
-
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
+			BindTex0(texture);
 
 			float* ptr = &globalVertices[currentIndex];
 			ptr[0] = static_cast<float>(rect.x);
@@ -1468,12 +1265,7 @@ namespace MT {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			CheckUPRProgram();
-
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
+			BindTex0(texture);
 
 
 			const float sourceX = static_cast<float>(source.x) / texture->w;
@@ -1554,17 +1346,13 @@ namespace MT {
 
 			CheckUPRProgram();
 
-			if (currentTexture != tex1->texture) {
-				Present(false);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, tex1->texture);
-				currentTexture = tex1->texture;
-			}
+			BindTex0(tex1);
 			if (currentMaskTexture != tex2->texture) {
 				Present(false);
 				glActiveTexture(GL_TEXTURE1);
 				glBindTexture(GL_TEXTURE_2D, tex2->texture);
 				currentMaskTexture = tex2->texture;
+				glActiveTexture(GL_TEXTURE0);
 			}
 
 			const float sourceX = static_cast<float>(source.x) / tex1->w;
@@ -1581,14 +1369,12 @@ namespace MT {
 			ptr[5] = sourceY;
 			ptr[6] = sourceW;
 			ptr[7] = sourceH;
-			ptr[8] = tex1->alpha;
+			ptr[8] = static_cast<float>(tex1->alpha);
 			ptr[9] = 0.0f; ptr[10] = 0.0f; ptr[11] = 0.0f;
 			ptr[12] = 0.0f;
 			ptr[13] = 12.0f; //ShaderID
 
 			currentIndex += currentSize;
-
-			glActiveTexture(GL_TEXTURE0);
 		}
 
 		inline void DrawDoubleMaskedOverlayUPR(const Rect& rect, const Rect& source, const Rect& source2, const Texture* tex1, const Texture* tex2) {
@@ -1597,17 +1383,14 @@ namespace MT {
 
 			CheckUPRProgram();
 
-			if (currentTexture != tex1->texture) {
-				Present(false);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, tex1->texture);
-				currentTexture = tex1->texture;
-			}
+			BindTex0(tex1);
+
 			if (currentMaskTexture != tex2->texture) {
 				Present(false);
 				glActiveTexture(GL_TEXTURE1);
 				glBindTexture(GL_TEXTURE_2D, tex2->texture);
 				currentMaskTexture = tex2->texture;
+				glActiveTexture(GL_TEXTURE0);
 			}
 
 			const float sourceX = static_cast<float>(source.x) / tex1->w;
@@ -1633,12 +1416,10 @@ namespace MT {
 			ptr[9] = source2Y;
 			ptr[10] = source2W;
 			ptr[11] = source2H;
-			ptr[12] = tex1->alpha;
+			ptr[12] = static_cast<float>(tex1->alpha);
 			ptr[13] = 13.0f; //ShaderID
 
 			currentIndex += currentSize;
-
-			glActiveTexture(GL_TEXTURE0);
 		}
 
 		inline void DrawShapeUPR(const Rect& rect, Texture* texture, const ColorA& filter) {
@@ -1647,12 +1428,7 @@ namespace MT {
 			if (!vievPort.IsColliding(rect)) { return; }
 
 			CheckUPRProgram();
-
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
+			BindTex0(texture);
 
 			float* ptr = &globalVertices[currentIndex];
 			ptr[0] = static_cast<float>(rect.x);
@@ -1678,11 +1454,7 @@ namespace MT {
 
 			CheckUPRProgram();
 
-			if (currentTexture != texture->texture) {
-				Present(false);
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				currentTexture = texture->texture;
-			}
+			BindTex0(texture);
 
 			float* ptr = &globalVertices[currentIndex];
 			ptr[0] = static_cast<float>(rect.x);
@@ -1856,7 +1628,6 @@ namespace MT {
 			}
 			if (tex1 && ren->currentTexture != tex1->texture) {
 				ren->Present(false);
-				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, tex1->texture);
 				ren->currentTexture = tex1->texture;
 			}
@@ -1865,6 +1636,7 @@ namespace MT {
 				glActiveTexture(GL_TEXTURE1);
 				glBindTexture(GL_TEXTURE_2D, tex2->texture);
 				ren->currentMaskTexture = tex2->texture;
+				glActiveTexture(GL_TEXTURE0);
 			}
 
 			ren->currentSize = size;

@@ -80,7 +80,34 @@ void Game::Input() {
 
 void Game::Render() {
 	ren->ClearFrame(255, 255, 255);
-	ui->Render();
+
+	// Rozgrzewka
+	for (size_t i = 0; i < 10'000; i++) {
+		ren->DrawRect({ 10,300,100,100 }, { 30,30,30 });
+	}
+
+	MT::Timer::Tic();;
+	for (size_t i = 0; i < 10'000; i++) {
+		ren->DrawRectNew({ 600,600,100,100 }, { 30,30,30 });
+
+	}
+	time2 += MT::Timer::Tac<std::chrono::microseconds>();
+
+	MT::Timer::Tic();;
+	for (size_t i = 0; i < 10'000; i++) {
+		ren->DrawRect({ 10,10,100,100 }, { 30,30,30 });
+	}
+	time1 += MT::Timer::Tac<std::chrono::microseconds>();
+
+
+
+	if (Global::frameCount % 100 == 0) {
+		std::println("Time1: {}us Time2: {}us", time1/100, time2/100);
+		time1 = 0;
+		time2 = 0;
+	}
+
+	//ui->Render();
 	ren->Present();
 }
 
