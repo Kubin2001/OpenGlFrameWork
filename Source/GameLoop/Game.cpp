@@ -39,22 +39,6 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
-	Slider* sl = ui->CreateSlider("", 200, 200, 80, 40, SliderSlide::X, 100, 400, nullptr);
-	sl->SetColor(30, 30, 30);
-
-	sl = ui->CreateSlider("", 500, 200, 80, 40, SliderSlide::Y, 100, 400, nullptr);
-	sl->SetColor(30, 30, 30);
-
-	Label* lb = ui->CreateLabel("", 100 - 10, 200, 10, 10);
-	lb->SetColor(255, 0, 0);
-	lb = ui->CreateLabel("", 400, 200, 10, 10);
-	lb->SetColor(255, 0, 0);
-
-	lb = ui->CreateLabel("", 500, 100-10, 10, 10);
-	lb->SetColor(255, 0, 0);
-	lb = ui->CreateLabel("", 500, 400, 10, 10);
-	lb->SetColor(255, 0, 0);
-
 	ren->FlatDrawSetUp();
 }
 
@@ -80,32 +64,6 @@ void Game::Input() {
 
 void Game::Render() {
 	ren->ClearFrame(255, 255, 255);
-
-	// Rozgrzewka
-	for (size_t i = 0; i < 10'000; i++) {
-		ren->DrawRect({ 10,300,100,100 }, { 30,30,30 });
-	}
-
-	MT::Timer::Tic();;
-	for (size_t i = 0; i < 10'000; i++) {
-		ren->DrawRectNew({ 600,600,100,100 }, { 30,30,30 });
-
-	}
-	time2 += MT::Timer::Tac<std::chrono::microseconds>();
-
-	MT::Timer::Tic();;
-	for (size_t i = 0; i < 10'000; i++) {
-		ren->DrawRect({ 10,10,100,100 }, { 30,30,30 });
-	}
-	time1 += MT::Timer::Tac<std::chrono::microseconds>();
-
-
-
-	if (Global::frameCount % 100 == 0) {
-		std::println("Time1: {}us Time2: {}us", time1/100, time2/100);
-		time1 = 0;
-		time2 = 0;
-	}
 
 	//ui->Render();
 	ren->Present();

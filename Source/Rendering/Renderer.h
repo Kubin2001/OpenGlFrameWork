@@ -425,28 +425,6 @@ namespace MT {
 			currentIndex += currentSize;
 		}
 
-		inline void DrawRectNew(const Rect& rect, const Color& col, const unsigned char alpha = 255) {
-			if (!vievPort.IsColliding(rect)) {
-				return;
-			}
-			SwapProgram(renderRectId, rectVao);
-
-			currentSize = Renderer::renderRectSize;
-
-			if (currentIndex + currentSize > Renderer::batchSize) {
-				Present(false);
-			}
-
-			float* ptr = &globalVertices[currentIndex];
-			ptr[0] = static_cast<float>(rect.x);
-			ptr[1] = static_cast<float>(rect.y);
-			ptr[2] = static_cast<float>(rect.w);
-			ptr[3] = static_cast<float>(rect.h);
-			ptr[4] = CompressRGBA(col, alpha);
-
-			currentIndex += currentSize;
-		}
-
 		inline void DrawRectEX(const Rect& rect, const Color& col, const float rotation, std::optional<Point> rotCenter, const unsigned char alpha = 255) {
 			if (!vievPort.IsColliding(rect)) {
 				return;
