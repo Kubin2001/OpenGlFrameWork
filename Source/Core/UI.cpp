@@ -758,6 +758,7 @@ bool UI::DeleteElement(const std::string& name) {
 	return false;
 }
 
+
 void UI::CreateFont(const std::string& name, MT::Texture* texture, const std::string& jsonPath) {
 	fontManager->CreateFont(name, texture, jsonPath);
 }

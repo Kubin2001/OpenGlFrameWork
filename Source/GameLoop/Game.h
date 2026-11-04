@@ -12,8 +12,8 @@ private:
 	std::unique_ptr<MT::Renderer> ren = nullptr;
 	SDL_Event event = {};
 	std::unique_ptr<UI> ui = nullptr;
-	unsigned int time1 = 0;
-	unsigned int time2 = 0;
+
+	Label* lb = nullptr;
 
 public:
 	void Start();

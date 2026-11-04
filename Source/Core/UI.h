@@ -477,6 +477,15 @@ class UI{
 			
 		bool DeleteElement(const std::string& name);
 
+		template<typename T>
+		bool DeleteElement(T *&elem) {
+			static_assert(std::is_base_of_v<UIElemBase, T>);
+			if (!elem) { return false; }
+			bool out = DeleteElement(elem->GetName());
+			elem = nullptr;
+			return out;
+		}
+
 		void Render();
 
 		void DrawRawText(Font* font, const int x, const int y, const std::string& text,const int interline, const MT::Color &color);

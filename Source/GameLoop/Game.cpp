@@ -39,6 +39,11 @@ void Game::Start() {
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 20, "arial20");
 	ui->CrateTempFontFromTTF("Fonts/arial.ttf", 40, "arial40");
 
+	lb = ui->CreateLabel("", 100, 100, 100, 100, nullptr);
+
+	lb->SetColor(30, 30, 30);
+	ui->DeleteElement(lb);
+
 	ren->FlatDrawSetUp();
 }
 
@@ -64,7 +69,6 @@ void Game::Input() {
 
 void Game::Render() {
 	ren->ClearFrame(255, 255, 255);
-
 	//ui->Render();
 	ren->Present();
 }
