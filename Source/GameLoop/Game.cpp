@@ -11,6 +11,8 @@
 #include "Files.h"
 #include "Logger.h"
 
+#include "PathMaker.h"
+
 
 void Game::Start() {
 	Logger::SetUp("", LogOutput::Console, LogOutput::Console);
@@ -46,8 +48,9 @@ void Game::Start() {
 
 	ren->FlatDrawSetUp();
 
-	FileExplorer fe;
-	fe.Open();
+	PathMaker pe;
+	pe.Open();
+
 
 }
 
@@ -72,9 +75,9 @@ void Game::Input() {
 }
 
 void Game::Render() {
-	ren->ClearFrame(0, 0, 0);
-	MT::Timer::Tic();
+	ren->ClearFrame(255, 255, 255);
 
+	ui->Render();
 	ren->Present();
 }
 

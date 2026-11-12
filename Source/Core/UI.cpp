@@ -42,7 +42,7 @@ void UIElemBase::RenderRounded(UIElemBase* elem, MT::Renderer* renderer) {
 		}
 		if (elem->borderThickness > 0) {
 			renderer->DrawRoundedBorderUPR(elem->rect, { elem->borderColor.R, elem->borderColor.G, elem->borderColor.B }
-			, elem->borderThickness, elem->borderColor.A);
+			, elem->borderThickness,8, elem->borderColor.A);
 		}
 		if (elem->hovered && elem->hoverable) {
 			renderer->DrawRoundedRectUPR(elem->rect, { elem->hoverFilter.R, elem->hoverFilter.G, elem->hoverFilter.B }, elem->hoverFilter.A);
