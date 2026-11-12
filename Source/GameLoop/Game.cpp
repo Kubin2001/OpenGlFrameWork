@@ -45,6 +45,10 @@ void Game::Start() {
 	ui->DeleteElement(lb);
 
 	ren->FlatDrawSetUp();
+
+	FileExplorer fe;
+	fe.Open();
+
 }
 
 void Game::LogicUpdate() {
@@ -68,8 +72,9 @@ void Game::Input() {
 }
 
 void Game::Render() {
-	ren->ClearFrame(255, 255, 255);
-	//ui->Render();
+	ren->ClearFrame(0, 0, 0);
+	MT::Timer::Tic();
+
 	ren->Present();
 }
 

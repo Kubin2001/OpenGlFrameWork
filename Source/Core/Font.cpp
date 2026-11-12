@@ -594,8 +594,9 @@ bool FontManager::CrateTempFontFromTTF(const char* ttfPath, const int size, cons
 			cleanUp(surfaces, atlas, font);
 			Logger::Log(std::format("Texture name alrady taken use other name FontManager::CrateTempFontFromTTF for {} "
 				, name), LogType::Error);
+			return false;
 		}
-		return false;
+
 	}
 
 
